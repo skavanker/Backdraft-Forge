@@ -7,10 +7,16 @@
     getAllowedWeapons,
     getAvailableProficiencies
   } from '../data/proficiencies.js';
+  import {
+    languages,
+    getBonusLanguageSlots,
+    getRacialLanguages,
+    getAvailableBonusLanguages
+  } from '../data/languages.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { abilities, cls, existingProficiencies = null, onComplete } = $props();
+  let { abilities, race, cls, existingProficiencies = null, onComplete } = $props();
 
   // Calculate available slots
   let weaponSlots = $derived(getWeaponSlots(cls.group));
@@ -28,6 +34,32 @@
   // Selected proficiencies
   let selectedWeapons = $state([]);
   let selectedNonWeapon = $state([]);
+  let selectedBonusLanguages = $state([]);
+
+  // Languages
+  let racialLanguageKeys = $derived(getRacialLanguages(race.key));
+  let classLanguages = $derived(() => {
+    // Add class-specific languages
+    const classLangs = [];
+    if (cls.key === 'druid') classLangs.push('druidic');
+    if (cls.key === 'thief') classLangs.push('thiefsCant');
+    return classLangs;
+  });
+  let autoLanguages = $derived([...racialLanguageKeys, ...classLanguages()]);
+  let bonusLanguageSlots = $derived(getBonusLanguageSlots(abilities.INT));
+  let allKnownLanguages = $derived([...autoLanguages, ...selectedBonusLanguages]);
+  let bonusLanguageSlotsRemaining = $derived(bonusLanguageSlots - selectedBonusLanguages.length);
+
+  // All selectable languages (including auto ones, just disabled)
+  let allSelectableLanguages = $derived(() => {
+    const allLangKeys = Object.keys(languages);
+    return allLangKeys.filter(key => {
+      const lang = languages[key];
+      // Filter out class-restricted languages unless you're that class
+      if (lang.classRestricted && lang.classRestricted !== cls.key) return false;
+      return true;
+    });
+  });
 
   // Slot tracking
   let weaponSlotsUsed = $derived(selectedWeapons.length);
@@ -94,6 +126,14 @@
     }
   }
 
+  function toggleLanguage(key) {
+    if (selectedBonusLanguages.includes(key)) {
+      selectedBonusLanguages = selectedBonusLanguages.filter(k => k !== key);
+    } else if (bonusLanguageSlotsRemaining > 0) {
+      selectedBonusLanguages = [...selectedBonusLanguages, key];
+    }
+  }
+
   function canComplete() {
     return weaponSlotsRemaining === 0 && nonWeaponSlotsRemaining >= 0;
   }
@@ -111,9 +151,15 @@
       return { key, ...prof };
     });
 
+    const allLanguages = allKnownLanguages.map(key => ({
+      key,
+      ...languages[key]
+    }));
+
     onComplete({
       weapons: weaponProfs,
       nonWeapon: nonWeaponProfs,
+      languages: allLanguages,
       unusedSlots: nonWeaponSlotsRemaining
     });
   }
@@ -123,6 +169,14 @@
     if (existingProficiencies) {
       selectedWeapons = existingProficiencies.weapons.map(w => w.key);
       selectedNonWeapon = existingProficiencies.nonWeapon.map(p => p.key);
+
+      // Restore bonus languages (exclude racial and class languages)
+      if (existingProficiencies.languages) {
+        const existingKeys = existingProficiencies.languages.map(l => l.key);
+        selectedBonusLanguages = existingKeys.filter(key =>
+          !racialLanguageKeys.includes(key) && !classLanguages().includes(key)
+        );
+      }
     }
   });
 </script>
@@ -178,6 +232,37 @@
           </div>
         {/if}
       {/each}
+    </div>
+
+    <!-- Languages -->
+    <div class="section language-section">
+      <h3>Languages</h3>
+      <p class="section-hint">
+        Select languages. Your race and class grant some automatically.
+        {#if bonusLanguageSlots > 0}
+          Your Intelligence grants {bonusLanguageSlots} additional language{bonusLanguageSlots !== 1 ? 's' : ''}.
+          {#if bonusLanguageSlotsRemaining > 0}
+            <span class="remaining">({bonusLanguageSlotsRemaining} bonus remaining)</span>
+          {/if}
+        {/if}
+      </p>
+
+      <div class="language-grid">
+        {#each allSelectableLanguages() as key}
+          {@const isAuto = autoLanguages.includes(key)}
+          {@const selected = isAuto || selectedBonusLanguages.includes(key)}
+          {@const disabled = isAuto || (!selected && bonusLanguageSlotsRemaining === 0)}
+          <button
+            class="language-chip"
+            class:selected
+            class:disabled
+            class:auto={isAuto}
+            onclick={() => !disabled && !isAuto && toggleLanguage(key)}
+          >
+            {languages[key].name}
+          </button>
+        {/each}
+      </div>
     </div>
 
     <!-- Non-Weapon Proficiencies -->
@@ -358,6 +443,46 @@
     text-transform: none;
     font-size: 0.8rem;
     opacity: 0.8;
+  }
+
+  .language-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .language-chip {
+    padding: 0.4rem 0.75rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: var(--text-body);
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover:not(.disabled):not(.auto) {
+      border-color: var(--border-strong);
+      background: var(--bg-subtle);
+    }
+
+    &.selected {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.15);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    &.auto {
+      border-color: var(--border-strong);
+      cursor: default;
+      opacity: 0.9;
+    }
+
+    &.disabled:not(.auto) {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
   }
 
   .weapon-grid,

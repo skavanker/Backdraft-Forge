@@ -64,6 +64,7 @@
   <div class="info-grid">
     <div class="info-item"><span class="label">Race:</span> {character.race.name}</div>
     <div class="info-item"><span class="label">Class:</span> {className}</div>
+    <div class="info-item"><span class="label">Sex:</span> {character.sex || 'Male'}</div>
     <div class="info-item"><span class="label">HP:</span> {hitPoints()}</div>
     <div class="info-item"><span class="label">AC:</span> {baseAC()}</div>
     <div class="info-item"><span class="label">THAC0:</span> 20</div>
@@ -142,6 +143,15 @@
       {#each character.proficiencies.nonWeapon as prof}
         <div class="stat-row"><span>{prof.name}</span> <span class="val">{prof.ability}</span></div>
       {/each}
+    </div>
+    <hr class="divider">
+  {/if}
+
+  <!-- Languages -->
+  {#if character.proficiencies?.languages}
+    <div class="stat-block">
+      <h3>Languages</h3>
+      <div class="stat-row"><span>{character.proficiencies.languages.map(l => l.name).join(', ')}</span></div>
     </div>
     <hr class="divider">
   {/if}

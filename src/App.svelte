@@ -132,8 +132,9 @@
     currentStep = 7;
   }
 
-  function handleBackstoryComplete({ name, backstory }) {
+  function handleBackstoryComplete({ name, sex, backstory }) {
     character.name = name;
+    character.sex = sex;
     character.backstory = backstory;
     currentStep = 8;
   }
@@ -334,6 +335,7 @@
       <CharacterSummary {character} />
       <ProficiencySelector
         abilities={character.adjustedAbilities}
+        race={{ ...character.race, key: character.raceKey }}
         cls={{ ...character.cls, key: character.classKey }}
         existingProficiencies={character.proficiencies}
         onComplete={handleProficienciesComplete}
