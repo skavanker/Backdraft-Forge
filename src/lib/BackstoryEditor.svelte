@@ -1,8 +1,10 @@
 <script>
+  import { onMount } from 'svelte';
+
   let { character, onComplete } = $props();
 
-  let name = $state('');
-  let backstory = $state('');
+  let name = $state(character.name || '');
+  let backstory = $state(character.backstory || '');
 
   function confirm() {
     onComplete({
@@ -37,6 +39,7 @@
       bind:value={backstory}
       placeholder={generatePlaceholder()}
       rows="10"
+      maxlength="500"
     ></textarea>
     <p class="hint">Optional - you can always add this later.</p>
   </div>

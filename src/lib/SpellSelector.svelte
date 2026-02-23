@@ -7,9 +7,10 @@
     clericSpells,
     druidSpells
   } from '../data/spells.js';
+  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { classKey, wizardSchool, abilities, onComplete } = $props();
+  let { classKey, wizardSchool, abilities, existingSpells = null, onComplete } = $props();
 
   let isCaster = $derived(isSpellcaster(classKey));
   let isWizard = $derived(['mage', 'specialist'].includes(classKey));
@@ -88,6 +89,18 @@
       onComplete({ type: 'none' });
     }
   }
+
+  // Initialize from existing data
+  onMount(() => {
+    if (existingSpells) {
+      if (existingSpells.type === 'arcane' && existingSpells.spellbook) {
+        // Remove Read Magic if it's in the spellbook (it's auto-added)
+        selectedSpells = existingSpells.spellbook.filter(s => s.key !== 'readMagic');
+      } else if (existingSpells.type === 'divine' && existingSpells.prepared) {
+        preparedSpells = existingSpells.prepared;
+      }
+    }
+  });
 
   function canConfirm() {
     if (isWizard) {

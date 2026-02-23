@@ -1,11 +1,12 @@
 <script>
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
+  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { abilities, race, raceKey, onComplete } = $props();
+  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, onComplete } = $props();
 
-  let selectedClassKey = $state(null);
-  let selectedSchool = $state(null);
+  let selectedClassKey = $state(existingClassKey);
+  let selectedSchool = $state(existingWizardSchool);
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -262,7 +263,7 @@
 
     .class-desc {
       margin: 0;
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
       flex: 1;
     }
@@ -350,7 +351,7 @@
   .features-list {
     margin: 0;
     padding-left: 1.25rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     color: var(--text-body);
 
     li {
@@ -367,7 +368,7 @@
   .stat-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
 
     .stat-label {
       color: var(--text-muted);
@@ -429,11 +430,11 @@
     .school-name {
       font-weight: 600;
       color: var(--text-primary);
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .school-desc {
-      font-size: 0.75rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
       text-align: center;
     }

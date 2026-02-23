@@ -1,10 +1,11 @@
 <script>
   import { getAvailableRaces, applyRacialAdjustments } from '../data/races.js';
+  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { abilities, onComplete } = $props();
+  let { abilities, existingRaceKey = null, onComplete } = $props();
 
-  let selectedRaceKey = $state(null);
+  let selectedRaceKey = $state(existingRaceKey);
 
   let raceOptions = $derived(getAvailableRaces(abilities));
   let qualifiedCount = $derived(raceOptions.filter(r => r.qualified).length);
@@ -180,7 +181,7 @@
 
     .race-desc {
       margin: 0;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
       flex: 1;
     }
@@ -194,7 +195,7 @@
     .adjustment {
       padding: 0.2rem 0.5rem;
       border-radius: 2px;
-      font-size: 0.8rem;
+      font-size: 0.875rem;
       font-weight: 600;
 
       &.positive {
@@ -267,7 +268,7 @@
   .traits-list {
     margin: 0;
     padding-left: 1.25rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     color: var(--text-body);
 
     li {
@@ -285,7 +286,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
 
     .ability-label {
       width: 2.5rem;

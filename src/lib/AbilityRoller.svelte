@@ -1,10 +1,11 @@
 <script>
   import { rollAbilityDice, calculate3d6, calculate4d6DropLowest, rollExceptionalStrength } from './dice.js';
+  import { onMount } from 'svelte';
 
   const ABILITIES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
   const MAX_REROLLS = 2;
 
-  let { onComplete } = $props();
+  let { onComplete, existingAbilities = null, existingRollData = null } = $props();
 
   let method = $state('4d6drop');
   let rawDice = $state(null); // Array of 6 sets of 4 dice each
@@ -144,6 +145,33 @@
     assignments[ability] = null;
   }
 
+  // Initialize with existing data if provided
+  onMount(() => {
+    if (existingRollData) {
+      // Restore full rolling state so they can reassign
+      method = existingRollData.method;
+      rawDice = existingRollData.rawDice;
+      assignments = existingRollData.assignments;
+      exceptionalStr = existingRollData.exceptionalStr;
+      rerollsUsed = existingRollData.rerollsUsed || 0;
+      manualMode = false;
+    } else if (existingAbilities) {
+      // If we only have abilities (manual entry), show them in manual mode
+      manualMode = true;
+      manualScores = {
+        STR: existingAbilities.STR,
+        DEX: existingAbilities.DEX,
+        CON: existingAbilities.CON,
+        INT: existingAbilities.INT,
+        WIS: existingAbilities.WIS,
+        CHA: existingAbilities.CHA
+      };
+      if (existingAbilities.exceptionalStr) {
+        manualExceptionalStr = existingAbilities.exceptionalStr;
+      }
+    }
+  });
+
   function complete() {
     const scores = calculatedScores();
     const finalScores = {};
@@ -153,7 +181,17 @@
     if (exceptionalStr !== null) {
       finalScores.exceptionalStr = exceptionalStr;
     }
-    onComplete(finalScores);
+
+    // Save roll data so they can reassign later
+    const rollData = {
+      method,
+      rawDice,
+      assignments,
+      exceptionalStr,
+      rerollsUsed
+    };
+
+    onComplete({ abilities: finalScores, rollData });
   }
 
   function completeManual() {
@@ -164,7 +202,9 @@
     if (manualScores.STR === 18 && manualExceptionalStr !== null) {
       finalScores.exceptionalStr = manualExceptionalStr;
     }
-    onComplete(finalScores);
+
+    // No rollData for manual entry (they can't reassign)
+    onComplete({ abilities: finalScores, rollData: null });
   }
 </script>
 
@@ -172,11 +212,16 @@
   {#if manualMode}
     <!-- Manual Entry Mode -->
     <div class="section">
-      <button class="btn-ghost back-btn" onclick={exitManualMode}>
-        ← Back to digital rolling
-      </button>
+      {#if !existingAbilities}
+        <button class="btn-ghost back-btn" onclick={exitManualMode}>
+          ← Back to digital rolling
+        </button>
+      {/if}
 
-      <h3>Enter Your Scores</h3>
+      <h3>{existingAbilities && !existingRollData ? 'Your Ability Scores' : 'Enter Your Scores'}</h3>
+      {#if existingAbilities && !existingRollData && manualValid()}
+        <p class="existing-note">These are your previously entered scores. You can continue with these or clear them to enter new ones.</p>
+      {/if}
 
       <!-- Assigned scores display -->
       <div class="manual-assigned">
@@ -467,6 +512,14 @@
     margin: 0 auto 1rem;
     font-size: 0.85rem;
     padding: 0.35rem 0.75rem;
+  }
+
+  .existing-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-style: italic;
+    margin: 0.5rem 0 1rem;
   }
 
   // Manual entry - assigned scores display

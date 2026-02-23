@@ -8,8 +8,10 @@
   import SpellSelector from './lib/SpellSelector.svelte';
   import BackstoryEditor from './lib/BackstoryEditor.svelte';
   import CharacterSheet from './lib/CharacterSheet.svelte';
+  import CharacterSummary from './lib/CharacterSummary.svelte';
   import { getCharacterWarnings } from './data/classes.js';
   import { initTheme, toggleTheme } from './lib/theme.js';
+  import { getCharacterFromUrl } from './lib/shareCharacter.js';
 
   const steps = [
     'Roll Abilities',
@@ -29,6 +31,7 @@
   // Character data
   let character = $state({
     abilities: null,        // Base abilities from rolling
+    rollData: null,         // Original roll data (dice, method, etc.) for reassignment
     adjustedAbilities: null, // After racial adjustments
     raceKey: null,
     race: null,
@@ -44,17 +47,57 @@
     backstory: null,        // Character backstory
   });
 
-  onMount(() => {
+  onMount(async () => {
     initTheme();
     theme = document.documentElement.getAttribute('data-theme') || 'light';
+
+    // Check if character data is in URL (shared link)
+    const sharedCharacter = await getCharacterFromUrl();
+    if (sharedCharacter) {
+      // Load the shared character
+      character = sharedCharacter;
+      // Navigate to final sheet to view it
+      currentStep = 8;
+      // Clear the hash to clean up URL
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   });
 
   function handleThemeToggle() {
     theme = toggleTheme();
   }
 
-  function handleAbilitiesComplete(abilities) {
+  function handleAbilitiesComplete({ abilities, rollData }) {
+    // Check if abilities changed - if so, clear forward progress
+    const abilitiesChanged = character.abilities && (
+      character.abilities.STR !== abilities.STR ||
+      character.abilities.DEX !== abilities.DEX ||
+      character.abilities.CON !== abilities.CON ||
+      character.abilities.INT !== abilities.INT ||
+      character.abilities.WIS !== abilities.WIS ||
+      character.abilities.CHA !== abilities.CHA ||
+      character.abilities.exceptionalStr !== abilities.exceptionalStr
+    );
+
+    if (abilitiesChanged) {
+      // Clear all forward progress since abilities changed
+      character.raceKey = null;
+      character.race = null;
+      character.adjustedAbilities = null;
+      character.classKey = null;
+      character.cls = null;
+      character.levelLimit = null;
+      character.xpBonus = 0;
+      character.wizardSchool = null;
+      character.proficiencies = null;
+      character.equipment = null;
+      character.spells = null;
+      character.name = null;
+      character.backstory = null;
+    }
+
     character.abilities = abilities;
+    character.rollData = rollData;  // Always update rollData (could be reassignment)
     currentStep = 1;
   }
 
@@ -99,37 +142,39 @@
     currentStep = step;
   }
 
+  function canNavigateToStep(index) {
+    // Can always go to current or past steps
+    if (index <= currentStep) return true;
+
+    // Check if future step has been completed
+    if (index === 1) return character.abilities !== null;
+    if (index === 2) return character.race !== null;
+    if (index === 3) return character.cls !== null;
+    if (index === 4) return character.cls !== null; // Review step
+    if (index === 5) return character.proficiencies !== null;
+    if (index === 6) return character.equipment !== null;
+    if (index === 7) return character.spells !== null;
+    if (index === 8) return character.name !== null;
+
+    return false;
+  }
+
+  function isStepIncomplete(index) {
+    // Check if a step has unsaved/incomplete data
+    if (index === 0) return character.abilities === null;
+    if (index === 1) return character.race === null;
+    if (index === 2) return character.cls === null;
+    if (index === 3) return false; // Review step, no completion needed
+    if (index === 4) return character.proficiencies === null;
+    if (index === 5) return character.equipment === null;
+    if (index === 6) return character.spells === null;
+    if (index === 7) return !character.name;
+    if (index === 8) return false; // Final sheet
+    return false;
+  }
+
   function goToStep(index) {
-    if (index < currentStep) {
-      // When going back, clear forward progress
-      if (index < 8) {
-        character.name = null;
-        character.backstory = null;
-      }
-      if (index < 7) {
-        character.spells = null;
-      }
-      if (index < 6) {
-        character.equipment = null;
-      }
-      if (index < 5) {
-        character.proficiencies = null;
-      }
-      if (index < 3) {
-        character.classKey = null;
-        character.cls = null;
-        character.levelLimit = null;
-        character.xpBonus = 0;
-        character.wizardSchool = null;
-      }
-      if (index < 2) {
-        character.raceKey = null;
-        character.race = null;
-        character.adjustedAbilities = null;
-      }
-      if (index < 1) {
-        character.abilities = null;
-      }
+    if (canNavigateToStep(index)) {
       currentStep = index;
     }
   }
@@ -151,10 +196,11 @@
       <button
         class="step-item"
         class:active={i === currentStep}
-        class:completed={i < currentStep}
-        class:future={i > currentStep}
+        class:completed={i < currentStep || canNavigateToStep(i)}
+        class:incomplete={i <= currentStep && isStepIncomplete(i)}
+        class:future={i > currentStep && !canNavigateToStep(i)}
         onclick={() => goToStep(i)}
-        disabled={i > currentStep}
+        disabled={!canNavigateToStep(i)}
       >
         <span class="step-number">{i + 1}</span>
         <span class="step-label">{step}</span>
@@ -165,21 +211,31 @@
   <section class="content card">
     {#if currentStep === 0}
       <h2>Roll Your Abilities</h2>
-      <AbilityRoller onComplete={handleAbilitiesComplete} />
+      <CharacterSummary {character} />
+      <AbilityRoller
+        onComplete={handleAbilitiesComplete}
+        existingAbilities={character.abilities}
+        existingRollData={character.rollData}
+      />
 
     {:else if currentStep === 1}
       <h2>Choose Your Race</h2>
+      <CharacterSummary {character} />
       <RaceSelector
         abilities={character.abilities}
+        existingRaceKey={character.raceKey}
         onComplete={handleRaceComplete}
       />
 
     {:else if currentStep === 2}
       <h2>Choose Your Class</h2>
+      <CharacterSummary {character} />
       <ClassSelector
         abilities={character.adjustedAbilities}
         race={character.race}
         raceKey={character.raceKey}
+        existingClassKey={character.classKey}
+        existingWizardSchool={character.wizardSchool}
         onComplete={handleClassComplete}
       />
 
@@ -275,31 +331,38 @@
 
     {:else if currentStep === 4}
       <h2>Choose Proficiencies</h2>
+      <CharacterSummary {character} />
       <ProficiencySelector
         abilities={character.adjustedAbilities}
         cls={{ ...character.cls, key: character.classKey }}
+        existingProficiencies={character.proficiencies}
         onComplete={handleProficienciesComplete}
       />
 
     {:else if currentStep === 5}
       <h2>Buy Equipment</h2>
+      <CharacterSummary {character} />
       <EquipmentSelector
         cls={{ ...character.cls, key: character.classKey }}
         weaponProficiencies={character.proficiencies.weapons}
+        existingEquipment={character.equipment}
         onComplete={handleEquipmentComplete}
       />
 
     {:else if currentStep === 6}
       <h2>Spells</h2>
+      <CharacterSummary {character} />
       <SpellSelector
         classKey={character.classKey}
         wizardSchool={character.wizardSchool}
         abilities={character.adjustedAbilities}
+        existingSpells={character.spells}
         onComplete={handleSpellsComplete}
       />
 
     {:else if currentStep === 7}
       <h2>Backstory</h2>
+      <CharacterSummary {character} />
       <BackstoryEditor
         {character}
         onComplete={handleBackstoryComplete}
@@ -397,6 +460,14 @@
 
       &:hover {
         color: var(--text-primary);
+      }
+    }
+
+    &.incomplete {
+      .step-number {
+        background: rgba(196, 74, 45, 0.2);
+        border: 2px solid var(--red);
+        color: var(--red);
       }
     }
 
@@ -559,6 +630,27 @@
       background: rgba(180, 60, 40, 0.1);
       color: #b43c28;
       border-left: 3px solid #b43c28;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    .header, .navigation, .theme-toggle {
+      display: none !important;
+    }
+
+    .container {
+      padding: 0;
+      max-width: 100%;
+    }
+
+    .content {
+      min-height: auto;
+    }
+
+    /* Only show character sheet on print */
+    body {
+      background: white !important;
     }
   }
 
