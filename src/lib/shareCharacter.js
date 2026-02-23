@@ -36,6 +36,9 @@ function compressCharacter(character) {
   if (character.proficiencies) {
     compressed.wp = character.proficiencies.weapons.map(w => w.key);
     compressed.np = character.proficiencies.nonWeapon.map(p => p.key);
+    if (character.proficiencies.languages) {
+      compressed.lg = character.proficiencies.languages.map(l => l.key);
+    }
   }
 
   // Equipment
@@ -57,8 +60,9 @@ function compressCharacter(character) {
     }
   }
 
-  // Name and backstory
+  // Name, sex, and backstory
   if (character.name) compressed.n = character.name;
+  if (character.sex) compressed.s = character.sex;
   if (character.backstory) compressed.b = character.backstory;
 
   return compressed;
@@ -91,6 +95,7 @@ async function decompressCharacter(compressed) {
   const { weapons, nonWeaponProficiencies } = await import('../data/proficiencies.js');
   const { equipment } = await import('../data/equipment.js');
   const { wizardSpells, clericSpells, druidSpells } = await import('../data/spells.js');
+  const { languages } = await import('../data/languages.js');
 
   // Reconstruct abilities
   const abilities = {
@@ -121,7 +126,8 @@ async function decompressCharacter(compressed) {
   if (compressed.wp) {
     proficiencies = {
       weapons: compressed.wp.map(key => ({ key, ...weapons[key] })),
-      nonWeapon: compressed.np.map(key => ({ key, ...nonWeaponProficiencies[key] }))
+      nonWeapon: compressed.np.map(key => ({ key, ...nonWeaponProficiencies[key] })),
+      languages: compressed.lg ? compressed.lg.map(key => ({ key, ...languages[key] })) : []
     };
   }
 
@@ -181,6 +187,7 @@ async function decompressCharacter(compressed) {
     equipment: equipmentData,
     spells,
     name: compressed.n || null,
+    sex: compressed.s || 'Male',
     backstory: compressed.b || null
   };
 }

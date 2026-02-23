@@ -4,11 +4,13 @@
   let { character, onComplete } = $props();
 
   let name = $state(character.name || '');
+  let sex = $state(character.sex || 'Male');
   let backstory = $state(character.backstory || '');
 
   function confirm() {
     onComplete({
       name: name.trim() || 'Unnamed Hero',
+      sex: sex,
       backstory: backstory.trim()
     });
   }
@@ -30,6 +32,26 @@
       placeholder="Enter your character's name"
       maxlength="50"
     />
+  </div>
+
+  <div class="sex-section">
+    <label>Sex</label>
+    <div class="sex-buttons">
+      <button
+        class="sex-btn"
+        class:selected={sex === 'Male'}
+        onclick={() => sex = 'Male'}
+      >
+        Male
+      </button>
+      <button
+        class="sex-btn"
+        class:selected={sex === 'Female'}
+        onclick={() => sex = 'Female'}
+      >
+        Female
+      </button>
+    </div>
   </div>
 
   <div class="backstory-section">
@@ -64,6 +86,7 @@
   }
 
   .name-section,
+  .sex-section,
   .backstory-section {
     display: flex;
     flex-direction: column;
@@ -72,6 +95,34 @@
     label {
       font-weight: 600;
       color: var(--text-body);
+    }
+  }
+
+  .sex-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .sex-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-input);
+    color: var(--text-body);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--border-strong);
+    }
+
+    &.selected {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.15);
+      color: var(--text-primary);
+      font-weight: 600;
     }
   }
 

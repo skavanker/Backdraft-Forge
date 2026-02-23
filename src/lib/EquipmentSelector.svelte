@@ -17,6 +17,14 @@
   // Starting gold
   let gold = $state(null);
   let goldRolled = $state(false);
+  let rerollsUsed = $state(0);
+
+  function rerollGold() {
+    if (rerollsUsed < 2) {
+      gold = rollStartingGold(cls.group);
+      rerollsUsed++;
+    }
+  }
 
   // Selected equipment
   let selectedArmor = $state(null);
@@ -113,7 +121,8 @@
       shield: selectedShield,
       weapons: selectedWeapons,
       gear: selectedGear,
-      totalWeight
+      totalWeight,
+      rerollsUsed
     });
   }
 
@@ -122,6 +131,7 @@
     if (existingEquipment) {
       gold = existingEquipment.gold;
       goldRolled = true;
+      rerollsUsed = existingEquipment.rerollsUsed || 0;
       selectedArmor = existingEquipment.armor;
       selectedShield = existingEquipment.shield;
       selectedWeapons = existingEquipment.weapons || [];
@@ -134,7 +144,12 @@
   <!-- Gold Section -->
   <div class="gold-section">
     {#if !goldRolled}
-      <p class="intro">Roll for starting gold or enter a custom amount.</p>
+      <div class="intro-with-info">
+        <p class="intro">Roll for starting gold or enter a custom amount.</p>
+        <Tooltip text="Starting gold per AD&D 2E: Warriors 5d4×10 (50-200 gp), Wizards 1d4+1×10 (20-50 gp), Priests 3d6×10 (30-180 gp), Rogues 2d6×10 (20-120 gp)" position="bottom">
+          <span class="info-icon">ⓘ</span>
+        </Tooltip>
+      </div>
       <div class="gold-controls">
         <button class="btn-primary" onclick={rollGold}>
           Roll Starting Gold
@@ -152,6 +167,9 @@
       </div>
     {:else}
       <div class="gold-display">
+        {#if rerollsUsed < 2}
+          <button class="reroll-btn" onclick={rerollGold} title="Reroll starting gold">×</button>
+        {/if}
         <div class="gold-stat">
           <span class="gold-label">Starting Gold</span>
           <span class="gold-value">{gold} gp</span>
@@ -342,9 +360,29 @@
   .gold-section {
     text-align: center;
 
+    .intro-with-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
     .intro {
-      margin: 0 0 1rem;
+      margin: 0;
       color: var(--text-body);
+    }
+
+    .info-icon {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: help;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 1;
+      }
     }
   }
 
@@ -389,6 +427,26 @@
     background: var(--bg-panel);
     border-radius: 4px;
     flex-wrap: wrap;
+    position: relative;
+  }
+
+  .reroll-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+    padding: 0.25rem 0.5rem;
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .gold-stat {
@@ -445,11 +503,11 @@
 
   .item-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 0.5rem;
 
     &.small {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     }
   }
 
@@ -464,6 +522,7 @@
     cursor: pointer;
     transition: all 0.15s;
     text-align: left;
+    width: 100%;
 
     &.small {
       flex-direction: row;
