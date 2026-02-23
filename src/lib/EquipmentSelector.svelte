@@ -565,6 +565,11 @@
 
     &:hover:not(.disabled) {
       border-color: var(--border-strong);
+      background: var(--bg-hover);
+
+      .item-name {
+        color: var(--text-hover);
+      }
     }
 
     &.selected {
@@ -573,6 +578,11 @@
 
       .item-name {
         color: var(--text-primary);
+      }
+
+      &:hover {
+        border-color: var(--gold);
+        background: rgba(201, 162, 39, 0.25);
       }
     }
 

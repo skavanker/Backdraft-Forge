@@ -116,6 +116,7 @@
 
     &:hover {
       border-color: var(--border-strong);
+      background: var(--bg-hover);
     }
 
     &.selected {
@@ -123,6 +124,11 @@
       background: rgba(201, 162, 39, 0.15);
       color: var(--text-primary);
       font-weight: 600;
+
+      &:hover {
+        border-color: var(--gold);
+        background: rgba(201, 162, 39, 0.25);
+      }
     }
   }
 

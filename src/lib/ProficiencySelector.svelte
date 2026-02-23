@@ -463,7 +463,8 @@
 
     &:hover:not(.disabled):not(.auto) {
       border-color: var(--border-strong);
-      background: var(--bg-subtle);
+      background: var(--bg-hover);
+      color: var(--text-hover);
     }
 
     &.selected {
@@ -471,6 +472,11 @@
       background: rgba(201, 162, 39, 0.15);
       color: var(--text-primary);
       font-weight: 600;
+
+      &:hover:not(.auto) {
+        border-color: var(--gold);
+        background: rgba(201, 162, 39, 0.25);
+      }
     }
 
     &.auto {
@@ -518,7 +524,11 @@
 
     &:hover:not(.disabled) {
       border-color: var(--border-strong);
-      background: var(--bg-subtle);
+      background: var(--bg-hover);
+
+      .chip-name {
+        color: var(--text-hover);
+      }
     }
 
     &.selected {
@@ -528,6 +538,11 @@
       .chip-name {
         color: var(--text-primary);
         font-weight: 600;
+      }
+
+      &:hover:not(.disabled) {
+        border-color: var(--gold);
+        background: rgba(201, 162, 39, 0.25);
       }
     }
 

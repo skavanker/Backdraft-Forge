@@ -1,10 +1,37 @@
 <script>
   import { generateShareableUrl, copyToClipboard } from './shareCharacter.js';
+  import {
+    getStrengthModifiers,
+    getDexterityModifiers,
+    getConstitutionModifiers,
+    getIntelligenceModifiers,
+    getWisdomModifiers,
+    getCharismaModifiers,
+    getSavingThrows,
+    getBaseTHAC0,
+    formatModifier,
+    formatPercentage
+  } from '../data/mechanics.js';
 
   let { character } = $props();
 
   let shareMessage = $state('');
   let showShareMessage = $state(false);
+
+  // Calculate ability modifiers
+  let strMods = $derived(getStrengthModifiers(
+    character.adjustedAbilities.STR,
+    character.abilities.exceptionalStr
+  ));
+  let dexMods = $derived(getDexterityModifiers(character.adjustedAbilities.DEX));
+  let conMods = $derived(getConstitutionModifiers(character.adjustedAbilities.CON, character.cls.group));
+  let intMods = $derived(getIntelligenceModifiers(character.adjustedAbilities.INT));
+  let wisMods = $derived(getWisdomModifiers(character.adjustedAbilities.WIS));
+  let chaMods = $derived(getCharismaModifiers(character.adjustedAbilities.CHA));
+
+  // Calculate saving throws and combat stats
+  let savingThrows = $derived(getSavingThrows(character.cls.group, 1));
+  let baseTHAC0 = $derived(getBaseTHAC0(character.cls.group, 1));
 
   async function shareCharacter() {
     const url = generateShareableUrl(character);
@@ -25,30 +52,21 @@
     setTimeout(() => showShareMessage = false, 3000);
   }
 
-  // Calculate AC
+  // Calculate AC with DEX modifier
   let baseAC = $derived(() => {
     let ac = 10;
     if (character.equipment?.armor) ac = character.equipment.armor.ac;
     if (character.equipment?.shield) ac -= character.equipment.shield.acBonus;
-    const dex = character.adjustedAbilities.DEX;
-    if (dex >= 16) ac -= 2;
-    else if (dex >= 15) ac -= 1;
+    ac += dexMods.acAdj; // Apply DEX AC adjustment (negative is better)
     return ac;
   });
 
-  // Calculate HP
+  // Calculate HP using CON modifier from mechanics
   let hitPoints = $derived(() => {
     const hitDie = character.cls.hitDie;
     const match = hitDie.match(/d(\d+)/);
     const dieMax = match ? parseInt(match[1]) : 4;
-    const con = character.adjustedAbilities.CON;
-    let conBonus = 0;
-    if (con >= 17) conBonus = 3;
-    else if (con >= 16) conBonus = 2;
-    else if (con >= 15) conBonus = 1;
-    else if (con <= 6) conBonus = -1;
-    else if (con <= 3) conBonus = -2;
-    return Math.max(1, dieMax + conBonus);
+    return Math.max(1, dieMax + conMods.hpAdj);
   });
 
   let className = $derived(character.wizardSchool?.name || character.cls.name);
@@ -76,12 +94,76 @@
   <!-- Ability Scores -->
   <div class="section-title">Ability Scores</div>
   <div class="abilities">
-    {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
-      <div class="ability">
-        <div class="name">{ability}</div>
-        <div class="score">{character.adjustedAbilities[ability]}</div>
+    <div class="ability">
+      <div class="name">STR</div>
+      <div class="score">{character.adjustedAbilities.STR}{character.abilities.exceptionalStr ? `/${character.abilities.exceptionalStr.toString().padStart(2, '0')}` : ''}</div>
+      <div class="mod">{strMods.hitAdj !== 0 ? formatModifier(strMods.hitAdj) + ' hit' : '—'}</div>
+    </div>
+    <div class="ability">
+      <div class="name">DEX</div>
+      <div class="score">{character.adjustedAbilities.DEX}</div>
+      <div class="mod">{dexMods.acAdj !== 0 ? formatModifier(dexMods.acAdj) + ' AC' : '—'}</div>
+    </div>
+    <div class="ability">
+      <div class="name">CON</div>
+      <div class="score">{character.adjustedAbilities.CON}</div>
+      <div class="mod">{conMods.systemShock}% SS</div>
+    </div>
+    <div class="ability">
+      <div class="name">INT</div>
+      <div class="score">{character.adjustedAbilities.INT}</div>
+      <div class="mod">{intMods.languages} lang</div>
+    </div>
+    <div class="ability">
+      <div class="name">WIS</div>
+      <div class="score">{character.adjustedAbilities.WIS}</div>
+      <div class="mod">{wisMods.magicDefenseAdj !== 0 ? formatModifier(wisMods.magicDefenseAdj) + ' def' : '—'}</div>
+    </div>
+    <div class="ability">
+      <div class="name">CHA</div>
+      <div class="score">{character.adjustedAbilities.CHA}</div>
+      <div class="mod">{chaMods.maxHenchmen} hench</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Saving Throws and Combat Stats -->
+  <div class="two-col">
+    <div class="stat-block">
+      <h3>Saving Throws</h3>
+      <div class="stat-row"><span>Paralyz./Poison/Death</span> <span class="val">{savingThrows.paralysis}</span></div>
+      <div class="stat-row"><span>Rod/Staff/Wand</span> <span class="val">{savingThrows.rod}</span></div>
+      <div class="stat-row"><span>Petrif./Polymorph</span> <span class="val">{savingThrows.petrification}</span></div>
+      <div class="stat-row"><span>Breath Weapon</span> <span class="val">{savingThrows.breath}</span></div>
+      <div class="stat-row"><span>Spell</span> <span class="val">{savingThrows.spell}</span></div>
+    </div>
+
+    {#if character.cls.group === 'wizard'}
+      <div class="stat-block">
+        <h3>Spellcasting</h3>
+        <div class="stat-row"><span>Spells per day</span> <span class="val">1 (1st level)</span></div>
+        <div class="stat-row"><span>Learn spell chance</span> <span class="val">{formatPercentage(intMods.learnSpell)}</span></div>
+        <div class="stat-row"><span>Max spells/level</span> <span class="val">{intMods.maxSpellsPerLevel}</span></div>
+        <div class="stat-row"><span>Max spell level</span> <span class="val">{intMods.maxSpellLevel}th</span></div>
       </div>
-    {/each}
+    {:else if character.cls.group === 'priest'}
+      <div class="stat-block">
+        <h3>Spellcasting</h3>
+        <div class="stat-row"><span>Spells per day</span> <span class="val">1 (1st level)</span></div>
+        {#if Object.keys(wisMods.bonusSpells).length > 0}
+          <div class="stat-row"><span>Bonus spells</span> <span class="val">+{wisMods.bonusSpells[1] || 0} (1st)</span></div>
+        {/if}
+      </div>
+    {:else}
+      <div class="stat-block">
+        <h3>Combat</h3>
+        <div class="stat-row"><span>Base THAC0</span> <span class="val">{baseTHAC0}</span></div>
+        {#if strMods.dmgAdj !== 0}
+          <div class="stat-row"><span>Damage adj</span> <span class="val">{formatModifier(strMods.dmgAdj)}</span></div>
+        {/if}
+      </div>
+    {/if}
   </div>
 
   <hr class="divider">
@@ -109,8 +191,11 @@
       {/if}
       {#if character.equipment?.weapons}
         {#each character.equipment.weapons as weapon}
-          <div class="stat-row"><span>{weapon.name}</span></div>
+          <div class="stat-row"><span>{weapon.name}</span> <span class="val">{weapon.damage}</span></div>
         {/each}
+      {/if}
+      {#if character.equipment?.remaining !== undefined}
+        <div class="stat-row"><span>Gold</span> <span class="val">{character.equipment.remaining.toFixed(1)} gp</span></div>
       {/if}
     </div>
   </div>
@@ -269,6 +354,13 @@
       font-weight: 700;
       color: var(--text-primary);
       line-height: 1.2;
+    }
+
+    .mod {
+      font-size: 0.7em;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 0.25rem;
     }
   }
 

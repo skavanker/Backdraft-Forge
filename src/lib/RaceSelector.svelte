@@ -158,13 +158,23 @@
 
     &:hover:not(.disabled) {
       border-color: var(--border-strong);
+      background: var(--bg-hover);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px var(--shadow-color);
+
+      .race-name, .race-desc {
+        color: var(--text-hover);
+      }
     }
 
     &.selected {
       border-color: var(--gold);
       background: rgba(201, 162, 39, 0.1);
+
+      &:hover:not(.disabled) {
+        border-color: var(--gold);
+        background: rgba(201, 162, 39, 0.2);
+      }
     }
 
     &.disabled {
