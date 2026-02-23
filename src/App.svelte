@@ -3,6 +3,13 @@
   import AbilityRoller from './lib/AbilityRoller.svelte';
   import RaceSelector from './lib/RaceSelector.svelte';
   import ClassSelector from './lib/ClassSelector.svelte';
+  import ProficiencySelector from './lib/ProficiencySelector.svelte';
+  import EquipmentSelector from './lib/EquipmentSelector.svelte';
+  import SpellSelector from './lib/SpellSelector.svelte';
+  import BackstoryEditor from './lib/BackstoryEditor.svelte';
+  import CharacterSheet from './lib/CharacterSheet.svelte';
+  import Tooltip from './lib/Tooltip.svelte';
+  import { getAvailableSchools } from './data/classes.js';
   import { initTheme, toggleTheme } from './lib/theme.js';
 
   const steps = [
@@ -30,7 +37,20 @@
     cls: null,
     levelLimit: null,
     xpBonus: 0,
+    wizardSchool: null,     // For specialist wizards
+    proficiencies: null,    // Weapon and non-weapon proficiencies
+    equipment: null,        // Purchased equipment
+    spells: null,           // Spellbook/prepared spells
+    name: null,             // Character name
+    backstory: null,        // Character backstory
   });
+
+  // Available wizard schools (computed when needed)
+  let availableSchools = $derived(
+    character.classKey === 'specialist' && character.adjustedAbilities
+      ? getAvailableSchools(character.adjustedAbilities, character.raceKey)
+      : []
+  );
 
   onMount(() => {
     initTheme();
@@ -61,9 +81,50 @@
     currentStep = 3;
   }
 
+  function handleProficienciesComplete(proficiencies) {
+    character.proficiencies = proficiencies;
+    currentStep = 5;
+  }
+
+  function handleEquipmentComplete(equipment) {
+    character.equipment = equipment;
+    currentStep = 6;
+  }
+
+  function handleSpellsComplete(spells) {
+    character.spells = spells;
+    currentStep = 7;
+  }
+
+  function handleBackstoryComplete({ name, backstory }) {
+    character.name = name;
+    character.backstory = backstory;
+    currentStep = 8;
+  }
+
+  function continueToStep(step) {
+    currentStep = step;
+  }
+
   function goToStep(index) {
     if (index < currentStep) {
       // When going back, clear forward progress
+      if (index < 8) {
+        character.name = null;
+        character.backstory = null;
+      }
+      if (index < 7) {
+        character.spells = null;
+      }
+      if (index < 6) {
+        character.equipment = null;
+      }
+      if (index < 5) {
+        character.proficiencies = null;
+      }
+      if (index < 4) {
+        character.wizardSchool = null;
+      }
       if (index < 3) {
         character.classKey = null;
         character.cls = null;
@@ -80,6 +141,10 @@
       }
       currentStep = index;
     }
+  }
+
+  function selectSchool(schoolKey, school) {
+    character.wizardSchool = { key: schoolKey, ...school };
   }
 </script>
 
@@ -135,8 +200,37 @@
       <div class="character-review">
         <div class="review-header">
           <span class="review-race">{character.race.name}</span>
-          <span class="review-class">{character.cls.name}</span>
+          <span class="review-class">
+            {#if character.wizardSchool}
+              {character.wizardSchool.name}
+            {:else}
+              {character.cls.name}
+            {/if}
+          </span>
         </div>
+
+        {#if character.classKey === 'specialist'}
+          <div class="school-selection">
+            <h4>Choose Your School of Magic</h4>
+            <div class="school-grid">
+              {#each availableSchools as school}
+                {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
+                <Tooltip text={tooltipText} position="bottom">
+                  <button
+                    class="school-card"
+                    class:selected={character.wizardSchool?.key === school.key}
+                    class:disabled={!school.qualified}
+                    onclick={() => school.qualified && selectSchool(school.key, school)}
+                    disabled={!school.qualified}
+                  >
+                    <span class="school-name">{school.name}</span>
+                    <span class="school-desc">{school.school}</span>
+                  </button>
+                </Tooltip>
+              {/each}
+            </div>
+          </div>
+        {/if}
 
         <div class="review-grid">
           <div class="review-section">
@@ -164,6 +258,16 @@
                 <span>Prime Requisite</span>
                 <span>{character.cls.primeRequisite.join(', ')}</span>
               </div>
+              {#if character.wizardSchool}
+                <div class="info-row">
+                  <span>School</span>
+                  <span>{character.wizardSchool.school}</span>
+                </div>
+                <div class="info-row warning">
+                  <span>Cannot Cast</span>
+                  <span>{character.wizardSchool.oppositionSchools.join(', ')}</span>
+                </div>
+              {/if}
               {#if character.xpBonus > 0}
                 <div class="info-row highlight">
                   <span>XP Bonus</span>
@@ -180,12 +284,53 @@
           </div>
         </div>
 
-        <p class="text-center text-muted">Next steps: Proficiencies, Equipment, and more coming soon.</p>
+        <button
+          class="btn-primary"
+          onclick={() => continueToStep(4)}
+          disabled={character.classKey === 'specialist' && !character.wizardSchool}
+        >
+          {#if character.classKey === 'specialist' && !character.wizardSchool}
+            Select a School to Continue
+          {:else}
+            Continue to Proficiencies
+          {/if}
+        </button>
       </div>
 
-    {:else}
-      <h2>{steps[currentStep]}</h2>
-      <p class="text-center text-muted">Coming soon...</p>
+    {:else if currentStep === 4}
+      <h2>Choose Proficiencies</h2>
+      <ProficiencySelector
+        abilities={character.adjustedAbilities}
+        cls={{ ...character.cls, key: character.classKey }}
+        onComplete={handleProficienciesComplete}
+      />
+
+    {:else if currentStep === 5}
+      <h2>Buy Equipment</h2>
+      <EquipmentSelector
+        cls={{ ...character.cls, key: character.classKey }}
+        weaponProficiencies={character.proficiencies.weapons}
+        onComplete={handleEquipmentComplete}
+      />
+
+    {:else if currentStep === 6}
+      <h2>Spells</h2>
+      <SpellSelector
+        classKey={character.classKey}
+        wizardSchool={character.wizardSchool}
+        abilities={character.adjustedAbilities}
+        onComplete={handleSpellsComplete}
+      />
+
+    {:else if currentStep === 7}
+      <h2>Backstory</h2>
+      <BackstoryEditor
+        {character}
+        onComplete={handleBackstoryComplete}
+      />
+
+    {:else if currentStep === 8}
+      <CharacterSheet {character} />
     {/if}
   </section>
 </main>
@@ -325,6 +470,11 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    align-items: center;
+
+    .btn-primary {
+      margin-top: 1rem;
+    }
   }
 
   .review-header {
@@ -333,6 +483,7 @@
     gap: 0.5rem;
     font-size: 1.5rem;
     font-family: 'Cinzel', serif;
+    width: 100%;
 
     .review-race {
       color: var(--text-muted);
@@ -348,6 +499,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
+    width: 100%;
   }
 
   .review-section {
@@ -390,6 +542,62 @@
 
     &.warning span:last-child {
       color: var(--gold-dark);
+    }
+  }
+
+  // School Selection
+  .school-selection {
+    width: 100%;
+
+    h4 {
+      text-align: center;
+      margin: 0 0 1rem;
+      font-size: 1.1rem;
+      color: var(--text-body);
+    }
+  }
+
+  .school-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .school-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    .school-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .school-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    &:hover:not(.disabled) {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    &.selected {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.15);
+    }
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
   }
 </style>

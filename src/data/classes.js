@@ -75,20 +75,21 @@ export const classes = {
     ]
   },
 
-  illusionist: {
-    name: 'Illusionist',
+  specialist: {
+    name: 'Specialist Wizard',
     group: 'wizard',
-    minimums: { INT: 9, DEX: 16 },
+    minimums: { INT: 9 },
     primeRequisite: ['INT'],
     hitDie: 'd4',
-    description: 'Specialist wizards focusing on illusion and phantasm magic.',
+    description: 'Wizards who focus on a single school of magic for greater power.',
     features: [
       'Arcane spellcasting',
-      '+1 spell per level (Illusion)',
-      '+15% to learn Illusion spells',
-      'Bonus to saves vs Illusion',
-      'Cannot cast Necromancy, Invocation, Abjuration'
-    ]
+      '+1 spell per level (chosen school)',
+      '+15% to learn spells of chosen school',
+      'Bonus to saves vs chosen school',
+      'Cannot cast spells from opposition schools'
+    ],
+    requiresSchool: true
   },
 
   cleric: {
@@ -177,8 +178,8 @@ export function checkClassRequirements(abilities, race, cls, classKey) {
     failedReqs.push('Human only');
   }
 
-  // Check race class restrictions
-  if (!race.classes[classKey]) {
+  // Check race class restrictions (null means unlimited, undefined means not allowed)
+  if (!(classKey in race.classes)) {
     failedReqs.push(`${race.name} cannot be ${cls.name}`);
   }
 
@@ -228,6 +229,108 @@ export function getAvailableClasses(abilities, race) {
       ...check,
       levelLimit: getLevelLimit(race, key),
       xpBonus: check.qualified ? calculateXPBonus(abilities, cls) : 0
+    };
+  });
+}
+
+/**
+ * Specialist Wizard Schools
+ * Each school has ability requirements and opposition schools
+ */
+export const wizardSchools = {
+  abjurer: {
+    name: 'Abjurer',
+    school: 'Abjuration',
+    minimums: { WIS: 15 },
+    description: 'Specialists in protective and warding magic.',
+    oppositionSchools: ['Alteration', 'Illusion'],
+    allowedRaces: ['human']
+  },
+  conjurer: {
+    name: 'Conjurer',
+    school: 'Conjuration/Summoning',
+    minimums: { CON: 15 },
+    description: 'Masters of summoning creatures and creating objects.',
+    oppositionSchools: ['Greater Divination', 'Invocation'],
+    allowedRaces: ['human', 'halfElf']
+  },
+  diviner: {
+    name: 'Diviner',
+    school: 'Divination',
+    minimums: { WIS: 16 },
+    description: 'Seers who specialize in knowledge and foresight.',
+    oppositionSchools: ['Conjuration'],
+    allowedRaces: ['human', 'elf', 'halfElf']
+  },
+  enchanter: {
+    name: 'Enchanter',
+    school: 'Enchantment/Charm',
+    minimums: { CHA: 16 },
+    description: 'Specialists in influencing minds and emotions.',
+    oppositionSchools: ['Invocation', 'Necromancy'],
+    allowedRaces: ['human', 'elf', 'halfElf']
+  },
+  illusionist: {
+    name: 'Illusionist',
+    school: 'Illusion/Phantasm',
+    minimums: { DEX: 16 },
+    description: 'Masters of deception and phantom magic.',
+    oppositionSchools: ['Necromancy', 'Invocation', 'Abjuration'],
+    allowedRaces: ['human', 'gnome']
+  },
+  invoker: {
+    name: 'Invoker',
+    school: 'Invocation/Evocation',
+    minimums: { CON: 16 },
+    description: 'Wielders of raw elemental and energy magic.',
+    oppositionSchools: ['Enchantment', 'Conjuration'],
+    allowedRaces: ['human']
+  },
+  necromancer: {
+    name: 'Necromancer',
+    school: 'Necromancy',
+    minimums: { WIS: 16 },
+    description: 'Students of death, life force, and undeath.',
+    oppositionSchools: ['Illusion', 'Enchantment'],
+    allowedRaces: ['human']
+  },
+  transmuter: {
+    name: 'Transmuter',
+    school: 'Alteration',
+    minimums: { DEX: 15 },
+    description: 'Specialists in changing and transforming matter.',
+    oppositionSchools: ['Abjuration', 'Necromancy'],
+    allowedRaces: ['human', 'halfElf']
+  }
+};
+
+/**
+ * Get available wizard schools for a character
+ * @param {Object} abilities - Character's ability scores
+ * @param {string} raceKey - Race key
+ * @returns {Array} Schools with qualification status
+ */
+export function getAvailableSchools(abilities, raceKey) {
+  return Object.entries(wizardSchools).map(([key, school]) => {
+    const failedReqs = [];
+
+    // Check ability requirements
+    for (const [ability, min] of Object.entries(school.minimums)) {
+      if (abilities[ability] < min) {
+        failedReqs.push(`${ability} ${abilities[ability]} < ${min} required`);
+      }
+    }
+
+    // Check race restriction
+    if (!school.allowedRaces.includes(raceKey)) {
+      failedReqs.push('Not available to your race');
+    }
+
+    return {
+      key,
+      ...school,
+      qualified: failedReqs.length === 0,
+      failedReqs
     };
   });
 }

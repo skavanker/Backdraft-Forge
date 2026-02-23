@@ -79,7 +79,7 @@ export const races = {
     adjustments: { INT: 1, WIS: -1 },
     classes: {
       fighter: 11,
-      illusionist: 15,
+      specialist: 15,
       cleric: 9,
       thief: 13
     },
