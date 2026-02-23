@@ -8,8 +8,7 @@
   import SpellSelector from './lib/SpellSelector.svelte';
   import BackstoryEditor from './lib/BackstoryEditor.svelte';
   import CharacterSheet from './lib/CharacterSheet.svelte';
-  import Tooltip from './lib/Tooltip.svelte';
-  import { getAvailableSchools } from './data/classes.js';
+  import { getCharacterWarnings } from './data/classes.js';
   import { initTheme, toggleTheme } from './lib/theme.js';
 
   const steps = [
@@ -45,13 +44,6 @@
     backstory: null,        // Character backstory
   });
 
-  // Available wizard schools (computed when needed)
-  let availableSchools = $derived(
-    character.classKey === 'specialist' && character.adjustedAbilities
-      ? getAvailableSchools(character.adjustedAbilities, character.raceKey)
-      : []
-  );
-
   onMount(() => {
     initTheme();
     theme = document.documentElement.getAttribute('data-theme') || 'light';
@@ -73,11 +65,12 @@
     currentStep = 2;
   }
 
-  function handleClassComplete({ classKey, cls, levelLimit, xpBonus }) {
+  function handleClassComplete({ classKey, cls, levelLimit, xpBonus, wizardSchool }) {
     character.classKey = classKey;
     character.cls = cls;
     character.levelLimit = levelLimit;
     character.xpBonus = xpBonus;
+    character.wizardSchool = wizardSchool ?? null;
     currentStep = 3;
   }
 
@@ -122,14 +115,12 @@
       if (index < 5) {
         character.proficiencies = null;
       }
-      if (index < 4) {
-        character.wizardSchool = null;
-      }
       if (index < 3) {
         character.classKey = null;
         character.cls = null;
         character.levelLimit = null;
         character.xpBonus = 0;
+        character.wizardSchool = null;
       }
       if (index < 2) {
         character.raceKey = null;
@@ -143,9 +134,6 @@
     }
   }
 
-  function selectSchool(schoolKey, school) {
-    character.wizardSchool = { key: schoolKey, ...school };
-  }
 </script>
 
 <button class="theme-toggle" onclick={handleThemeToggle} title="Toggle theme">
@@ -191,6 +179,7 @@
       <ClassSelector
         abilities={character.adjustedAbilities}
         race={character.race}
+        raceKey={character.raceKey}
         onComplete={handleClassComplete}
       />
 
@@ -208,29 +197,6 @@
             {/if}
           </span>
         </div>
-
-        {#if character.classKey === 'specialist'}
-          <div class="school-selection">
-            <h4>Choose Your School of Magic</h4>
-            <div class="school-grid">
-              {#each availableSchools as school}
-                {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
-                <Tooltip text={tooltipText} position="bottom">
-                  <button
-                    class="school-card"
-                    class:selected={character.wizardSchool?.key === school.key}
-                    class:disabled={!school.qualified}
-                    onclick={() => school.qualified && selectSchool(school.key, school)}
-                    disabled={!school.qualified}
-                  >
-                    <span class="school-name">{school.name}</span>
-                    <span class="school-desc">{school.school}</span>
-                  </button>
-                </Tooltip>
-              {/each}
-            </div>
-          </div>
-        {/if}
 
         <div class="review-grid">
           <div class="review-section">
@@ -284,16 +250,26 @@
           </div>
         </div>
 
+        {#if character.cls}
+          {@const reviewWarnings = getCharacterWarnings(character.adjustedAbilities, character.cls, character.classKey)}
+          {#if reviewWarnings.length > 0}
+            <div class="review-warnings">
+              <h4>Advisory</h4>
+              {#each reviewWarnings as warning}
+                <div class="review-warning {warning.severity}">
+                  <span class="warning-icon">{warning.severity === 'concern' ? '⚠' : '△'}</span>
+                  <span>{warning.message}</span>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        {/if}
+
         <button
           class="btn-primary"
           onclick={() => continueToStep(4)}
-          disabled={character.classKey === 'specialist' && !character.wizardSchool}
         >
-          {#if character.classKey === 'specialist' && !character.wizardSchool}
-            Select a School to Continue
-          {:else}
-            Continue to Proficiencies
-          {/if}
+          Continue to Proficiencies
         </button>
       </div>
 
@@ -545,59 +521,45 @@
     }
   }
 
-  // School Selection
-  .school-selection {
+  // Advisory Warnings
+  .review-warnings {
     width: 100%;
+    margin-top: 0.5rem;
 
     h4 {
-      text-align: center;
-      margin: 0 0 1rem;
-      font-size: 1.1rem;
-      color: var(--text-body);
-    }
-  }
-
-  .school-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 0.5rem;
-  }
-
-  .school-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0.75rem;
-    background: var(--bg-input);
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s;
-
-    .school-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-    }
-
-    .school-desc {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--text-muted);
-    }
-
-    &:hover:not(.disabled) {
-      border-color: var(--border-strong);
-      transform: translateY(-1px);
-    }
-
-    &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
-    }
-
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+      margin: 0 0 0.5rem;
     }
   }
+
+  .review-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+
+    .warning-icon {
+      flex-shrink: 0;
+    }
+
+    &.caution {
+      background: rgba(184, 148, 60, 0.1);
+      color: var(--gold-dark);
+      border-left: 3px solid var(--gold-dark);
+    }
+
+    &.concern {
+      background: rgba(180, 60, 40, 0.1);
+      color: #b43c28;
+      border-left: 3px solid #b43c28;
+    }
+  }
+
 </style>

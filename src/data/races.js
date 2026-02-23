@@ -20,7 +20,6 @@ export const races = {
       paladin: null,
       ranger: null,
       mage: null,
-      specialist: null,
       cleric: null,
       druid: null,
       thief: null,
@@ -79,7 +78,6 @@ export const races = {
     adjustments: { INT: 1, WIS: -1 },
     classes: {
       fighter: 11,
-      specialist: 15,
       cleric: 9,
       thief: 13
     },

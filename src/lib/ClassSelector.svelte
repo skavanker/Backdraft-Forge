@@ -1,29 +1,40 @@
 <script>
-  import { getAvailableClasses } from '../data/classes.js';
+  import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
   import Tooltip from './Tooltip.svelte';
 
-  let { abilities, race, onComplete } = $props();
+  let { abilities, race, raceKey, onComplete } = $props();
 
   let selectedClassKey = $state(null);
+  let selectedSchool = $state(null);
 
-  let classOptions = $derived(getAvailableClasses(abilities, race));
+  let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
 
   let selectedClass = $derived(
     selectedClassKey ? classOptions.find(c => c.key === selectedClassKey) : null
   );
 
+  let availableSchools = $derived(
+    selectedClassKey === 'specialist' && abilities ? getAvailableSchools(abilities, raceKey) : []
+  );
+
+  let canConfirm = $derived(
+    selectedClass && (selectedClassKey !== 'specialist' || selectedSchool)
+  );
+
   function selectClass(key) {
     selectedClassKey = key;
+    selectedSchool = null;
   }
 
   function confirm() {
-    if (!selectedClass) return;
+    if (!canConfirm) return;
     onComplete({
       classKey: selectedClassKey,
       cls: selectedClass.cls,
       levelLimit: selectedClass.levelLimit,
-      xpBonus: selectedClass.xpBonus
+      xpBonus: selectedClass.xpBonus,
+      wizardSchool: selectedSchool
     });
   }
 
@@ -131,8 +142,35 @@
         </div>
       </div>
 
-      <button class="btn-primary" onclick={confirm}>
-        Confirm {selectedClass.cls.name} → Review Stats
+      {#if selectedClassKey === 'specialist'}
+        <div class="school-selection">
+          <h4>Choose Your School of Magic</h4>
+          <div class="school-grid">
+            {#each availableSchools as school}
+              {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
+              <Tooltip text={tooltipText} position="bottom">
+                <button
+                  class="school-card"
+                  class:selected={selectedSchool?.key === school.key}
+                  class:disabled={!school.qualified}
+                  onclick={() => school.qualified && (selectedSchool = { key: school.key, ...school })}
+                  disabled={!school.qualified}
+                >
+                  <span class="school-name">{school.name}</span>
+                  <span class="school-desc">{school.school}</span>
+                </button>
+              </Tooltip>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      <button class="btn-primary" onclick={confirm} disabled={!canConfirm}>
+        {#if selectedClassKey === 'specialist' && !selectedSchool}
+          Select a School to Continue
+        {:else}
+          Confirm {selectedSchool?.name ?? selectedClass.cls.name} → Review Stats
+        {/if}
       </button>
     </div>
   {/if}
@@ -351,5 +389,68 @@
 
   .btn-primary {
     align-self: center;
+  }
+
+  .school-selection {
+    width: 100%;
+
+    h4 {
+      text-align: center;
+      margin: 0 0 1rem;
+      font-size: 1.1rem;
+      color: var(--text-body);
+    }
+  }
+
+  .school-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+
+    :global(.tooltip-wrap) {
+      display: flex;
+    }
+  }
+
+  .school-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    background: var(--bg-input);
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    min-height: 60px;
+
+    .school-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .school-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    &:hover:not(.disabled) {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    &.selected {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.15);
+    }
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
   }
 </style>

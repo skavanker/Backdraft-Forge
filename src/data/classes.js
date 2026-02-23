@@ -10,6 +10,8 @@
  * - group: warrior/wizard/priest/rogue
  */
 
+import { races } from './races.js';
+
 export const classes = {
   fighter: {
     name: 'Fighter',
@@ -163,7 +165,7 @@ export const classes = {
  * @param {string} classKey - Class key
  * @returns {{ qualified: boolean, failedReqs: string[] }}
  */
-export function checkClassRequirements(abilities, race, cls, classKey) {
+export function checkClassRequirements(abilities, race, raceKey, cls, classKey) {
   const failedReqs = [];
 
   // Check ability minimums
@@ -178,9 +180,16 @@ export function checkClassRequirements(abilities, race, cls, classKey) {
     failedReqs.push('Human only');
   }
 
-  // Check race class restrictions (null means unlimited, undefined means not allowed)
-  if (!(classKey in race.classes)) {
-    failedReqs.push(`${race.name} cannot be ${cls.name}`);
+  // Check race class restrictions — specialist is derived from wizardSchools.allowedRaces
+  const raceHasClass = classKey === 'specialist'
+    ? raceCanBeSpecialist(raceKey)
+    : classKey in race.classes;
+
+  if (!raceHasClass) {
+    const allowed = Object.entries(races)
+      .filter(([rk, r]) => classKey === 'specialist' ? raceCanBeSpecialist(rk) : classKey in r.classes)
+      .map(([, r]) => r.name);
+    failedReqs.push(`${race.name} cannot be ${cls.name} (available to ${allowed.join(', ')})`);
   }
 
   return {
@@ -211,6 +220,8 @@ export function calculateXPBonus(abilities, cls) {
  * @returns {number|null} Level limit or null for unlimited
  */
 export function getLevelLimit(race, classKey) {
+  // Specialist shares the mage level limit for that race
+  if (classKey === 'specialist') return race.classes['mage'] ?? null;
   return race.classes[classKey] ?? null;
 }
 
@@ -220,9 +231,9 @@ export function getLevelLimit(race, classKey) {
  * @param {Object} race - Race object
  * @returns {Array<{ key: string, cls: Object, qualified: boolean, failedReqs: string[], levelLimit: number|null, xpBonus: number }>}
  */
-export function getAvailableClasses(abilities, race) {
+export function getAvailableClasses(abilities, race, raceKey) {
   return Object.entries(classes).map(([key, cls]) => {
-    const check = checkClassRequirements(abilities, race, cls, key);
+    const check = checkClassRequirements(abilities, race, raceKey, cls, key);
     return {
       key,
       cls,
@@ -303,6 +314,126 @@ export const wizardSchools = {
     allowedRaces: ['human', 'halfElf']
   }
 };
+
+/**
+ * Derives specialist wizard access from wizardSchools.allowedRaces
+ * so we don't have to manually maintain 'specialist' in each race's class list.
+ */
+function raceCanBeSpecialist(raceKey) {
+  return Object.values(wizardSchools).some(s => s.allowedRaces.includes(raceKey));
+}
+
+/**
+ * Generate advisory warnings for a character's class/ability combination.
+ * These are non-blocking — the player can proceed, but should know the trade-offs.
+ *
+ * @param {Object} abilities - Adjusted ability scores
+ * @param {Object} cls - Class object
+ * @param {string} classKey - Class key
+ * @returns {Array<{ severity: 'caution'|'concern', message: string }>}
+ */
+export function getCharacterWarnings(abilities, cls, classKey) {
+  const warnings = [];
+  const group = cls.group;
+
+  // Prime requisite warnings (no XP bonus)
+  const primeScores = cls.primeRequisite.map(pr => abilities[pr]);
+  const minPrime = Math.min(...primeScores);
+  if (minPrime < 13) {
+    const low = cls.primeRequisite.filter(pr => abilities[pr] < 13);
+    warnings.push({
+      severity: minPrime <= 10 ? 'concern' : 'caution',
+      message: `Low ${low.join('/')} for a ${cls.name} — no XP bonus`
+    });
+  }
+
+  // Wizard-specific: INT affects spell learning chance and max spells per level
+  if (group === 'wizard') {
+    const int = abilities.INT;
+    if (int <= 9) {
+      warnings.push({
+        severity: 'concern',
+        message: `INT ${int} gives only 35% chance to learn each spell (max 6 per level)`
+      });
+    } else if (int <= 11) {
+      warnings.push({
+        severity: 'caution',
+        message: `INT ${int} gives ${int === 10 ? '40' : '45'}% chance to learn spells (max 7 per level)`
+      });
+    } else if (int <= 12) {
+      warnings.push({
+        severity: 'caution',
+        message: `INT ${int} gives 50% chance to learn spells (max 7 per level)`
+      });
+    }
+  }
+
+  // Priest-specific: WIS affects bonus spells
+  if (group === 'priest') {
+    const wis = abilities.WIS;
+    if (wis < 13) {
+      warnings.push({
+        severity: 'concern',
+        message: `WIS ${wis} grants no bonus priest spells`
+      });
+    } else if (wis <= 14) {
+      warnings.push({
+        severity: 'caution',
+        message: `WIS ${wis} grants only one bonus 1st-level spell`
+      });
+    }
+  }
+
+  // Low CON on fragile classes (d4/d6 hit die)
+  if (abilities.CON <= 6 && (cls.hitDie === 'd4' || cls.hitDie === 'd6')) {
+    warnings.push({
+      severity: 'concern',
+      message: `CON ${abilities.CON} with ${cls.hitDie} hit die — very fragile`
+    });
+  }
+
+  // Warriors missing out on CON HP bonus
+  if (group === 'warrior' && abilities.CON < 15) {
+    warnings.push({
+      severity: 'caution',
+      message: `CON ${abilities.CON} — warriors benefit greatly from CON 15+ for bonus HP`
+    });
+  }
+
+  // Thief with low DEX affects thief skills
+  if ((classKey === 'thief' || classKey === 'bard') && abilities.DEX <= 11) {
+    warnings.push({
+      severity: 'caution',
+      message: `Low DEX penalizes thief skill percentages`
+    });
+  }
+
+  // Low WIS saving throw penalty — affects ALL classes
+  // 2E: WIS 1=-6, 2=-4, 3=-3, 4=-2, 5=-1, 6=-1, 7=0, 8+=0+
+  const wis = abilities.WIS;
+  if (wis <= 5) {
+    const penalty = { 1: -6, 2: -4, 3: -3, 4: -2, 5: -1 }[wis];
+    warnings.push({
+      severity: 'concern',
+      message: `WIS ${wis} gives ${penalty} penalty to saves vs mind-affecting spells (charm, fear, etc.)`
+    });
+  } else if (wis === 6) {
+    warnings.push({
+      severity: 'caution',
+      message: `WIS 6 gives -1 penalty to saves vs mind-affecting spells`
+    });
+  }
+
+  // Non-warrior with high CON — bonus HP caps at +2
+  if (group !== 'warrior' && abilities.CON >= 17) {
+    warnings.push({
+      severity: 'caution',
+      message: `Non-warriors only get +2 HP/level from CON, even with CON ${abilities.CON}`
+    });
+  }
+
+  return warnings;
+}
 
 /**
  * Get available wizard schools for a character
