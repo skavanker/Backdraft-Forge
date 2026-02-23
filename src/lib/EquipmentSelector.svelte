@@ -9,9 +9,10 @@
     copperToGold,
     calculateTotalWeight
   } from '../data/equipment.js';
+  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { cls, weaponProficiencies, onComplete } = $props();
+  let { cls, weaponProficiencies, existingEquipment = null, onComplete } = $props();
 
   // Starting gold
   let gold = $state(null);
@@ -115,6 +116,18 @@
       totalWeight
     });
   }
+
+  // Initialize from existing data
+  onMount(() => {
+    if (existingEquipment) {
+      gold = existingEquipment.gold;
+      goldRolled = true;
+      selectedArmor = existingEquipment.armor;
+      selectedShield = existingEquipment.shield;
+      selectedWeapons = existingEquipment.weapons || [];
+      selectedGear = existingEquipment.gear || [];
+    }
+  });
 </script>
 
 <div class="equipment-selector">
@@ -384,7 +397,7 @@
     align-items: center;
 
     .gold-label {
-      font-size: 0.8rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
     }
 
@@ -413,13 +426,13 @@
   .section {
     h3 {
       margin: 0 0 0.5rem;
-      font-size: 1.1rem;
+      font-size: 1.125rem;
       color: var(--text-primary);
     }
 
     .section-hint {
       margin: 0 0 0.75rem;
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
     }
   }
@@ -459,25 +472,25 @@
       padding: 0.4rem 0.6rem;
 
       .item-name {
-        font-size: 0.85rem;
+        font-size: 0.875rem;
       }
 
       .item-price {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
       }
     }
 
     .item-name {
       font-weight: 500;
       color: var(--text-body);
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
 
     .item-meta {
       display: flex;
       gap: 0.5rem;
       margin-top: 0.25rem;
-      font-size: 0.8rem;
+      font-size: 0.875rem;
     }
 
     .item-ac,
@@ -488,6 +501,7 @@
 
     .item-price {
       color: var(--gold-dark);
+      font-size: 0.875rem;
     }
 
     &:hover:not(.disabled) {

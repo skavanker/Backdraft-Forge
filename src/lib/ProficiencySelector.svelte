@@ -7,9 +7,10 @@
     getAllowedWeapons,
     getAvailableProficiencies
   } from '../data/proficiencies.js';
+  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { abilities, cls, onComplete } = $props();
+  let { abilities, cls, existingProficiencies = null, onComplete } = $props();
 
   // Calculate available slots
   let weaponSlots = $derived(getWeaponSlots(cls.group));
@@ -116,6 +117,14 @@
       unusedSlots: nonWeaponSlotsRemaining
     });
   }
+
+  // Initialize from existing data
+  onMount(() => {
+    if (existingProficiencies) {
+      selectedWeapons = existingProficiencies.weapons.map(w => w.key);
+      selectedNonWeapon = existingProficiencies.nonWeapon.map(p => p.key);
+    }
+  });
 </script>
 
 <div class="proficiency-selector">
@@ -289,7 +298,7 @@
     gap: 0.25rem;
 
     .slot-label {
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
     }
 
@@ -319,7 +328,7 @@
 
     .section-hint {
       margin: 0 0 1rem;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
 
       .remaining {
@@ -334,7 +343,7 @@
     margin-bottom: 1rem;
 
     .group-title {
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -368,7 +377,7 @@
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
 
     .chip-name {
       color: var(--text-body);
@@ -465,7 +474,7 @@
 
       .summary-detail {
         color: var(--text-muted);
-        font-size: 0.8rem;
+        font-size: 0.875rem;
       }
     }
   }
