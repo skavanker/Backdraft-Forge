@@ -1,0 +1,77 @@
+// Parchment color palette
+$parchment-light: #f4e4bc;
+$parchment-dark: #d4c4a0;
+$ink-dark: #2c1810;
+$ink-medium: #4a3728;
+$ink-light: #6b5344;
+$accent-red: #8b2500;
+$accent-gold: #c9a227;
+
+// Typography
+$font-display: 'Cinzel', 'Times New Roman', serif;
+$font-body: 'Crimson Text', 'Georgia', serif;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $parchment-light 0%, $parchment-dark 100%);
+  color: $ink-dark;
+  font-family: $font-body;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+#app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1, h2, h3 {
+  font-family: $font-display;
+  color: $ink-dark;
+  margin: 0 0 1rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  text-align: center;
+  border-bottom: 2px solid $accent-gold;
+  padding-bottom: 0.5rem;
+}
+
+button {
+  font-family: $font-body;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  background: $ink-dark;
+  color: $parchment-light;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $ink-medium;
+  }
+
+  &:disabled {
+    background: $ink-light;
+    cursor: not-allowed;
+  }
+}
+
+input, select {
+  font-family: $font-body;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid $ink-light;
+  background: rgba(255, 255, 255, 0.5);
+
+  &:focus {
+    outline: 2px solid $accent-gold;
+  }
+}
