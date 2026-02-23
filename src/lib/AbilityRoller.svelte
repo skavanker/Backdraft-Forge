@@ -458,7 +458,8 @@
       }
 
       &:hover:not(.selected):not(.disabled) {
-        background: var(--bg-panel);
+        background: var(--bg-hover);
+        color: var(--text-hover);
       }
 
       &.disabled {
@@ -661,7 +662,12 @@
 
     &:hover:not(:disabled) {
       border-color: var(--border-strong);
+      background: var(--bg-hover);
       transform: translateY(-2px);
+
+      .method-name, .method-desc {
+        color: var(--text-hover);
+      }
     }
 
     &.selected {

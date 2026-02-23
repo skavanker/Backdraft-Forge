@@ -192,6 +192,20 @@ export function checkClassRequirements(abilities, race, raceKey, cls, classKey) 
     failedReqs.push(`${race.name} cannot be ${cls.name} (available to ${allowed.join(', ')})`);
   }
 
+  // For specialist wizards, check if at least one school is available
+  if (classKey === 'specialist' && raceHasClass) {
+    const availableSchools = getAvailableSchools(abilities, raceKey);
+    const hasQualifiedSchool = availableSchools.some(s => s.qualified);
+
+    if (!hasQualifiedSchool) {
+      const racialSchools = Object.entries(wizardSchools)
+        .filter(([, s]) => s.allowedRaces.includes(raceKey))
+        .map(([, s]) => s.name);
+
+      failedReqs.push(`No specialist schools available (needs higher abilities for ${racialSchools.join(', ')})`);
+    }
+  }
+
   return {
     qualified: failedReqs.length === 0,
     failedReqs
