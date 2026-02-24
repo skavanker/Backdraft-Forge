@@ -5,8 +5,6 @@
     getAllowedArmor,
     getAllowedShields,
     formatPrice,
-    calculateTotalCost,
-    copperToGold,
     calculateTotalWeight
   } from '../data/equipment.js';
   import { getStrengthModifiers } from '../data/mechanics.js';
@@ -26,6 +24,10 @@
     if (rerollsUsed < 2) {
       gold = rollStartingGold(cls.group);
       rerollsUsed++;
+      selectedArmor = null;
+      selectedShield = null;
+      selectedWeapons = [];
+      selectedGear = [];
     }
   }
 
@@ -47,8 +49,13 @@
     equipment.weapons.filter(w => proficientWeaponKeys.includes(w.key))
   );
 
-  // Calculate costs
-  let selectedItems = $derived(() => {
+  // Price helper: convert item price to gp
+  function priceGp(price) {
+    return ((price.gp || 0) * 100 + (price.sp || 0) * 10 + (price.cp || 0)) / 100;
+  }
+
+  // Weight tracking
+  let totalWeight = $derived(() => {
     const items = [];
     if (selectedArmor) items.push(selectedArmor);
     if (selectedShield) items.push(selectedShield);
@@ -56,14 +63,9 @@
     for (const g of selectedGear) {
       for (let i = 0; i < (g.qty || 1); i++) items.push(g);
     }
-    return items;
+    return calculateTotalWeight(items);
   });
-
-  let totalCostCopper = $derived(calculateTotalCost(selectedItems()));
-  let totalCostGold = $derived(copperToGold(totalCostCopper));
-  let remainingGold = $derived(gold !== null ? gold - totalCostGold : 0);
-  let totalWeight = $derived(calculateTotalWeight(selectedItems()));
-  let isEncumbered = $derived(totalWeight > weightAllowance);
+  let isEncumbered = $derived(totalWeight() > weightAllowance);
 
   function rollGold() {
     gold = rollStartingGold(cls.group);
@@ -80,30 +82,39 @@
 
   function selectArmor(armor) {
     if (selectedArmor?.key === armor.key) {
+      gold += priceGp(selectedArmor.price);
       selectedArmor = null;
     } else {
+      if (selectedArmor) gold += priceGp(selectedArmor.price);
+      gold -= priceGp(armor.price);
       selectedArmor = armor;
     }
   }
 
   function selectShield(shield) {
     if (selectedShield?.key === shield.key) {
+      gold += priceGp(selectedShield.price);
       selectedShield = null;
     } else {
+      if (selectedShield) gold += priceGp(selectedShield.price);
+      gold -= priceGp(shield.price);
       selectedShield = shield;
     }
   }
 
   function toggleWeapon(weapon) {
     if (selectedWeapons.find(w => w.key === weapon.key)) {
+      gold += priceGp(weapon.price);
       selectedWeapons = selectedWeapons.filter(w => w.key !== weapon.key);
     } else {
+      gold -= priceGp(weapon.price);
       selectedWeapons = [...selectedWeapons, weapon];
     }
   }
 
   function addGear(item) {
     if (!canAfford(item.price)) return;
+    gold -= priceGp(item.price);
     const existing = selectedGear.find(g => g.key === item.key);
     if (existing) {
       selectedGear = selectedGear.map(g =>
@@ -117,6 +128,7 @@
   function removeGear(item) {
     const existing = selectedGear.find(g => g.key === item.key);
     if (!existing) return;
+    gold += priceGp(item.price);
     const qty = existing.qty || 1;
     if (qty <= 1) {
       selectedGear = selectedGear.filter(g => g.key !== item.key);
@@ -137,6 +149,7 @@
     if (!customName.trim()) return;
     const price = { gp: customPrice || 0 };
     if (!canAfford(price)) return;
+    gold -= priceGp(price);
     const key = `custom_${customIdCounter}`;
     customIdCounter++;
     selectedGear = [...selectedGear, {
@@ -153,22 +166,17 @@
 
   function canAfford(price) {
     if (gold === null) return false;
-    const costInGold = copperToGold(
-      (price.gp || 0) * 100 + (price.sp || 0) * 10 + (price.cp || 0)
-    );
-    return remainingGold >= costInGold;
+    return gold >= priceGp(price);
   }
 
   function confirm() {
     onComplete({
-      gold: gold,
-      spent: totalCostGold,
-      remaining: remainingGold,
+      remaining: Math.round(gold * 100) / 100,
       armor: selectedArmor,
       shield: selectedShield,
       weapons: selectedWeapons,
       gear: selectedGear,
-      totalWeight,
+      totalWeight: totalWeight(),
       rerollsUsed
     });
   }
@@ -176,7 +184,7 @@
   // Initialize from existing data
   onMount(() => {
     if (existingEquipment) {
-      gold = existingEquipment.gold ?? existingEquipment.remaining ?? 0;
+      gold = existingEquipment.remaining ?? existingEquipment.gold ?? 0;
       goldRolled = true;
       rerollsUsed = existingEquipment.rerollsUsed || 0;
       selectedArmor = existingEquipment.armor;
@@ -221,27 +229,19 @@
           <button class="reroll-btn" onclick={rerollGold} title="Reroll starting gold">×</button>
         {/if}
         <div class="gold-stat">
-          <span class="gold-label">Starting Gold</span>
-          <span class="gold-value">{gold} gp</span>
-        </div>
-        <div class="gold-stat">
-          <span class="gold-label">Spent</span>
-          <span class="gold-value spent">{totalCostGold.toFixed(1)} gp</span>
-        </div>
-        <div class="gold-stat">
-          <span class="gold-label">Remaining</span>
-          <span class="gold-value" class:warning={remainingGold < 0}>
-            {remainingGold.toFixed(1)} gp
+          <span class="gold-label">Gold</span>
+          <span class="gold-value" class:warning={gold < 0}>
+            {gold.toFixed(1)} gp
           </span>
         </div>
         <div class="gold-stat">
           <span class="gold-label">Weight</span>
-          <span class="gold-value" class:warning={isEncumbered}>{totalWeight} / {weightAllowance} lbs</span>
+          <span class="gold-value" class:warning={isEncumbered}>{totalWeight()} / {weightAllowance} lbs</span>
         </div>
       </div>
       {#if isEncumbered}
         <div class="encumbrance-warning">
-          ⚠ Encumbered! Carrying {totalWeight - weightAllowance} lbs over your weight allowance. Movement and combat will be penalized.
+          ⚠ Encumbered! Carrying {totalWeight() - weightAllowance} lbs over your weight allowance. Movement and combat will be penalized.
         </div>
       {/if}
     {/if}
@@ -442,10 +442,10 @@
     <button
       class="btn-primary"
       onclick={confirm}
-      disabled={remainingGold < 0}
+      disabled={gold < 0}
     >
-      {#if remainingGold < 0}
-        Over budget by {Math.abs(remainingGold).toFixed(1)} gp
+      {#if gold < 0}
+        Over budget by {Math.abs(gold).toFixed(1)} gp
       {:else}
         Confirm Equipment → Spells
       {/if}
@@ -578,10 +578,6 @@
       font-size: 1.25rem;
       font-weight: 600;
       color: var(--gold);
-
-      &.spent {
-        color: var(--text-muted);
-      }
 
       &.warning {
         color: var(--red);
