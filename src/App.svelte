@@ -132,9 +132,10 @@
     currentStep = 7;
   }
 
-  function handleBackstoryComplete({ name, sex, backstory }) {
+  function handleBackstoryComplete({ name, sex, alignment, backstory }) {
     character.name = name;
     character.sex = sex;
+    character.alignment = alignment;
     character.backstory = backstory;
     currentStep = 8;
   }
