@@ -1,5 +1,4 @@
 <script>
-  import { generateShareableUrl, copyToClipboard, encodeCharacter } from './shareCharacter.js';
   import Tooltip from './Tooltip.svelte';
   import ImportArea from './ImportArea.svelte';
   import {
@@ -40,6 +39,7 @@
   let missileTHAC0 = $derived(baseTHAC0 - dexMods.missileAdj);
 
   async function shareCharacter() {
+    const { generateShareableUrl, copyToClipboard } = await import('./shareCharacter.js');
     const url = generateShareableUrl(character);
     if (!url) {
       shareMessage = 'Failed to generate link';
@@ -59,6 +59,7 @@
   }
 
   async function exportCode() {
+    const { encodeCharacter, copyToClipboard } = await import('./shareCharacter.js');
     const encoded = encodeCharacter(character);
     if (!encoded) {
       shareMessage = 'Failed to generate code';

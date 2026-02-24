@@ -1,6 +1,4 @@
 <script>
-  import { decodeCharacter } from './shareCharacter.js';
-
   let { onImport } = $props();
 
   let showImportArea = $state(false);
@@ -14,6 +12,7 @@
       importError = 'Please paste a character code';
       return;
     }
+    const { decodeCharacter } = await import('./shareCharacter.js');
     const imported = await decodeCharacter(trimmed);
     if (!imported) {
       importError = 'Invalid character code';
