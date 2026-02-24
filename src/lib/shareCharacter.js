@@ -43,7 +43,7 @@ function compressCharacter(character) {
 
   // Equipment
   if (character.equipment) {
-    compressed.g = character.equipment.gold;
+    compressed.g = character.equipment.remaining ?? character.equipment.gold;
     if (character.equipment.armor) compressed.ar = character.equipment.armor.key;
     if (character.equipment.shield) compressed.sh = character.equipment.shield.key;
     if (character.equipment.weapons) compressed.wk = character.equipment.weapons.map(w => w.key);
@@ -67,11 +67,17 @@ function compressCharacter(character) {
     }
   }
 
-  // Name, sex, alignment, and backstory
+  // Name, sex, alignment, backstory, and physical details
   if (character.name) compressed.n = character.name;
   if (character.sex) compressed.sx = character.sex;
   if (character.alignment) compressed.al = character.alignment;
   if (character.backstory) compressed.b = character.backstory;
+  if (character.age) compressed.ag = character.age;
+  if (character.height) compressed.ht = character.height;
+  if (character.weight) compressed.wt = character.weight;
+  if (character.eyes) compressed.ey = character.eyes;
+  if (character.hair) compressed.hr = character.hair;
+  if (character.deity) compressed.dy = character.deity;
 
   return compressed;
 }
@@ -143,7 +149,7 @@ async function decompressCharacter(compressed) {
   let equipmentData = null;
   if (compressed.g !== undefined) {
     equipmentData = {
-      gold: compressed.g,
+      remaining: compressed.g,
       armor: compressed.ar ? equipment.armor.find(a => a.key === compressed.ar) : null,
       shield: compressed.sh ? equipment.shields.find(s => s.key === compressed.sh) : null,
       weapons: compressed.wk ? compressed.wk.map(key => equipment.weapons.find(w => w.key === key)) : [],
@@ -204,7 +210,13 @@ async function decompressCharacter(compressed) {
     name: compressed.n || null,
     sex: compressed.sx || compressed.s || 'Male', // Support both old 's' and new 'sx'
     alignment: compressed.al || 'True Neutral',
-    backstory: compressed.b || null
+    backstory: compressed.b || null,
+    age: compressed.ag || null,
+    height: compressed.ht || null,
+    weight: compressed.wt || null,
+    eyes: compressed.ey || null,
+    hair: compressed.hr || null,
+    deity: compressed.dy || null
   };
 }
 
@@ -219,7 +231,14 @@ export async function decodeCharacter(encoded) {
     while (base64.length % 4) {
       base64 += '=';
     }
-    const json = decodeURIComponent(escape(atob(base64)));
+    const raw = atob(base64);
+    let json;
+    try {
+      json = decodeURIComponent(escape(raw));
+    } catch {
+      // Fallback for old codes encoded without UTF-8 wrapping
+      json = raw;
+    }
     const compressed = JSON.parse(json);
 
     // Decompress to full character

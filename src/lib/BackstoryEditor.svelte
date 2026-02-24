@@ -210,11 +210,11 @@
       bind:value={backstory}
       placeholder={generatePlaceholder()}
       rows="12"
-      maxlength="2000"
+      maxlength="5000"
     ></textarea>
     <div class="backstory-meta">
       <p class="hint">Optional — you can always add this later.</p>
-      <span class="char-count" class:near-limit={charCount > 1800}>{charCount} / 2000</span>
+      <span class="char-count" class:near-limit={charCount > 4500}>{charCount} / 5000</span>
     </div>
   </div>
 

@@ -32,7 +32,7 @@
     <textarea
       bind:value={importCode}
       placeholder="Paste character code here..."
-      rows="3"
+      rows="6"
     ></textarea>
     <button class="btn-primary" onclick={loadImportedCharacter}>
       Load Character

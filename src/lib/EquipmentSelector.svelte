@@ -176,7 +176,7 @@
   // Initialize from existing data
   onMount(() => {
     if (existingEquipment) {
-      gold = existingEquipment.gold;
+      gold = existingEquipment.gold ?? existingEquipment.remaining ?? 0;
       goldRolled = true;
       rerollsUsed = existingEquipment.rerollsUsed || 0;
       selectedArmor = existingEquipment.armor;

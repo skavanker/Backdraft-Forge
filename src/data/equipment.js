@@ -96,7 +96,7 @@ export const equipment = {
   adventuringGear: [
     { key: 'backpack', name: 'Backpack', price: { gp: 2 }, weight: 2 },
     { key: 'bedroll', name: 'Bedroll', price: { sp: 2 }, weight: 5 },
-    { key: 'candles', name: 'Candles (10)', price: { sp: 1 }, weight: 0 },
+    { key: 'candle', name: 'Candle', price: { cp: 1 }, weight: 0 },
     { key: 'flintSteel', name: 'Flint & Steel', price: { sp: 5 }, weight: 0 },
     { key: 'grapplingHook', name: 'Grappling Hook', price: { gp: 1 }, weight: 4 },
     { key: 'holySymbol', name: 'Holy Symbol', price: { gp: 25 }, weight: 0 },
@@ -109,7 +109,7 @@ export const equipment = {
     { key: 'sack', name: 'Sack, Large', price: { sp: 2 }, weight: 0 },
     { key: 'spellbook', name: 'Spellbook (blank)', price: { gp: 50 }, weight: 3 },
     { key: 'thievesTools', name: "Thieves' Tools", price: { gp: 30 }, weight: 1 },
-    { key: 'torch', name: 'Torch (5)', price: { sp: 1 }, weight: 5 },
+    { key: 'torch', name: 'Torch', price: { cp: 1 }, weight: 1 },
     { key: 'waterskin', name: 'Waterskin', price: { gp: 1 }, weight: 1 },
     { key: 'whetstone', name: 'Whetstone', price: { cp: 2 }, weight: 0 }
   ],
