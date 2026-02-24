@@ -132,11 +132,17 @@
     currentStep = 7;
   }
 
-  function handleBackstoryComplete({ name, sex, alignment, backstory }) {
+  function handleBackstoryComplete({ name, sex, alignment, backstory, age, height, weight, eyes, hair, deity }) {
     character.name = name;
     character.sex = sex;
     character.alignment = alignment;
     character.backstory = backstory;
+    character.age = age;
+    character.height = height;
+    character.weight = weight;
+    character.eyes = eyes;
+    character.hair = hair;
+    character.deity = deity;
     currentStep = 8;
   }
 
@@ -175,6 +181,36 @@
     return false;
   }
 
+  function handleImportCharacter(importedCharacter) {
+    character = importedCharacter;
+    currentStep = 8;
+  }
+
+  let showResetConfirm = $state(false);
+
+  function resetAll() {
+    character = {
+      abilities: null,
+      rollData: null,
+      adjustedAbilities: null,
+      raceKey: null,
+      race: null,
+      classKey: null,
+      cls: null,
+      levelLimit: null,
+      xpBonus: 0,
+      wizardSchool: null,
+      proficiencies: null,
+      equipment: null,
+      spells: null,
+      name: null,
+      backstory: null,
+    };
+    currentStep = 0;
+    showResetConfirm = false;
+  }
+
+
   function goToStep(index) {
     if (canNavigateToStep(index)) {
       currentStep = index;
@@ -191,6 +227,19 @@
   <header class="header">
     <h1>Backdraft Forge</h1>
     <p class="tagline">AD&D 2nd Edition Character Creator</p>
+    {#if character.abilities}
+      <div class="header-actions">
+        {#if showResetConfirm}
+          <span class="reset-confirm">Start over? All progress will be lost.</span>
+          <button class="btn-danger btn-sm" onclick={resetAll}>Yes, reset</button>
+          <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>Cancel</button>
+        {:else}
+          <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = true}>
+            🗑 Start Over
+          </button>
+        {/if}
+      </div>
+    {/if}
   </header>
 
   <nav class="step-nav">
@@ -216,6 +265,7 @@
       <CharacterSummary {character} />
       <AbilityRoller
         onComplete={handleAbilitiesComplete}
+        onImport={handleImportCharacter}
         existingAbilities={character.abilities}
         existingRollData={character.rollData}
       />
@@ -349,6 +399,8 @@
         cls={{ ...character.cls, key: character.classKey }}
         weaponProficiencies={character.proficiencies.weapons}
         existingEquipment={character.equipment}
+        str={character.adjustedAbilities.STR}
+        exceptionalStr={character.abilities.exceptionalStr}
         onComplete={handleEquipmentComplete}
       />
 
@@ -372,7 +424,7 @@
       />
 
     {:else if currentStep === 8}
-      <CharacterSheet {character} />
+      <CharacterSheet {character} onImport={handleImportCharacter} />
     {/if}
   </section>
 </main>
@@ -393,6 +445,37 @@
     color: var(--text-muted);
     margin-top: -0.5rem;
   }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .btn-sm {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .btn-danger {
+    background: #b43c28;
+    color: white;
+    border: 1px solid #932f1f;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background: #932f1f;
+    }
+  }
+
+  .reset-confirm {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
 
   .step-nav {
     display: flex;
