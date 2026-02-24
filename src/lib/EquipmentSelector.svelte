@@ -9,10 +9,13 @@
     copperToGold,
     calculateTotalWeight
   } from '../data/equipment.js';
+  import { getStrengthModifiers } from '../data/mechanics.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { cls, weaponProficiencies, existingEquipment = null, onComplete } = $props();
+  let { cls, weaponProficiencies, existingEquipment = null, str = 10, exceptionalStr = null, onComplete } = $props();
+
+  let weightAllowance = $derived(getStrengthModifiers(str, exceptionalStr).weightAllow);
 
   // Starting gold
   let gold = $state(null);
@@ -58,6 +61,7 @@
   let totalCostGold = $derived(copperToGold(totalCostCopper));
   let remainingGold = $derived(gold !== null ? gold - totalCostGold : 0);
   let totalWeight = $derived(calculateTotalWeight(selectedItems()));
+  let isEncumbered = $derived(totalWeight > weightAllowance);
 
   function rollGold() {
     gold = rollStartingGold(cls.group);
@@ -186,9 +190,14 @@
         </div>
         <div class="gold-stat">
           <span class="gold-label">Weight</span>
-          <span class="gold-value">{totalWeight} lbs</span>
+          <span class="gold-value" class:warning={isEncumbered}>{totalWeight} / {weightAllowance} lbs</span>
         </div>
       </div>
+      {#if isEncumbered}
+        <div class="encumbrance-warning">
+          ⚠ Encumbered! Carrying {totalWeight - weightAllowance} lbs over your weight allowance. Movement and combat will be penalized.
+        </div>
+      {/if}
     {/if}
   </div>
 
@@ -447,6 +456,17 @@
     &:hover {
       opacity: 0.8;
     }
+  }
+
+  .encumbrance-warning {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: rgba(180, 60, 40, 0.15);
+    border: 1px solid rgba(180, 60, 40, 0.3);
+    border-radius: 4px;
+    color: var(--red, #b43c28);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
   }
 
   .gold-stat {

@@ -1,5 +1,6 @@
 <script>
-  import { generateShareableUrl, copyToClipboard } from './shareCharacter.js';
+  import { generateShareableUrl, copyToClipboard, encodeCharacter, decodeCharacter } from './shareCharacter.js';
+  import Tooltip from './Tooltip.svelte';
   import {
     getStrengthModifiers,
     getDexterityModifiers,
@@ -13,10 +14,13 @@
     formatPercentage
   } from '../data/mechanics.js';
 
-  let { character } = $props();
+  let { character, onImport } = $props();
 
   let shareMessage = $state('');
   let showShareMessage = $state(false);
+  let showImportArea = $state(false);
+  let importCode = $state('');
+  let importError = $state('');
 
   // Calculate ability modifiers
   let strMods = $derived(getStrengthModifiers(
@@ -32,6 +36,10 @@
   // Calculate saving throws and combat stats
   let savingThrows = $derived(getSavingThrows(character.cls.group, 1));
   let baseTHAC0 = $derived(getBaseTHAC0(character.cls.group, 1));
+
+  // Derived combat values
+  let meleeTHAC0 = $derived(baseTHAC0 - strMods.hitAdj);
+  let missileTHAC0 = $derived(baseTHAC0 - dexMods.missileAdj);
 
   async function shareCharacter() {
     const url = generateShareableUrl(character);
@@ -50,6 +58,37 @@
     }
     showShareMessage = true;
     setTimeout(() => showShareMessage = false, 3000);
+  }
+
+  async function exportCode() {
+    const encoded = encodeCharacter(character);
+    if (!encoded) {
+      shareMessage = 'Failed to generate code';
+      showShareMessage = true;
+      setTimeout(() => showShareMessage = false, 3000);
+      return;
+    }
+    const success = await copyToClipboard(encoded);
+    shareMessage = success ? 'Character code copied to clipboard!' : 'Failed to copy code';
+    showShareMessage = true;
+    setTimeout(() => showShareMessage = false, 3000);
+  }
+
+  async function loadImportedCharacter() {
+    importError = '';
+    const trimmed = importCode.trim();
+    if (!trimmed) {
+      importError = 'Please paste a character code';
+      return;
+    }
+    const imported = await decodeCharacter(trimmed);
+    if (!imported) {
+      importError = 'Invalid character code';
+      return;
+    }
+    onImport?.(imported);
+    showImportArea = false;
+    importCode = '';
   }
 
   // Calculate AC with DEX modifier
@@ -78,6 +117,28 @@
     const cls = character.wizardSchool ? 'SpecialistWizard' : (character.classKey.charAt(0).toUpperCase() + character.classKey.slice(1));
     return `${race}${gender}${cls}.png`;
   });
+
+  // Calculate total weight carried
+  let totalWeight = $derived(() => {
+    if (character.equipment?.totalWeight) return character.equipment.totalWeight;
+    let weight = 0;
+    if (character.equipment?.armor) weight += character.equipment.armor.weight || 0;
+    if (character.equipment?.shield) weight += character.equipment.shield.weight || 0;
+    if (character.equipment?.weapons) {
+      for (const w of character.equipment.weapons) weight += w.weight || 0;
+    }
+    if (character.equipment?.gear) {
+      for (const g of character.equipment.gear) weight += g.weight || 0;
+    }
+    return weight;
+  });
+
+  // Warn if share link may be too long for browsers
+  let shareLinkWarning = $derived(
+    (character.backstory?.length || 0) > 300
+      ? 'Long backstory may make the share link too large for some browsers. Use Export Code instead for full fidelity.'
+      : ''
+  );
 </script>
 
 <div class="sheet">
@@ -101,10 +162,20 @@
     <div class="info-item"><span class="label">Class:</span> {className}</div>
     <div class="info-item"><span class="label">Sex:</span> {character.sex || 'Male'}</div>
     <div class="info-item"><span class="label">Alignment:</span> {character.alignment || 'True Neutral'}</div>
+    {#if character.age}<div class="info-item"><span class="label">Age:</span> {character.age}</div>{/if}
+    {#if character.height}<div class="info-item"><span class="label">Height:</span> {character.height}</div>{/if}
+    {#if character.weight}<div class="info-item"><span class="label">Weight:</span> {character.weight}</div>{/if}
+    {#if character.eyes}<div class="info-item"><span class="label">Eyes:</span> {character.eyes}</div>{/if}
+    {#if character.hair}<div class="info-item"><span class="label">Hair:</span> {character.hair}</div>{/if}
+    {#if character.deity}<div class="info-item"><span class="label">Deity:</span> {character.deity}</div>{/if}
     <div class="info-item"><span class="label">HP:</span> {hitPoints()}</div>
     <div class="info-item"><span class="label">AC:</span> {baseAC()}</div>
-    <div class="info-item"><span class="label">THAC0:</span> 20</div>
+    <div class="info-item"><span class="label">THAC0:</span> {baseTHAC0}</div>
     <div class="info-item"><span class="label">Movement:</span> {character.race.movement || 12}</div>
+    <div class="info-item" class:encumbered={totalWeight() > strMods.weightAllow}><span class="label">Encumbrance:</span> {totalWeight()} / {strMods.weightAllow} lbs</div>
+    {#if totalWeight() > strMods.weightAllow}
+      <div class="info-item encumbered"><span class="label">⚠ Encumbered!</span></div>
+    {/if}
       </div>
     </div>
   </div>
@@ -146,6 +217,58 @@
     </div>
   </div>
 
+  <!-- Detailed Ability Modifiers -->
+  <div class="ability-details">
+    <div class="detail-col">
+      <div class="detail-group">
+        <div class="detail-header">Strength</div>
+        <div class="detail-row"><span>Hit Adj</span><span class="val">{formatModifier(strMods.hitAdj)}</span></div>
+        <div class="detail-row"><span>Dmg Adj</span><span class="val">{formatModifier(strMods.dmgAdj)}</span></div>
+        <div class="detail-row"><span>Weight Allow</span><span class="val">{strMods.weightAllow} lbs</span></div>
+        <div class="detail-row"><span>Max Press</span><span class="val">{strMods.maxPress} lbs</span></div>
+        <div class="detail-row"><span>Open Doors</span><span class="val">{strMods.openDoors}</span></div>
+        <div class="detail-row"><span>Bend Bars</span><span class="val">{strMods.bendBars}%</span></div>
+      </div>
+      <div class="detail-group">
+        <div class="detail-header">Dexterity</div>
+        <div class="detail-row"><span>Reaction Adj</span><span class="val">{formatModifier(dexMods.reactionAdj)}</span></div>
+        <div class="detail-row"><span>AC Adj</span><span class="val">{formatModifier(dexMods.acAdj)}</span></div>
+        <div class="detail-row"><span>Missile Atk Adj</span><span class="val">{formatModifier(dexMods.missileAdj)}</span></div>
+      </div>
+      <div class="detail-group">
+        <div class="detail-header">Constitution</div>
+        <div class="detail-row"><span>HP Adj</span><span class="val">{formatModifier(conMods.hpAdj)}</span></div>
+        <div class="detail-row"><span>System Shock</span><span class="val">{conMods.systemShock}%</span></div>
+        <div class="detail-row"><span>Resurrection</span><span class="val">{conMods.resurrectionSurvival}%</span></div>
+      </div>
+    </div>
+    <div class="detail-col">
+      <div class="detail-group">
+        <div class="detail-header">Intelligence</div>
+        <div class="detail-row"><span>Languages</span><span class="val">{intMods.languages}</span></div>
+        <div class="detail-row"><span>Learn Spell</span><span class="val">{formatPercentage(intMods.learnSpell)}</span></div>
+        <div class="detail-row"><span>Max Spells/Lvl</span><span class="val">{intMods.maxSpellsPerLevel}</span></div>
+        <div class="detail-row"><span>Max Spell Lvl</span><span class="val">{intMods.maxSpellLevel}th</span></div>
+      </div>
+      <div class="detail-group">
+        <div class="detail-header">Wisdom</div>
+        <div class="detail-row"><span>Magic Defense Adj</span><span class="val">{formatModifier(wisMods.magicDefenseAdj)}</span></div>
+        {#if Object.keys(wisMods.bonusSpells).length > 0}
+          <div class="detail-row"><span>Bonus Spells</span><span class="val">{Object.entries(wisMods.bonusSpells).map(([lvl, n]) => `+${n} (${lvl}st)`).join(', ')}</span></div>
+        {:else}
+          <div class="detail-row"><span>Bonus Spells</span><span class="val">None</span></div>
+        {/if}
+        <div class="detail-row"><span>Spell Failure</span><span class="val">{wisMods.spellFailure}%</span></div>
+      </div>
+      <div class="detail-group">
+        <div class="detail-header">Charisma</div>
+        <div class="detail-row"><span>Max Henchmen</span><span class="val">{chaMods.maxHenchmen}</span></div>
+        <div class="detail-row"><span>Loyalty Base</span><span class="val">{formatModifier(chaMods.loyaltyBase)}</span></div>
+        <div class="detail-row"><span>Reaction Adj</span><span class="val">{formatModifier(chaMods.reactionAdj)}</span></div>
+      </div>
+    </div>
+  </div>
+
   <hr class="divider">
 
   <!-- Saving Throws and Combat Stats -->
@@ -159,34 +282,56 @@
       <div class="stat-row"><span>Spell</span> <span class="val">{savingThrows.spell}</span></div>
     </div>
 
-    {#if character.cls.group === 'wizard'}
-      <div class="stat-block">
-        <h3>Spellcasting</h3>
-        <div class="stat-row"><span>Spells per day</span> <span class="val">1 (1st level)</span></div>
-        <div class="stat-row"><span>Learn spell chance</span> <span class="val">{formatPercentage(intMods.learnSpell)}</span></div>
-        <div class="stat-row"><span>Max spells/level</span> <span class="val">{intMods.maxSpellsPerLevel}</span></div>
-        <div class="stat-row"><span>Max spell level</span> <span class="val">{intMods.maxSpellLevel}th</span></div>
-      </div>
-    {:else if character.cls.group === 'priest'}
-      <div class="stat-block">
-        <h3>Spellcasting</h3>
-        <div class="stat-row"><span>Spells per day</span> <span class="val">1 (1st level)</span></div>
-        {#if Object.keys(wisMods.bonusSpells).length > 0}
-          <div class="stat-row"><span>Bonus spells</span> <span class="val">+{wisMods.bonusSpells[1] || 0} (1st)</span></div>
-        {/if}
-      </div>
-    {:else}
-      <div class="stat-block">
-        <h3>Combat</h3>
-        <div class="stat-row"><span>Base THAC0</span> <span class="val">{baseTHAC0}</span></div>
-        {#if strMods.dmgAdj !== 0}
-          <div class="stat-row"><span>Damage adj</span> <span class="val">{formatModifier(strMods.dmgAdj)}</span></div>
-        {/if}
-      </div>
-    {/if}
+    <div class="stat-block">
+      <h3>Combat</h3>
+      <div class="stat-row"><span>Base THAC0</span> <span class="val">{baseTHAC0}</span></div>
+      <div class="stat-row"><span>Melee THAC0</span> <span class="val">{meleeTHAC0}</span></div>
+      <div class="stat-row"><span>Missile THAC0</span> <span class="val">{missileTHAC0}</span></div>
+      <div class="stat-row"><span>Damage Adj</span> <span class="val">{formatModifier(strMods.dmgAdj)}</span></div>
+      <div class="stat-row"><span>AC</span> <span class="val">{baseAC()}</span></div>
+      <div class="stat-row"><span>Movement</span> <span class="val">{character.race.movement || 12}</span></div>
+    </div>
   </div>
 
+  {#if character.cls.group === 'wizard' || character.cls.group === 'priest'}
+    <div class="two-col" style="margin-top: 1rem;">
+      <div class="stat-block">
+        {#if character.cls.group === 'wizard'}
+          <h3>Spellcasting</h3>
+          <div class="stat-row"><span>Spells per day</span> <span class="val">1 (1st level)</span></div>
+          <div class="stat-row"><span>Learn spell chance</span> <span class="val">{formatPercentage(intMods.learnSpell)}</span></div>
+          <div class="stat-row"><span>Max spells/level</span> <span class="val">{intMods.maxSpellsPerLevel}</span></div>
+          <div class="stat-row"><span>Max spell level</span> <span class="val">{intMods.maxSpellLevel}th</span></div>
+        {:else}
+          <h3>Spellcasting</h3>
+          <div class="stat-row"><span>Spells per day</span> <span class="val">1 (1st level)</span></div>
+          {#if Object.keys(wisMods.bonusSpells).length > 0}
+            <div class="stat-row"><span>Bonus spells</span> <span class="val">+{wisMods.bonusSpells[1] || 0} (1st)</span></div>
+          {/if}
+        {/if}
+      </div>
+      <div></div>
+    </div>
+  {/if}
+
   <hr class="divider">
+
+  <!-- Weapons with calculated THAC0 -->
+  {#if character.equipment?.weapons?.length}
+    <div class="stat-block">
+      <h3>Weapons</h3>
+      {#each character.equipment.weapons as weapon}
+        <div class="stat-row">
+          <span>{weapon.name}</span>
+          <span class="val">
+            THAC0 {weapon.ranged ? missileTHAC0 : meleeTHAC0}
+            · {weapon.damage}{#if !weapon.ranged && strMods.dmgAdj !== 0}{formatModifier(strMods.dmgAdj)} dmg{:else} dmg{/if}
+          </span>
+        </div>
+      {/each}
+    </div>
+    <hr class="divider">
+  {/if}
 
   <!-- Two Column Sections -->
   <div class="two-col">
@@ -204,14 +349,14 @@
     <div class="stat-block">
       <h3>Equipment</h3>
       {#if character.equipment?.armor}
-        <div class="stat-row"><span>Armor:</span> <span class="val">{character.equipment.armor.name}</span></div>
+        <div class="stat-row"><span>Armor:</span> <span class="val">{character.equipment.armor.name} (AC {character.equipment.armor.ac})</span></div>
       {/if}
       {#if character.equipment?.shield}
         <div class="stat-row"><span>Shield:</span> <span class="val">{character.equipment.shield.name}</span></div>
       {/if}
-      {#if character.equipment?.weapons}
-        {#each character.equipment.weapons as weapon}
-          <div class="stat-row"><span>{weapon.name}</span> <span class="val">{weapon.damage}</span></div>
+      {#if character.equipment?.gear?.length}
+        {#each character.equipment.gear as item}
+          <div class="stat-row"><span>{item.name}</span> <span class="val">{item.weight} lbs</span></div>
         {/each}
       {/if}
       {#if character.equipment?.remaining !== undefined}
@@ -261,6 +406,28 @@
     <hr class="divider">
   {/if}
 
+  <!-- Racial Abilities -->
+  {#if character.race?.traits?.length}
+    <div class="stat-block">
+      <h3>Racial Abilities</h3>
+      {#each character.race.traits as trait}
+        <div class="trait-row">◆ {trait}</div>
+      {/each}
+    </div>
+    <hr class="divider">
+  {/if}
+
+  <!-- Class Features -->
+  {#if character.cls?.features?.length}
+    <div class="stat-block">
+      <h3>Class Features</h3>
+      {#each character.cls.features as feature}
+        <div class="trait-row">◆ {feature}</div>
+      {/each}
+    </div>
+    <hr class="divider">
+  {/if}
+
   <!-- Backstory -->
   {#if character.backstory}
     <div class="stat-block">
@@ -270,13 +437,49 @@
     <hr class="divider">
   {/if}
 
-  <!-- Share Button -->
+  <!-- Footer -->
+  <div class="sheet-footer">
+    Advanced Dungeons &amp; Dragons — 2nd Edition · {character.name}
+  </div>
+
+  <!-- Actions -->
   <div class="sheet-actions">
-    <button class="btn-primary" onclick={shareCharacter}>
-      📋 Share Character
-    </button>
+    <div class="action-buttons">
+      {#if shareLinkWarning}
+        <Tooltip text={shareLinkWarning} position="bottom">
+          <button class="btn-primary btn-warn" onclick={shareCharacter}>
+            📋 Share Link ⚠
+          </button>
+        </Tooltip>
+      {:else}
+        <button class="btn-primary" onclick={shareCharacter}>
+          📋 Share Link
+        </button>
+      {/if}
+      <button class="btn-primary" onclick={exportCode}>
+        📦 Export Code
+      </button>
+      <button class="btn-ghost" onclick={() => showImportArea = !showImportArea}>
+        📥 Import Code
+      </button>
+    </div>
     {#if showShareMessage}
       <p class="share-message">{shareMessage}</p>
+    {/if}
+    {#if showImportArea}
+      <div class="import-area">
+        <textarea
+          bind:value={importCode}
+          placeholder="Paste character code here..."
+          rows="3"
+        ></textarea>
+        <button class="btn-primary" onclick={loadImportedCharacter}>
+          Load Character
+        </button>
+        {#if importError}
+          <p class="import-error">{importError}</p>
+        {/if}
+      </div>
     {/if}
   </div>
 </div>
@@ -367,6 +570,14 @@
       font-weight: 600;
       color: var(--text-muted);
     }
+
+    &.encumbered {
+      color: var(--red, #b43c28);
+
+      .label {
+        color: var(--red, #b43c28);
+      }
+    }
   }
 
   .section-title {
@@ -412,6 +623,47 @@
     }
   }
 
+  .ability-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .detail-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .detail-group {
+    .detail-header {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8em;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.15rem;
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.1rem 0;
+    font-size: 0.85em;
+    border-bottom: 1px dotted var(--border-color);
+
+    .val {
+      font-weight: 600;
+    }
+  }
+
   .two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -444,11 +696,27 @@
     }
   }
 
+  .trait-row {
+    padding: 0.2rem 0;
+    font-size: 0.95em;
+    border-bottom: 1px dotted var(--border-color);
+  }
+
   .backstory-text {
     font-size: 0.95em;
     line-height: 1.6;
     color: var(--text-body);
     white-space: pre-wrap;
+  }
+
+  .sheet-footer {
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .sheet-actions {
@@ -460,6 +728,17 @@
     margin-top: 1rem;
   }
 
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn-warn {
+    border-color: rgba(180, 140, 40, 0.6);
+  }
+
   .share-message {
     margin: 0;
     padding: 0.5rem 1rem;
@@ -467,6 +746,37 @@
     border: 1px solid rgba(34, 139, 34, 0.3);
     border-radius: 4px;
     color: #228b22;
+    font-size: 0.875rem;
+  }
+
+  .import-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 500px;
+
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-input);
+      color: var(--text-body);
+      resize: vertical;
+    }
+  }
+
+  .import-error {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    background: rgba(180, 60, 40, 0.15);
+    border: 1px solid rgba(180, 60, 40, 0.3);
+    border-radius: 4px;
+    color: #b43c28;
     font-size: 0.875rem;
   }
 
@@ -485,11 +795,12 @@
       border-color: #000;
     }
 
-    h1, .subtitle, .section-title, .stat-block h3, .ability .name {
+    h1, .subtitle, .section-title, .stat-block h3, .ability .name,
+    .detail-group .detail-header, .sheet-footer {
       color: #000 !important;
     }
 
-    .info-item, .stat-row, .backstory-text {
+    .info-item, .stat-row, .detail-row, .trait-row, .backstory-text {
       color: #000 !important;
     }
 
@@ -525,6 +836,10 @@
     }
 
     .top-section {
+      page-break-inside: avoid;
+    }
+
+    .ability-details {
       page-break-inside: avoid;
     }
   }
