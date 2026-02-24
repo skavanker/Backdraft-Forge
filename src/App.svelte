@@ -11,7 +11,7 @@
   import CharacterSummary from './lib/CharacterSummary.svelte';
   import { getCharacterWarnings } from './data/classes.js';
   import { initTheme, toggleTheme } from './lib/theme.js';
-  import { getCharacterFromUrl } from './lib/shareCharacter.js';
+  import { getCharacterFromUrl, encodeCharacter, decodeCharacter } from './lib/shareCharacter.js';
 
   const steps = [
     'Roll Abilities',
@@ -47,6 +47,39 @@
     backstory: null,        // Character backstory
   });
 
+  const SAVE_KEY = 'backdraft-forge-character';
+
+  function saveToLocalStorage() {
+    try {
+      const encoded = encodeCharacter(character);
+      if (encoded) localStorage.setItem(SAVE_KEY, encoded);
+    } catch (e) { /* silently fail */ }
+  }
+
+  function clearSavedCharacter() {
+    localStorage.removeItem(SAVE_KEY);
+  }
+
+  async function loadSavedCharacter() {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (saved) {
+        const restored = await decodeCharacter(saved);
+        if (restored) {
+          character = restored;
+          currentStep = 8;
+          hasSavedCharacter = false;
+          return;
+        }
+      }
+    } catch (e) { /* ignore */ }
+    // If load failed, clear bad data
+    clearSavedCharacter();
+    hasSavedCharacter = false;
+  }
+
+  let hasSavedCharacter = $state(false);
+
   onMount(async () => {
     initTheme();
     theme = document.documentElement.getAttribute('data-theme') || 'light';
@@ -54,13 +87,22 @@
     // Check if character data is in URL (shared link)
     const sharedCharacter = await getCharacterFromUrl();
     if (sharedCharacter) {
-      // Load the shared character
       character = sharedCharacter;
-      // Navigate to final sheet to view it
       currentStep = 8;
-      // Clear the hash to clean up URL
       window.history.replaceState(null, '', window.location.pathname);
+      return;
     }
+
+    // Check for saved character in localStorage
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (saved) {
+        const restored = await decodeCharacter(saved);
+        if (restored) {
+          hasSavedCharacter = true;
+        }
+      }
+    } catch (e) { /* ignore corrupt data */ }
   });
 
   function handleThemeToggle() {
@@ -144,6 +186,7 @@
     character.hair = hair;
     character.deity = deity;
     currentStep = 8;
+    saveToLocalStorage();
   }
 
   function continueToStep(step) {
@@ -184,6 +227,7 @@
   function handleImportCharacter(importedCharacter) {
     character = importedCharacter;
     currentStep = 8;
+    saveToLocalStorage();
   }
 
   let showResetConfirm = $state(false);
@@ -208,6 +252,8 @@
     };
     currentStep = 0;
     showResetConfirm = false;
+    hasSavedCharacter = false;
+    clearSavedCharacter();
   }
 
 
@@ -260,6 +306,20 @@
   </nav>
 
   <section class="content card">
+    {#if hasSavedCharacter && currentStep === 0}
+      <div class="resume-prompt">
+        <p>You have a saved character from a previous session.</p>
+        <div class="resume-buttons">
+          <button class="btn-primary" onclick={loadSavedCharacter}>
+            Resume Saved Character
+          </button>
+          <button class="btn-ghost" onclick={() => { hasSavedCharacter = false; clearSavedCharacter(); }}>
+            Start Fresh
+          </button>
+        </div>
+      </div>
+    {/if}
+
     {#if currentStep === 0}
       <h2>Roll Your Abilities</h2>
       <CharacterSummary {character} />
@@ -434,6 +494,28 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+  }
+
+  .resume-prompt {
+    text-align: center;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--gold);
+    border-radius: 4px;
+    background: rgba(201, 162, 39, 0.08);
+
+    p {
+      margin: 0 0 1rem;
+      color: var(--text-body);
+      font-size: 1.05rem;
+    }
+  }
+
+  .resume-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
   .header {

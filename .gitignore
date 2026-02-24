@@ -20,6 +20,7 @@ rename_portraits.py
 check_missing_portraits.py
 compress_portraits.py
 zoranius_mironimus_character_sheet.html
+pip_burrows_character_sheet.html
 
 # Editor directories and files
 .vscode/*
