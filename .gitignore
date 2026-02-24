@@ -12,11 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Portrait images (large files, don't commit)
-public/portraits/*.png
-public/portraits/*.jpg
-public/portraits/*.webp
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
