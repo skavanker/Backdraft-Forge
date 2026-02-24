@@ -96,7 +96,7 @@
     const race = character.raceKey.charAt(0).toUpperCase() + character.raceKey.slice(1); // Capitalize
     const gender = character.sex || 'Male';
     const cls = character.wizardSchool ? 'SpecialistWizard' : (character.classKey.charAt(0).toUpperCase() + character.classKey.slice(1));
-    return `${race}${gender}${cls}.png`;
+    return `${race}${gender}${cls}.webp`;
   });
 
   // Calculate total weight carried
@@ -134,7 +134,7 @@
       <img
         src="/portraits/{portraitFilename()}"
         alt="{character.name}"
-        onerror={(e) => e.target.src = '/portraits/DefaultPortrait.png'}
+        onerror={(e) => e.target.src = '/portraits/DefaultPortrait.webp'}
       />
     </div>
     <div class="basic-info">
