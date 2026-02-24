@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Portrait backups (large files)
+public/portraits/originals_backup/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
