@@ -271,7 +271,7 @@
     .xp-bonus {
       padding: 0.15rem 0.4rem;
       background: rgba(34, 139, 34, 0.15);
-      color: #228b22;
+      color: var(--green);
       border-radius: 2px;
       font-size: 0.75rem;
       font-weight: 600;
@@ -339,7 +339,7 @@
     }
 
     &.highlight .stat-value {
-      color: #228b22;
+      color: var(--green);
     }
 
     &.warning .stat-value {

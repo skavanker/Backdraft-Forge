@@ -28,7 +28,7 @@
       color: var(--text-primary);
 
       &.complete {
-        color: #228b22;
+        color: var(--green);
       }
     }
   }

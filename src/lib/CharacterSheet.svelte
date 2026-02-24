@@ -536,10 +536,10 @@
     }
 
     &.encumbered {
-      color: var(--red, #b43c28);
+      color: var(--red);
 
       .label {
-        color: var(--red, #b43c28);
+        color: var(--red);
       }
     }
   }
@@ -709,7 +709,7 @@
     background: rgba(34, 139, 34, 0.15);
     border: 1px solid rgba(34, 139, 34, 0.3);
     border-radius: 4px;
-    color: #228b22;
+    color: var(--green);
     font-size: 0.875rem;
   }
 

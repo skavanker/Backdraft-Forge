@@ -309,7 +309,7 @@
 
     .spell-name {
       font-weight: 600;
-      color: #228b22;
+      color: var(--green);
     }
 
     .spell-school {

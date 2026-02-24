@@ -77,7 +77,7 @@
     background: rgba(180, 60, 40, 0.15);
     border: 1px solid rgba(180, 60, 40, 0.3);
     border-radius: 4px;
-    color: #b43c28;
+    color: var(--red);
     font-size: 0.875rem;
   }
 </style>
