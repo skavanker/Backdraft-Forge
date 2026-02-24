@@ -7,9 +7,13 @@
 - [x] Print-friendly view (character sheet)
 - [ ] PDF export of character sheet
 
+### Visuals
+- [x] Character portraits (46/62 race/class/gender combinations)
+- [ ] Remaining portraits (16 Half-Elf and Halfling combinations)
+
 ### AI Integration
 - [ ] AI-generated backstory (provider-agnostic)
-- [ ] Character portrait generation (optional)
+- [ ] AI portrait generation (optional alternative to manual portraits)
 
 ### Gameplay Additions
 - [x] Saving throws calculator (all classes, level 1)
