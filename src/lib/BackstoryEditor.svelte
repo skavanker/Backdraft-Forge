@@ -5,12 +5,20 @@
 
   let name = $state(character.name || '');
   let sex = $state(character.sex || 'Male');
+  let alignment = $state(character.alignment || 'True Neutral');
   let backstory = $state(character.backstory || '');
+
+  const alignments = [
+    'Lawful Good', 'Neutral Good', 'Chaotic Good',
+    'Lawful Neutral', 'True Neutral', 'Chaotic Neutral',
+    'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'
+  ];
 
   function confirm() {
     onComplete({
       name: name.trim() || 'Unnamed Hero',
       sex: sex,
+      alignment: alignment,
       backstory: backstory.trim()
     });
   }
@@ -54,6 +62,21 @@
     </div>
   </div>
 
+  <div class="alignment-section">
+    <label>Alignment</label>
+    <div class="alignment-grid">
+      {#each alignments as align}
+        <button
+          class="alignment-btn"
+          class:selected={alignment === align}
+          onclick={() => alignment = align}
+        >
+          {align}
+        </button>
+      {/each}
+    </div>
+  </div>
+
   <div class="backstory-section">
     <label for="backstory">Backstory</label>
     <textarea
@@ -87,6 +110,7 @@
 
   .name-section,
   .sex-section,
+  .alignment-section,
   .backstory-section {
     display: flex;
     flex-direction: column;
@@ -113,6 +137,41 @@
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-hover);
+    }
+
+    &.selected {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.15);
+      color: var(--text-primary);
+      font-weight: 600;
+
+      &:hover {
+        border-color: var(--gold);
+        background: rgba(201, 162, 39, 0.25);
+      }
+    }
+  }
+
+  .alignment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .alignment-btn {
+    padding: 0.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-input);
+    color: var(--text-body);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
 
     &:hover {
       border-color: var(--border-strong);

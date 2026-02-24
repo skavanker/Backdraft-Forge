@@ -60,9 +60,10 @@ function compressCharacter(character) {
     }
   }
 
-  // Name, sex, and backstory
+  // Name, sex, alignment, and backstory
   if (character.name) compressed.n = character.name;
-  if (character.sex) compressed.s = character.sex;
+  if (character.sex) compressed.sx = character.sex;
+  if (character.alignment) compressed.al = character.alignment;
   if (character.backstory) compressed.b = character.backstory;
 
   return compressed;
@@ -187,7 +188,8 @@ async function decompressCharacter(compressed) {
     equipment: equipmentData,
     spells,
     name: compressed.n || null,
-    sex: compressed.s || 'Male',
+    sex: compressed.sx || compressed.s || 'Male', // Support both old 's' and new 'sx'
+    alignment: compressed.al || 'True Neutral',
     backstory: compressed.b || null
   };
 }

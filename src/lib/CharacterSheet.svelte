@@ -70,6 +70,14 @@
   });
 
   let className = $derived(character.wizardSchool?.name || character.cls.name);
+
+  // Get portrait filename based on race, sex, and class
+  let portraitFilename = $derived(() => {
+    const race = character.raceKey.charAt(0).toUpperCase() + character.raceKey.slice(1); // Capitalize
+    const gender = character.sex || 'Male';
+    const cls = character.wizardSchool ? 'SpecialistWizard' : (character.classKey.charAt(0).toUpperCase() + character.classKey.slice(1));
+    return `${race}${gender}${cls}.png`;
+  });
 </script>
 
 <div class="sheet">
@@ -78,15 +86,27 @@
 
   <hr class="divider">
 
-  <!-- Basic Info -->
-  <div class="info-grid">
+  <!-- Portrait and Basic Info -->
+  <div class="top-section">
+    <div class="portrait">
+      <img
+        src="/portraits/{portraitFilename()}"
+        alt="{character.name}"
+        onerror={(e) => e.target.src = '/portraits/DefaultPortrait.png'}
+      />
+    </div>
+    <div class="basic-info">
+      <div class="info-grid">
     <div class="info-item"><span class="label">Race:</span> {character.race.name}</div>
     <div class="info-item"><span class="label">Class:</span> {className}</div>
     <div class="info-item"><span class="label">Sex:</span> {character.sex || 'Male'}</div>
+    <div class="info-item"><span class="label">Alignment:</span> {character.alignment || 'True Neutral'}</div>
     <div class="info-item"><span class="label">HP:</span> {hitPoints()}</div>
     <div class="info-item"><span class="label">AC:</span> {baseAC()}</div>
     <div class="info-item"><span class="label">THAC0:</span> 20</div>
     <div class="info-item"><span class="label">Movement:</span> {character.race.movement || 12}</div>
+      </div>
+    </div>
   </div>
 
   <hr class="divider">
@@ -305,6 +325,34 @@
     margin: 1.25rem 0;
   }
 
+  .top-section {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .portrait {
+    flex-shrink: 0;
+    width: 200px;
+  }
+
+  .portrait img {
+    width: 100%;
+    border: 3px solid var(--gold);
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .basic-info {
+    flex: 1;
+    width: 100%;
+  }
+
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -469,6 +517,14 @@
     }
 
     .stat-block {
+      page-break-inside: avoid;
+    }
+
+    .portrait img {
+      border-color: #000 !important;
+    }
+
+    .top-section {
       page-break-inside: avoid;
     }
   }
