@@ -53,7 +53,9 @@
     if (selectedArmor) items.push(selectedArmor);
     if (selectedShield) items.push(selectedShield);
     items.push(...selectedWeapons);
-    items.push(...selectedGear);
+    for (const g of selectedGear) {
+      for (let i = 0; i < (g.qty || 1); i++) items.push(g);
+    }
     return items;
   });
 
@@ -100,12 +102,53 @@
     }
   }
 
-  function toggleGear(item) {
-    if (selectedGear.find(g => g.key === item.key)) {
+  function addGear(item) {
+    if (!canAfford(item.price)) return;
+    const existing = selectedGear.find(g => g.key === item.key);
+    if (existing) {
+      selectedGear = selectedGear.map(g =>
+        g.key === item.key ? { ...g, qty: (g.qty || 1) + 1 } : g
+      );
+    } else {
+      selectedGear = [...selectedGear, { ...item, qty: 1 }];
+    }
+  }
+
+  function removeGear(item) {
+    const existing = selectedGear.find(g => g.key === item.key);
+    if (!existing) return;
+    const qty = existing.qty || 1;
+    if (qty <= 1) {
       selectedGear = selectedGear.filter(g => g.key !== item.key);
     } else {
-      selectedGear = [...selectedGear, item];
+      selectedGear = selectedGear.map(g =>
+        g.key === item.key ? { ...g, qty: g.qty - 1 } : g
+      );
     }
+  }
+
+  // Custom items
+  let customName = $state('');
+  let customPrice = $state(0);
+  let customWeight = $state(0);
+  let customIdCounter = $state(0);
+
+  function addCustomItem() {
+    if (!customName.trim()) return;
+    const price = { gp: customPrice || 0 };
+    if (!canAfford(price)) return;
+    const key = `custom_${customIdCounter}`;
+    customIdCounter++;
+    selectedGear = [...selectedGear, {
+      key,
+      name: customName.trim(),
+      price,
+      weight: customWeight || 0,
+      qty: 1
+    }];
+    customName = '';
+    customPrice = 0;
+    customWeight = 0;
   }
 
   function canAfford(price) {
@@ -139,7 +182,10 @@
       selectedArmor = existingEquipment.armor;
       selectedShield = existingEquipment.shield;
       selectedWeapons = existingEquipment.weapons || [];
-      selectedGear = existingEquipment.gear || [];
+      selectedGear = (existingEquipment.gear || []).map(g => ({ ...g, qty: g.qty || 1 }));
+      // Restore custom ID counter past any existing custom items
+      const customKeys = selectedGear.filter(g => g.key.startsWith('custom_')).map(g => parseInt(g.key.split('_')[1]) + 1);
+      if (customKeys.length) customIdCounter = Math.max(...customKeys);
     }
   });
 </script>
@@ -287,6 +333,7 @@
       <!-- Ammunition -->
       <div class="section">
         <h3>Ammunition</h3>
+        <p class="section-hint">Left-click to add, right-click to remove</p>
         <div class="item-grid small">
           {#each equipment.ammunition as ammo}
             {@const selected = selectedGear.find(g => g.key === ammo.key)}
@@ -294,11 +341,15 @@
             <button
               class="item-card small"
               class:selected
-              class:disabled={!affordable}
-              onclick={() => affordable && toggleGear(ammo)}
+              class:disabled={!affordable && !selected}
+              onclick={() => addGear(ammo)}
+              oncontextmenu={(e) => { e.preventDefault(); removeGear(ammo); }}
             >
               <span class="item-name">{ammo.name}</span>
               <span class="item-price">{formatPrice(ammo.price)}</span>
+              {#if selected?.qty > 1}
+                <span class="qty-badge">&times;{selected.qty}</span>
+              {/if}
             </button>
           {/each}
         </div>
@@ -307,6 +358,7 @@
       <!-- Adventuring Gear -->
       <div class="section">
         <h3>Adventuring Gear</h3>
+        <p class="section-hint">Left-click to add, right-click to remove</p>
         <div class="item-grid small">
           {#each equipment.adventuringGear as item}
             {@const selected = selectedGear.find(g => g.key === item.key)}
@@ -314,11 +366,15 @@
             <button
               class="item-card small"
               class:selected
-              class:disabled={!affordable}
-              onclick={() => affordable && toggleGear(item)}
+              class:disabled={!affordable && !selected}
+              onclick={() => addGear(item)}
+              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
             >
               <span class="item-name">{item.name}</span>
               <span class="item-price">{formatPrice(item.price)}</span>
+              {#if selected?.qty > 1}
+                <span class="qty-badge">&times;{selected.qty}</span>
+              {/if}
             </button>
           {/each}
         </div>
@@ -327,6 +383,7 @@
       <!-- Clothing -->
       <div class="section">
         <h3>Clothing</h3>
+        <p class="section-hint">Left-click to add, right-click to remove</p>
         <div class="item-grid small">
           {#each equipment.clothing as item}
             {@const selected = selectedGear.find(g => g.key === item.key)}
@@ -334,15 +391,52 @@
             <button
               class="item-card small"
               class:selected
-              class:disabled={!affordable}
-              onclick={() => affordable && toggleGear(item)}
+              class:disabled={!affordable && !selected}
+              onclick={() => addGear(item)}
+              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
             >
               <span class="item-name">{item.name}</span>
               <span class="item-price">{formatPrice(item.price)}</span>
+              {#if selected?.qty > 1}
+                <span class="qty-badge">&times;{selected.qty}</span>
+              {/if}
             </button>
           {/each}
         </div>
       </div>
+
+      <!-- Custom Item -->
+      <div class="section">
+        <h3>Custom Item</h3>
+        <div class="custom-gear-form">
+          <input placeholder="Item name" bind:value={customName} />
+          <input type="number" placeholder="Price (gp)" bind:value={customPrice} min="0" />
+          <input type="number" placeholder="Weight (lbs)" bind:value={customWeight} min="0" />
+          <button class="btn-add" onclick={addCustomItem} disabled={!customName.trim()}>Add</button>
+        </div>
+      </div>
+
+      <!-- Selected custom items -->
+      {#if selectedGear.some(g => g.key.startsWith('custom_'))}
+        <div class="section">
+          <h3>Custom Items</h3>
+          <div class="item-grid small">
+            {#each selectedGear.filter(g => g.key.startsWith('custom_')) as item}
+              <button
+                class="item-card small selected"
+                onclick={() => addGear(item)}
+                oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
+              >
+                <span class="item-name">{item.name}</span>
+                <span class="item-price">{item.price?.gp || 0} gp</span>
+                {#if item.qty > 1}
+                  <span class="qty-badge">&times;{item.qty}</span>
+                {/if}
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
     </div>
 
     <button
@@ -588,6 +682,63 @@
     &.selected {
       .item-name {
         color: var(--text-primary);
+      }
+    }
+  }
+
+  .qty-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--gold);
+    color: var(--bg-card);
+    border-radius: 8px;
+    padding: 0 0.35rem;
+    margin-left: auto;
+    line-height: 1.4;
+  }
+
+  .custom-gear-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    input {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-input);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+
+    input:not([type="number"]) {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    input[type="number"] {
+      width: 90px;
+    }
+
+    .btn-add {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--bg-panel);
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: background 0.2s;
+
+      &:hover:not(:disabled) {
+        background: var(--gold);
+        color: var(--bg-card);
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
       }
     }
   }
