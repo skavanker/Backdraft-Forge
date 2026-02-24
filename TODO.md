@@ -42,13 +42,13 @@
 - [ ] Mobile responsiveness improvements
 - [ ] Keyboard navigation
 - [ ] Undo/redo for choices
-- [ ] Save character to localStorage
-- [ ] Load previous characters
+- [x] Save character to localStorage (auto-save on completion, resume prompt on return)
+- [ ] Load previous characters (multiple save slots)
 
 ### Data Completeness
 - [ ] More equipment options
 - [ ] Complete spell lists by level (currently has starter spells)
-- [ ] Deity selection for clerics
+- [ ] Priest spell spheres by deity (deity already a freeform field)
 - [ ] Ranger species enemy selection
 - [ ] Thief skill point allocation
 - [x] Racial special abilities details

@@ -10,7 +10,7 @@ const names = {
     Male: {
       first: {
         prefix: ['Ald', 'Ed', 'God', 'Wil', 'Gar', 'Rod', 'Os', 'Bran', 'Ced', 'Hal', 'Mor', 'Ren', 'Sig', 'Tor', 'Ulf'],
-        suffix: ['ric', 'mund', 'win', 'fred', 'bert', 'ard', 'wald', 'wen', 'ric', 'gar', 'dan', 'ald', 'mar', 'ton', 'mund']
+        suffix: ['ric', 'mund', 'win', 'fred', 'bert', 'ard', 'wald', 'wen', 'stan', 'gar', 'dan', 'ald', 'mar', 'ton', 'helm']
       },
       surname: {
         prefix: ['Black', 'Ash', 'Iron', 'Stone', 'Hawk', 'Red', 'North', 'Storm', 'Grey', 'Thorn', 'Oak', 'Bright', 'Cold', 'High', 'Swift'],
@@ -32,9 +32,9 @@ const names = {
   elf: {
     Male: {
       first: {
-        prefix: ['Ael', 'Cel', 'Thal', 'Gal', 'Nim', 'Fin', 'Lor', 'Ael', 'Var', 'Eld', 'Ara', 'Fael', 'Ith', 'Quel', 'Rael'],
+        prefix: ['Ael', 'Cel', 'Thal', 'Gal', 'Nim', 'Fin', 'Lor', 'Eil', 'Var', 'Eld', 'Ara', 'Fael', 'Ith', 'Quel', 'Rael'],
         middle: ['an', 'ar', 'el', 'en', 'ir', 'or'],
-        suffix: ['indor', 'ion', 'orn', 'iel', 'ath', 'ias', 'anor', 'ith', 'ael', 'ond', 'oth', 'uin', 'iel', 'aran', 'endil']
+        suffix: ['indor', 'ion', 'orn', 'iel', 'ath', 'ias', 'anor', 'ith', 'ael', 'ond', 'oth', 'uin', 'wyn', 'aran', 'endil']
       },
       surname: {
         prefix: ['Star', 'Moon', 'Silver', 'Wind', 'Sun', 'Shadow', 'Dream', 'Dawn', 'Dew', 'Leaf', 'Night', 'Sky', 'Spell', 'Mist', 'Bright'],
@@ -45,7 +45,7 @@ const names = {
       first: {
         prefix: ['Ael', 'Nim', 'Cel', 'Lir', 'Syl', 'Thal', 'Gal', 'Aer', 'Eil', 'Fae', 'Lor', 'Mith', 'Quel', 'Var', 'Ara'],
         middle: ['an', 'el', 'ir', 'ia', 'ae', 'en'],
-        suffix: ['wen', 'iel', 'ara', 'ith', 'nia', 'eth', 'ael', 'ora', 'ira', 'wyn', 'iel', 'ath', 'iel', 'ana', 'ina']
+        suffix: ['wen', 'iel', 'ara', 'ith', 'nia', 'eth', 'ael', 'ora', 'ira', 'wyn', 'essa', 'ath', 'aris', 'ana', 'ina']
       },
       surname: {
         prefix: ['Star', 'Moon', 'Silver', 'Wind', 'Sun', 'Shadow', 'Dream', 'Dawn', 'Dew', 'Leaf', 'Night', 'Sky', 'Spell', 'Mist', 'Bright'],
