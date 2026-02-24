@@ -1,6 +1,7 @@
 <script>
-  import { generateShareableUrl, copyToClipboard, encodeCharacter, decodeCharacter } from './shareCharacter.js';
+  import { generateShareableUrl, copyToClipboard, encodeCharacter } from './shareCharacter.js';
   import Tooltip from './Tooltip.svelte';
+  import ImportArea from './ImportArea.svelte';
   import {
     getStrengthModifiers,
     getDexterityModifiers,
@@ -18,9 +19,6 @@
 
   let shareMessage = $state('');
   let showShareMessage = $state(false);
-  let showImportArea = $state(false);
-  let importCode = $state('');
-  let importError = $state('');
 
   // Calculate ability modifiers
   let strMods = $derived(getStrengthModifiers(
@@ -72,23 +70,6 @@
     shareMessage = success ? 'Character code copied to clipboard!' : 'Failed to copy code';
     showShareMessage = true;
     setTimeout(() => showShareMessage = false, 3000);
-  }
-
-  async function loadImportedCharacter() {
-    importError = '';
-    const trimmed = importCode.trim();
-    if (!trimmed) {
-      importError = 'Please paste a character code';
-      return;
-    }
-    const imported = await decodeCharacter(trimmed);
-    if (!imported) {
-      importError = 'Invalid character code';
-      return;
-    }
-    onImport?.(imported);
-    showImportArea = false;
-    importCode = '';
   }
 
   // Calculate AC with DEX modifier
@@ -459,27 +440,10 @@
       <button class="btn-primary" onclick={exportCode}>
         📦 Export Code
       </button>
-      <button class="btn-ghost" onclick={() => showImportArea = !showImportArea}>
-        📥 Import Code
-      </button>
+      <ImportArea {onImport} />
     </div>
     {#if showShareMessage}
       <p class="share-message">{shareMessage}</p>
-    {/if}
-    {#if showImportArea}
-      <div class="import-area">
-        <textarea
-          bind:value={importCode}
-          placeholder="Paste character code here..."
-          rows="3"
-        ></textarea>
-        <button class="btn-primary" onclick={loadImportedCharacter}>
-          Load Character
-        </button>
-        {#if importError}
-          <p class="import-error">{importError}</p>
-        {/if}
-      </div>
     {/if}
   </div>
 </div>
@@ -746,37 +710,6 @@
     border: 1px solid rgba(34, 139, 34, 0.3);
     border-radius: 4px;
     color: #228b22;
-    font-size: 0.875rem;
-  }
-
-  .import-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 500px;
-
-    textarea {
-      width: 100%;
-      padding: 0.75rem;
-      font-family: monospace;
-      font-size: 0.8rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: var(--bg-input);
-      color: var(--text-body);
-      resize: vertical;
-    }
-  }
-
-  .import-error {
-    margin: 0;
-    padding: 0.5rem 1rem;
-    background: rgba(180, 60, 40, 0.15);
-    border: 1px solid rgba(180, 60, 40, 0.3);
-    border-radius: 4px;
-    color: #b43c28;
     font-size: 0.875rem;
   }
 
