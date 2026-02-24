@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { getRandomName } from '../data/names.js';
 
   let { character, onComplete } = $props();
 
@@ -23,6 +24,10 @@
     });
   }
 
+  function randomizeName() {
+    name = getRandomName(character.raceKey, sex);
+  }
+
   function generatePlaceholder() {
     const race = character.race?.name || 'mysterious';
     const cls = character.wizardSchool?.name || character.cls?.name || 'adventurer';
@@ -33,13 +38,18 @@
 <div class="backstory-editor">
   <div class="name-section">
     <label for="char-name">Character Name</label>
-    <input
-      id="char-name"
-      type="text"
-      bind:value={name}
-      placeholder="Enter your character's name"
-      maxlength="50"
-    />
+    <div class="name-row">
+      <input
+        id="char-name"
+        type="text"
+        bind:value={name}
+        placeholder="Enter your character's name"
+        maxlength="50"
+      />
+      <button class="btn-random" onclick={randomizeName} title="Generate random name">
+        Random Name
+      </button>
+    </div>
   </div>
 
   <div class="sex-section">
@@ -188,6 +198,38 @@
         border-color: var(--gold);
         background: rgba(201, 162, 39, 0.25);
       }
+    }
+  }
+
+  .name-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+
+    input[type="text"] {
+      flex: 1;
+    }
+  }
+
+  .btn-random {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--gold);
+    border-radius: 4px;
+    background: rgba(201, 162, 39, 0.1);
+    color: var(--gold);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+
+    &:hover {
+      background: rgba(201, 162, 39, 0.25);
+      color: var(--text-primary);
+    }
+
+    &:active {
+      background: rgba(201, 162, 39, 0.35);
     }
   }
 
