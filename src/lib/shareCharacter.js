@@ -1,3 +1,5 @@
+import { deflateRaw, inflateRaw } from 'pako';
+
 /**
  * Compress character to minimal data structure
  */
@@ -83,15 +85,16 @@ function compressCharacter(character) {
 }
 
 /**
- * Encode character data to a URL-safe string
+ * Encode character data to a URL-safe string (deflate-compressed)
  */
 export function encodeCharacter(character) {
   try {
     const compressed = compressCharacter(character);
     const json = JSON.stringify(compressed);
-    // Convert to base64 (encode as UTF-8 first to handle non-ASCII)
-    const base64 = btoa(unescape(encodeURIComponent(json)));
-    const urlSafe = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    const deflated = deflateRaw(new TextEncoder().encode(json));
+    const base64 = btoa(String.fromCharCode(...deflated));
+    // 'Z' prefix marks deflate-compressed codes
+    const urlSafe = 'Z' + base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
     return urlSafe;
   } catch (error) {
     console.error('Failed to encode character:', error);
@@ -225,19 +228,24 @@ async function decompressCharacter(compressed) {
  */
 export async function decodeCharacter(encoded) {
   try {
-    // Convert back from URL-safe base64
-    let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-    // Add padding if needed
-    while (base64.length % 4) {
-      base64 += '=';
-    }
-    const raw = atob(base64);
     let json;
-    try {
-      json = decodeURIComponent(escape(raw));
-    } catch {
-      // Fallback for old codes encoded without UTF-8 wrapping
-      json = raw;
+    if (encoded.startsWith('Z')) {
+      // New deflate-compressed format
+      let base64 = encoded.slice(1).replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) base64 += '=';
+      const binary = atob(base64);
+      const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+      json = new TextDecoder().decode(inflateRaw(bytes));
+    } else {
+      // Legacy uncompressed format
+      let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) base64 += '=';
+      const raw = atob(base64);
+      try {
+        json = decodeURIComponent(escape(raw));
+      } catch {
+        json = raw;
+      }
     }
     const compressed = JSON.parse(json);
 
