@@ -21,6 +21,12 @@ npm run build    # production build
 npm run preview  # preview production build
 ```
 
+## Deployment
+
+- Hosted on Vercel (auto-deploys from `main` branch)
+- Repo: https://github.com/skavanker/Backdraft-Forge
+- No environment variables needed (fully static)
+
 ## Key 2E Rules (Must Enforce)
 
 - Ability scores are rolled FIRST, then determine available races/classes
@@ -29,6 +35,7 @@ npm run preview  # preview production build
 - Warriors with 18 STR get exceptional strength (d100 roll)
 - CON HP bonus above +2 is warrior-only
 - Non-humans have level limits (display as info, don't block creation)
+- Specialist wizard race access is derived from `wizardSchools.allowedRaces` — do NOT add `specialist` to race `classes` manually
 
 ## Character Creation Flow
 
