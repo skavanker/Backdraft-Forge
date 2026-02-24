@@ -204,35 +204,31 @@
     currentStep = step;
   }
 
+  // Each gate returns true when the step's data is complete.
+  // canNavigateToStep: index reachable if <= currentStep OR gate(index) passes.
+  // isStepIncomplete: gate(index) hasn't been satisfied yet.
+  const stepGates = [
+    () => character.abilities !== null,   // 0 Roll Abilities
+    () => character.race !== null,         // 1 Choose Race
+    () => character.cls !== null,          // 2 Choose Class
+    () => true,                            // 3 Review (no completion needed)
+    () => character.proficiencies !== null, // 4 Proficiencies
+    () => character.equipment !== null,     // 5 Equipment
+    () => character.spells !== null,        // 6 Spells
+    () => character.name !== null,          // 7 Backstory
+    () => true,                            // 8 Character Sheet
+  ];
+
   function canNavigateToStep(index) {
-    // Can always go to current or past steps
     if (index <= currentStep) return true;
-
-    // Check if future step has been completed
-    if (index === 1) return character.abilities !== null;
-    if (index === 2) return character.race !== null;
-    if (index === 3) return character.cls !== null;
-    if (index === 4) return character.cls !== null; // Review step
-    if (index === 5) return character.proficiencies !== null;
-    if (index === 6) return character.equipment !== null;
-    if (index === 7) return character.spells !== null;
-    if (index === 8) return character.name !== null;
-
-    return false;
+    // Can jump forward only if preceding gate satisfied
+    // For steps 3 and 4: both require cls (gate index 2)
+    const gateIndex = index === 3 || index === 4 ? 2 : index - 1;
+    return gateIndex >= 0 && stepGates[gateIndex]();
   }
 
   function isStepIncomplete(index) {
-    // Check if a step has unsaved/incomplete data
-    if (index === 0) return character.abilities === null;
-    if (index === 1) return character.race === null;
-    if (index === 2) return character.cls === null;
-    if (index === 3) return false; // Review step, no completion needed
-    if (index === 4) return character.proficiencies === null;
-    if (index === 5) return character.equipment === null;
-    if (index === 6) return character.spells === null;
-    if (index === 7) return !character.name;
-    if (index === 8) return false; // Final sheet
-    return false;
+    return !stepGates[index]();
   }
 
   function handleImportCharacter(importedCharacter) {

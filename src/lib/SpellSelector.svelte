@@ -9,6 +9,7 @@
   } from '../data/spells.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
+  import SlotCounter from './SlotCounter.svelte';
 
   let { classKey, wizardSchool, abilities, existingSpells = null, onComplete } = $props();
 
@@ -135,12 +136,7 @@
           Your spellbook starts with <strong>Read Magic</strong> plus
           <strong>{startingCount - 1}</strong> additional spells based on your Intelligence.
         </p>
-        <div class="slot-counter">
-          <span>Spells Selected</span>
-          <span class="count" class:complete={remainingSlots === 0}>
-            {selectedSpells.length} / {startingCount - 1}
-          </span>
-        </div>
+        <SlotCounter label="Spells Selected" used={selectedSpells.length} total={startingCount - 1} />
       </div>
 
       {#if wizardSchool}
@@ -211,12 +207,7 @@
           {classKey === 'cleric' ? 'clerical' : 'druidic'} spells.
           Prepare <strong>{spellsPerDay}</strong> spell{spellsPerDay !== 1 ? 's' : ''} for today.
         </p>
-        <div class="slot-counter">
-          <span>Spells Prepared</span>
-          <span class="count" class:complete={remainingSlots === 0}>
-            {preparedSpells.length} / {spellsPerDay}
-          </span>
-        </div>
+        <SlotCounter label="Spells Prepared" used={preparedSpells.length} total={spellsPerDay} />
       </div>
 
       <div class="spell-grid">
@@ -288,31 +279,6 @@
       text-align: center;
       color: var(--text-body);
       margin: 0;
-    }
-  }
-
-  .slot-counter {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0.75rem 1.5rem;
-    background: var(--bg-panel);
-    border-radius: 4px;
-
-    span:first-child {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .count {
-      font-family: 'Cinzel', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-
-      &.complete {
-        color: #228b22;
-      }
     }
   }
 

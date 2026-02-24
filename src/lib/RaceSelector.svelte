@@ -2,6 +2,7 @@
   import { getAvailableRaces, applyRacialAdjustments } from '../data/races.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
+  import SelectionPreview from './SelectionPreview.svelte';
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
 
@@ -70,58 +71,52 @@
   </div>
 
   {#if selectedRace}
-    <div class="selection-preview">
-      <div class="divider"><span class="ornament">◆</span></div>
+    <SelectionPreview
+      title={selectedRace.name}
+      confirmLabel="Confirm {selectedRace.name} → Choose Class"
+      onConfirm={confirm}
+    >
+      <div class="traits-section">
+        <h4>Racial Traits</h4>
+        <ul class="traits-list">
+          {#each selectedRace.traits as trait}
+            <li>{trait}</li>
+          {/each}
+        </ul>
+      </div>
 
-      <h3>{selectedRace.name}</h3>
-
-      <div class="preview-content">
-        <div class="traits-section">
-          <h4>Racial Traits</h4>
-          <ul class="traits-list">
-            {#each selectedRace.traits as trait}
-              <li>{trait}</li>
-            {/each}
-          </ul>
-        </div>
-
-        <div class="abilities-section">
-          <h4>Adjusted Abilities</h4>
-          <div class="ability-comparison">
-            {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
-              {@const base = abilities[ability]}
-              {@const adjusted = adjustedAbilities[ability]}
-              {@const diff = adjusted - base}
-              <div class="ability-row">
-                <span class="ability-label">{ability}</span>
-                <span class="ability-base">{base}</span>
-                {#if diff !== 0}
-                  <span class="ability-arrow">→</span>
-                  <span class="ability-adjusted" class:positive={diff > 0} class:negative={diff < 0}>
-                    {adjusted}
-                  </span>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        </div>
-
-        <div class="classes-section">
-          <h4>Available Classes</h4>
-          <div class="class-list">
-            {#each Object.entries(selectedRace.classes) as [cls, limit]}
-              <span class="class-tag">
-                {cls}{#if limit !== null} <small>(max {limit})</small>{/if}
-              </span>
-            {/each}
-          </div>
+      <div class="abilities-section">
+        <h4>Adjusted Abilities</h4>
+        <div class="ability-comparison">
+          {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
+            {@const base = abilities[ability]}
+            {@const adjusted = adjustedAbilities[ability]}
+            {@const diff = adjusted - base}
+            <div class="ability-row">
+              <span class="ability-label">{ability}</span>
+              <span class="ability-base">{base}</span>
+              {#if diff !== 0}
+                <span class="ability-arrow">→</span>
+                <span class="ability-adjusted" class:positive={diff > 0} class:negative={diff < 0}>
+                  {adjusted}
+                </span>
+              {/if}
+            </div>
+          {/each}
         </div>
       </div>
 
-      <button class="btn-primary" onclick={confirm}>
-        Confirm {selectedRace.name} → Choose Class
-      </button>
-    </div>
+      <div class="classes-section">
+        <h4>Available Classes</h4>
+        <div class="class-list">
+          {#each Object.entries(selectedRace.classes) as [cls, limit]}
+            <span class="class-tag">
+              {cls}{#if limit !== null} <small>(max {limit})</small>{/if}
+            </span>
+          {/each}
+        </div>
+      </div>
+    </SelectionPreview>
   {/if}
 </div>
 
@@ -232,47 +227,13 @@
     }
   }
 
-  .selection-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-
-    h3 {
-      text-align: center;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-
-      &::before, &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-      }
-
-      .ornament {
-        color: var(--gold-dark);
-      }
-    }
-  }
-
-  .preview-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-
-    h4 {
-      margin: 0 0 0.75rem;
-      font-size: 1rem;
-      color: var(--text-body);
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.25rem;
-    }
+  // h4 styles for slotted content (Svelte scoping won't reach into child component)
+  h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: var(--text-body);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.25rem;
   }
 
   .traits-list {
@@ -343,9 +304,5 @@
       color: var(--text-muted);
       font-size: 0.75rem;
     }
-  }
-
-  .btn-primary {
-    align-self: center;
   }
 </style>
