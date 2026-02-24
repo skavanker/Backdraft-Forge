@@ -64,6 +64,24 @@
 - [ ] XP tracking and advancement
 - [ ] Notes/journal section
 
+## Refactoring
+
+### Completed
+- [x] Split AbilityRoller into ManualEntry + DiceRoller sub-components
+- [x] SCSS selectable-card/chip mixins (src/styles/mixins.scss)
+- [x] Consolidate App.svelte handlers into single completeStep dispatcher
+- [x] Extract ImportArea, ReviewStep, SelectionPreview, SlotCounter components
+- [x] Unified makeEmptyCharacter() factory
+- [x] Data-driven stepGates for navigation
+- [x] Removed ~280 lines dead CSS from app.scss
+
+### Backlog
+- [ ] Extract shared AbilityBadge component (ReviewStep + CharacterSheet)
+- [ ] Replace hardcoded colors (#228b22, #b43c28) with CSS variables
+- [ ] Split spells.js by type (wizard/divine)
+- [ ] Extract SelectableChip component (proficiencies, spells, languages, equipment)
+- [ ] Lazy-load shareCharacter.js (compression logic loaded eagerly)
+
 ## Notes
 - Using AD&D 2nd Edition PHB rules
 - Browser-only, no backend
