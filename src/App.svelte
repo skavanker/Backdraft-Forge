@@ -120,88 +120,37 @@
     theme = toggleTheme();
   }
 
-  function handleAbilitiesComplete({ abilities, rollData }) {
-    // Check if abilities changed - if so, clear forward progress
-    const abilitiesChanged = character.abilities && (
-      character.abilities.STR !== abilities.STR ||
-      character.abilities.DEX !== abilities.DEX ||
-      character.abilities.CON !== abilities.CON ||
-      character.abilities.INT !== abilities.INT ||
-      character.abilities.WIS !== abilities.WIS ||
-      character.abilities.CHA !== abilities.CHA ||
-      character.abilities.exceptionalStr !== abilities.exceptionalStr
-    );
+  const stepFields = {
+    0: { fields: ['abilities', 'rollData'], next: 1 },
+    1: { fields: ['raceKey', 'race', 'adjustedAbilities'], next: 2 },
+    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool'], next: 3 },
+    4: { fields: ['proficiencies'], next: 5 },
+    5: { fields: ['equipment'], next: 6 },
+    6: { fields: ['spells'], next: 7 },
+    7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: 8, after: saveToLocalStorage },
+  };
 
-    if (abilitiesChanged) {
-      // Clear all forward progress since abilities changed
-      character.raceKey = null;
-      character.race = null;
-      character.adjustedAbilities = null;
-      character.classKey = null;
-      character.cls = null;
-      character.levelLimit = null;
-      character.xpBonus = 0;
-      character.wizardSchool = null;
-      character.proficiencies = null;
-      character.equipment = null;
-      character.spells = null;
-      character.name = null;
-      character.backstory = null;
+  function completeStep(step, data) {
+    // Step 0 special case: if abilities changed, clear forward progress
+    if (step === 0 && character.abilities) {
+      const a = character.abilities, b = data.abilities;
+      const changed = a.STR !== b.STR || a.DEX !== b.DEX || a.CON !== b.CON ||
+        a.INT !== b.INT || a.WIS !== b.WIS || a.CHA !== b.CHA ||
+        a.exceptionalStr !== b.exceptionalStr;
+      if (changed) {
+        const empty = makeEmptyCharacter();
+        for (const key of Object.keys(empty)) {
+          if (key !== 'abilities' && key !== 'rollData') character[key] = empty[key];
+        }
+      }
     }
 
-    character.abilities = abilities;
-    character.rollData = rollData;  // Always update rollData (could be reassignment)
-    currentStep = 1;
-  }
-
-  function handleRaceComplete({ raceKey, race, adjustedAbilities }) {
-    character.raceKey = raceKey;
-    character.race = race;
-    character.adjustedAbilities = adjustedAbilities;
-    currentStep = 2;
-  }
-
-  function handleClassComplete({ classKey, cls, levelLimit, xpBonus, wizardSchool }) {
-    character.classKey = classKey;
-    character.cls = cls;
-    character.levelLimit = levelLimit;
-    character.xpBonus = xpBonus;
-    character.wizardSchool = wizardSchool ?? null;
-    currentStep = 3;
-  }
-
-  function handleProficienciesComplete(proficiencies) {
-    character.proficiencies = proficiencies;
-    currentStep = 5;
-  }
-
-  function handleEquipmentComplete(equipment) {
-    character.equipment = equipment;
-    currentStep = 6;
-  }
-
-  function handleSpellsComplete(spells) {
-    character.spells = spells;
-    currentStep = 7;
-  }
-
-  function handleBackstoryComplete({ name, sex, alignment, backstory, age, height, weight, eyes, hair, deity }) {
-    character.name = name;
-    character.sex = sex;
-    character.alignment = alignment;
-    character.backstory = backstory;
-    character.age = age;
-    character.height = height;
-    character.weight = weight;
-    character.eyes = eyes;
-    character.hair = hair;
-    character.deity = deity;
-    currentStep = 8;
-    saveToLocalStorage();
-  }
-
-  function continueToStep(step) {
-    currentStep = step;
+    const config = stepFields[step];
+    for (const field of config.fields) {
+      character[field] = data[field] ?? null;
+    }
+    currentStep = config.next;
+    config.after?.();
   }
 
   // Each gate returns true when the step's data is complete.
@@ -315,7 +264,7 @@
       <h2>Roll Your Abilities</h2>
       <CharacterSummary {character} />
       <AbilityRoller
-        onComplete={handleAbilitiesComplete}
+        onComplete={(data) => completeStep(0, data)}
         onImport={handleImportCharacter}
         existingAbilities={character.abilities}
         existingRollData={character.rollData}
@@ -327,7 +276,7 @@
       <RaceSelector
         abilities={character.abilities}
         existingRaceKey={character.raceKey}
-        onComplete={handleRaceComplete}
+        onComplete={(data) => completeStep(1, data)}
       />
 
     {:else if currentStep === 2}
@@ -339,12 +288,12 @@
         raceKey={character.raceKey}
         existingClassKey={character.classKey}
         existingWizardSchool={character.wizardSchool}
-        onComplete={handleClassComplete}
+        onComplete={(data) => completeStep(2, data)}
       />
 
     {:else if currentStep === 3}
       <h2>Review Your Character</h2>
-      <ReviewStep {character} onContinue={() => continueToStep(4)} />
+      <ReviewStep {character} onContinue={() => { currentStep = 4; }} />
 
     {:else if currentStep === 4}
       <h2>Choose Proficiencies</h2>
@@ -354,7 +303,7 @@
         race={{ ...character.race, key: character.raceKey }}
         cls={{ ...character.cls, key: character.classKey }}
         existingProficiencies={character.proficiencies}
-        onComplete={handleProficienciesComplete}
+        onComplete={(data) => completeStep(4, { proficiencies: data })}
       />
 
     {:else if currentStep === 5}
@@ -366,7 +315,7 @@
         existingEquipment={character.equipment}
         str={character.adjustedAbilities.STR}
         exceptionalStr={character.abilities.exceptionalStr}
-        onComplete={handleEquipmentComplete}
+        onComplete={(data) => completeStep(5, { equipment: data })}
       />
 
     {:else if currentStep === 6}
@@ -377,7 +326,7 @@
         wizardSchool={character.wizardSchool}
         abilities={character.adjustedAbilities}
         existingSpells={character.spells}
-        onComplete={handleSpellsComplete}
+        onComplete={(data) => completeStep(6, { spells: data })}
       />
 
     {:else if currentStep === 7}
@@ -385,7 +334,7 @@
       <CharacterSummary {character} />
       <BackstoryEditor
         {character}
-        onComplete={handleBackstoryComplete}
+        onComplete={(data) => completeStep(7, data)}
       />
 
     {:else if currentStep === 8}
