@@ -257,31 +257,16 @@
   }
 
   .sex-btn {
+    @include selectable-card($lift: 0);
     flex: 1;
     padding: 0.75rem;
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-input);
+    transition: all 0.15s;
     color: var(--text-body);
     font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.15s;
-
-    &:hover {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-    }
 
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
       color: var(--text-primary);
       font-weight: 600;
-
-      &:hover {
-        border-color: var(--gold);
-        background: rgba(201, 162, 39, 0.25);
-      }
     }
   }
 
@@ -292,31 +277,16 @@
   }
 
   .alignment-btn {
+    @include selectable-card($lift: 0);
     padding: 0.5rem;
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-input);
+    transition: all 0.15s;
     color: var(--text-body);
     font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.15s;
     text-align: center;
 
-    &:hover {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-    }
-
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
       color: var(--text-primary);
       font-weight: 600;
-
-      &:hover {
-        border-color: var(--gold);
-        background: rgba(201, 162, 39, 0.25);
-      }
     }
   }
 

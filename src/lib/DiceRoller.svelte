@@ -333,30 +333,16 @@
   }
 
   .dice-roll {
+    @include selectable-card;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 0.75rem 1rem;
     min-width: 70px;
-    background: var(--bg-input);
-    border: 2px solid var(--border-color);
     box-shadow: 0 2px 4px var(--shadow-color);
-    cursor: pointer;
-
-    &:hover:not(:disabled) {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-      transform: translateY(-2px);
-
-      .method-name, .method-desc {
-        color: var(--text-hover);
-      }
-    }
 
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
       box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
     }
 

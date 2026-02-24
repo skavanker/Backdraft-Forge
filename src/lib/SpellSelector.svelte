@@ -337,43 +337,20 @@
   }
 
   .spell-card {
+    @include selectable-chip;
     padding: 0.5rem 0.75rem;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
     font-size: 0.9rem;
     color: var(--text-body);
-    cursor: pointer;
-    transition: all 0.15s;
 
     &:hover:not(.disabled) {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-
       .spell-name {
         color: var(--text-hover);
       }
     }
 
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
       color: var(--text-primary);
       font-weight: 500;
-
-      &:hover {
-        border-color: var(--gold);
-        background: rgba(201, 162, 39, 0.25);
-      }
-    }
-
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    &.divine {
-      // Divine spells have a slightly different style
     }
   }
 

@@ -140,41 +140,29 @@
   }
 
   .race-card {
+    @include selectable-card;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
     padding: 1.25rem;
-    background: var(--bg-input);
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
 
     &:hover:not(.disabled) {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px var(--shadow-color);
-
       .race-name, .race-desc {
         color: var(--text-hover);
       }
     }
 
     &.selected {
-      border-color: var(--gold);
       background: rgba(201, 162, 39, 0.1);
 
       &:hover:not(.disabled) {
-        border-color: var(--gold);
         background: rgba(201, 162, 39, 0.2);
       }
     }
 
     &.disabled {
       opacity: 0.5;
-      cursor: not-allowed;
       background: var(--bg-subtle);
     }
 
