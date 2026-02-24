@@ -420,42 +420,23 @@
   }
 
   .language-chip {
+    @include selectable-chip;
     padding: 0.4rem 0.75rem;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 0.875rem;
     color: var(--text-body);
-    cursor: pointer;
-    transition: all 0.15s;
 
     &:hover:not(.disabled):not(.auto) {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
       color: var(--text-hover);
     }
 
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
       color: var(--text-primary);
       font-weight: 600;
-
-      &:hover:not(.auto) {
-        border-color: var(--gold);
-        background: rgba(201, 162, 39, 0.25);
-      }
     }
 
     &.auto {
       border-color: var(--border-strong);
       cursor: default;
       opacity: 0.9;
-    }
-
-    &.disabled:not(.auto) {
-      opacity: 0.4;
-      cursor: not-allowed;
     }
   }
 
@@ -467,16 +448,11 @@
   }
 
   .proficiency-chip {
+    @include selectable-chip;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.4rem 0.75rem;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-size: 0.875rem;
 
     .chip-name {
       color: var(--text-body);
@@ -491,32 +467,16 @@
     }
 
     &:hover:not(.disabled) {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-
       .chip-name {
         color: var(--text-hover);
       }
     }
 
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
-
       .chip-name {
         color: var(--text-primary);
         font-weight: 600;
       }
-
-      &:hover:not(.disabled) {
-        border-color: var(--gold);
-        background: rgba(201, 162, 39, 0.25);
-      }
-    }
-
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
     }
   }
 

@@ -1,0 +1,37 @@
+@mixin selectable-card($border-width: 2px, $lift: -2px) {
+  background: var(--bg-input);
+  border: $border-width solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(.disabled):not(:disabled) {
+    border-color: var(--border-strong);
+    background: var(--bg-hover);
+    @if $lift != 0 {
+      transform: translateY($lift);
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+  }
+
+  &.selected {
+    border-color: var(--gold);
+    background: rgba(201, 162, 39, 0.15);
+
+    &:hover:not(.disabled):not(:disabled) {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.25);
+    }
+  }
+
+  &.disabled, &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+@mixin selectable-chip {
+  @include selectable-card($border-width: 1px, $lift: 0);
+  transition: all 0.15s;
+  font-size: 0.875rem;
+}

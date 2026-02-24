@@ -532,15 +532,11 @@
   }
 
   .item-card {
+    @include selectable-chip;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 0.6rem 0.8rem;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s;
     text-align: left;
     width: 100%;
 
@@ -584,31 +580,15 @@
     }
 
     &:hover:not(.disabled) {
-      border-color: var(--border-strong);
-      background: var(--bg-hover);
-
       .item-name {
         color: var(--text-hover);
       }
     }
 
     &.selected {
-      border-color: var(--gold);
-      background: rgba(201, 162, 39, 0.15);
-
       .item-name {
         color: var(--text-primary);
       }
-
-      &:hover {
-        border-color: var(--gold);
-        background: rgba(201, 162, 39, 0.25);
-      }
-    }
-
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
     }
   }
 
