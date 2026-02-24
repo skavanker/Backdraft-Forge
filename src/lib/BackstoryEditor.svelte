@@ -434,7 +434,7 @@
     color: var(--text-muted);
 
     &.near-limit {
-      color: var(--red, #b43c28);
+      color: var(--red);
     }
   }
 

@@ -396,14 +396,14 @@
   }
 
   .btn-danger {
-    background: #b43c28;
+    background: var(--red);
     color: white;
-    border: 1px solid #932f1f;
+    border: 1px solid var(--red-dark);
     border-radius: 4px;
     cursor: pointer;
 
     &:hover {
-      background: #932f1f;
+      background: var(--red-dark);
     }
   }
 

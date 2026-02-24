@@ -193,7 +193,7 @@
 
       &.positive {
         background: rgba(34, 139, 34, 0.15);
-        color: #228b22;
+        color: var(--green);
       }
 
       &.negative {
@@ -266,7 +266,7 @@
       font-weight: 600;
 
       &.positive {
-        color: #228b22;
+        color: var(--green);
       }
 
       &.negative {

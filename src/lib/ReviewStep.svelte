@@ -195,7 +195,7 @@
     }
 
     &.highlight span:last-child {
-      color: #228b22;
+      color: var(--green);
     }
 
     &.warning span:last-child {
@@ -238,8 +238,8 @@
 
     &.concern {
       background: rgba(180, 60, 40, 0.1);
-      color: #b43c28;
-      border-left: 3px solid #b43c28;
+      color: var(--red);
+      border-left: 3px solid var(--red);
     }
   }
 </style>
