@@ -47,7 +47,14 @@ function compressCharacter(character) {
     if (character.equipment.armor) compressed.ar = character.equipment.armor.key;
     if (character.equipment.shield) compressed.sh = character.equipment.shield.key;
     if (character.equipment.weapons) compressed.wk = character.equipment.weapons.map(w => w.key);
-    if (character.equipment.gear) compressed.gk = character.equipment.gear.map(g => g.key);
+    if (character.equipment.gear) {
+      compressed.gk = character.equipment.gear.map(g => {
+        if (g.key.startsWith('custom_')) {
+          return { n: g.name, p: g.price?.gp || 0, w: g.weight || 0, q: g.qty || 1 };
+        }
+        return (g.qty || 1) > 1 ? [g.key, g.qty] : g.key;
+      });
+    }
   }
 
   // Spells
@@ -76,8 +83,8 @@ export function encodeCharacter(character) {
   try {
     const compressed = compressCharacter(character);
     const json = JSON.stringify(compressed);
-    // Convert to base64 and make URL-safe
-    const base64 = btoa(json);
+    // Convert to base64 (encode as UTF-8 first to handle non-ASCII)
+    const base64 = btoa(unescape(encodeURIComponent(json)));
     const urlSafe = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
     return urlSafe;
   } catch (error) {
@@ -140,10 +147,17 @@ async function decompressCharacter(compressed) {
       armor: compressed.ar ? equipment.armor.find(a => a.key === compressed.ar) : null,
       shield: compressed.sh ? equipment.shields.find(s => s.key === compressed.sh) : null,
       weapons: compressed.wk ? compressed.wk.map(key => equipment.weapons.find(w => w.key === key)) : [],
-      gear: compressed.gk ? compressed.gk.map(key =>
-        [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing]
-          .find(g => g.key === key)
-      ) : []
+      gear: compressed.gk ? compressed.gk.map(entry => {
+        // Object = custom item
+        if (typeof entry === 'object' && !Array.isArray(entry)) {
+          return { key: `custom_${Math.random().toString(36).slice(2, 6)}`, name: entry.n, price: { gp: entry.p || 0 }, weight: entry.w || 0, qty: entry.q || 1 };
+        }
+        // Array = catalog item with qty
+        const key = Array.isArray(entry) ? entry[0] : entry;
+        const qty = Array.isArray(entry) ? entry[1] : 1;
+        const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(g => g.key === key);
+        return found ? { ...found, qty } : null;
+      }).filter(Boolean) : []
     };
   }
 
@@ -205,7 +219,7 @@ export async function decodeCharacter(encoded) {
     while (base64.length % 4) {
       base64 += '=';
     }
-    const json = atob(base64);
+    const json = decodeURIComponent(escape(atob(base64)));
     const compressed = JSON.parse(json);
 
     // Decompress to full character

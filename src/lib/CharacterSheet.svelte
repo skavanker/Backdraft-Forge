@@ -110,7 +110,7 @@
       for (const w of character.equipment.weapons) weight += w.weight || 0;
     }
     if (character.equipment?.gear) {
-      for (const g of character.equipment.gear) weight += g.weight || 0;
+      for (const g of character.equipment.gear) weight += (g.weight || 0) * (g.qty || 1);
     }
     return weight;
   });
@@ -338,7 +338,7 @@
       {/if}
       {#if character.equipment?.gear?.length}
         {#each character.equipment.gear as item}
-          <div class="stat-row"><span>{item.name}</span> <span class="val">{item.weight} lbs</span></div>
+          <div class="stat-row"><span>{item.name}{(item.qty || 1) > 1 ? ` \u00d7${item.qty}` : ''}</span> <span class="val">{(item.weight || 0) * (item.qty || 1)} lbs</span></div>
         {/each}
       {/if}
       {#if character.equipment?.remaining !== undefined}
