@@ -78,10 +78,10 @@
   let groupedWeapons = $derived(() => {
     const groups = {
       simple: { name: 'Simple', weapons: [] },
-      sword: { name: 'Swords', weapons: [] },
       axe: { name: 'Axes', weapons: [] },
       blunt: { name: 'Blunt', weapons: [] },
       polearm: { name: 'Polearms', weapons: [] },
+      sword: { name: 'Swords', weapons: [] },
       bow: { name: 'Bows', weapons: [] },
       crossbow: { name: 'Crossbows', weapons: [] }
     };
@@ -168,8 +168,17 @@
   // Initialize from existing data
   onMount(() => {
     if (existingProficiencies) {
-      selectedWeapons = existingProficiencies.weapons.map(w => w.key);
-      selectedNonWeapon = existingProficiencies.nonWeapon.map(p => p.key);
+      // Filter weapons: only keep ones that are still allowed for this class
+      const existingWeaponKeys = existingProficiencies.weapons.map(w => w.key);
+      selectedWeapons = existingWeaponKeys.filter(key =>
+        allowedWeaponKeys.includes(key)
+      );
+
+      // Filter non-weapon proficiencies: only keep ones that are still available for this class
+      const existingNonWeaponKeys = existingProficiencies.nonWeapon.map(p => p.key);
+      selectedNonWeapon = existingNonWeaponKeys.filter(key =>
+        availableProficiencies.some(p => p.key === key)
+      );
 
       // Restore bonus languages (exclude racial and class languages)
       if (existingProficiencies.languages) {
@@ -190,7 +199,7 @@
 
   <div class="proficiency-sections">
     <!-- Weapon Proficiencies -->
-    <div class="section weapon-section">
+    <div class="section">
       <h3>Weapon Proficiencies</h3>
       <p class="section-hint">
         Select {weaponSlots} weapon{weaponSlots !== 1 ? 's' : ''} your character is trained with.
@@ -199,30 +208,32 @@
         {/if}
       </p>
 
-      {#each Object.entries(groupedWeapons()) as [groupKey, group]}
-        {#if group.weapons.length > 0}
-          <div class="weapon-group">
-            <h4 class="group-title">{group.name}</h4>
-            <div class="weapon-grid">
-              {#each group.weapons as weapon}
-                {@const selected = selectedWeapons.includes(weapon.key)}
-                {@const disabled = !selected && weaponSlotsRemaining === 0}
-                <Tooltip text="{weapon.damage} damage, Speed {weapon.speed}" position="bottom">
-                  <button
-                    class="proficiency-chip"
-                    class:selected
-                    class:disabled
-                    onclick={() => !disabled && toggleWeapon(weapon.key)}
-                  >
-                    <span class="chip-name">{weapon.name}</span>
-                    <span class="chip-meta">{weapon.damage}</span>
-                  </button>
-                </Tooltip>
-              {/each}
+      <div class="weapon-section">
+        {#each Object.entries(groupedWeapons()) as [groupKey, group]}
+          {#if group.weapons.length > 0}
+            <div class="weapon-group">
+              <h4 class="group-title">{group.name}</h4>
+              <div class="weapon-grid">
+                {#each group.weapons as weapon}
+                  {@const selected = selectedWeapons.includes(weapon.key)}
+                  {@const disabled = !selected && weaponSlotsRemaining === 0}
+                  <Tooltip text="{weapon.damage} damage, Speed {weapon.speed}" position="bottom">
+                    <button
+                      class="proficiency-chip"
+                      class:selected
+                      class:disabled
+                      onclick={() => !disabled && toggleWeapon(weapon.key)}
+                    >
+                      <span class="chip-name">{weapon.name}</span>
+                      <span class="chip-meta">{weapon.damage}</span>
+                    </button>
+                  </Tooltip>
+                {/each}
+              </div>
             </div>
-          </div>
-        {/if}
-      {/each}
+          {/if}
+        {/each}
+      </div>
     </div>
 
     <!-- Languages -->
@@ -257,7 +268,7 @@
     </div>
 
     <!-- Non-Weapon Proficiencies -->
-    <div class="section nonweapon-section">
+    <div class="section">
       <h3>Non-Weapon Proficiencies</h3>
       <p class="section-hint">
         Select skills for your character. Different skill groups cost different amounts.
@@ -266,34 +277,39 @@
         {/if}
       </p>
 
-      {#each Object.entries(groupedProficiencies()) as [groupKey, group]}
-        {#if group.profs.length > 0}
-          {@const costForGroup = group.profs[0]?.cost ?? 1}
-          <div class="proficiency-group">
-            <h4 class="group-title">
-              {group.name}
-              <span class="group-cost">({costForGroup} slot{costForGroup !== 1 ? 's' : ''} each)</span>
-            </h4>
-            <div class="proficiency-grid">
-              {#each group.profs as prof}
-                {@const selected = selectedNonWeapon.includes(prof.key)}
-                {@const disabled = !selected && nonWeaponSlotsRemaining < prof.cost}
-                <Tooltip text="{prof.description} (Check: {prof.ability}{prof.modifier >= 0 ? '+' : ''}{prof.modifier})" position="bottom">
-                  <button
-                    class="proficiency-chip"
-                    class:selected
-                    class:disabled
-                    onclick={() => !disabled && toggleProficiency(prof.key)}
-                  >
-                    <span class="chip-name">{prof.name}</span>
-                    <span class="chip-meta">{prof.ability}</span>
-                  </button>
-                </Tooltip>
-              {/each}
+      <div class="nonweapon-section">
+        {#each Object.entries(groupedProficiencies()) as [groupKey, group]}
+          {#if group.profs.length > 0}
+            {@const costForGroup = group.profs[0]?.cost ?? 1}
+            <div class="proficiency-group">
+              <h4 class="group-title">
+                {group.name}
+                <span class="group-cost">({costForGroup} slot{costForGroup !== 1 ? 's' : ''} each)</span>
+              </h4>
+              <div class="proficiency-grid">
+                {#each group.profs as prof}
+                  {@const selected = selectedNonWeapon.includes(prof.key)}
+                  {@const disabled = !selected && nonWeaponSlotsRemaining < prof.cost}
+                  <Tooltip text="{prof.description} (Check: {prof.ability}{prof.modifier >= 0 ? '+' : ''}{prof.modifier})" position="bottom">
+                    <button
+                      class="proficiency-chip"
+                      class:selected
+                      class:disabled
+                      onclick={() => !disabled && toggleProficiency(prof.key)}
+                    >
+                      <span class="chip-name">{prof.name}</span>
+                      <span class="chip-meta">{prof.ability}</span>
+                      {#if prof.cost > 1}
+                        <span class="chip-cost">{prof.cost}</span>
+                      {/if}
+                    </button>
+                  </Tooltip>
+                {/each}
+              </div>
             </div>
-          </div>
-        {/if}
-      {/each}
+          {/if}
+        {/each}
+      </div>
     </div>
   </div>
 
@@ -370,18 +386,18 @@
   .proficiency-sections {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.25rem;
   }
 
   .section {
     h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1.25rem;
+      margin: 0 0 0.35rem;
+      font-size: 1.15rem;
     }
 
     .section-hint {
-      margin: 0 0 1rem;
-      font-size: 0.875rem;
+      margin: 0 0 0.75rem;
+      font-size: 0.825rem;
       color: var(--text-muted);
 
       .remaining {
@@ -391,22 +407,29 @@
     }
   }
 
-  .weapon-group,
-  .proficiency-group {
-    margin-bottom: 1rem;
+  .weapon-section,
+  .nonweapon-section {
+    columns: 4 180px;
+    column-gap: 1.5rem;
+
+    .weapon-group,
+    .proficiency-group {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+    }
 
     .group-title {
-      font-size: 0.875rem;
+      font-size: 0.825rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin: 0 0 0.5rem;
-      padding-bottom: 0.25rem;
+      margin: 0 0 0.4rem;
+      padding-bottom: 0.2rem;
       border-bottom: 1px solid var(--border-color);
     }
   }
 
-  .proficiency-group .group-cost {
+  .group-cost {
     font-weight: normal;
     text-transform: none;
     font-size: 0.8rem;
@@ -414,14 +437,21 @@
   }
 
   .language-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 0.5rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .language-chip {
     @include selectable-chip;
-    padding: 0.4rem 0.75rem;
     color: var(--text-body);
 
     &:hover:not(.disabled):not(.auto) {
@@ -443,27 +473,42 @@
   .weapon-grid,
   .proficiency-grid {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 
   .proficiency-chip {
     @include selectable-chip;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.75rem;
+    justify-content: space-between;
+    gap: 0.4rem;
+    width: 100%;
+    text-align: left;
 
     .chip-name {
       color: var(--text-body);
+      flex: 1;
     }
 
     .chip-meta {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       padding: 0.1rem 0.3rem;
       background: var(--bg-panel);
       border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .chip-cost {
+      font-size: 0.7rem;
+      color: var(--gold-dark);
+      padding: 0.1rem 0.35rem;
+      background: rgba(201, 162, 39, 0.15);
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      border-radius: 2px;
+      font-weight: 600;
+      flex-shrink: 0;
     }
 
     &:hover:not(.disabled) {
@@ -483,18 +528,22 @@
   .selection-summary {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--bg-subtle);
+    border-radius: 4px;
+    margin-top: 0.5rem;
 
     h3 {
       text-align: center;
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1rem;
     }
 
     .divider {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
 
       &::before, &::after {
         content: '';
@@ -505,23 +554,24 @@
 
       .ornament {
         color: var(--gold-dark);
+        font-size: 0.75rem;
       }
     }
   }
 
   .summary-columns {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
   }
 
   .summary-section {
     h4 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
+      margin: 0 0 0.4rem;
+      font-size: 0.9rem;
       color: var(--text-body);
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.25rem;
+      padding-bottom: 0.2rem;
     }
   }
 
@@ -533,8 +583,8 @@
     li {
       display: flex;
       justify-content: space-between;
-      padding: 0.25rem 0;
-      font-size: 0.9rem;
+      padding: 0.2rem 0;
+      font-size: 0.85rem;
 
       .summary-name {
         color: var(--text-body);
@@ -542,7 +592,7 @@
 
       .summary-detail {
         color: var(--text-muted);
-        font-size: 0.875rem;
+        font-size: 0.8rem;
       }
     }
   }

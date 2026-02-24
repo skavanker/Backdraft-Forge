@@ -111,7 +111,7 @@
         <div class="class-list">
           {#each Object.entries(selectedRace.classes) as [cls, limit]}
             <span class="class-tag">
-              {cls}{#if limit !== null} <small>(max {limit})</small>{/if}
+              {cls}{#if limit !== null} <small>(max level {limit})</small>{/if}
             </span>
           {/each}
         </div>

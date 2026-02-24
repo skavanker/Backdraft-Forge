@@ -18,17 +18,19 @@
   // Starting gold
   let gold = $state(null);
   let goldRolled = $state(false);
-  let rerollsUsed = $state(0);
+  let goldDice = $state([]);
+  let goldDiceFormula = $state('');
+  let manualGoldInput = $state('');
 
-  function rerollGold() {
-    if (rerollsUsed < 2) {
-      gold = rollStartingGold(cls.group);
-      rerollsUsed++;
-      selectedArmor = null;
-      selectedShield = null;
-      selectedWeapons = [];
-      selectedGear = [];
-    }
+  function resetGold() {
+    gold = null;
+    goldRolled = false;
+    goldDice = [];
+    goldDiceFormula = '';
+    selectedArmor = null;
+    selectedShield = null;
+    selectedWeapons = [];
+    selectedGear = [];
   }
 
   // Selected equipment
@@ -68,15 +70,20 @@
   let isEncumbered = $derived(totalWeight() > weightAllowance);
 
   function rollGold() {
-    gold = rollStartingGold(cls.group);
+    const result = rollStartingGold(cls.group);
+    gold = result.gold;
+    goldDice = result.dice;
+    goldDiceFormula = result.diceFormula;
     goldRolled = true;
   }
 
-  function setManualGold(event) {
-    const value = parseInt(event.target.value);
+  function setManualGold() {
+    const value = parseInt(manualGoldInput);
     if (!isNaN(value) && value >= 0) {
       gold = value;
       goldRolled = true;
+      goldDice = []; // Clear dice for manual entry
+      goldDiceFormula = '';
     }
   }
 
@@ -141,8 +148,8 @@
 
   // Custom items
   let customName = $state('');
-  let customPrice = $state(0);
-  let customWeight = $state(0);
+  let customPrice = $state(null);
+  let customWeight = $state(null);
   let customIdCounter = $state(0);
 
   function addCustomItem() {
@@ -160,8 +167,8 @@
       qty: 1
     }];
     customName = '';
-    customPrice = 0;
-    customWeight = 0;
+    customPrice = null;
+    customWeight = null;
   }
 
   function canAfford(price) {
@@ -177,7 +184,8 @@
       weapons: selectedWeapons,
       gear: selectedGear,
       totalWeight: totalWeight(),
-      rerollsUsed
+      goldDice,
+      goldDiceFormula
     });
   }
 
@@ -186,10 +194,45 @@
     if (existingEquipment) {
       gold = existingEquipment.remaining ?? existingEquipment.gold ?? 0;
       goldRolled = true;
-      rerollsUsed = existingEquipment.rerollsUsed || 0;
-      selectedArmor = existingEquipment.armor;
-      selectedShield = existingEquipment.shield;
-      selectedWeapons = existingEquipment.weapons || [];
+      goldDice = existingEquipment.goldDice || [];
+      goldDiceFormula = existingEquipment.goldDiceFormula || '';
+
+      // Check if armor is still allowed, otherwise clear and refund
+      if (existingEquipment.armor) {
+        const armorAllowed = allowedArmor.some(a => a.key === existingEquipment.armor.key);
+        if (armorAllowed) {
+          selectedArmor = existingEquipment.armor;
+        } else {
+          gold += priceGp(existingEquipment.armor.price);
+          selectedArmor = null;
+        }
+      }
+
+      // Check if shield is still allowed, otherwise clear and refund
+      if (existingEquipment.shield) {
+        const shieldAllowed = allowedShields.some(s => s.key === existingEquipment.shield.key);
+        if (shieldAllowed) {
+          selectedShield = existingEquipment.shield;
+        } else {
+          gold += priceGp(existingEquipment.shield.price);
+          selectedShield = null;
+        }
+      }
+
+      // Filter weapons: only keep ones that are still available (proficient)
+      const existingWeapons = existingEquipment.weapons || [];
+      selectedWeapons = existingWeapons.filter(weapon =>
+        availableWeapons.some(aw => aw.key === weapon.key)
+      );
+
+      // Refund gold for removed weapons
+      const removedWeapons = existingWeapons.filter(weapon =>
+        !availableWeapons.some(aw => aw.key === weapon.key)
+      );
+      for (const weapon of removedWeapons) {
+        gold += priceGp(weapon.price);
+      }
+
       selectedGear = (existingEquipment.gear || []).map(g => ({ ...g, qty: g.qty || 1 }));
       // Restore custom ID counter past any existing custom items
       const customKeys = selectedGear.filter(g => g.key.startsWith('custom_')).map(g => parseInt(g.key.split('_')[1]) + 1);
@@ -218,21 +261,35 @@
             type="number"
             min="0"
             placeholder="Enter gold"
-            onchange={setManualGold}
+            bind:value={manualGoldInput}
+            onkeydown={(e) => e.key === 'Enter' && setManualGold()}
           />
           <span class="gp-label">gp</span>
+          <button class="btn-primary btn-sm" onclick={setManualGold} disabled={!manualGoldInput || parseInt(manualGoldInput) < 0}>
+            Set
+          </button>
         </div>
       </div>
     {:else}
       <div class="gold-display">
-        {#if rerollsUsed < 2}
-          <button class="reroll-btn" onclick={rerollGold} title="Reroll starting gold">×</button>
-        {/if}
+        <button class="reroll-btn" onclick={resetGold} title="Reset gold">×</button>
         <div class="gold-stat">
           <span class="gold-label">Gold</span>
           <span class="gold-value" class:warning={gold < 0}>
             {gold.toFixed(1)} gp
           </span>
+          {#if goldDice.length > 0}
+            <div class="gold-dice">
+              <span class="dice-formula">{goldDiceFormula} × 10</span>
+              <div class="dice-rolls">
+                {#each goldDice as die}
+                  <span class="die">
+                    <img src="/dice/dice0{die}.svg" alt="{die}" />
+                  </span>
+                {/each}
+              </div>
+            </div>
+          {/if}
         </div>
         <div class="gold-stat">
           <span class="gold-label">Weight</span>
@@ -408,6 +465,7 @@
       <!-- Custom Item -->
       <div class="section">
         <h3>Custom Item</h3>
+        <p class="section-hint">Add items not found in the equipment lists above</p>
         <div class="custom-gear-form">
           <input placeholder="Item name" bind:value={customName} />
           <input type="number" placeholder="Price (gp)" bind:value={customPrice} min="0" />
@@ -519,6 +577,11 @@
       .gp-label {
         color: var(--text-muted);
       }
+
+      .btn-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
     }
   }
 
@@ -581,6 +644,36 @@
 
       &.warning {
         color: var(--red);
+      }
+    }
+
+    .gold-dice {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+
+      .dice-formula {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .dice-rolls {
+        display: flex;
+        gap: 2px;
+      }
+
+      .die {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 20px;
+          height: 20px;
+          display: block;
+        }
       }
     }
   }

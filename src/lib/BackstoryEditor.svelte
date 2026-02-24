@@ -218,11 +218,6 @@
     </div>
   </div>
 
-  <div class="ai-coming-soon">
-    <span class="badge">Coming Soon</span>
-    <span class="text">AI-generated backstory suggestions</span>
-  </div>
-
   <button class="btn-primary" onclick={confirm}>
     {name ? `Continue as ${name}` : 'Continue'} → Character Sheet
   </button>
@@ -274,19 +269,20 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
+    position: relative;
+    z-index: 1;
   }
 
   .alignment-btn {
     @include selectable-card($lift: 0);
     padding: 0.5rem;
-    transition: all 0.15s;
-    color: var(--text-body);
     font-size: 0.875rem;
     text-align: center;
+    transition: none;
 
-    &.selected {
-      color: var(--text-primary);
-      font-weight: 600;
+    &:hover:not(.selected) {
+      background: var(--bg-input);
+      border-color: var(--border-color);
     }
   }
 
@@ -435,31 +431,6 @@
 
     &.near-limit {
       color: var(--red);
-    }
-  }
-
-  .ai-coming-soon {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: var(--bg-panel);
-    border-radius: 4px;
-    border: 1px dashed var(--border-color);
-
-    .badge {
-      padding: 0.2rem 0.5rem;
-      background: var(--gold-dark);
-      color: white;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      border-radius: 2px;
-    }
-
-    .text {
-      font-size: 0.9rem;
-      color: var(--text-muted);
     }
   }
 

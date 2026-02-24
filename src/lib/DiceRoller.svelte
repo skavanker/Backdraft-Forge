@@ -202,12 +202,18 @@
           <span class="roll-dice">
             {#if method === '3d6'}
               {#each rawDice[i].slice(0, 3) as die}
-                <span class="die">{die}</span>
+                <span class="die">
+                  <img src="/dice/dice0{die}.svg" alt="{die}" />
+                </span>
               {/each}
-              <span class="die unused">{rawDice[i][3]}</span>
+              <span class="die unused">
+                <img src="/dice/dice0{rawDice[i][3]}.svg" alt="{rawDice[i][3]}" />
+              </span>
             {:else}
               {#each rawDice[i] as die}
-                <span class="die" class:dropped={die === score.dropped}>{die}</span>
+                <span class="die" class:dropped={die === score.dropped}>
+                  <img src="/dice/dice0{die}.svg" alt="{die}" />
+                </span>
               {/each}
             {/if}
           </span>
@@ -328,7 +334,7 @@
   .dice-results {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.5rem;
     justify-content: center;
   }
 
@@ -338,7 +344,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.65rem;
     min-width: 70px;
     box-shadow: 0 2px 4px var(--shadow-color);
 
@@ -380,21 +386,25 @@
 
     .roll-dice {
       display: flex;
-      gap: 3px;
+      gap: 2px;
       margin-top: 0.35rem;
     }
 
     .die {
-      font-size: 0.75rem;
-      padding: 2px 4px;
-      background: var(--bg-panel);
-      border-radius: 2px;
-      color: var(--text-body);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 24px;
+        height: 24px;
+        display: block;
+      }
 
       &.dropped,
       &.unused {
-        text-decoration: line-through;
-        opacity: 0.4;
+        opacity: 0.3;
+        filter: grayscale(100%);
       }
     }
   }

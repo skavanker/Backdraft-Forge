@@ -153,22 +153,32 @@ export const shieldRestrictions = {
  */
 export function rollStartingGold(classGroup) {
   const config = startingGold[classGroup];
-  if (!config) return 0;
+  if (!config) return { gold: 0, dice: [], diceFormula: '' };
 
   // Parse dice notation (e.g., "5d4" or "1d4+1")
   const match = config.dice.match(/(\d+)d(\d+)(?:\+(\d+))?/);
-  if (!match) return 0;
+  if (!match) return { gold: 0, dice: [], diceFormula: '' };
 
   const numDice = parseInt(match[1]);
   const dieSize = parseInt(match[2]);
   const bonus = parseInt(match[3] || 0);
 
+  const rolls = [];
   let total = bonus;
   for (let i = 0; i < numDice; i++) {
-    total += Math.floor(Math.random() * dieSize) + 1;
+    const roll = Math.floor(Math.random() * dieSize) + 1;
+    rolls.push(roll);
+    total += roll;
   }
 
-  return total * config.multiplier;
+  return {
+    gold: total * config.multiplier,
+    dice: rolls,
+    diceFormula: config.dice,
+    dieSize,
+    bonus,
+    multiplier: config.multiplier
+  };
 }
 
 /**
