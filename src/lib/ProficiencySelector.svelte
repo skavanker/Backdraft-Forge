@@ -15,6 +15,7 @@
   } from '../data/languages.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
+  import SlotCounter from './SlotCounter.svelte';
 
   let { abilities, race, cls, existingProficiencies = null, onComplete } = $props();
 
@@ -183,18 +184,8 @@
 
 <div class="proficiency-selector">
   <div class="slot-summary">
-    <div class="slot-counter">
-      <span class="slot-label">Weapon Proficiencies</span>
-      <span class="slot-value" class:complete={weaponSlotsRemaining === 0}>
-        {weaponSlotsUsed} / {weaponSlots}
-      </span>
-    </div>
-    <div class="slot-counter">
-      <span class="slot-label">Non-Weapon Proficiencies</span>
-      <span class="slot-value">
-        {nonWeaponSlotsUsed} / {nonWeaponSlots}
-      </span>
-    </div>
+    <SlotCounter label="Weapon Proficiencies" used={weaponSlotsUsed} total={weaponSlots} />
+    <SlotCounter label="Non-Weapon Proficiencies" used={nonWeaponSlotsUsed} total={nonWeaponSlots} />
   </div>
 
   <div class="proficiency-sections">
@@ -374,29 +365,6 @@
     padding: 1rem;
     background: var(--bg-panel);
     border-radius: 4px;
-  }
-
-  .slot-counter {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-
-    .slot-label {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
-    .slot-value {
-      font-family: 'Cinzel', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-
-      &.complete {
-        color: #228b22;
-      }
-    }
   }
 
   .proficiency-sections {

@@ -2,6 +2,7 @@
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
+  import SelectionPreview from './SelectionPreview.svelte';
 
   let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, onComplete } = $props();
 
@@ -101,45 +102,47 @@
   {/each}
 
   {#if selectedClass}
-    <div class="selection-preview">
-      <div class="divider"><span class="ornament">◆</span></div>
+    {@const confirmText = selectedClassKey === 'specialist' && !selectedSchool
+      ? 'Select a School to Continue'
+      : `Confirm ${selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
+    <SelectionPreview
+      title={selectedClass.cls.name}
+      confirmLabel={confirmText}
+      onConfirm={confirm}
+      disabled={!canConfirm}
+    >
+      <div class="features-section">
+        <h4>Class Features</h4>
+        <ul class="features-list">
+          {#each selectedClass.cls.features as feature}
+            <li>{feature}</li>
+          {/each}
+        </ul>
+      </div>
 
-      <h3>{selectedClass.cls.name}</h3>
-
-      <div class="preview-content">
-        <div class="features-section">
-          <h4>Class Features</h4>
-          <ul class="features-list">
-            {#each selectedClass.cls.features as feature}
-              <li>{feature}</li>
-            {/each}
-          </ul>
-        </div>
-
-        <div class="stats-section">
-          <h4>Class Stats</h4>
-          <div class="stat-list">
-            <div class="stat-row">
-              <span class="stat-label">Hit Die</span>
-              <span class="stat-value">{selectedClass.cls.hitDie}</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Prime Requisite</span>
-              <span class="stat-value">{selectedClass.cls.primeRequisite.join(', ')}</span>
-            </div>
-            {#if selectedClass.xpBonus > 0}
-              <div class="stat-row highlight">
-                <span class="stat-label">XP Bonus</span>
-                <span class="stat-value">+{selectedClass.xpBonus}%</span>
-              </div>
-            {/if}
-            {#if selectedClass.levelLimit !== null}
-              <div class="stat-row warning">
-                <span class="stat-label">Level Limit</span>
-                <span class="stat-value">{selectedClass.levelLimit}</span>
-              </div>
-            {/if}
+      <div class="stats-section">
+        <h4>Class Stats</h4>
+        <div class="stat-list">
+          <div class="stat-row">
+            <span class="stat-label">Hit Die</span>
+            <span class="stat-value">{selectedClass.cls.hitDie}</span>
           </div>
+          <div class="stat-row">
+            <span class="stat-label">Prime Requisite</span>
+            <span class="stat-value">{selectedClass.cls.primeRequisite.join(', ')}</span>
+          </div>
+          {#if selectedClass.xpBonus > 0}
+            <div class="stat-row highlight">
+              <span class="stat-label">XP Bonus</span>
+              <span class="stat-value">+{selectedClass.xpBonus}%</span>
+            </div>
+          {/if}
+          {#if selectedClass.levelLimit !== null}
+            <div class="stat-row warning">
+              <span class="stat-label">Level Limit</span>
+              <span class="stat-value">{selectedClass.levelLimit}</span>
+            </div>
+          {/if}
         </div>
       </div>
 
@@ -165,15 +168,7 @@
           </div>
         </div>
       {/if}
-
-      <button class="btn-primary" onclick={confirm} disabled={!canConfirm}>
-        {#if selectedClassKey === 'specialist' && !selectedSchool}
-          Select a School to Continue
-        {:else}
-          Confirm {selectedSchool?.name ?? selectedClass.cls.name} → Review Stats
-        {/if}
-      </button>
-    </div>
+    </SelectionPreview>
   {/if}
 </div>
 
@@ -319,47 +314,13 @@
     }
   }
 
-  .selection-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-
-    h3 {
-      text-align: center;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-
-      &::before, &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-      }
-
-      .ornament {
-        color: var(--gold-dark);
-      }
-    }
-  }
-
-  .preview-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-
-    h4 {
-      margin: 0 0 0.75rem;
-      font-size: 1rem;
-      color: var(--text-body);
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.25rem;
-    }
+  // h4 styles for slotted content (Svelte scoping won't reach into child component)
+  h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: var(--text-body);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.25rem;
   }
 
   .features-list {
@@ -400,10 +361,6 @@
     &.warning .stat-value {
       color: var(--gold-dark);
     }
-  }
-
-  .btn-primary {
-    align-self: center;
   }
 
   .school-selection {
