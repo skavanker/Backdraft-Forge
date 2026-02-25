@@ -165,37 +165,37 @@
   <hr class="divider">
 
   <!-- Ability Scores -->
-  <div class="section-title">Ability Scores</div>
+  <h3 class="section-title">Ability Scores</h3>
   <div class="abilities">
     <div class="ability">
-      <div class="name">STR</div>
+      <div class="name meta-text">STR</div>
       <div class="score">{character.adjustedAbilities.STR}{character.abilities.exceptionalStr ? `/${character.abilities.exceptionalStr.toString().padStart(2, '0')}` : ''}</div>
-      <div class="mod">{strMods.hitAdj !== 0 ? formatModifier(strMods.hitAdj) + ' hit' : '—'}</div>
+      <div class="mod meta-text">{strMods.hitAdj !== 0 ? formatModifier(strMods.hitAdj) + ' hit' : '—'}</div>
     </div>
     <div class="ability">
-      <div class="name">DEX</div>
+      <div class="name meta-text">DEX</div>
       <div class="score">{character.adjustedAbilities.DEX}</div>
-      <div class="mod">{dexMods.acAdj !== 0 ? formatModifier(dexMods.acAdj) + ' AC' : '—'}</div>
+      <div class="mod meta-text">{dexMods.acAdj !== 0 ? formatModifier(dexMods.acAdj) + ' AC' : '—'}</div>
     </div>
     <div class="ability">
-      <div class="name">CON</div>
+      <div class="name meta-text">CON</div>
       <div class="score">{character.adjustedAbilities.CON}</div>
-      <div class="mod">{conMods.systemShock}% SS</div>
+      <div class="mod meta-text">{conMods.systemShock}% SS</div>
     </div>
     <div class="ability">
-      <div class="name">INT</div>
+      <div class="name meta-text">INT</div>
       <div class="score">{character.adjustedAbilities.INT}</div>
-      <div class="mod">{intMods.languages} lang</div>
+      <div class="mod meta-text">{intMods.languages} lang</div>
     </div>
     <div class="ability">
-      <div class="name">WIS</div>
+      <div class="name meta-text">WIS</div>
       <div class="score">{character.adjustedAbilities.WIS}</div>
-      <div class="mod">{wisMods.magicDefenseAdj !== 0 ? formatModifier(wisMods.magicDefenseAdj) + ' def' : '—'}</div>
+      <div class="mod meta-text">{wisMods.magicDefenseAdj !== 0 ? formatModifier(wisMods.magicDefenseAdj) + ' def' : '—'}</div>
     </div>
     <div class="ability">
-      <div class="name">CHA</div>
+      <div class="name meta-text">CHA</div>
       <div class="score">{character.adjustedAbilities.CHA}</div>
-      <div class="mod">{chaMods.maxHenchmen} hench</div>
+      <div class="mod meta-text">{chaMods.maxHenchmen} hench</div>
     </div>
   </div>
 
@@ -203,7 +203,7 @@
   <div class="ability-details">
     <div class="detail-col">
       <div class="detail-group">
-        <div class="detail-header">Strength</div>
+        <h6 class="detail-header">Strength</h6>
         <div class="detail-row"><span>Hit Adj</span><span class="val">{formatModifier(strMods.hitAdj)}</span></div>
         <div class="detail-row"><span>Dmg Adj</span><span class="val">{formatModifier(strMods.dmgAdj)}</span></div>
         <div class="detail-row"><span>Weight Allow</span><span class="val">{strMods.weightAllow} lbs</span></div>
@@ -212,13 +212,13 @@
         <div class="detail-row"><span>Bend Bars</span><span class="val">{strMods.bendBars}%</span></div>
       </div>
       <div class="detail-group">
-        <div class="detail-header">Dexterity</div>
+        <h6 class="detail-header">Dexterity</h6>
         <div class="detail-row"><span>Reaction Adj</span><span class="val">{formatModifier(dexMods.reactionAdj)}</span></div>
         <div class="detail-row"><span>AC Adj</span><span class="val">{formatModifier(dexMods.acAdj)}</span></div>
         <div class="detail-row"><span>Missile Atk Adj</span><span class="val">{formatModifier(dexMods.missileAdj)}</span></div>
       </div>
       <div class="detail-group">
-        <div class="detail-header">Constitution</div>
+        <h6 class="detail-header">Constitution</h6>
         <div class="detail-row"><span>HP Adj</span><span class="val">{formatModifier(conMods.hpAdj)}</span></div>
         <div class="detail-row"><span>System Shock</span><span class="val">{conMods.systemShock}%</span></div>
         <div class="detail-row"><span>Resurrection</span><span class="val">{conMods.resurrectionSurvival}%</span></div>
@@ -226,14 +226,14 @@
     </div>
     <div class="detail-col">
       <div class="detail-group">
-        <div class="detail-header">Intelligence</div>
+        <h6 class="detail-header">Intelligence</h6>
         <div class="detail-row"><span>Languages</span><span class="val">{intMods.languages}</span></div>
         <div class="detail-row"><span>Learn Spell</span><span class="val">{formatPercentage(intMods.learnSpell)}</span></div>
         <div class="detail-row"><span>Max Spells/Lvl</span><span class="val">{intMods.maxSpellsPerLevel}</span></div>
         <div class="detail-row"><span>Max Spell Lvl</span><span class="val">{intMods.maxSpellLevel}th</span></div>
       </div>
       <div class="detail-group">
-        <div class="detail-header">Wisdom</div>
+        <h6 class="detail-header">Wisdom</h6>
         <div class="detail-row"><span>Magic Defense Adj</span><span class="val">{formatModifier(wisMods.magicDefenseAdj)}</span></div>
         {#if Object.keys(wisMods.bonusSpells).length > 0}
           <div class="detail-row"><span>Bonus Spells</span><span class="val">{Object.entries(wisMods.bonusSpells).map(([lvl, n]) => `+${n} (${lvl}st)`).join(', ')}</span></div>
@@ -243,7 +243,7 @@
         <div class="detail-row"><span>Spell Failure</span><span class="val">{wisMods.spellFailure}%</span></div>
       </div>
       <div class="detail-group">
-        <div class="detail-header">Charisma</div>
+        <h6 class="detail-header">Charisma</h6>
         <div class="detail-row"><span>Max Henchmen</span><span class="val">{chaMods.maxHenchmen}</span></div>
         <div class="detail-row"><span>Loyalty Base</span><span class="val">{formatModifier(chaMods.loyaltyBase)}</span></div>
         <div class="detail-row"><span>Reaction Adj</span><span class="val">{formatModifier(chaMods.reactionAdj)}</span></div>
@@ -450,13 +450,15 @@
 </div>
 
 <style lang="scss">
+  @import '../styles/mixins.scss';
+
   .sheet {
     max-width: 800px;
     margin: 0 auto;
     background: var(--bg-card);
     border: 3px solid var(--border-strong);
     box-shadow: 0 0 40px var(--shadow-color);
-    padding: 2.5rem;
+    padding: $space-2xl;
     position: relative;
   }
 
@@ -468,34 +470,25 @@
     pointer-events: none;
   }
 
-  h1 {
-    font-family: 'Cinzel', serif;
-    font-size: 2.2em;
-    text-align: center;
-    color: var(--text-primary);
-    letter-spacing: 0.08em;
-    margin-bottom: 2px;
-  }
-
   .subtitle {
     text-align: center;
-    font-size: 1.1em;
     color: var(--text-muted);
-    font-style: italic;
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.15em;
+  }
+
+  .label {
+    color: var(--text-muted);
   }
 
   .divider {
     border: none;
     height: 2px;
     background: linear-gradient(to right, transparent, var(--gold), transparent);
-    margin: 1.25rem 0;
+    margin: $space-lg 0;
   }
 
   .top-section {
     display: flex;
-    gap: 30px;
+    gap: $space-xl;
     align-items: flex-start;
     margin-bottom: 8px;
 
@@ -524,17 +517,11 @@
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.25rem 1.5rem;
+    gap: $space-xs $space-lg;
   }
 
   .info-item {
-    font-size: 1.05em;
-    padding: 0.2rem 0;
-
-    .label {
-      font-weight: 600;
-      color: var(--text-muted);
-    }
+    padding: $space-xs 0;
 
     &.encumbered {
       color: var(--red);
@@ -545,54 +532,24 @@
     }
   }
 
-  .section-title {
-    font-family: 'Cinzel', serif;
-    font-size: 1.3em;
-    color: var(--text-primary);
-    letter-spacing: 0.1em;
-    margin-bottom: 0.75rem;
-  }
-
   .abilities {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 0.5rem;
+    gap: $space-sm;
     text-align: center;
   }
 
   .ability {
     border: 2px solid var(--border-color);
-    padding: 0.75rem 0.25rem;
+    padding: $space-md $space-xs;
     background: var(--bg-input);
-
-    .name {
-      font-family: 'Cinzel', serif;
-      font-size: 0.75em;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin-bottom: 0.25rem;
-    }
-
-    .score {
-      font-size: 1.8em;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.2;
-    }
-
-    .mod {
-      font-size: 0.7em;
-      color: var(--text-muted);
-      font-style: italic;
-      margin-top: 0.25rem;
-    }
   }
 
   .ability-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 1rem;
+    gap: $space-lg;
+    margin-top: $space-md;
 
     @media (max-width: 640px) {
       grid-template-columns: 1fr;
@@ -602,37 +559,27 @@
   .detail-col {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: $space-md;
   }
 
   .detail-group {
     .detail-header {
-      font-family: 'Cinzel', serif;
-      font-size: 0.8em;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.15rem;
-      margin-bottom: 0.2rem;
+      padding-bottom: $space-xs;
     }
   }
 
   .detail-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.1rem 0;
-    font-size: 0.85em;
+    padding: $space-xs 0;
     border-bottom: 1px dotted var(--border-color);
-
-    .val {
-      font-weight: 600;
-    }
   }
 
   .two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: $space-lg;
 
     @media (max-width: 640px) {
       grid-template-columns: 1fr;
@@ -640,48 +587,30 @@
   }
 
   .stat-block h3 {
-    font-family: 'Cinzel', serif;
-    font-size: 1em;
-    color: var(--text-primary);
-    letter-spacing: 0.08em;
-    margin-bottom: 0.5rem;
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.25rem;
+    padding-bottom: $space-xs;
   }
 
   .stat-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.2rem 0;
-    font-size: 0.95em;
+    padding: $space-xs 0;
     border-bottom: 1px dotted var(--border-color);
-
-    .val {
-      font-weight: 600;
-    }
   }
 
   .trait-row {
-    padding: 0.2rem 0;
-    font-size: 0.95em;
+    padding: $space-xs 0;
     border-bottom: 1px dotted var(--border-color);
   }
 
   .backstory-text {
-    font-size: 0.95em;
-    line-height: 1.6;
-    color: var(--text-body);
     white-space: pre-wrap;
   }
 
   .sheet-footer {
     text-align: center;
-    font-family: 'Cinzel', serif;
-    font-size: 0.8em;
-    color: var(--text-muted);
-    letter-spacing: 0.15em;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
+    margin-top: $space-sm;
+    margin-bottom: $space-md;
   }
 
   .sheet-actions {
@@ -689,13 +618,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: $space-sm;
+    margin-top: $space-md;
   }
 
   .action-buttons {
     display: flex;
-    gap: 0.5rem;
+    gap: $space-sm;
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -705,13 +634,11 @@
   }
 
   .share-message {
-    margin: 0;
-    padding: 0.5rem 1rem;
+    padding: $space-sm $space-md;
     background: rgba(34, 139, 34, 0.15);
     border: 1px solid rgba(34, 139, 34, 0.3);
     border-radius: 4px;
     color: var(--green);
-    font-size: 0.875rem;
   }
 
   /* Print Styles */
@@ -719,7 +646,7 @@
     .sheet {
       max-width: 100%;
       margin: 0;
-      padding: 1.5rem;
+      padding: $space-lg;
       box-shadow: none;
       border: 2px solid #000;
       background: white !important;

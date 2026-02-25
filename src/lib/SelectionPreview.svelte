@@ -17,21 +17,21 @@
 </div>
 
 <style lang="scss">
+  @import '../styles/mixins.scss';
+
   .selection-preview {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
 
     h3 {
       text-align: center;
-      margin: 0;
-      font-size: 1.5rem;
     }
 
     .divider {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: $space-md;
 
       &::before, &::after {
         content: '';
@@ -49,7 +49,7 @@
   .preview-content {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .btn-primary {

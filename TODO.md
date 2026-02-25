@@ -74,13 +74,18 @@
 - [x] Unified makeEmptyCharacter() factory
 - [x] Data-driven stepGates for navigation
 - [x] Removed ~280 lines dead CSS from app.scss
+- [x] Major CSS refactoring: removed all typography overrides from components
+  - Added h4, h5, h6 global styles with SCSS variables
+  - Created semantic classes (.section-hint, .meta-text, .badge)
+  - Removed 118+ font-size declarations across 16 components
+  - Replaced hardcoded spacing with SCSS variables ($space-xs through $space-2xl)
+  - Removed all utility classes - components now contain only layout CSS
+  - Centralized spacing/typography variables in mixins.scss
 
 ### Backlog
 - [ ] Extract shared AbilityBadge component (ReviewStep + CharacterSheet)
-- [ ] Replace hardcoded colors (#228b22, #b43c28) with CSS variables
 - [ ] Split spells.js by type (wizard/divine)
 - [ ] Extract SelectableChip component (proficiencies, spells, languages, equipment)
-- [ ] Lazy-load shareCharacter.js (compression logic loaded eagerly)
 
 ## Notes
 - Using AD&D 2nd Edition PHB rules

@@ -208,9 +208,7 @@
     }
 
     .slot-label {
-      font-size: 0.7rem;
       font-weight: 600;
-      color: var(--text-muted);
       letter-spacing: 0.05em;
     }
 
@@ -218,22 +216,18 @@
       font-family: 'Cinzel', serif;
       font-size: 1.25rem;
       font-weight: 700;
-      color: var(--text-primary);
     }
 
     .slot-empty {
       font-size: 1.25rem;
-      color: var(--text-faint);
     }
 
     .slot-clear {
       position: absolute;
       top: 2px;
       right: 2px;
-      padding: 0 0.3rem;
-      font-size: 0.9rem;
+      padding: 0 $space-xs;
       background: transparent;
-      color: var(--red);
       box-shadow: none;
       opacity: 0.5;
 
@@ -246,16 +240,10 @@
 
   .manual-entry {
     text-align: center;
-    margin: 1.5rem 0;
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--text-body);
-    }
+    margin: $space-lg 0;
 
     &.exceptional {
-      padding: 1rem;
+      padding: $space-md;
       background: rgba(201, 162, 39, 0.12);
       border: 1px solid rgba(201, 162, 39, 0.3);
       border-radius: 4px;
@@ -265,7 +253,7 @@
   .entry-row {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    gap: $space-sm;
 
     input {
       width: 100px;
@@ -273,36 +261,17 @@
       font-family: 'Cinzel', serif;
       font-size: 1.25rem;
       font-weight: 600;
-      padding: 0.5rem;
+      padding: $space-sm;
     }
   }
 
   .section {
     h3 {
       text-align: center;
-      margin-bottom: 0.5rem;
     }
   }
 
   .continue-section {
     text-align: center;
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-
-      &::before, &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-      }
-
-      .ornament {
-        color: var(--gold-dark);
-      }
-    }
   }
 </style>

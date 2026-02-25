@@ -123,7 +123,7 @@
 <div class="spell-selector">
   {#if !isCaster}
     <div class="no-spells">
-      <p>Your class does not cast spells at 1st level.</p>
+      <p class="section-hint">Your class does not cast spells at 1st level.</p>
       <button class="btn-primary" onclick={confirm}>
         Continue to Backstory
       </button>
@@ -132,7 +132,7 @@
   {:else if isWizard}
     <div class="wizard-spells">
       <div class="spell-header">
-        <p class="intro">
+        <p class="section-hint">
           Your spellbook starts with <strong>Read Magic</strong> plus
           <strong>{startingCount - 1}</strong> additional spells based on your Intelligence.
         </p>
@@ -140,7 +140,7 @@
       </div>
 
       {#if wizardSchool}
-        <p class="school-note">
+        <p class="section-hint school-note">
           As a {wizardSchool.name}, you cannot learn spells from:
           <strong>{wizardSchool.oppositionSchools.join(', ')}</strong>
         </p>
@@ -202,7 +202,7 @@
   {:else if isDivine}
     <div class="divine-spells">
       <div class="spell-header">
-        <p class="intro">
+        <p class="section-hint">
           As a {classKey === 'cleric' ? 'Cleric' : 'Druid'}, you have access to all 1st-level
           {classKey === 'cleric' ? 'clerical' : 'druidic'} spells.
           Prepare <strong>{spellsPerDay}</strong> spell{spellsPerDay !== 1 ? 's' : ''} for today.
@@ -257,75 +257,57 @@
   .spell-selector {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .no-spells {
     text-align: center;
 
     p {
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
+      margin-bottom: $space-lg;
     }
   }
 
   .spell-header {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: $space-md;
     align-items: center;
 
-    .intro {
+    .section-hint {
       text-align: center;
-      color: var(--text-body);
-      margin: 0;
     }
   }
 
   .school-note {
     text-align: center;
-    font-size: 0.9rem;
     color: var(--gold-dark);
-    padding: 0.5rem 1rem;
+    padding: $space-sm $space-md;
     background: rgba(201, 162, 39, 0.1);
     border-radius: 4px;
-    margin: 0;
   }
 
   .auto-spell {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
+    gap: $space-sm;
+    padding: $space-sm;
     background: rgba(34, 139, 34, 0.1);
     border: 1px solid rgba(34, 139, 34, 0.3);
     border-radius: 4px;
 
-    .auto-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
     .spell-name {
-      font-weight: 600;
       color: var(--green);
-    }
-
-    .spell-school {
-      font-size: 0.8rem;
-      color: var(--text-muted);
     }
   }
 
   .school-section {
     .school-title {
-      font-size: 0.9rem;
-      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin: 0 0 0.5rem;
-      padding-bottom: 0.25rem;
+      margin: 0 0 $space-sm;
+      padding-bottom: $space-xs;
       border-bottom: 1px solid var(--border-color);
     }
   }
@@ -333,46 +315,35 @@
   .spell-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: $space-sm;
   }
 
   .spell-card {
     @include selectable-chip;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-    color: var(--text-body);
+    padding: $space-sm 0.75rem;
 
     &:hover:not(.disabled) {
       .spell-name {
         color: var(--text-hover);
       }
     }
-
-    &.selected {
-      color: var(--text-primary);
-      font-weight: 500;
-    }
   }
 
   .selected-summary {
-    padding: 1rem;
+    padding: $space-md;
     background: var(--bg-panel);
     border-radius: 4px;
 
     h4 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
-      color: var(--text-body);
+      margin: 0 0 $space-sm;
     }
 
     ul {
       margin: 0;
       padding-left: 1.25rem;
-      font-size: 0.9rem;
-      color: var(--text-body);
 
       li {
-        margin-bottom: 0.25rem;
+        margin-bottom: $space-xs;
       }
     }
   }
@@ -389,6 +360,6 @@
   .divine-spells {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 </style>

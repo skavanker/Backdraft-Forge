@@ -176,23 +176,18 @@
   .class-selector {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .intro {
     text-align: center;
-    color: var(--text-body);
-    margin: 0;
   }
 
   .class-group {
     .group-title {
-      font-size: 1rem;
-      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin: 0 0 0.75rem;
-      padding-bottom: 0.25rem;
+      padding-bottom: $space-xs;
       border-bottom: 1px solid var(--border-color);
     }
   }
@@ -209,7 +204,7 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
-    padding: 1rem;
+    padding: $space-md;
     min-height: 120px;
 
     &:hover:not(.disabled) {
@@ -236,34 +231,22 @@
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      margin-bottom: 0.5rem;
-    }
-
-    .class-name {
-      margin: 0;
-      font-size: 1.1rem;
-      color: var(--text-primary);
+      margin-bottom: $space-sm;
     }
 
     .hit-die {
-      font-size: 0.8rem;
       padding: 0.15rem 0.4rem;
       background: var(--bg-panel);
       border-radius: 2px;
-      color: var(--text-muted);
-      font-weight: 600;
     }
 
     .class-desc {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-muted);
       flex: 1;
     }
 
     .class-meta {
       display: flex;
-      gap: 0.5rem;
+      gap: $space-sm;
       margin-top: 0.75rem;
       flex-wrap: wrap;
     }
@@ -273,8 +256,6 @@
       background: rgba(34, 139, 34, 0.15);
       color: var(--green);
       border-radius: 2px;
-      font-size: 0.75rem;
-      font-weight: 600;
     }
 
     .level-limit {
@@ -282,7 +263,6 @@
       background: rgba(200, 150, 50, 0.15);
       color: var(--gold-dark);
       border-radius: 2px;
-      font-size: 0.75rem;
     }
 
     .unavailable-badge {
@@ -291,7 +271,6 @@
       background: rgba(139, 37, 0, 0.1);
       border: 1px solid rgba(139, 37, 0, 0.3);
       border-radius: 2px;
-      font-size: 0.7rem;
       color: var(--red);
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -300,43 +279,28 @@
 
   // h4 styles for slotted content (Svelte scoping won't reach into child component)
   h4 {
-    margin: 0 0 0.75rem;
-    font-size: 1rem;
-    color: var(--text-body);
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.25rem;
+    padding-bottom: $space-xs;
   }
 
   .features-list {
     margin: 0;
     padding-left: 1.25rem;
-    font-size: 0.875rem;
-    color: var(--text-body);
 
     li {
-      margin-bottom: 0.25rem;
+      margin-bottom: $space-xs;
     }
   }
 
   .stat-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: $space-sm;
   }
 
   .stat-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.875rem;
-
-    .stat-label {
-      color: var(--text-muted);
-    }
-
-    .stat-value {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
 
     &.highlight .stat-value {
       color: var(--green);
@@ -352,16 +316,13 @@
 
     h4 {
       text-align: center;
-      margin: 0 0 1rem;
-      font-size: 1.1rem;
-      color: var(--text-body);
     }
   }
 
   .school-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
+    gap: $space-sm;
 
     :global(.tooltip-wrap) {
       display: flex;
@@ -374,20 +335,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.75rem $space-sm;
     transition: all 0.15s;
     width: 100%;
     min-height: 60px;
 
-    .school-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-
     .school-desc {
-      font-size: 0.875rem;
-      color: var(--text-muted);
       text-align: center;
     }
 

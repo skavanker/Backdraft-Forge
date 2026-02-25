@@ -204,7 +204,7 @@
       <p class="section-hint">
         Select {weaponSlots} weapon{weaponSlots !== 1 ? 's' : ''} your character is trained with.
         {#if weaponSlotsRemaining > 0}
-          <span class="remaining">({weaponSlotsRemaining} remaining)</span>
+          <span class="meta-text remaining">({weaponSlotsRemaining} remaining)</span>
         {/if}
       </p>
 
@@ -244,7 +244,7 @@
         {#if bonusLanguageSlots > 0}
           Your Intelligence grants {bonusLanguageSlots} additional language{bonusLanguageSlots !== 1 ? 's' : ''}.
           {#if bonusLanguageSlotsRemaining > 0}
-            <span class="remaining">({bonusLanguageSlotsRemaining} bonus remaining)</span>
+            <span class="meta-text remaining">({bonusLanguageSlotsRemaining} bonus remaining)</span>
           {/if}
         {/if}
       </p>
@@ -273,7 +273,7 @@
       <p class="section-hint">
         Select skills for your character. Different skill groups cost different amounts.
         {#if nonWeaponSlotsRemaining > 0}
-          <span class="remaining">({nonWeaponSlotsRemaining} slots remaining)</span>
+          <span class="meta-text remaining">({nonWeaponSlotsRemaining} slots remaining)</span>
         {/if}
       </p>
 
@@ -371,14 +371,14 @@
   .proficiency-selector {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .slot-summary {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    padding: 1rem;
+    gap: $space-xl;
+    padding: $space-md;
     background: var(--bg-panel);
     border-radius: 4px;
   }
@@ -392,35 +392,25 @@
   .section {
     h3 {
       margin: 0 0 0.35rem;
-      font-size: 1.15rem;
     }
+  }
 
-    .section-hint {
-      margin: 0 0 0.75rem;
-      font-size: 0.825rem;
-      color: var(--text-muted);
-
-      .remaining {
-        color: var(--gold-dark);
-        font-weight: 600;
-      }
-    }
+  .remaining {
+    color: var(--gold-dark);
   }
 
   .weapon-section,
   .nonweapon-section {
     columns: 4 180px;
-    column-gap: 1.5rem;
+    column-gap: $space-lg;
 
     .weapon-group,
     .proficiency-group {
       break-inside: avoid;
-      margin-bottom: 1rem;
+      margin-bottom: $space-md;
     }
 
     .group-title {
-      font-size: 0.825rem;
-      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin: 0 0 0.4rem;
@@ -430,16 +420,14 @@
   }
 
   .group-cost {
-    font-weight: normal;
     text-transform: none;
-    font-size: 0.8rem;
     opacity: 0.8;
   }
 
   .language-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 0.5rem;
+    gap: $space-sm;
 
     @media (max-width: 768px) {
       grid-template-columns: repeat(3, 1fr);
@@ -452,15 +440,9 @@
 
   .language-chip {
     @include selectable-chip;
-    color: var(--text-body);
 
     &:hover:not(.disabled):not(.auto) {
       color: var(--text-hover);
-    }
-
-    &.selected {
-      color: var(--text-primary);
-      font-weight: 600;
     }
 
     &.auto {
@@ -487,13 +469,10 @@
     text-align: left;
 
     .chip-name {
-      color: var(--text-body);
       flex: 1;
     }
 
     .chip-meta {
-      font-size: 0.7rem;
-      color: var(--text-muted);
       padding: 0.1rem 0.3rem;
       background: var(--bg-panel);
       border-radius: 2px;
@@ -501,13 +480,11 @@
     }
 
     .chip-cost {
-      font-size: 0.7rem;
       color: var(--gold-dark);
       padding: 0.1rem 0.35rem;
       background: rgba(201, 162, 39, 0.15);
       border: 1px solid rgba(201, 162, 39, 0.3);
       border-radius: 2px;
-      font-weight: 600;
       flex-shrink: 0;
     }
 
@@ -516,28 +493,19 @@
         color: var(--text-hover);
       }
     }
-
-    &.selected {
-      .chip-name {
-        color: var(--text-primary);
-        font-weight: 600;
-      }
-    }
   }
 
   .selection-summary {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding: 1rem;
+    padding: $space-md;
     background: var(--bg-subtle);
     border-radius: 4px;
-    margin-top: 0.5rem;
+    margin-top: $space-sm;
 
     h3 {
       text-align: center;
-      margin: 0;
-      font-size: 1rem;
     }
 
     .divider {
@@ -554,7 +522,6 @@
 
       .ornament {
         color: var(--gold-dark);
-        font-size: 0.75rem;
       }
     }
   }
@@ -562,14 +529,11 @@
   .summary-columns {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
+    gap: $space-md;
   }
 
   .summary-section {
     h4 {
-      margin: 0 0 0.4rem;
-      font-size: 0.9rem;
-      color: var(--text-body);
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 0.2rem;
     }
@@ -584,16 +548,6 @@
       display: flex;
       justify-content: space-between;
       padding: 0.2rem 0;
-      font-size: 0.85rem;
-
-      .summary-name {
-        color: var(--text-body);
-      }
-
-      .summary-detail {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-      }
     }
   }
 

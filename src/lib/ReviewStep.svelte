@@ -7,7 +7,7 @@
 <div class="character-review">
   <div class="review-header">
     <span class="review-race">{character.race.name}</span>
-    <span class="review-class">
+    <span>
       {#if character.wizardSchool}
         {character.wizardSchool.name}
       {:else}
@@ -22,8 +22,8 @@
       <div class="ability-summary">
         {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
           <div class="ability-badge">
-            <span class="ability-label">{ability}</span>
-            <span class="ability-value">
+            <span class="meta-text">{ability}</span>
+            <span class="text-xl">
               {character.adjustedAbilities[ability]}{#if ability === 'STR' && character.abilities.exceptionalStr}/{character.abilities.exceptionalStr.toString().padStart(2, '0')}{/if}
             </span>
           </div>
@@ -92,10 +92,12 @@
 </div>
 
 <style lang="scss">
+  @import '../styles/mixins.scss';
+
   .ability-summary {
     display: flex;
     justify-content: center;
-    gap: 0.75rem;
+    gap: $space-md;
     flex-wrap: wrap;
   }
 
@@ -103,96 +105,62 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem 0.75rem;
+    padding: $space-sm $space-md;
     background: rgba(201, 162, 39, 0.15);
     border: 1px solid rgba(201, 162, 39, 0.3);
     border-radius: 4px;
     min-width: 50px;
-
-    .ability-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-    }
-
-    .ability-value {
-      font-family: 'Cinzel', serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
   }
 
   .character-review {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
     align-items: center;
 
     .btn-primary {
-      margin-top: 1rem;
+      margin-top: $space-md;
     }
   }
 
   .review-header {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    font-size: 1.5rem;
-    font-family: 'Cinzel', serif;
+    gap: $space-sm;
     width: 100%;
 
     .review-race {
       color: var(--text-muted);
-    }
-
-    .review-class {
-      color: var(--text-primary);
-      font-weight: 600;
     }
   }
 
   .review-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
+    gap: $space-lg;
     width: 100%;
   }
 
   .review-section {
-    padding: 1rem;
+    padding: $space-md;
     background: var(--bg-panel);
     border-radius: 4px;
 
     h4 {
-      margin: 0 0 1rem;
-      font-size: 1rem;
-      color: var(--text-body);
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.25rem;
+      padding-bottom: $space-xs;
     }
   }
 
   .info-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: $space-sm;
   }
 
   .info-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
-
-    span:first-child {
-      color: var(--text-muted);
-    }
-
-    span:last-child {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
 
     &.highlight span:last-child {
       color: var(--green);
@@ -205,26 +173,16 @@
 
   .review-warnings {
     width: 100%;
-    margin-top: 0.5rem;
-
-    h4 {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin: 0 0 0.5rem;
-    }
+    margin-top: $space-sm;
   }
 
   .review-warning {
     display: flex;
     align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.4rem 0.6rem;
+    gap: $space-sm;
+    padding: $space-sm;
     border-radius: 4px;
-    font-size: 0.85rem;
-    line-height: 1.3;
-    margin-bottom: 0.3rem;
+    margin-bottom: $space-xs;
 
     .warning-icon {
       flex-shrink: 0;

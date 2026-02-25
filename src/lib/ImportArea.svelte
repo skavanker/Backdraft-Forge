@@ -24,7 +24,7 @@
   }
 </script>
 
-<button class="btn-ghost toggle-btn" onclick={() => showImportArea = !showImportArea}>
+<button class="btn-ghost btn-sm" onclick={() => showImportArea = !showImportArea}>
   📥 Import character code
 </button>
 {#if showImportArea}
@@ -44,39 +44,31 @@
 {/if}
 
 <style lang="scss">
-  .toggle-btn {
-    font-size: 0.85rem;
-    padding: 0.35rem 0.75rem;
-  }
+  @import '../styles/mixins.scss';
 
   .import-area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: $space-sm;
     width: 100%;
     max-width: 500px;
 
     textarea {
       width: 100%;
-      padding: 0.75rem;
-      font-family: monospace;
-      font-size: 0.8rem;
+      padding: $space-md;
       border: 1px solid var(--border-color);
       border-radius: 4px;
       background: var(--bg-input);
-      color: var(--text-body);
       resize: vertical;
     }
   }
 
   .import-error {
-    margin: 0;
-    padding: 0.5rem 1rem;
+    padding: $space-sm $space-md;
     background: rgba(180, 60, 40, 0.15);
     border: 1px solid rgba(180, 60, 40, 0.3);
     border-radius: 4px;
     color: var(--red);
-    font-size: 0.875rem;
   }
 </style>

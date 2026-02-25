@@ -3,30 +3,22 @@
 </script>
 
 <div class="slot-counter">
-  <span class="slot-label">{label}</span>
-  <span class="slot-value" class:complete={used === total}>
+  <span class="meta-text">{label}</span>
+  <span class="slot-value text-xl" class:complete={used === total}>
     {used} / {total}
   </span>
 </div>
 
 <style lang="scss">
+  @import '../styles/mixins.scss';
+
   .slot-counter {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
-
-    .slot-label {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
+    gap: $space-xs;
 
     .slot-value {
-      font-family: 'Cinzel', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-
       &.complete {
         color: var(--green);
       }

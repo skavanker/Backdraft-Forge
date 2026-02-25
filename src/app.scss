@@ -168,12 +168,67 @@ h2 {
 }
 
 h3 {
-  font-size: 1.25rem;
+  font-size: $text-xl;
+  color: var(--text-primary);
+}
+
+h4 {
+  font-size: $text-lg;
   color: var(--text-body);
+  margin: 0 0 $space-sm;
+}
+
+h5 {
+  font-size: $text-base;
+  color: var(--text-body);
+  margin: 0 0 $space-sm;
+}
+
+h6 {
+  font-size: $text-sm;
+  color: var(--text-muted);
+  margin: 0 0 $space-sm;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 p {
   margin: 0 0 $space-md;
+}
+
+// Helper text that appears under section headers
+.section-hint {
+  font-size: $text-sm;
+  color: var(--text-muted);
+  margin: 0 0 $space-md;
+}
+
+// Small meta/descriptive text (ability names, damage, etc)
+.meta-text {
+  font-size: $text-xs;
+  color: var(--text-muted);
+}
+
+// Badges for statuses, counts, etc
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: $text-xs;
+  font-weight: 600;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-primary {
+  background: var(--gold-dark);
+  color: white;
+}
+
+.badge-muted {
+  background: var(--bg-panel);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
 }
 
 // =============================================================================
@@ -241,6 +296,11 @@ button {
     transform: none;
     box-shadow: none;
   }
+}
+
+.btn-sm {
+  padding: $space-xs $space-md;
+  font-size: $text-sm;
 }
 
 // =============================================================================
@@ -378,27 +438,4 @@ hr {
   }
 }
 
-// =============================================================================
-// UTILITY CLASSES
-// =============================================================================
-
-.text-center { text-align: center; }
-.text-muted { color: var(--text-muted); }
-.text-gold { color: var(--gold-dark); }
-.text-small { font-size: 0.875rem; }
-.text-large { font-size: 1.25rem; }
-
-.mt-0 { margin-top: 0; }
-.mb-0 { margin-bottom: 0; }
-.mt-md { margin-top: $space-md; }
-.mb-md { margin-bottom: $space-md; }
-.mt-lg { margin-top: $space-lg; }
-.mb-lg { margin-bottom: $space-lg; }
-
-.flex { display: flex; }
-.flex-center { justify-content: center; align-items: center; }
-.flex-wrap { flex-wrap: wrap; }
-.gap-sm { gap: $space-sm; }
-.gap-md { gap: $space-md; }
-.gap-lg { gap: $space-lg; }
 

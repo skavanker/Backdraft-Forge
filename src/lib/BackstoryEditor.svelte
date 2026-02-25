@@ -213,8 +213,8 @@
       maxlength="5000"
     ></textarea>
     <div class="backstory-meta">
-      <p class="hint">Optional — you can always add this later.</p>
-      <span class="char-count" class:near-limit={charCount > 4500}>{charCount} / 5000</span>
+      <p class="section-hint">Optional — you can always add this later.</p>
+      <span class="meta-text char-count" class:near-limit={charCount > 4500}>{charCount} / 5000</span>
     </div>
   </div>
 
@@ -227,7 +227,7 @@
   .backstory-editor {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
     max-width: 600px;
     margin: 0 auto;
   }
@@ -238,17 +238,12 @@
   .backstory-section {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-
-    label {
-      font-weight: 600;
-      color: var(--text-body);
-    }
+    gap: $space-sm;
   }
 
   .sex-buttons {
     display: flex;
-    gap: 0.5rem;
+    gap: $space-sm;
   }
 
   .sex-btn {
@@ -256,27 +251,19 @@
     flex: 1;
     padding: 0.75rem;
     transition: all 0.15s;
-    color: var(--text-body);
-    font-size: 1rem;
-
-    &.selected {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
   }
 
   .alignment-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: $space-sm;
     position: relative;
     z-index: 1;
   }
 
   .alignment-btn {
     @include selectable-card($lift: 0);
-    padding: 0.5rem;
-    font-size: 0.875rem;
+    padding: $space-sm;
     text-align: center;
     transition: none;
 
@@ -288,7 +275,7 @@
 
   .name-row {
     display: flex;
-    gap: 0.5rem;
+    gap: $space-sm;
     align-items: stretch;
 
     input[type="text"] {
@@ -297,13 +284,11 @@
   }
 
   .btn-random {
-    padding: 0.5rem 1rem;
+    padding: $space-sm $space-md;
     border: 2px solid var(--gold);
     border-radius: 4px;
     background: rgba(201, 162, 39, 0.1);
     color: var(--gold);
-    font-size: 0.85rem;
-    font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s;
@@ -319,19 +304,13 @@
 
     &.small {
       padding: 0.3rem 0.75rem;
-      font-size: 0.8rem;
     }
   }
 
   .details-section {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-
-    label {
-      font-weight: 600;
-      color: var(--text-body);
-    }
+    gap: $space-sm;
   }
 
   .details-header {
@@ -343,7 +322,7 @@
   .details-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: $space-sm;
 
     @media (max-width: 480px) {
       grid-template-columns: repeat(2, 1fr);
@@ -355,19 +334,12 @@
     flex-direction: column;
     gap: 0.2rem;
 
-    label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
     input {
-      padding: 0.4rem 0.5rem;
+      padding: 0.4rem $space-sm;
       border: 1px solid var(--border-color);
       border-radius: 4px;
       background: var(--bg-input);
       color: var(--text-primary);
-      font-size: 0.9rem;
       width: 100%;
 
       &:focus {
@@ -383,7 +355,6 @@
     border-radius: 4px;
     background: var(--bg-input);
     color: var(--text-primary);
-    font-size: 1.1rem;
     font-family: 'Cinzel', serif;
 
     &:focus {
@@ -398,7 +369,6 @@
     border-radius: 4px;
     background: var(--bg-input);
     color: var(--text-primary);
-    font-size: 0.95rem;
     line-height: 1.6;
     resize: vertical;
     min-height: 200px;
@@ -419,16 +389,7 @@
     align-items: center;
   }
 
-  .hint {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin: 0;
-  }
-
   .char-count {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-
     &.near-limit {
       color: var(--red);
     }

@@ -124,19 +124,17 @@
   .race-selector {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .intro {
     text-align: center;
-    color: var(--text-body);
-    margin: 0;
   }
 
   .race-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
+    gap: $space-md;
   }
 
   .race-card {
@@ -166,30 +164,19 @@
       background: var(--bg-subtle);
     }
 
-    .race-name {
-      margin: 0 0 0.5rem;
-      font-size: 1.25rem;
-      color: var(--text-primary);
-    }
-
     .race-desc {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--text-muted);
       flex: 1;
     }
 
     .adjustments {
       display: flex;
-      gap: 0.5rem;
+      gap: $space-sm;
       margin-top: 0.75rem;
     }
 
     .adjustment {
-      padding: 0.2rem 0.5rem;
+      padding: 0.2rem $space-sm;
       border-radius: 2px;
-      font-size: 0.875rem;
-      font-weight: 600;
 
       &.positive {
         background: rgba(34, 139, 34, 0.15);
@@ -204,11 +191,10 @@
 
     .unavailable-badge {
       margin-top: 0.75rem;
-      padding: 0.25rem 0.5rem;
+      padding: $space-xs $space-sm;
       background: rgba(139, 37, 0, 0.1);
       border: 1px solid rgba(139, 37, 0, 0.3);
       border-radius: 2px;
-      font-size: 0.75rem;
       color: var(--red);
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -217,40 +203,32 @@
 
   // h4 styles for slotted content (Svelte scoping won't reach into child component)
   h4 {
-    margin: 0 0 0.75rem;
-    font-size: 1rem;
-    color: var(--text-body);
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.25rem;
+    padding-bottom: $space-xs;
   }
 
   .traits-list {
     margin: 0;
     padding-left: 1.25rem;
-    font-size: 0.875rem;
-    color: var(--text-body);
 
     li {
-      margin-bottom: 0.25rem;
+      margin-bottom: $space-xs;
     }
   }
 
   .ability-comparison {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: $space-xs;
   }
 
   .ability-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: $space-sm;
 
     .ability-label {
       width: 2.5rem;
-      font-weight: 600;
-      color: var(--text-muted);
     }
 
     .ability-base {
@@ -263,8 +241,6 @@
     }
 
     .ability-adjusted {
-      font-weight: 600;
-
       &.positive {
         color: var(--green);
       }
@@ -278,19 +254,13 @@
   .class-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: $space-sm;
   }
 
   .class-tag {
-    padding: 0.25rem 0.5rem;
+    padding: $space-xs $space-sm;
     background: var(--bg-panel);
     border-radius: 2px;
-    font-size: 0.85rem;
     text-transform: capitalize;
-
-    small {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-    }
   }
 </style>

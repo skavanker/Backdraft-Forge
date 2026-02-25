@@ -246,7 +246,7 @@
   <div class="gold-section">
     {#if !goldRolled}
       <div class="intro-with-info">
-        <p class="intro">Roll for starting gold or enter a custom amount.</p>
+        <p class="section-hint">Roll for starting gold or enter a custom amount.</p>
         <Tooltip text="Starting gold per AD&D 2E: Warriors 5d4×10 (50-200 gp), Wizards 1d4+1×10 (20-50 gp), Priests 3d6×10 (30-180 gp), Rogues 2d6×10 (20-120 gp)" position="bottom">
           <span class="info-icon">ⓘ</span>
         </Tooltip>
@@ -515,7 +515,7 @@
   .equipment-selector {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .gold-section {
@@ -525,18 +525,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .intro {
-      margin: 0;
-      color: var(--text-body);
+      gap: $space-sm;
+      margin-bottom: $space-md;
     }
 
     .info-icon {
-      color: var(--text-muted);
-      font-size: 0.9rem;
       cursor: help;
       opacity: 0.7;
       transition: opacity 0.2s;
@@ -551,36 +544,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: $space-md;
     flex-wrap: wrap;
 
     .or-divider {
-      color: var(--text-muted);
       font-style: italic;
     }
 
     .manual-gold {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: $space-sm;
 
       input {
         width: 100px;
-        padding: 0.5rem;
+        padding: $space-sm;
         border: 1px solid var(--border-color);
         border-radius: 4px;
         background: var(--bg-input);
         color: var(--text-primary);
-        font-size: 1rem;
-      }
-
-      .gp-label {
-        color: var(--text-muted);
-      }
-
-      .btn-sm {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
       }
     }
   }
@@ -588,8 +570,8 @@
   .gold-display {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    padding: 1rem;
+    gap: $space-xl;
+    padding: $space-md;
     background: var(--bg-panel);
     border-radius: 4px;
     flex-wrap: wrap;
@@ -598,17 +580,15 @@
 
   .reroll-btn {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: $space-sm;
+    right: $space-sm;
     background: transparent;
     border: none;
-    color: var(--text-muted);
-    font-size: 1.5rem;
     line-height: 1;
     cursor: pointer;
     opacity: 0.3;
     transition: opacity 0.2s;
-    padding: 0.25rem 0.5rem;
+    padding: $space-xs $space-sm;
 
     &:hover {
       opacity: 0.8;
@@ -617,13 +597,12 @@
 
   .encumbrance-warning {
     text-align: center;
-    padding: 0.5rem 1rem;
+    padding: $space-sm $space-md;
     background: rgba(180, 60, 40, 0.15);
     border: 1px solid rgba(180, 60, 40, 0.3);
     border-radius: 4px;
     color: var(--red);
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
+    margin-top: $space-sm;
   }
 
   .gold-stat {
@@ -631,15 +610,8 @@
     flex-direction: column;
     align-items: center;
 
-    .gold-label {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
     .gold-value {
       font-family: 'Cinzel', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
       color: var(--gold);
 
       &.warning {
@@ -651,13 +623,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.25rem;
-      margin-top: 0.5rem;
-
-      .dice-formula {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-      }
+      gap: $space-xs;
+      margin-top: $space-sm;
 
       .dice-rolls {
         display: flex;
@@ -681,25 +648,16 @@
   .equipment-sections {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: $space-lg;
   }
 
   .section {
     h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1.125rem;
-      color: var(--text-primary);
-    }
-
-    .section-hint {
-      margin: 0 0 0.75rem;
-      font-size: 0.875rem;
-      color: var(--text-muted);
+      margin: 0 0 $space-sm;
     }
   }
 
   .restriction-note {
-    color: var(--text-muted);
     font-style: italic;
     text-align: center;
   }
@@ -707,7 +665,7 @@
   .item-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 0.5rem;
+    gap: $space-sm;
 
     &.small {
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -728,38 +686,16 @@
       justify-content: space-between;
       align-items: center;
       padding: 0.4rem 0.6rem;
-
-      .item-name {
-        font-size: 0.875rem;
-      }
-
-      .item-price {
-        font-size: 0.8rem;
-      }
-    }
-
-    .item-name {
-      font-weight: 500;
-      color: var(--text-body);
-      font-size: 1rem;
     }
 
     .item-meta {
       display: flex;
-      gap: 0.5rem;
-      margin-top: 0.25rem;
-      font-size: 0.875rem;
-    }
-
-    .item-ac,
-    .item-damage {
-      color: var(--text-primary);
-      font-weight: 600;
+      gap: $space-sm;
+      margin-top: $space-xs;
     }
 
     .item-price {
       color: var(--gold-dark);
-      font-size: 0.875rem;
     }
 
     &:hover:not(.disabled) {
@@ -767,17 +703,9 @@
         color: var(--text-hover);
       }
     }
-
-    &.selected {
-      .item-name {
-        color: var(--text-primary);
-      }
-    }
   }
 
   .qty-badge {
-    font-size: 0.75rem;
-    font-weight: 700;
     background: var(--gold);
     color: var(--bg-card);
     border-radius: 8px;
@@ -789,7 +717,7 @@
   .custom-gear-form {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: $space-sm;
     flex-wrap: wrap;
 
     input {
@@ -798,7 +726,6 @@
       border-radius: 4px;
       background: var(--bg-input);
       color: var(--text-primary);
-      font-size: 0.875rem;
     }
 
     input:not([type="number"]) {
@@ -817,7 +744,6 @@
       background: var(--bg-panel);
       color: var(--text-primary);
       cursor: pointer;
-      font-size: 0.875rem;
       transition: background 0.2s;
 
       &:hover:not(:disabled) {

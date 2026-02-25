@@ -107,13 +107,13 @@
 <div class="method-select">
   <label class:selected={method === '4d6drop'} class:disabled={rawDice}>
     <input type="radio" bind:group={method} value="4d6drop" disabled={rawDice} />
-    <span class="method-name">4d6 drop lowest</span>
-    <span class="method-desc">Recommended</span>
+    <strong>4d6 drop lowest</strong>
+    <span class="meta-text">Recommended</span>
   </label>
   <label class:selected={method === '3d6'} class:disabled={rawDice}>
     <input type="radio" bind:group={method} value="3d6" disabled={rawDice} />
-    <span class="method-name">3d6 straight</span>
-    <span class="method-desc">Classic / Hardcore</span>
+    <strong>3d6 straight</strong>
+    <span class="meta-text">Classic / Hardcore</span>
   </label>
 </div>
 
@@ -122,16 +122,16 @@
     <button class="btn-primary" onclick={rollScores}>
       🎲 Roll Ability Scores
     </button>
-    <button class="btn-ghost manual-btn" onclick={onManualMode}>
+    <button class="btn-ghost btn-sm" onclick={onManualMode}>
       ✏️ Enter scores manually
     </button>
     <ImportArea {onImport} />
   {:else if canReroll}
-    <button class="btn-ghost reroll-btn" onclick={rollScores}>
+    <button class="btn-ghost btn-sm" onclick={rollScores}>
       ⟳ Reroll ({MAX_REROLLS - rerollsUsed} left)
     </button>
   {:else}
-    <p class="no-rerolls">No rerolls remaining — these are your scores</p>
+    <p class="section-hint">No rerolls remaining — these are your scores</p>
   {/if}
 </div>
 
@@ -142,7 +142,7 @@
   <div class="section">
     <h3>Your Abilities</h3>
     {#if !allAssigned}
-      <p class="help-text">
+      <p class="section-hint">
         {#if selectedRollIndex !== null}
           Click an ability to assign <strong>{scores[selectedRollIndex].total}</strong>.
         {:else}
@@ -196,7 +196,7 @@
           disabled={assignedTo !== undefined}
         >
           {#if assignedTo}
-            <span class="assigned-label">{assignedTo}</span>
+            <span class="assigned-label badge badge-primary">{assignedTo}</span>
           {/if}
           <span class="roll-total">{score.total}</span>
           <span class="roll-dice">
@@ -246,7 +246,7 @@
 <style lang="scss">
   .method-select {
     display: flex;
-    gap: 1rem;
+    gap: $space-md;
     justify-content: center;
     flex-wrap: wrap;
 
@@ -254,7 +254,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem 1.5rem;
+      padding: $space-md $space-lg;
       background: var(--bg-subtle);
       border: 2px solid transparent;
       border-radius: 4px;
@@ -268,7 +268,6 @@
 
       &:hover:not(.selected):not(.disabled) {
         background: var(--bg-hover);
-        color: var(--text-hover);
       }
 
       &.disabled {
@@ -280,16 +279,6 @@
         position: absolute;
         opacity: 0;
       }
-
-      .method-name {
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .method-desc {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-      }
     }
   }
 
@@ -298,43 +287,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
-
-    .reroll-btn {
-      font-size: 0.9rem;
-      padding: 0.4rem 1rem;
-    }
-
-    .manual-btn {
-      font-size: 0.85rem;
-      padding: 0.35rem 0.75rem;
-    }
-
-    .no-rerolls {
-      color: var(--text-muted);
-      font-style: italic;
-      margin: 0;
-    }
+    gap: $space-md;
   }
 
   .section {
     h3 {
       text-align: center;
-      margin-bottom: 0.5rem;
     }
-  }
-
-  .help-text {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin: 0 0 1rem;
   }
 
   .dice-results {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: $space-sm;
     justify-content: center;
   }
 
@@ -344,7 +309,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.75rem 0.65rem;
+    padding: $space-md $space-sm;
     min-width: 70px;
     box-shadow: 0 2px 4px var(--shadow-color);
 
@@ -367,27 +332,19 @@
       top: -8px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 0 0.35rem;
-      background: var(--gold-dark);
-      color: white;
-      font-size: 0.65rem;
-      font-weight: 600;
-      border-radius: 2px;
-      letter-spacing: 0.05em;
     }
 
     .roll-total {
       font-family: 'Cinzel', serif;
       font-size: 1.75rem;
       font-weight: 700;
-      color: var(--text-primary);
       line-height: 1;
     }
 
     .roll-dice {
       display: flex;
       gap: 2px;
-      margin-top: 0.35rem;
+      margin-top: $space-xs;
     }
 
     .die {
@@ -412,7 +369,7 @@
   .ability-slots {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    gap: $space-md;
 
     @media (max-width: 500px) {
       grid-template-columns: repeat(2, 1fr);
@@ -422,8 +379,8 @@
   .ability-slot {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
+    gap: $space-sm;
+    padding: $space-md $space-md;
     background: var(--bg-subtle);
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -442,8 +399,6 @@
 
     .slot-label {
       font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--text-muted);
       width: 2.5rem;
       letter-spacing: 0.05em;
     }
@@ -452,22 +407,14 @@
       font-family: 'Cinzel', serif;
       font-size: 1.35rem;
       font-weight: 700;
-      color: var(--text-primary);
       flex: 1;
-
-      .exceptional {
-        font-size: 1rem;
-        color: var(--gold-dark);
-      }
     }
 
     .slot-assign {
       flex: 1;
-      padding: 0.4rem;
+      padding: $space-sm;
       background: var(--bg-input);
       border: 1px dashed var(--border-strong);
-      color: var(--text-muted);
-      font-size: 1rem;
       box-shadow: none;
 
       &:disabled {
@@ -480,16 +427,13 @@
         border-style: solid;
         border-color: var(--gold);
         background: rgba(201, 162, 39, 0.15);
-        color: var(--text-primary);
         cursor: pointer;
       }
     }
 
     .slot-clear {
-      padding: 0.2rem 0.5rem;
+      padding: $space-xs $space-sm;
       background: transparent;
-      color: var(--red);
-      font-size: 1.25rem;
       box-shadow: none;
       opacity: 0.6;
 
@@ -507,35 +451,13 @@
 
   .exceptional-prompt {
     text-align: center;
-    padding: 1.25rem;
+    padding: $space-lg;
     background: rgba(201, 162, 39, 0.12);
     border: 1px solid rgba(201, 162, 39, 0.3);
     border-radius: 4px;
-
-    p {
-      margin: 0 0 1rem;
-    }
   }
 
   .continue-section {
     text-align: center;
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-
-      &::before, &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-      }
-
-      .ornament {
-        color: var(--gold-dark);
-      }
-    }
   }
 </style>
