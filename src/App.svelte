@@ -403,6 +403,7 @@
         abilities={character.adjustedAbilities}
         race={{ ...character.race, key: character.raceKey }}
         cls={{ ...character.cls, key: character.classKey }}
+        level={character.level || 1}
         existingProficiencies={character.proficiencies}
         onComplete={(data) => completeStep(4, { proficiencies: data })}
       />

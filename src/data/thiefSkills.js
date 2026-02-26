@@ -64,13 +64,14 @@ export const SKILL_LABELS = {
 };
 
 /**
- * Get base thief skills adjusted for race and DEX.
+ * Get base thief skills adjusted for race, DEX, and level.
  * @param {string} raceKey - e.g. 'elf', 'human'
  * @param {number} dex - adjusted DEX score
  * @param {string} classKey - 'thief', 'bard', etc.
+ * @param {number} [level=1] - character level (affects Read Languages)
  * @returns {Object} skill key → percentage
  */
-export function getBaseThiefSkills(raceKey, dex, classKey) {
+export function getBaseThiefSkills(raceKey, dex, classKey, level = 1) {
   const base = classKey === 'bard' ? { ...BASE_BARD_SKILLS } : { ...BASE_THIEF_SKILLS };
   const racial = RACIAL_ADJUSTMENTS[raceKey] || RACIAL_ADJUSTMENTS.human;
   const dexAdj = DEX_ADJUSTMENTS[Math.min(19, Math.max(9, dex))] || {};

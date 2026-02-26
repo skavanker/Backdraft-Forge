@@ -61,6 +61,22 @@
   let showLevelUp = $state(false);
 
 
+  // Reset level confirmation
+  let confirmResetLevel = $state(false);
+
+  function resetLevel() {
+    onCharacterUpdate?.({
+      level: 1,
+      xp: 0,
+      hpHistory: [],
+      currentHP: null,
+      thiefSkills: null,
+      spells: null,
+      proficiencies: null,
+    });
+    confirmResetLevel = false;
+  }
+
   // Hamburger menu state
   let menuOpen = $state(false);
 
@@ -93,7 +109,7 @@
   let isThiefClass = $derived(character.classKey === 'thief' || character.classKey === 'bard');
   let thiefSkills = $derived(() => {
     if (!isThiefClass) return null;
-    const base = getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, character.classKey);
+    const base = getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, character.classKey, charLevel);
     return applyDistributedPoints(base, character.thiefSkills);
   });
 
@@ -267,6 +283,17 @@
           <button class="menu-item" onclick={() => { onUndo?.(); closeMenu(); }}>Undo</button>
         {/if}
         <button class="menu-item" onclick={() => { window.print(); closeMenu(); }}>Print</button>
+        {#if charLevel > 1}
+          {#if confirmResetLevel}
+            <div class="menu-confirm">
+              <span>Reset to level 1?</span>
+              <button class="btn-danger btn-sm" onclick={() => { resetLevel(); closeMenu(); }}>Yes</button>
+              <button class="btn-ghost btn-sm" onclick={() => confirmResetLevel = false}>No</button>
+            </div>
+          {:else}
+            <button class="menu-item" onclick={() => confirmResetLevel = true}>Reset Level</button>
+          {/if}
+        {/if}
       </div>
     </div>
   {/if}
@@ -689,7 +716,11 @@
     <div class="stat-block">
       <h3>Thief Skills</h3>
       {#each Object.entries(thiefSkills()) as [key, value]}
-        <div class="stat-row"><span>{SKILL_LABELS[key]}</span> <span class="val">{value}%</span></div>
+        {#if key === 'readLanguages' && charLevel < 4}
+          <div class="stat-row locked"><span>{SKILL_LABELS[key]}</span> <span class="val">Lv 4</span></div>
+        {:else}
+          <div class="stat-row"><span>{SKILL_LABELS[key]}</span> <span class="val">{value}%</span></div>
+        {/if}
       {/each}
     </div>
     <hr class="divider">
@@ -1104,6 +1135,11 @@
     justify-content: space-between;
     padding: $space-xs 0;
     border-bottom: 1px dotted var(--border-color);
+
+    &.locked {
+      opacity: 0.4;
+      font-style: italic;
+    }
   }
 
   .trait-row {
@@ -1180,6 +1216,15 @@
       background: var(--bg-hover);
       color: var(--text-primary);
     }
+  }
+
+  .menu-confirm {
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+    padding: $space-xs $space-md;
+    font-size: $text-sm;
+    color: var(--text-muted);
   }
 
   .toast-area {

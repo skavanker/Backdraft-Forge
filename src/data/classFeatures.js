@@ -34,12 +34,12 @@ const classFeatureTable = {
     12: ['Immune to natural poisons'],
   },
   thief: {
-    4: ['Read languages (80% chance)'],
+    4: ['Read Languages unlocked — allocate points to use'],
     10: ['Use wizard scrolls (75% chance, with mishap risk)'],
   },
   bard: {
     2: ['Gain wizard spellcasting (1st level spells)'],
-    4: ['Read languages (20% chance)'],
+    4: ['Read Languages unlocked — allocate points to use'],
     10: ['Use wizard scrolls'],
   },
 };

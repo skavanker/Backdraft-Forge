@@ -34,23 +34,23 @@
 - [x] Backstory extended to 5000 chars (with share link size warning)
 - [ ] Multi-classing support (demi-humans advance in 2+ classes simultaneously)
 - [ ] Dual-classing for humans (switch class, start over at level 1)
-- [ ] Character leveling/advancement
-- [ ] THAC0 progression for higher levels
-- [ ] Saving throw progression for higher levels
+- [x] Character leveling/advancement (level-up wizard with HP, THAC0, saves, spells)
+- [x] THAC0 progression for higher levels
+- [x] Saving throw progression for higher levels
 
 ### UI/UX
 - [ ] Mobile responsiveness improvements
 - [ ] Keyboard navigation
 - [ ] Undo/redo for choices
 - [x] Save character to localStorage (auto-save on completion, resume prompt on return)
-- [ ] Load previous characters (multiple save slots)
+- [x] Load previous characters (multiple save slots)
 
 ### Data Completeness
 - [ ] More equipment options
-- [ ] Complete spell lists by level (currently has starter spells)
-- [ ] Priest spell spheres by deity (deity already a freeform field)
+- [x] Complete spell lists by level (wizard 1-9, priest 1-7)
+- [x] Priest spell spheres by deity (Forgotten Realms pantheon)
 - [ ] Ranger species enemy selection
-- [ ] Thief skill point allocation
+- [x] Thief skill point allocation
 - [x] Racial special abilities details
 - [ ] Class kits/variants
 
@@ -61,8 +61,8 @@
 - [x] Age, height, weight generation (with race-appropriate tooltip hints)
 - [ ] More detailed weapon combat stats (speed factor, range, etc.)
 - [x] Encumbrance tracking (equipment shop + character sheet warnings)
-- [ ] XP tracking and advancement
-- [ ] Notes/journal section
+- [x] XP tracking and advancement (via level-up wizard)
+- [x] Notes/journal section
 
 ## Refactoring
 
@@ -84,7 +84,7 @@
 
 ### Backlog
 - [ ] Extract shared AbilityBadge component (ReviewStep + CharacterSheet)
-- [ ] Split spells.js by type (wizard/divine)
+- [x] Split spells.js by type (wizardSpells.js + priestSpells.js)
 - [ ] Extract SelectableChip component (proficiencies, spells, languages, equipment)
 
 ## Notes

@@ -17,11 +17,15 @@
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
 
-  let { abilities, race, cls, existingProficiencies = null, onComplete } = $props();
+  let { abilities, race, cls, level = 1, existingProficiencies = null, onComplete } = $props();
 
-  // Calculate available slots
-  let weaponSlots = $derived(getWeaponSlots(cls.group));
-  let nonWeaponSlots = $derived(getNonWeaponSlots(cls.group, abilities.INT));
+  // Calculate available slots (level-aware)
+  let weaponSlots = $derived(getWeaponSlots(cls.group, level));
+  let nonWeaponSlots = $derived(getNonWeaponSlots(cls.group, abilities.INT, level));
+
+  // Track which proficiencies are locked (from previous levels, can't be removed)
+  let lockedWeapons = $state([]);
+  let lockedNonWeapon = $state([]);
 
   // Get allowed weapons for this class
   let allowedWeaponKeys = $derived(getAllowedWeapons(cls.key));
@@ -109,6 +113,7 @@
   });
 
   function toggleWeapon(key) {
+    if (lockedWeapons.includes(key)) return;
     if (selectedWeapons.includes(key)) {
       selectedWeapons = selectedWeapons.filter(k => k !== key);
     } else if (weaponSlotsRemaining > 0) {
@@ -117,6 +122,7 @@
   }
 
   function toggleProficiency(key) {
+    if (lockedNonWeapon.includes(key)) return;
     const prof = availableProficiencies.find(p => p.key === key);
     if (!prof) return;
 
@@ -187,6 +193,12 @@
           !racialLanguageKeys.includes(key) && !classLanguages().includes(key)
         );
       }
+
+      // Lock existing picks when revisiting at higher level
+      if (level > 1) {
+        lockedWeapons = [...selectedWeapons];
+        lockedNonWeapon = [...selectedNonWeapon];
+      }
     }
   });
 </script>
@@ -215,6 +227,7 @@
               <h4 class="group-title">{group.name}</h4>
               <div class="weapon-grid">
                 {#each group.weapons as weapon}
+                  {@const isLocked = lockedWeapons.includes(weapon.key)}
                   {@const selected = selectedWeapons.includes(weapon.key)}
                   {@const disabled = !selected && weaponSlotsRemaining === 0}
                   <Tooltip text="{weapon.damage} damage, Speed {weapon.speed}" position="bottom">
@@ -222,7 +235,8 @@
                       class="proficiency-chip"
                       class:selected
                       class:disabled
-                      onclick={() => !disabled && toggleWeapon(weapon.key)}
+                      class:locked={isLocked}
+                      onclick={() => !disabled && !isLocked && toggleWeapon(weapon.key)}
                     >
                       <span class="chip-name">{weapon.name}</span>
                       <span class="chip-meta">{weapon.damage}</span>
@@ -288,6 +302,7 @@
               </h4>
               <div class="proficiency-grid">
                 {#each group.profs as prof}
+                  {@const isLocked = lockedNonWeapon.includes(prof.key)}
                   {@const selected = selectedNonWeapon.includes(prof.key)}
                   {@const disabled = !selected && nonWeaponSlotsRemaining < prof.cost}
                   <Tooltip text="{prof.description} (Check: {prof.ability}{prof.modifier >= 0 ? '+' : ''}{prof.modifier})" position="bottom">
@@ -295,7 +310,8 @@
                       class="proficiency-chip"
                       class:selected
                       class:disabled
-                      onclick={() => !disabled && toggleProficiency(prof.key)}
+                      class:locked={isLocked}
+                      onclick={() => !disabled && !isLocked && toggleProficiency(prof.key)}
                     >
                       <span class="chip-name">{prof.name}</span>
                       <span class="chip-meta">{prof.ability}</span>
@@ -488,9 +504,20 @@
       flex-shrink: 0;
     }
 
-    &:hover:not(.disabled) {
+    &:hover:not(.disabled):not(.locked) {
       .chip-name {
         color: var(--text-hover);
+      }
+    }
+
+    &.locked {
+      cursor: default;
+      opacity: 0.7;
+
+      &::after {
+        content: '🔒';
+        font-size: 0.7em;
+        margin-left: 0.3rem;
       }
     }
   }

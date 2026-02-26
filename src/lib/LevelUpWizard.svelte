@@ -4,6 +4,7 @@
   import { getNewFeaturesAtLevel, gainsWeaponProficiency, gainsNonWeaponProficiency } from '../data/classFeatures.js';
   import { isSpellcaster } from '../data/spells.js';
   import { getSavingThrows, getBaseTHAC0 } from '../data/mechanics.js';
+  import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS } from '../data/thiefSkills.js';
 
   let { character, onComplete, onCancel } = $props();
 
@@ -13,10 +14,11 @@
   // Steps
   const STEP_SUMMARY = 0;
   const STEP_HP = 1;
-  const STEP_SPELLS = 2;
-  const STEP_PROFICIENCIES = 3;
-  const STEP_FEATURES = 4;
-  const STEP_CONFIRM = 5;
+  const STEP_THIEF_SKILLS = 2;
+  const STEP_SPELLS = 3;
+  const STEP_PROFICIENCIES = 4;
+  const STEP_FEATURES = 5;
+  const STEP_CONFIRM = 6;
 
   let step = $state(STEP_SUMMARY);
 
@@ -57,9 +59,47 @@
   let oldAttacks = getAttacksPerRound(classGroup, currentLevel);
   let newAttacks = getAttacksPerRound(classGroup, newLevel);
 
+  // Thief skills
+  let isThiefClass = classKey === 'thief' || classKey === 'bard';
+  let THIEF_POINTS_PER_LEVEL = 30;
+  let thiefPointsRemaining = $state(THIEF_POINTS_PER_LEVEL);
+  // Start from existing distributed points
+  let thiefDistributed = $state(isThiefClass ? { ...(character.thiefSkills || {}) } : {});
+  // New points added this level (track separately so we know what was just allocated)
+  let thiefNewPoints = $state({});
+  let thiefBase = isThiefClass
+    ? getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, classKey, newLevel)
+    : {};
+  // Max any skill can reach
+  const SKILL_CAP = 95;
+
+  function addThiefPoints(skill, amount) {
+    const existingDistributed = (thiefDistributed[skill] || 0);
+    const baseVal = thiefBase[skill] || 0;
+    const currentTotal = baseVal + existingDistributed;
+    // Can't exceed 95%
+    const maxAdd = Math.min(amount, SKILL_CAP - currentTotal, thiefPointsRemaining);
+    if (maxAdd <= 0) return;
+
+    thiefDistributed = { ...thiefDistributed, [skill]: existingDistributed + maxAdd };
+    thiefNewPoints = { ...thiefNewPoints, [skill]: (thiefNewPoints[skill] || 0) + maxAdd };
+    thiefPointsRemaining -= maxAdd;
+  }
+
+  function removeThiefPoints(skill, amount) {
+    const newPts = thiefNewPoints[skill] || 0;
+    const remove = Math.min(amount, newPts);
+    if (remove <= 0) return;
+
+    thiefDistributed = { ...thiefDistributed, [skill]: (thiefDistributed[skill] || 0) - remove };
+    thiefNewPoints = { ...thiefNewPoints, [skill]: newPts - remove };
+    thiefPointsRemaining += remove;
+  }
+
   // Figure out which steps to show
   let steps = $derived.by(() => {
     const s = [STEP_SUMMARY, STEP_HP];
+    if (isThiefClass) s.push(STEP_THIEF_SKILLS);
     if (hasNewSpellSlots || becomesCaster) s.push(STEP_SPELLS);
     if (gainsWeaponProf || gainsNonWeaponProf) s.push(STEP_PROFICIENCIES);
     if (newFeatures.length > 0 || savesImproved || newTHAC0 < oldTHAC0) s.push(STEP_FEATURES);
@@ -142,6 +182,11 @@
       hpHistory: [...(character.hpHistory || []), newHpEntry],
     };
 
+    // Include updated thief skills if applicable
+    if (isThiefClass) {
+      updates.thiefSkills = { ...thiefDistributed };
+    }
+
     onComplete(updates);
   }
 </script>
@@ -184,6 +229,12 @@
             <div class="summary-item improved">
               <span class="label">Spell Slots</span>
               <span>{becomesCaster ? 'Gained!' : 'Expanded!'}</span>
+            </div>
+          {/if}
+          {#if isThiefClass}
+            <div class="summary-item improved">
+              <span class="label">Thief Skills</span>
+              <span>+{THIEF_POINTS_PER_LEVEL} points</span>
             </div>
           {/if}
           {#if gainsWeaponProf}
@@ -261,6 +312,44 @@
         </div>
       </div>
 
+    {:else if step === STEP_THIEF_SKILLS}
+      <div class="wizard-step">
+        <h3>Distribute Thief Skill Points</h3>
+        <p class="meta-text">You have <strong>{thiefPointsRemaining}</strong> of {THIEF_POINTS_PER_LEVEL} points to distribute.</p>
+
+        <div class="thief-skills-grid">
+          {#each Object.keys(thiefBase) as skill}
+            {@const baseVal = thiefBase[skill]}
+            {@const distributed = thiefDistributed[skill] || 0}
+            {@const total = baseVal + distributed}
+            {@const newPts = thiefNewPoints[skill] || 0}
+            {@const atCap = total >= SKILL_CAP}
+            <div class="thief-skill-row">
+              <span class="skill-name">{SKILL_LABELS[skill]}</span>
+              <span class="skill-total" class:at-cap={atCap}>{total}%</span>
+              <div class="skill-controls">
+                <button
+                  class="skill-btn"
+                  onclick={() => removeThiefPoints(skill, 5)}
+                  disabled={newPts === 0}
+                >-5</button>
+                <span class="skill-new">{newPts > 0 ? `+${newPts}` : '—'}</span>
+                <button
+                  class="skill-btn"
+                  onclick={() => addThiefPoints(skill, 5)}
+                  disabled={thiefPointsRemaining === 0 || atCap}
+                >+5</button>
+              </div>
+            </div>
+          {/each}
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-ghost" onclick={prevStep}>Back</button>
+          <button class="btn-primary" onclick={nextStep} disabled={thiefPointsRemaining > 0}>Continue</button>
+        </div>
+      </div>
+
     {:else if step === STEP_SPELLS}
       <div class="wizard-step">
         <h3>{becomesCaster ? 'Spellcasting Gained!' : 'New Spell Slots'}</h3>
@@ -291,7 +380,7 @@
         </div>
 
         <p class="meta-text" style="margin-top: 1rem;">
-          Choose new spells to learn from the character sheet after leveling up.
+          Go to the Spells tab after leveling up to pick your new spells.
         </p>
 
         <div class="step-nav">
@@ -311,7 +400,7 @@
             <div class="prof-gain">+1 Non-Weapon Proficiency Slot</div>
           {/if}
         </div>
-        <p class="meta-text">Choose new proficiencies from the character sheet after leveling up.</p>
+        <p class="meta-text">Go to the Proficiencies tab after leveling up to pick your new proficiencies.</p>
 
         <div class="step-nav">
           <button class="btn-ghost" onclick={prevStep}>Back</button>
@@ -375,6 +464,9 @@
           {/if}
           {#if hasNewSpellSlots}
             <div class="confirm-row"><span>Spell Slots</span> <span>{formatSpellSlots(newSpellSlots)}</span></div>
+          {/if}
+          {#if isThiefClass}
+            <div class="confirm-row"><span>Skill Points</span> <span>{THIEF_POINTS_PER_LEVEL} distributed</span></div>
           {/if}
         </div>
 
@@ -643,6 +735,77 @@
       color: var(--gold);
       font-weight: 600;
     }
+  }
+
+  .thief-skills-grid {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xs;
+    width: 100%;
+  }
+
+  .thief-skill-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: $space-sm;
+    padding: $space-xs $space-sm;
+    background: var(--bg-panel);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+  }
+
+  .skill-name {
+    font-weight: 600;
+    font-size: $text-sm;
+  }
+
+  .skill-total {
+    font-weight: 700;
+    min-width: 3em;
+    text-align: right;
+
+    &.at-cap {
+      color: var(--gold);
+    }
+  }
+
+  .skill-controls {
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+  }
+
+  .skill-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.15);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+
+  .skill-new {
+    min-width: 2.5em;
+    text-align: center;
+    font-size: $text-sm;
+    color: var(--gold);
+    font-weight: 600;
   }
 
   .prof-gains {

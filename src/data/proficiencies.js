@@ -150,21 +150,26 @@ export const nonWeaponProficiencies = {
 };
 
 /**
- * Get initial weapon proficiency slots for a class
+ * Get weapon proficiency slots for a class at a given level
  */
-export function getWeaponSlots(classGroup) {
-  return weaponProficiencySlots[classGroup]?.initial ?? 2;
+export function getWeaponSlots(classGroup, level = 1) {
+  const data = weaponProficiencySlots[classGroup];
+  if (!data) return 2;
+  const bonus = level > 1 ? Math.floor((level - 1) / data.perLevel) : 0;
+  return data.initial + bonus;
 }
 
 /**
- * Get initial non-weapon proficiency slots for a class
+ * Get non-weapon proficiency slots for a class at a given level
  * Intelligence bonus adds extra slots
  */
-export function getNonWeaponSlots(classGroup, intelligence) {
-  const base = nonWeaponProficiencySlots[classGroup]?.initial ?? 3;
+export function getNonWeaponSlots(classGroup, intelligence, level = 1) {
+  const data = nonWeaponProficiencySlots[classGroup];
+  const base = data?.initial ?? 3;
+  const bonus = level > 1 && data ? Math.floor((level - 1) / data.perLevel) : 0;
   // INT bonus: +1 slot per point over 15
   const intBonus = intelligence > 15 ? intelligence - 15 : 0;
-  return base + intBonus;
+  return base + bonus + intBonus;
 }
 
 /**
