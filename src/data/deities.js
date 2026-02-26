@@ -1,13 +1,16 @@
 /**
  * AD&D 2nd Edition — Forgotten Realms Deities
  * Core pantheon with alignment and sphere access
+ * Alignments stored as numbers: 0=LG, 1=NG, 2=CG, 3=LN, 4=N, 5=CN, 6=LE, 7=NE, 8=CE
  */
+
+import { ALIGNMENTS, getAlignmentName } from './alignment.js';
 
 export const deities = {
   standardCleric: {
     key: 'standardCleric',
     name: 'Standard Cleric',
-    alignment: 'Any',
+    alignment: null, // No alignment restriction
     majorSpheres: ['All', 'Astral', 'Charm', 'Combat', 'Creation', 'Divination', 'Guardian', 'Healing', 'Necromantic', 'Protection', 'Summoning', 'Sun'],
     minorSpheres: ['Elemental'],
     description: 'Default cleric sphere access without a specific deity'
@@ -15,7 +18,7 @@ export const deities = {
   mystra: {
     key: 'mystra',
     name: 'Mystra',
-    alignment: 'LN',
+    alignment: ALIGNMENTS.LN,
     majorSpheres: ['All', 'Astral', 'Charm', 'Creation', 'Divination', 'Guardian', 'Protection', 'Sun', 'Summoning'],
     minorSpheres: ['Healing', 'Necromantic'],
     description: 'Goddess of Magic — The Lady of Mysteries'
@@ -23,7 +26,7 @@ export const deities = {
   tempus: {
     key: 'tempus',
     name: 'Tempus',
-    alignment: 'CN',
+    alignment: ALIGNMENTS.CN,
     majorSpheres: ['All', 'Combat', 'Healing', 'Protection'],
     minorSpheres: ['Charm', 'Necromantic'],
     description: 'God of War — Lord of Battles'
@@ -31,7 +34,7 @@ export const deities = {
   tyr: {
     key: 'tyr',
     name: 'Tyr',
-    alignment: 'LG',
+    alignment: ALIGNMENTS.LG,
     majorSpheres: ['All', 'Astral', 'Combat', 'Divination', 'Guardian', 'Healing', 'Protection', 'Sun'],
     minorSpheres: ['Charm', 'Creation', 'Necromantic'],
     description: 'God of Justice — The Even-Handed'
@@ -39,7 +42,7 @@ export const deities = {
   lathander: {
     key: 'lathander',
     name: 'Lathander',
-    alignment: 'NG',
+    alignment: ALIGNMENTS.NG,
     majorSpheres: ['All', 'Charm', 'Combat', 'Creation', 'Guardian', 'Healing', 'Necromantic', 'Protection', 'Sun'],
     minorSpheres: ['Divination', 'Elemental'],
     description: 'God of Dawn — The Morninglord'
@@ -47,7 +50,7 @@ export const deities = {
   helm: {
     key: 'helm',
     name: 'Helm',
-    alignment: 'LN',
+    alignment: ALIGNMENTS.LN,
     majorSpheres: ['All', 'Astral', 'Combat', 'Divination', 'Guardian', 'Healing', 'Protection'],
     minorSpheres: ['Charm', 'Necromantic'],
     description: 'God of Guardians — The Watcher'
@@ -55,7 +58,7 @@ export const deities = {
   shar: {
     key: 'shar',
     name: 'Shar',
-    alignment: 'NE',
+    alignment: ALIGNMENTS.NE,
     majorSpheres: ['All', 'Astral', 'Charm', 'Combat', 'Divination', 'Guardian', 'Healing', 'Necromantic', 'Sun'],
     minorSpheres: ['Creation', 'Summoning'],
     description: 'Goddess of Darkness — Mistress of the Night'
@@ -63,7 +66,7 @@ export const deities = {
   chauntea: {
     key: 'chauntea',
     name: 'Chauntea',
-    alignment: 'NG',
+    alignment: ALIGNMENTS.NG,
     majorSpheres: ['All', 'Animal', 'Creation', 'Elemental', 'Healing', 'Plant', 'Protection', 'Weather'],
     minorSpheres: ['Divination', 'Sun'],
     description: 'Goddess of Agriculture — The Great Mother'
@@ -71,7 +74,7 @@ export const deities = {
   silvanus: {
     key: 'silvanus',
     name: 'Silvanus',
-    alignment: 'N',
+    alignment: ALIGNMENTS.N,
     majorSpheres: ['All', 'Animal', 'Elemental', 'Healing', 'Plant', 'Protection', 'Sun', 'Weather'],
     minorSpheres: ['Divination', 'Creation'],
     description: 'God of Nature — The Oak Father'
@@ -79,7 +82,7 @@ export const deities = {
   kelemvor: {
     key: 'kelemvor',
     name: 'Kelemvor',
-    alignment: 'LN',
+    alignment: ALIGNMENTS.LN,
     majorSpheres: ['All', 'Astral', 'Combat', 'Divination', 'Guardian', 'Healing', 'Necromantic', 'Protection', 'Sun'],
     minorSpheres: ['Charm', 'Summoning'],
     description: 'God of the Dead — Lord of the Crystal Spire'
@@ -87,7 +90,7 @@ export const deities = {
   sune: {
     key: 'sune',
     name: 'Sune',
-    alignment: 'CG',
+    alignment: ALIGNMENTS.CG,
     majorSpheres: ['All', 'Charm', 'Creation', 'Guardian', 'Healing', 'Protection', 'Sun'],
     minorSpheres: ['Necromantic', 'Divination'],
     description: 'Goddess of Beauty — Firehair'
@@ -95,7 +98,7 @@ export const deities = {
   selune: {
     key: 'selune',
     name: 'Selune',
-    alignment: 'CG',
+    alignment: ALIGNMENTS.CG,
     majorSpheres: ['All', 'Astral', 'Charm', 'Combat', 'Creation', 'Divination', 'Guardian', 'Healing', 'Necromantic', 'Sun'],
     minorSpheres: ['Elemental', 'Weather'],
     description: 'Goddess of the Moon — Our Lady of Silver'
@@ -103,7 +106,7 @@ export const deities = {
   ilmater: {
     key: 'ilmater',
     name: 'Ilmater',
-    alignment: 'LG',
+    alignment: 'Lawful Good',
     majorSpheres: ['All', 'Astral', 'Creation', 'Guardian', 'Healing', 'Necromantic', 'Protection'],
     minorSpheres: ['Combat', 'Divination'],
     description: 'God of Endurance — The Crying God'
@@ -111,7 +114,7 @@ export const deities = {
   oghma: {
     key: 'oghma',
     name: 'Oghma',
-    alignment: 'N',
+    alignment: ALIGNMENTS.N,
     majorSpheres: ['All', 'Astral', 'Charm', 'Divination', 'Protection', 'Summoning'],
     minorSpheres: ['Creation', 'Healing'],
     description: 'God of Knowledge — The Lord of Knowledge'
@@ -119,7 +122,7 @@ export const deities = {
   tymora: {
     key: 'tymora',
     name: 'Tymora',
-    alignment: 'CG',
+    alignment: ALIGNMENTS.CG,
     majorSpheres: ['All', 'Charm', 'Combat', 'Creation', 'Healing', 'Protection'],
     minorSpheres: ['Divination', 'Guardian'],
     description: 'Goddess of Luck — Lady Luck'
@@ -127,7 +130,7 @@ export const deities = {
   bane: {
     key: 'bane',
     name: 'Bane',
-    alignment: 'LE',
+    alignment: ALIGNMENTS.LE,
     majorSpheres: ['All', 'Combat', 'Guardian', 'Healing', 'Necromantic', 'Protection', 'Summoning'],
     minorSpheres: ['Charm', 'Creation'],
     description: 'God of Tyranny — The Black Lord'
@@ -135,7 +138,7 @@ export const deities = {
   cyric: {
     key: 'cyric',
     name: 'Cyric',
-    alignment: 'CE',
+    alignment: ALIGNMENTS.CE,
     majorSpheres: ['All', 'Charm', 'Combat', 'Healing', 'Necromantic', 'Summoning'],
     minorSpheres: ['Divination', 'Guardian'],
     description: 'God of Murder — Prince of Lies'
@@ -143,43 +146,9 @@ export const deities = {
 };
 
 /**
- * Get list of deities, optionally filtered by alignment compatibility
- * @param {string|null} alignment - Character alignment to filter by (null = all)
+ * Get list of deities for selection
  * @returns {object[]} Array of deity objects
  */
-export function getDeityList(alignment = null) {
-  const list = Object.values(deities);
-  if (!alignment) return list;
-
-  return list.filter(d => {
-    if (d.alignment === 'Any') return true;
-    // Allow within one step of alignment
-    return isAlignmentCompatible(alignment, d.alignment);
-  });
-}
-
-/**
- * Check if character alignment is compatible with deity alignment
- * AD&D 2E: cleric must be within one step of deity's alignment
- */
-function isAlignmentCompatible(charAlign, deityAlign) {
-  if (deityAlign === 'Any') return true;
-
-  const axisMap = {
-    'Lawful Good': [0, 0], 'Neutral Good': [1, 0], 'Chaotic Good': [2, 0],
-    'Lawful Neutral': [0, 1], 'True Neutral': [1, 1], 'Chaotic Neutral': [2, 1],
-    'Lawful Evil': [0, 2], 'Neutral Evil': [1, 2], 'Chaotic Evil': [2, 2]
-  };
-
-  const deityExpand = {
-    'LG': 'Lawful Good', 'NG': 'Neutral Good', 'CG': 'Chaotic Good',
-    'LN': 'Lawful Neutral', 'N': 'True Neutral', 'CN': 'Chaotic Neutral',
-    'LE': 'Lawful Evil', 'NE': 'Neutral Evil', 'CE': 'Chaotic Evil'
-  };
-
-  const ca = axisMap[charAlign];
-  const da = axisMap[deityExpand[deityAlign]];
-  if (!ca || !da) return true; // If we can't determine, allow it
-
-  return Math.abs(ca[0] - da[0]) <= 1 && Math.abs(ca[1] - da[1]) <= 1;
+export function getDeityList() {
+  return Object.values(deities).filter(d => d.key !== 'standardCleric');
 }

@@ -2,6 +2,7 @@
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
   import { deities, getDeityList } from '../data/deities.js';
   import { getAvailableKits, classHasKits } from '../data/kits.js';
+  import { ALIGNMENTS, getAlignmentName, getAllowedAlignments } from '../data/alignment.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
@@ -10,8 +11,8 @@
 
   let selectedClassKey = $state(existingClassKey);
   let selectedSchool = $state(existingWizardSchool);
-  let selectedDeityKey = $state(existingDeityKey);
-  let selectedKit = $state(existingKitKey ? undefined : null); // undefined = not yet decided, null = skipped kit
+  let selectedDeityKey = $state(existingDeityKey ?? null); // null = skipped deity (default), string = deity key
+  let selectedKit = $state(existingKitKey ?? null); // null = skipped kit (default), string = kit key
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -36,22 +37,23 @@
     selectedClassKey === 'cleric' || selectedClassKey === 'paladin'
   );
 
-  let deityList = $derived(getDeityList());
+  let deityList = $derived(
+    selectedClassKey === 'paladin'
+      ? getDeityList().filter(d => d.alignment === null || getAllowedAlignments(ALIGNMENTS.LG).includes(d.alignment))
+      : getDeityList()
+  );
 
   let canConfirm = $derived(
     selectedClass &&
-    (selectedClassKey !== 'specialist' || selectedSchool) &&
-    (!needsDeity || selectedDeityKey) &&
-    (!hasKits || selectedKit !== undefined) // Kit must be chosen or skipped if kits available
+    (selectedClassKey !== 'specialist' || selectedSchool)
+    // Deity and kit are auto-defaulted to "skipped" (null) so always valid
   );
 
   function selectClass(key) {
     selectedClassKey = key;
     selectedSchool = null;
-    selectedKit = undefined; // Reset kit selection
-    if (key !== 'cleric' && key !== 'paladin') {
-      selectedDeityKey = null;
-    }
+    selectedKit = null; // Default to skipped
+    selectedDeityKey = null; // Default to skipped
   }
 
   function confirm() {
@@ -61,7 +63,8 @@
     const kitData = selectedKit && typeof selectedKit === 'object' ? selectedKit : null;
     const kitKey = kitData ? kitData.key : null;
 
-    onComplete({
+    // Paladins are always Lawful Good
+    const result = {
       classKey: selectedClassKey,
       cls: selectedClass.cls,
       levelLimit: selectedClass.levelLimit,
@@ -70,7 +73,14 @@
       deityKey: selectedDeityKey || null,
       kitKey: kitKey,
       kit: kitData
-    });
+    };
+
+    // Auto-set paladin alignment
+    if (selectedClassKey === 'paladin') {
+      result.alignment = ALIGNMENTS.LG;
+    }
+
+    onComplete(result);
   }
 
   // Group classes by type
@@ -234,11 +244,22 @@
   {#if selectedClass && needsDeity}
     <div class="selection-section">
       <div class="section-header">
-        <h3>Choose Your Deity</h3>
-        <p class="section-hint">Your deity determines which spell spheres you can access.</p>
+        <h3>Choose Your Deity (Optional)</h3>
+        <p class="section-hint">Your deity determines which spell spheres you can access. Skip for standard cleric access.</p>
       </div>
 
       <div class="option-grid deity-grid">
+        <Tooltip text="Standard cleric with access to all common spell spheres" position="bottom">
+          <button
+            class="option-card deity-card skip-deity"
+            class:selected={selectedDeityKey === null}
+            onclick={() => selectedDeityKey = null}
+          >
+            <span class="option-name">Skip Deity</span>
+            <span class="option-desc">Standard Cleric</span>
+          </button>
+        </Tooltip>
+
         {#each deityList as deity}
           <Tooltip text={deity.description} position="bottom">
             <button
@@ -247,7 +268,7 @@
               onclick={() => selectedDeityKey = deity.key}
             >
               <span class="option-name">{deity.name}</span>
-              <span class="option-desc">{deity.alignment}</span>
+              <span class="option-desc">{getAlignmentName(deity.alignment)}</span>
             </button>
           </Tooltip>
         {/each}
@@ -258,8 +279,6 @@
   {#if selectedClass}
     {@const confirmText =
       selectedClassKey === 'specialist' && !selectedSchool ? 'Select a School to Continue' :
-      needsDeity && !selectedDeityKey ? 'Select a Deity to Continue' :
-      hasKits && selectedKit === undefined ? 'Choose a Kit or Skip to Continue' :
       `Confirm ${selectedKit?.name ?? selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
     <div class="fade-in">
       <SelectionPreview
@@ -479,6 +498,10 @@
 
     &.deity-grid {
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+
+      :global(.tooltip-wrap:has(.skip-deity)) {
+        grid-column: span 4;
+      }
     }
   }
 
@@ -500,6 +523,22 @@
       justify-content: center;
       text-align: center;
       min-height: 80px;
+    }
+
+    &.skip-deity {
+      background: var(--bg-subtle);
+      border: 2px dashed var(--border-color);
+      grid-column: span 4;
+
+      &.selected {
+        background: rgba(201, 162, 39, 0.1);
+        border-color: var(--gold);
+      }
+
+      &:hover:not(.disabled) {
+        border-style: solid;
+        transform: translateY(-2px);
+      }
     }
 
     &.skip-kit {

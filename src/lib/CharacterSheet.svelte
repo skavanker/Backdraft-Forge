@@ -2,6 +2,7 @@
   import Tooltip from './Tooltip.svelte';
   import ImportArea from './ImportArea.svelte';
   import { deities } from '../data/deities.js';
+  import { getAlignmentName } from '../data/alignment.js';
   import {
     getStrengthModifiers,
     getDexterityModifiers,
@@ -362,7 +363,7 @@
     <div class="info-item"><span class="label">Race:</span> {character.race.name}</div>
     <div class="info-item"><span class="label">Class:</span> {className}</div>
     <div class="info-item"><span class="label">Sex:</span> {character.sex || 'Male'}</div>
-    <div class="info-item"><span class="label">Alignment:</span> {character.alignment || 'True Neutral'}</div>
+    <div class="info-item"><span class="label">Alignment:</span> {getAlignmentName(character.alignment !== undefined ? character.alignment : 4)}</div>
     {#if character.age}<div class="info-item"><span class="label">Age:</span> {character.age}</div>{/if}
     {#if character.height}<div class="info-item"><span class="label">Height:</span> {character.height}</div>{/if}
     {#if character.weight}<div class="info-item"><span class="label">Weight:</span> {character.weight}</div>{/if}

@@ -1,4 +1,5 @@
 import { deflateRaw, inflateRaw } from 'pako';
+import { getAlignmentNumber } from '../data/alignment.js';
 
 /**
  * Compress character to minimal data structure
@@ -226,7 +227,7 @@ async function decompressCharacter(compressed) {
     spells,
     name: compressed.n || null,
     sex: compressed.sx || compressed.s || 'Male', // Support both old 's' and new 'sx'
-    alignment: compressed.al || 'True Neutral',
+    alignment: typeof compressed.al === 'number' ? compressed.al : (getAlignmentNumber(compressed.al) || 4), // Support both number and legacy string, default to True Neutral (4)
     backstory: compressed.b || null,
     age: compressed.ag || null,
     height: compressed.ht || null,

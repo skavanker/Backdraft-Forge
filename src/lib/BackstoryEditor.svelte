@@ -1,13 +1,15 @@
 <script>
   import { onMount } from 'svelte';
   import { getRandomName } from '../data/names.js';
+  import { ALIGNMENTS, getAlignmentName, getAlignmentGrid, getAllowedAlignments } from '../data/alignment.js';
+  import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
 
   let { character, onComplete } = $props();
 
   let name = $state(character.name || '');
   let sex = $state(character.sex || 'Male');
-  let alignment = $state(character.alignment || 'True Neutral');
+  let alignment = $state(character.alignment !== undefined ? character.alignment : ALIGNMENTS.N); // Default to True Neutral
   let backstory = $state(character.backstory || '');
   let age = $state(character.age || '');
   let height = $state(character.height || '');
@@ -31,11 +33,25 @@
     };
   });
 
-  const alignments = [
-    'Lawful Good', 'Neutral Good', 'Chaotic Good',
-    'Lawful Neutral', 'True Neutral', 'Chaotic Neutral',
-    'Lawful Evil', 'Neutral Evil', 'Chaotic Evil'
-  ];
+  // Get alignment grid (3x3 array of numbers)
+  const alignmentGrid = getAlignmentGrid();
+
+  // Get allowed alignments based on deity or class restrictions
+  const allowedAlignments = $derived(() => {
+    // For Paladin, only allow Lawful Good
+    if (character.classKey === 'paladin') {
+      return [ALIGNMENTS.LG];
+    }
+    // For clerics with deities, filter by deity alignment
+    if (character.deityKey && character.deityKey !== null) {
+      const deity = deities[character.deityKey];
+      if (deity && deity.alignment !== null) {
+        return getAllowedAlignments(deity.alignment);
+      }
+    }
+    // No restrictions
+    return [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  });
 
   // 2E PHB-inspired random ranges by race
   const raceDetails = {
@@ -146,14 +162,19 @@
   <div class="alignment-section">
     <label>Alignment</label>
     <div class="alignment-grid">
-      {#each alignments as align}
-        <button
-          class="alignment-btn"
-          class:selected={alignment === align}
-          onclick={() => alignment = align}
-        >
-          {align}
-        </button>
+      {#each alignmentGrid as row}
+        {#each row as alignNum}
+          {@const isAllowed = allowedAlignments().includes(alignNum)}
+          <button
+            class="alignment-btn"
+            class:selected={alignment === alignNum}
+            class:disabled={!isAllowed}
+            disabled={!isAllowed}
+            onclick={() => isAllowed && (alignment = alignNum)}
+          >
+            {getAlignmentName(alignNum)}
+          </button>
+        {/each}
       {/each}
     </div>
   </div>
