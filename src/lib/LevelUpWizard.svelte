@@ -109,6 +109,14 @@
 
   let stepIndex = $state(0);
 
+  // Auto-set fixed HP for post-name levels
+  if (isPastNameLevel(classKey, newLevel)) {
+    hpRoll = getPostNameHP(classKey);
+    hpConMod = 0;
+    hpTotal = hpRoll;
+    hpRolled = true;
+  }
+
   function nextStep() {
     if (stepIndex < steps.length - 1) {
       stepIndex++;
@@ -210,8 +218,8 @@
             <span>{character.wizardSchool?.name || character.cls.name}</span>
           </div>
           <div class="summary-item">
-            <span class="label">Hit Die</span>
-            <span>{isPostName ? `+${getPostNameHP(classKey)} HP (fixed)` : hitDie}</span>
+            <span class="label">HP</span>
+            <span>{isPastNameLevel(classKey, newLevel) ? `+${getPostNameHP(classKey)} (fixed)` : `Roll ${hitDie}`}</span>
           </div>
           {#if newTHAC0 < oldTHAC0}
             <div class="summary-item improved">
@@ -267,48 +275,52 @@
 
     {:else if step === STEP_HP}
       <div class="wizard-step">
-        <h3>Roll Hit Points</h3>
-        {#if isPostName || isPastNameLevel(classKey, newLevel)}
-          <p class="meta-text">Past name level — fixed {getPostNameHP(classKey)} HP per level (no CON bonus)</p>
+        {#if isPastNameLevel(classKey, newLevel)}
+          <h3>Hit Points</h3>
+          <p class="meta-text">Past name level — you gain a fixed +{getPostNameHP(classKey)} HP (no CON bonus).</p>
+          <div class="hp-roll-area">
+            <div class="hp-fixed-result">+{getPostNameHP(classKey)} HP</div>
+          </div>
         {:else}
-          <p class="meta-text">Roll {hitDie} + CON modifier ({hpConMod >= 0 ? '+' : ''}{getConstitutionModifiers(character.adjustedAbilities.CON, classGroup).hpAdj})</p>
-        {/if}
+          <h3>Roll Hit Points</h3>
+          <p class="meta-text">Roll {hitDie} + CON modifier ({getConstitutionModifiers(character.adjustedAbilities.CON, classGroup).hpAdj >= 0 ? '+' : ''}{getConstitutionModifiers(character.adjustedAbilities.CON, classGroup).hpAdj})</p>
 
-        <div class="hp-roll-area">
-          {#if !hpRolled && !diceAnimating}
-            <button class="btn-roll" onclick={rollHP}>
-              <img class="btn-roll-die" src="/dice/dice0{Math.floor(Math.random() * 6) + 1}.svg" alt="die" />
-              Roll {hitDie}
-            </button>
-          {:else}
-            <div class="dice-result" class:animating={diceAnimating}>
-              {#if diceAnimating}
-                <div class="die-graphic">
-                  <img src="/dice/dice0{animDieFace}.svg" alt="rolling..." />
-                </div>
-                <div class="die-value-preview">{hpRoll}</div>
-              {:else}
-                <div class="die-graphic landed">
-                  <img src="/dice/dice0{Math.min(hpRoll, 6)}.svg" alt="{hpRoll}" />
-                </div>
-                <div class="die-value-final">{hpRoll}</div>
-              {/if}
-            </div>
-            {#if hpRolled}
-              <div class="hp-breakdown">
-                <span class="hp-part"><span class="hp-label">Roll</span> {hpRoll}</span>
-                {#if hpConMod !== 0}
-                  <span class="hp-part"><span class="hp-label">CON</span> {hpConMod >= 0 ? '+' : ''}{hpConMod}</span>
+          <div class="hp-roll-area">
+            {#if !hpRolled && !diceAnimating}
+              <button class="btn-roll" onclick={rollHP}>
+                <img class="btn-roll-die" src="/dice/dice0{Math.floor(Math.random() * 6) + 1}.svg" alt="die" />
+                Roll {hitDie}
+              </button>
+            {:else}
+              <div class="dice-result" class:animating={diceAnimating}>
+                {#if diceAnimating}
+                  <div class="die-graphic">
+                    <img src="/dice/dice0{animDieFace}.svg" alt="rolling..." />
+                  </div>
+                  <div class="die-value-preview">{hpRoll}</div>
+                {:else}
+                  <div class="die-graphic landed">
+                    <img src="/dice/dice0{Math.min(hpRoll, 6)}.svg" alt="{hpRoll}" />
+                  </div>
+                  <div class="die-value-final">{hpRoll}</div>
                 {/if}
-                <span class="hp-total">+{hpTotal} HP</span>
               </div>
+              {#if hpRolled}
+                <div class="hp-breakdown">
+                  <span class="hp-part"><span class="hp-label">Roll</span> {hpRoll}</span>
+                  {#if hpConMod !== 0}
+                    <span class="hp-part"><span class="hp-label">CON</span> {hpConMod >= 0 ? '+' : ''}{hpConMod}</span>
+                  {/if}
+                  <span class="hp-total">+{hpTotal} HP</span>
+                </div>
+              {/if}
             {/if}
-          {/if}
-        </div>
+          </div>
+        {/if}
 
         <div class="step-nav">
           <button class="btn-ghost" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={nextStep} disabled={!hpRolled}>Continue</button>
+          <button class="btn-primary" onclick={nextStep} disabled={!isPastNameLevel(classKey, newLevel) && !hpRolled}>Continue</button>
         </div>
       </div>
 
@@ -683,6 +695,14 @@
     0% { transform: scale(0.5); opacity: 0; }
     60% { transform: scale(1.15); }
     100% { transform: scale(1); opacity: 1; }
+  }
+
+  .hp-fixed-result {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    padding: $space-lg;
   }
 
   .hp-breakdown {
