@@ -5,7 +5,13 @@
     getWeaponSlots,
     getNonWeaponSlots,
     getAllowedWeapons,
-    getAvailableProficiencies
+    getAvailableProficiencies,
+    getWeaponSlotsWithKit,
+    getNonWeaponSlotsWithKit,
+    getAllowedWeaponsWithKit,
+    getKitFreeWeapons,
+    getKitFreeNonWeapon,
+    isWeaponRestrictedByKit
   } from '../data/proficiencies.js';
   import {
     languages,
@@ -17,21 +23,25 @@
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
 
-  let { abilities, race, cls, level = 1, existingProficiencies = null, onComplete } = $props();
+  let { abilities, race, cls, kit = null, level = 1, existingProficiencies = null, onComplete } = $props();
 
-  // Calculate available slots (level-aware)
-  let weaponSlots = $derived(getWeaponSlots(cls.group, level));
-  let nonWeaponSlots = $derived(getNonWeaponSlots(cls.group, abilities.INT, level));
+  // Calculate available slots (level-aware, kit-aware)
+  let weaponSlots = $derived(getWeaponSlotsWithKit(cls.group, level, kit));
+  let nonWeaponSlots = $derived(getNonWeaponSlotsWithKit(cls.group, abilities.INT, level, kit));
 
   // Track which proficiencies are locked (from previous levels, can't be removed)
   let lockedWeapons = $state([]);
   let lockedNonWeapon = $state([]);
 
-  // Get allowed weapons for this class
-  let allowedWeaponKeys = $derived(getAllowedWeapons(cls.key));
+  // Get allowed weapons for this class (kit-aware)
+  let allowedWeaponKeys = $derived(getAllowedWeaponsWithKit(cls.key, kit));
   let allowedWeapons = $derived(
     allowedWeaponKeys.map(key => ({ key, ...weapons[key] }))
   );
+
+  // Kit free proficiencies
+  let kitFreeWeapons = $derived(getKitFreeWeapons(kit));
+  let kitFreeNonWeapon = $derived(getKitFreeNonWeapon(kit));
 
   // Get available non-weapon proficiencies with costs
   let availableProficiencies = $derived(getAvailableProficiencies(cls.group));
@@ -173,18 +183,38 @@
 
   // Initialize from existing data
   onMount(() => {
+    // Auto-select kit free proficiencies
+    if (kit) {
+      if (kitFreeWeapons.length > 0) {
+        selectedWeapons = [...selectedWeapons, ...kitFreeWeapons.filter(k => allowedWeaponKeys.includes(k))];
+        lockedWeapons = [...lockedWeapons, ...kitFreeWeapons];
+      }
+      if (kitFreeNonWeapon.length > 0) {
+        selectedNonWeapon = [...selectedNonWeapon, ...kitFreeNonWeapon.filter(k =>
+          availableProficiencies.some(p => p.key === k)
+        )];
+        lockedNonWeapon = [...lockedNonWeapon, ...kitFreeNonWeapon];
+      }
+    }
+
     if (existingProficiencies) {
       // Filter weapons: only keep ones that are still allowed for this class
       const existingWeaponKeys = existingProficiencies.weapons.map(w => w.key);
-      selectedWeapons = existingWeaponKeys.filter(key =>
+      const filteredExisting = existingWeaponKeys.filter(key =>
         allowedWeaponKeys.includes(key)
       );
 
+      // Merge with kit free weapons
+      selectedWeapons = [...new Set([...selectedWeapons, ...filteredExisting])];
+
       // Filter non-weapon proficiencies: only keep ones that are still available for this class
       const existingNonWeaponKeys = existingProficiencies.nonWeapon.map(p => p.key);
-      selectedNonWeapon = existingNonWeaponKeys.filter(key =>
+      const filteredExistingNW = existingNonWeaponKeys.filter(key =>
         availableProficiencies.some(p => p.key === key)
       );
+
+      // Merge with kit free non-weapon proficiencies
+      selectedNonWeapon = [...new Set([...selectedNonWeapon, ...filteredExistingNW])];
 
       // Restore bonus languages (exclude racial and class languages)
       if (existingProficiencies.languages) {
@@ -196,8 +226,8 @@
 
       // Lock existing picks when revisiting at higher level
       if (level > 1) {
-        lockedWeapons = [...selectedWeapons];
-        lockedNonWeapon = [...selectedNonWeapon];
+        lockedWeapons = [...new Set([...lockedWeapons, ...selectedWeapons])];
+        lockedNonWeapon = [...new Set([...lockedNonWeapon, ...selectedNonWeapon])];
       }
     }
   });

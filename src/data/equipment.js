@@ -78,11 +78,19 @@ export const equipment = {
 
     // Polearms
     { key: 'spear', name: 'Spear', damage: '1d6', price: { gp: 1 }, weight: 5, category: 'polearm' },
+    { key: 'javelin', name: 'Javelin', damage: '1d6', price: { gp: 1 }, weight: 2, category: 'polearm', ranged: true },
     { key: 'halberd', name: 'Halberd', damage: '1d10', price: { gp: 10 }, weight: 15, category: 'polearm' },
+    { key: 'pike', name: 'Pike', damage: '1d6', price: { gp: 5 }, weight: 8, category: 'polearm' },
+    { key: 'trident', name: 'Trident', damage: '1d6+1', price: { gp: 15 }, weight: 5, category: 'polearm' },
+
+    // Exotic
+    { key: 'whip', name: 'Whip', damage: '1d2', price: { gp: 1 }, weight: 2, category: 'exotic' },
+    { key: 'net', name: 'Net', damage: '—', price: { gp: 5 }, weight: 10, category: 'exotic', ranged: true },
 
     // Ranged
     { key: 'shortBow', name: 'Short Bow', damage: '1d6', price: { gp: 30 }, weight: 2, category: 'bow', ranged: true },
     { key: 'longBow', name: 'Long Bow', damage: '1d8', price: { gp: 75 }, weight: 3, category: 'bow', ranged: true },
+    { key: 'compositeBow', name: 'Composite Bow', damage: '1d6', price: { gp: 100 }, weight: 2, category: 'bow', ranged: true },
     { key: 'lightCrossbow', name: 'Light Crossbow', damage: '1d4', price: { gp: 35 }, weight: 7, category: 'crossbow', ranged: true },
     { key: 'heavyCrossbow', name: 'Heavy Crossbow', damage: '1d4+1', price: { gp: 50 }, weight: 14, category: 'crossbow', ranged: true }
   ],
@@ -96,29 +104,108 @@ export const equipment = {
   adventuringGear: [
     { key: 'backpack', name: 'Backpack', price: { gp: 2 }, weight: 2 },
     { key: 'bedroll', name: 'Bedroll', price: { sp: 2 }, weight: 5 },
+    { key: 'blanket', name: 'Blanket, Winter', price: { sp: 5 }, weight: 3 },
+    { key: 'blockAndTackle', name: 'Block & Tackle', price: { gp: 5 }, weight: 5 },
     { key: 'candle', name: 'Candle', price: { cp: 1 }, weight: 0 },
+    { key: 'chain', name: 'Chain (10 ft)', price: { gp: 30 }, weight: 2 },
+    { key: 'chalk', name: 'Chalk (10 pieces)', price: { cp: 1 }, weight: 0 },
+    { key: 'crowbar', name: 'Crowbar', price: { gp: 2 }, weight: 5 },
+    { key: 'fishingHook', name: 'Fishing Hook & Line', price: { sp: 1 }, weight: 0 },
     { key: 'flintSteel', name: 'Flint & Steel', price: { sp: 5 }, weight: 0 },
     { key: 'grapplingHook', name: 'Grappling Hook', price: { gp: 1 }, weight: 4 },
-    { key: 'holySymbol', name: 'Holy Symbol', price: { gp: 25 }, weight: 0 },
+    { key: 'hammer', name: 'Hammer', price: { sp: 5 }, weight: 2 },
+    { key: 'holySymbol', name: 'Holy Symbol, Silver', price: { gp: 25 }, weight: 0 },
+    { key: 'holySymbolWood', name: 'Holy Symbol, Wood', price: { gp: 1 }, weight: 0 },
     { key: 'holyWater', name: 'Holy Water (vial)', price: { gp: 25 }, weight: 0 },
+    { key: 'inkBottle', name: 'Ink (bottle)', price: { gp: 8 }, weight: 0 },
+    { key: 'inkQuill', name: 'Ink & Quill', price: { sp: 2 }, weight: 0 },
+    { key: 'ironSpikes', name: 'Iron Spikes (12)', price: { gp: 1 }, weight: 5 },
+    { key: 'ladder', name: 'Ladder (10 ft)', price: { sp: 5 }, weight: 20 },
     { key: 'lantern', name: 'Lantern, Hooded', price: { gp: 7 }, weight: 2 },
+    { key: 'lanternBullseye', name: 'Lantern, Bullseye', price: { gp: 12 }, weight: 3 },
+    { key: 'lock', name: 'Lock, Good', price: { gp: 100 }, weight: 1 },
+    { key: 'lockPoor', name: 'Lock, Poor', price: { gp: 20 }, weight: 1 },
+    { key: 'manacles', name: 'Manacles', price: { gp: 15 }, weight: 2 },
     { key: 'mirror', name: 'Mirror, Small Steel', price: { gp: 10 }, weight: 0 },
     { key: 'oil', name: 'Oil (flask)', price: { sp: 6 }, weight: 1 },
+    { key: 'parchment', name: 'Parchment (sheet)', price: { sp: 2 }, weight: 0 },
+    { key: 'pick', name: 'Pick, Miner\'s', price: { gp: 3 }, weight: 10 },
+    { key: 'piton', name: 'Piton', price: { sp: 3 }, weight: 0 },
+    { key: 'pole', name: 'Pole (10 ft)', price: { sp: 2 }, weight: 8 },
+    { key: 'pouchBelt', name: 'Pouch, Belt', price: { gp: 1 }, weight: 0 },
     { key: 'rations', name: 'Rations (1 week)', price: { gp: 3 }, weight: 7 },
-    { key: 'rope', name: 'Rope (50 ft)', price: { gp: 1 }, weight: 10 },
+    { key: 'rope', name: 'Rope, Hemp (50 ft)', price: { gp: 1 }, weight: 10 },
+    { key: 'ropeSilk', name: 'Rope, Silk (50 ft)', price: { gp: 10 }, weight: 8 },
     { key: 'sack', name: 'Sack, Large', price: { sp: 2 }, weight: 0 },
+    { key: 'sackSmall', name: 'Sack, Small', price: { sp: 5 }, weight: 0 },
+    { key: 'scrollCase', name: 'Scroll Case', price: { gp: 1 }, weight: 0 },
+    { key: 'sealing Wax', name: 'Sealing Wax', price: { gp: 1 }, weight: 0 },
+    { key: 'shovel', name: 'Shovel', price: { gp: 2 }, weight: 8 },
+    { key: 'signalWhistle', name: 'Signal Whistle', price: { sp: 8 }, weight: 0 },
     { key: 'spellbook', name: 'Spellbook (blank)', price: { gp: 50 }, weight: 3 },
+    { key: 'spellbookTraveling', name: 'Spellbook, Traveling (blank)', price: { gp: 100 }, weight: 1 },
+    { key: 'spyglass', name: 'Spyglass', price: { gp: 1000 }, weight: 1 },
+    { key: 'tent', name: 'Tent, Small', price: { gp: 5 }, weight: 20 },
+    { key: 'tentLarge', name: 'Tent, Large', price: { gp: 25 }, weight: 40 },
     { key: 'thievesTools', name: "Thieves' Tools", price: { gp: 30 }, weight: 1 },
     { key: 'torch', name: 'Torch', price: { cp: 1 }, weight: 1 },
+    { key: 'vialGlass', name: 'Vial, Glass', price: { gp: 1 }, weight: 0 },
     { key: 'waterskin', name: 'Waterskin', price: { gp: 1 }, weight: 1 },
-    { key: 'whetstone', name: 'Whetstone', price: { cp: 2 }, weight: 0 }
+    { key: 'whetstone', name: 'Whetstone', price: { cp: 2 }, weight: 0 },
+    { key: 'wineskin', name: 'Wineskin', price: { sp: 8 }, weight: 1 }
   ],
 
   clothing: [
+    { key: 'belt', name: 'Belt', price: { sp: 3 }, weight: 0 },
     { key: 'boots', name: 'Boots, Riding', price: { gp: 3 }, weight: 3 },
+    { key: 'bootsCommon', name: 'Boots, Common', price: { sp: 5 }, weight: 2 },
     { key: 'cloak', name: 'Cloak', price: { sp: 5 }, weight: 2 },
+    { key: 'clothesCommon', name: 'Clothes, Common', price: { sp: 7 }, weight: 3 },
+    { key: 'clothesFine', name: 'Clothes, Fine', price: { gp: 10 }, weight: 3 },
+    { key: 'clothesTraveling', name: 'Clothes, Traveling', price: { gp: 2 }, weight: 4 },
+    { key: 'gloves', name: 'Gloves', price: { sp: 5 }, weight: 0 },
+    { key: 'hat', name: 'Hat', price: { sp: 7 }, weight: 0 },
     { key: 'robes', name: 'Robes', price: { gp: 1 }, weight: 2 },
     { key: 'winterCloak', name: 'Cloak, Winter', price: { gp: 1 }, weight: 3 }
+  ],
+
+  toolsAndKits: [
+    { key: 'healersKit', name: "Healer's Kit", price: { gp: 25 }, weight: 3 },
+    { key: 'disguiseKit', name: 'Disguise Kit', price: { gp: 25 }, weight: 5 },
+    { key: 'alchemistSupplies', name: "Alchemist's Supplies", price: { gp: 50 }, weight: 8 },
+    { key: 'cartographerTools', name: "Cartographer's Tools", price: { gp: 15 }, weight: 6 },
+    { key: 'carpenterTools', name: "Carpenter's Tools", price: { gp: 8 }, weight: 6 },
+    { key: 'cobblersTools', name: "Cobbler's Tools", price: { gp: 5 }, weight: 5 },
+    { key: 'cookingUtensils', name: 'Cooking Utensils', price: { gp: 1 }, weight: 8 },
+    { key: 'masonTools', name: "Mason's Tools", price: { gp: 10 }, weight: 8 },
+    { key: 'smithTools', name: "Smith's Tools", price: { gp: 20 }, weight: 10 },
+    { key: 'instrumentLute', name: 'Musical Instrument (Lute)', price: { gp: 30 }, weight: 2 },
+    { key: 'instrumentFlute', name: 'Musical Instrument (Flute)', price: { gp: 12 }, weight: 1 },
+    { key: 'instrumentDrum', name: 'Musical Instrument (Drum)', price: { gp: 6 }, weight: 3 }
+  ],
+
+  provisions: [
+    { key: 'ale', name: 'Ale (gallon)', price: { sp: 2 }, weight: 8 },
+    { key: 'mealCommon', name: 'Meal, Common', price: { sp: 3 }, weight: 0 },
+    { key: 'mealGood', name: 'Meal, Good', price: { sp: 5 }, weight: 0 },
+    { key: 'wine', name: 'Wine, Common (pitcher)', price: { sp: 2 }, weight: 1 },
+    { key: 'wineFine', name: 'Wine, Fine (bottle)', price: { gp: 10 }, weight: 1 },
+    { key: 'bread', name: 'Bread (loaf)', price: { cp: 5 }, weight: 0 },
+    { key: 'cheese', name: 'Cheese (hunk)', price: { sp: 4 }, weight: 0 },
+    { key: 'meat', name: 'Meat (chunk)', price: { sp: 3 }, weight: 0 }
+  ],
+
+  transport: [
+    { key: 'horse', name: 'Horse, Riding', price: { gp: 75 }, weight: 0 },
+    { key: 'horseWar', name: 'Horse, War', price: { gp: 400 }, weight: 0 },
+    { key: 'pony', name: 'Pony', price: { gp: 30 }, weight: 0 },
+    { key: 'mule', name: 'Mule', price: { gp: 8 }, weight: 0 },
+    { key: 'saddleRiding', name: 'Saddle, Riding', price: { gp: 10 }, weight: 35 },
+    { key: 'saddlePack', name: 'Saddle, Pack', price: { gp: 5 }, weight: 15 },
+    { key: 'saddlebags', name: 'Saddlebags', price: { gp: 4 }, weight: 8 },
+    { key: 'barding', name: 'Barding (horse armor)', price: { gp: 150 }, weight: 60 },
+    { key: 'cart', name: 'Cart', price: { gp: 100 }, weight: 600 },
+    { key: 'wagon', name: 'Wagon', price: { gp: 200 }, weight: 800 }
   ]
 };
 
@@ -226,4 +313,65 @@ export function copperToGold(copper) {
  */
 export function calculateTotalWeight(items) {
   return items.reduce((sum, item) => sum + (item.weight || 0), 0);
+}
+
+/**
+ * Get allowed armor for a class with kit restrictions
+ */
+export function getAllowedArmorWithKit(classKey, kit = null) {
+  // If kit specifies allowed armor, use that instead of class default
+  if (kit?.equipmentMods?.allowedArmor !== undefined && kit.equipmentMods.allowedArmor !== null) {
+    if (Array.isArray(kit.equipmentMods.allowedArmor)) {
+      return equipment.armor.filter(a => kit.equipmentMods.allowedArmor.includes(a.key));
+    } else if (kit.equipmentMods.allowedArmor === 'all') {
+      return equipment.armor;
+    } else if (kit.equipmentMods.allowedArmor === 'none') {
+      return [];
+    }
+  }
+
+  // Otherwise use class default
+  return getAllowedArmor(classKey);
+}
+
+/**
+ * Get allowed shields for a class with kit restrictions
+ */
+export function getAllowedShieldsWithKit(classKey, kit = null) {
+  // If kit restricts armor to light, usually shields are also restricted
+  if (kit?.equipmentMods?.allowedArmor) {
+    const armorList = kit.equipmentMods.allowedArmor;
+    // If kit only allows light armor (leather/studded), likely no shields
+    if (Array.isArray(armorList) &&
+        armorList.length > 0 &&
+        armorList.every(a => ['leather', 'studdedLeather'].includes(a))) {
+      return []; // No shields for very light armor kits
+    }
+  }
+
+  // Otherwise use class default
+  return getAllowedShields(classKey);
+}
+
+/**
+ * Roll starting gold with kit modifications
+ */
+export function rollStartingGoldWithKit(classGroup, kit = null) {
+  const result = rollStartingGold(classGroup);
+
+  // Apply kit gold modifier
+  if (kit?.equipmentMods?.startingGoldMod) {
+    result.gold += kit.equipmentMods.startingGoldMod;
+    // Don't let it go below 0
+    if (result.gold < 0) result.gold = 0;
+  }
+
+  return result;
+}
+
+/**
+ * Check if a weapon is restricted by kit equipment mods
+ */
+export function isWeaponRestrictedByKitEquipment(weaponKey, kit = null) {
+  return kit?.equipmentMods?.restrictedWeapons?.includes(weaponKey) || false;
 }

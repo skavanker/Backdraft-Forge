@@ -1,15 +1,17 @@
 <script>
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
   import { deities, getDeityList } from '../data/deities.js';
+  import { getAvailableKits, classHasKits } from '../data/kits.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
 
-  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, onComplete } = $props();
+  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, onComplete } = $props();
 
   let selectedClassKey = $state(existingClassKey);
   let selectedSchool = $state(existingWizardSchool);
   let selectedDeityKey = $state(existingDeityKey);
+  let selectedKit = $state(existingKitKey ? undefined : null); // undefined = not yet decided, null = skipped kit
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -22,6 +24,14 @@
     selectedClassKey === 'specialist' && abilities ? getAvailableSchools(abilities, raceKey) : []
   );
 
+  let availableKits = $derived(
+    selectedClassKey && abilities && !selectedClass?.cls.requiresSchool
+      ? getAvailableKits(selectedClassKey, abilities, raceKey)
+      : []
+  );
+
+  let hasKits = $derived(availableKits.length > 0);
+
   let needsDeity = $derived(
     selectedClassKey === 'cleric' || selectedClassKey === 'paladin'
   );
@@ -31,12 +41,14 @@
   let canConfirm = $derived(
     selectedClass &&
     (selectedClassKey !== 'specialist' || selectedSchool) &&
-    (!needsDeity || selectedDeityKey)
+    (!needsDeity || selectedDeityKey) &&
+    (!hasKits || selectedKit !== undefined) // Kit must be chosen or skipped if kits available
   );
 
   function selectClass(key) {
     selectedClassKey = key;
     selectedSchool = null;
+    selectedKit = undefined; // Reset kit selection
     if (key !== 'cleric' && key !== 'paladin') {
       selectedDeityKey = null;
     }
@@ -44,13 +56,20 @@
 
   function confirm() {
     if (!canConfirm) return;
+
+    // Get the full kit object if a kit was selected
+    const kitData = selectedKit && typeof selectedKit === 'object' ? selectedKit : null;
+    const kitKey = kitData ? kitData.key : null;
+
     onComplete({
       classKey: selectedClassKey,
       cls: selectedClass.cls,
       levelLimit: selectedClass.levelLimit,
       xpBonus: selectedClass.xpBonus,
       wizardSchool: selectedSchool,
-      deityKey: selectedDeityKey || null
+      deityKey: selectedDeityKey || null,
+      kitKey: kitKey,
+      kit: kitData
     });
   }
 
@@ -115,17 +134,140 @@
     {/if}
   {/each}
 
+  <!-- School Selection (for Specialist Wizards) -->
+  {#if selectedClass && selectedClassKey === 'specialist'}
+    <div class="selection-section">
+      <div class="section-header">
+        <h3>Choose Your School of Magic</h3>
+        <p class="section-hint">Specialist wizards gain bonus spells but cannot cast from opposition schools.</p>
+      </div>
+
+      <div class="option-grid">
+        {#each availableSchools as school}
+          {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
+          <Tooltip text={tooltipText} position="bottom">
+            <button
+              class="option-card"
+              class:selected={selectedSchool?.key === school.key}
+              class:disabled={!school.qualified}
+              onclick={() => school.qualified && (selectedSchool = { key: school.key, ...school })}
+              disabled={!school.qualified}
+            >
+              <span class="option-name">{school.name}</span>
+              <span class="option-desc">{school.school}</span>
+              {#if !school.qualified}
+                <span class="unavailable-badge">Unavailable</span>
+              {/if}
+            </button>
+          </Tooltip>
+        {/each}
+      </div>
+    </div>
+  {/if}
+
+  <!-- Kit Selection (appears underneath class grid) -->
+  {#if selectedClass && hasKits && selectedClassKey !== 'specialist'}
+    <div class="selection-section">
+      <div class="section-header">
+        <h3>Choose a Kit (Optional)</h3>
+        <p class="section-hint">Kits modify your class with special abilities and restrictions. You can play without a kit.</p>
+      </div>
+
+      <div class="option-grid">
+        <Tooltip text="Play as a standard {selectedClass.cls.name} without kit modifications" position="bottom">
+          <button
+            class="option-card skip-kit"
+            class:selected={selectedKit === null}
+            onclick={() => selectedKit = null}
+          >
+            <span class="option-name">Skip Kit</span>
+            <span class="option-desc">Play Vanilla {selectedClass.cls.name}</span>
+          </button>
+        </Tooltip>
+
+        {#each availableKits as kit}
+          {@const tooltipText = !kit.qualified
+            ? `Not available: ${kit.failedReqs.join(', ')}`
+            : `${kit.description}\n\nAbilities: ${kit.specialAbilities.join(' • ')}`}
+          <Tooltip text={tooltipText} position="bottom">
+            <button
+              class="option-card"
+              class:selected={selectedKit?.key === kit.key}
+              class:disabled={!kit.qualified}
+              onclick={() => kit.qualified && (selectedKit = kit)}
+              disabled={!kit.qualified}
+            >
+              <span class="option-name">{kit.name}</span>
+              <span class="option-desc">{kit.description}</span>
+              {#if !kit.qualified}
+                <span class="unavailable-badge">Unavailable</span>
+              {/if}
+            </button>
+          </Tooltip>
+        {/each}
+      </div>
+
+      {#if selectedKit && selectedKit !== null}
+        <div class="kit-details fade-in">
+          <div class="kit-abilities">
+            <h5>Special Abilities</h5>
+            <ul>
+              {#each selectedKit.specialAbilities as ability}
+                <li>{ability}</li>
+              {/each}
+            </ul>
+          </div>
+          <div class="kit-restrictions">
+            <h5>Restrictions</h5>
+            <ul>
+              {#each selectedKit.restrictions as restriction}
+                <li>{restriction}</li>
+              {/each}
+            </ul>
+          </div>
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  <!-- Deity Selection (for Clerics/Paladins) - after kit selection -->
+  {#if selectedClass && needsDeity}
+    <div class="selection-section">
+      <div class="section-header">
+        <h3>Choose Your Deity</h3>
+        <p class="section-hint">Your deity determines which spell spheres you can access.</p>
+      </div>
+
+      <div class="option-grid deity-grid">
+        {#each deityList as deity}
+          <Tooltip text={deity.description} position="bottom">
+            <button
+              class="option-card deity-card"
+              class:selected={selectedDeityKey === deity.key}
+              onclick={() => selectedDeityKey = deity.key}
+            >
+              <span class="option-name">{deity.name}</span>
+              <span class="option-desc">{deity.alignment}</span>
+            </button>
+          </Tooltip>
+        {/each}
+      </div>
+    </div>
+  {/if}
+
   {#if selectedClass}
     {@const confirmText =
       selectedClassKey === 'specialist' && !selectedSchool ? 'Select a School to Continue' :
       needsDeity && !selectedDeityKey ? 'Select a Deity to Continue' :
-      `Confirm ${selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
-    <SelectionPreview
-      title={selectedClass.cls.name}
-      confirmLabel={confirmText}
-      onConfirm={confirm}
-      disabled={!canConfirm}
-    >
+      hasKits && selectedKit === undefined ? 'Choose a Kit or Skip to Continue' :
+      `Confirm ${selectedKit?.name ?? selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
+    <div class="fade-in">
+      <SelectionPreview
+        title={selectedClass.cls.name}
+        confirmLabel={confirmText}
+        onConfirm={confirm}
+        disabled={!canConfirm}
+      >
       <div class="features-section">
         <h4>Class Features</h4>
         <ul class="features-list">
@@ -160,51 +302,8 @@
           {/if}
         </div>
       </div>
-
-      {#if selectedClassKey === 'specialist'}
-        <div class="school-selection">
-          <h4>Choose Your School of Magic</h4>
-          <div class="school-grid">
-            {#each availableSchools as school}
-              {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
-              <Tooltip text={tooltipText} position="bottom">
-                <button
-                  class="school-card"
-                  class:selected={selectedSchool?.key === school.key}
-                  class:disabled={!school.qualified}
-                  onclick={() => school.qualified && (selectedSchool = { key: school.key, ...school })}
-                  disabled={!school.qualified}
-                >
-                  <span class="school-name">{school.name}</span>
-                  <span class="school-desc">{school.school}</span>
-                </button>
-              </Tooltip>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      {#if needsDeity}
-        <div class="deity-selection">
-          <h4>Choose Your Deity</h4>
-          <p class="section-hint">Your deity determines which spell spheres you can access.</p>
-          <div class="deity-grid">
-            {#each deityList as deity}
-              <Tooltip text={deity.description} position="bottom">
-                <button
-                  class="deity-card"
-                  class:selected={selectedDeityKey === deity.key}
-                  onclick={() => selectedDeityKey = deity.key}
-                >
-                  <span class="deity-name">{deity.name}</span>
-                  <span class="deity-align">{deity.alignment}</span>
-                </button>
-              </Tooltip>
-            {/each}
-          </div>
-        </div>
-      {/if}
-    </SelectionPreview>
+      </SelectionPreview>
+    </div>
   {/if}
 </div>
 
@@ -347,87 +446,182 @@
     }
   }
 
-  .school-selection {
+  // Unified Selection Section (for schools, deities, kits - outside preview panel)
+  .selection-section {
     width: 100%;
+    margin-top: $space-lg;
+    padding: $space-lg;
+    background: var(--bg-panel);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 
-    h4 {
+    .section-header {
       text-align: center;
-    }
-  }
+      margin-bottom: $space-md;
 
-  .school-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: $space-sm;
+      h3 {
+        margin: 0 0 $space-xs;
+        color: var(--text-primary);
+      }
 
-    :global(.tooltip-wrap) {
-      display: flex;
-    }
-  }
-
-  .school-card {
-    @include selectable-card($lift: -1px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem $space-sm;
-    transition: all 0.15s;
-    width: 100%;
-    min-height: 60px;
-
-    .school-desc {
-      text-align: center;
-    }
-
-    &:hover:not(.disabled) {
-      .spec-name, .spec-desc {
-        color: var(--text-hover);
+      .section-hint {
+        color: var(--text-muted);
+        margin: 0;
       }
     }
   }
 
-  .deity-selection {
-    width: 100%;
-
-    h4 {
-      text-align: center;
-    }
-
-    .section-hint {
-      text-align: center;
-      margin-bottom: $space-sm;
-    }
-  }
-
-  .deity-grid {
+  .option-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: $space-sm;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: $space-md;
+    margin-bottom: $space-md;
 
-    :global(.tooltip-wrap) {
-      display: flex;
+    &.deity-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
   }
 
-  .deity-card {
-    @include selectable-card($lift: -1px);
+  .option-card {
+    @include selectable-card($lift: -2px);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem $space-sm;
-    transition: all 0.15s;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: $space-md;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
-    min-height: 54px;
+    min-height: 100px;
+    text-align: left;
 
-    .deity-align {
+    // Deity cards - centered layout
+    &.deity-card {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 80px;
+    }
+
+    &.skip-kit {
+      background: var(--bg-subtle);
+      border: 2px dashed var(--border-color);
+
+      &.selected {
+        background: rgba(201, 162, 39, 0.1);
+        border-color: var(--gold);
+        border-style: solid;
+      }
+
+      &:hover:not(.disabled) {
+        border-style: solid;
+        transform: translateY(-2px);
+      }
+    }
+
+    .option-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
+    }
+
+    .option-desc {
+      font-size: 0.875rem;
       color: var(--text-muted);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .unavailable-badge {
+      margin-top: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      background: rgba(139, 37, 0, 0.1);
+      border: 1px solid rgba(139, 37, 0, 0.3);
+      border-radius: 3px;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.7rem;
+      font-weight: 600;
     }
 
     &:hover:not(.disabled) {
-      .deity-name {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+      .option-name {
         color: var(--text-hover);
+      }
+    }
+
+    &.selected {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, 0.08);
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      background: var(--bg-subtle);
+      cursor: not-allowed;
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+
+  .kit-details {
+    margin-top: $space-md;
+    padding: $space-lg;
+    background: var(--bg-subtle);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-lg;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+
+    h5 {
+      margin: 0 0 $space-sm;
+      padding-bottom: $space-xs;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+
+      li {
+        margin-bottom: $space-sm;
+        color: var(--text-secondary);
+
+        &::marker {
+          color: var(--gold-dark);
+        }
+      }
+    }
+
+    .kit-abilities li {
+      color: var(--green);
+
+      &::marker {
+        color: var(--green);
+      }
+    }
+
+    .kit-restrictions li {
+      color: var(--text-muted);
+
+      &::marker {
+        color: var(--gold-dark);
       }
     }
   }

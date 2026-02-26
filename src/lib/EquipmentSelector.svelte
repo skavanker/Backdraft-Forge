@@ -5,13 +5,16 @@
     getAllowedArmor,
     getAllowedShields,
     formatPrice,
-    calculateTotalWeight
+    calculateTotalWeight,
+    getAllowedArmorWithKit,
+    getAllowedShieldsWithKit,
+    rollStartingGoldWithKit
   } from '../data/equipment.js';
   import { getStrengthModifiers } from '../data/mechanics.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
 
-  let { cls, weaponProficiencies, existingEquipment = null, str = 10, exceptionalStr = null, onComplete } = $props();
+  let { cls, kit = null, weaponProficiencies, existingEquipment = null, str = 10, exceptionalStr = null, onComplete } = $props();
 
   let weightAllowance = $derived(getStrengthModifiers(str, exceptionalStr).weightAllow);
 
@@ -39,9 +42,9 @@
   let selectedWeapons = $state([]);
   let selectedGear = $state([]);
 
-  // Get class restrictions
-  let allowedArmor = $derived(getAllowedArmor(cls.key));
-  let allowedShields = $derived(getAllowedShields(cls.key));
+  // Get class restrictions (kit-aware)
+  let allowedArmor = $derived(getAllowedArmorWithKit(cls.key, kit));
+  let allowedShields = $derived(getAllowedShieldsWithKit(cls.key, kit));
 
   // Get proficient weapons from equipment list
   let proficientWeaponKeys = $derived(
@@ -70,7 +73,7 @@
   let isEncumbered = $derived(totalWeight() > weightAllowance);
 
   function rollGold() {
-    const result = rollStartingGold(cls.group);
+    const result = rollStartingGoldWithKit(cls.group, kit);
     gold = result.gold;
     goldDice = result.dice;
     goldDiceFormula = result.diceFormula;
@@ -443,6 +446,81 @@
         <p class="section-hint">Left-click to add, right-click to remove</p>
         <div class="item-grid small">
           {#each equipment.clothing as item}
+            {@const selected = selectedGear.find(g => g.key === item.key)}
+            {@const affordable = canAfford(item.price) || selected}
+            <button
+              class="item-card small"
+              class:selected
+              class:disabled={!affordable && !selected}
+              onclick={() => addGear(item)}
+              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
+            >
+              <span class="item-name">{item.name}</span>
+              <span class="item-price">{formatPrice(item.price)}</span>
+              {#if selected?.qty > 1}
+                <span class="qty-badge">&times;{selected.qty}</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Tools & Kits -->
+      <div class="section">
+        <h3>Tools & Kits</h3>
+        <p class="section-hint">Left-click to add, right-click to remove</p>
+        <div class="item-grid small">
+          {#each equipment.toolsAndKits as item}
+            {@const selected = selectedGear.find(g => g.key === item.key)}
+            {@const affordable = canAfford(item.price) || selected}
+            <button
+              class="item-card small"
+              class:selected
+              class:disabled={!affordable && !selected}
+              onclick={() => addGear(item)}
+              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
+            >
+              <span class="item-name">{item.name}</span>
+              <span class="item-price">{formatPrice(item.price)}</span>
+              {#if selected?.qty > 1}
+                <span class="qty-badge">&times;{selected.qty}</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Provisions -->
+      <div class="section">
+        <h3>Provisions</h3>
+        <p class="section-hint">Left-click to add, right-click to remove</p>
+        <div class="item-grid small">
+          {#each equipment.provisions as item}
+            {@const selected = selectedGear.find(g => g.key === item.key)}
+            {@const affordable = canAfford(item.price) || selected}
+            <button
+              class="item-card small"
+              class:selected
+              class:disabled={!affordable && !selected}
+              onclick={() => addGear(item)}
+              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
+            >
+              <span class="item-name">{item.name}</span>
+              <span class="item-price">{formatPrice(item.price)}</span>
+              {#if selected?.qty > 1}
+                <span class="qty-badge">&times;{selected.qty}</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Transport & Animals -->
+      <div class="section">
+        <h3>Transport & Animals</h3>
+        <p class="section-hint">Left-click to add, right-click to remove</p>
+        <div class="item-grid small">
+          {#each equipment.transport as item}
             {@const selected = selectedGear.find(g => g.key === item.key)}
             {@const affordable = canAfford(item.price) || selected}
             <button

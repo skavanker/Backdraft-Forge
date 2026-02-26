@@ -24,7 +24,9 @@
   <div class="review-header">
     <span class="review-race">{character.race.name}</span>
     <span>
-      {#if character.wizardSchool}
+      {#if character.kit}
+        {character.kit.name}
+      {:else if character.wizardSchool}
         {character.wizardSchool.name}
       {:else}
         {character.cls.name}
@@ -66,6 +68,16 @@
           <div class="info-row warning">
             <span>Cannot Cast</span>
             <span>{character.wizardSchool.oppositionSchools.join(', ')}</span>
+          </div>
+        {/if}
+        {#if character.kit}
+          <div class="info-row">
+            <span>Kit</span>
+            <span>{character.kit.name}</span>
+          </div>
+          <div class="info-row">
+            <span>Base Class</span>
+            <span>{character.cls.name}</span>
           </div>
         {/if}
         {#if character.xpBonus > 0}

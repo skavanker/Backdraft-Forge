@@ -40,6 +40,8 @@
       levelLimit: null,
       xpBonus: 0,
       wizardSchool: null,
+      kitKey: null,
+      kit: null,
       proficiencies: null,
       equipment: null,
       spells: null,
@@ -89,7 +91,7 @@
         id: Date.now(),
         name: character.name || 'Unnamed Hero',
         race: character.race?.name || '?',
-        cls: character.wizardSchool?.name || character.cls?.name || '?',
+        cls: character.kit?.name || character.wizardSchool?.name || character.cls?.name || '?',
         level: character.level || 1,
         code: encoded,
       };
@@ -185,7 +187,7 @@
   const stepFields = {
     0: { fields: ['abilities', 'rollData'], next: 1 },
     1: { fields: ['raceKey', 'race', 'adjustedAbilities'], next: 2 },
-    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey'], next: 3 },
+    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey', 'kitKey', 'kit'], next: 3 },
     4: { fields: ['proficiencies'], next: 5 },
     5: { fields: ['equipment'], next: 6 },
     6: { fields: ['spells'], next: 7 },
@@ -389,6 +391,7 @@
         existingClassKey={character.classKey}
         existingWizardSchool={character.wizardSchool}
         existingDeityKey={character.deityKey}
+        existingKitKey={character.kitKey}
         onComplete={(data) => completeStep(2, data)}
       />
 
@@ -403,6 +406,7 @@
         abilities={character.adjustedAbilities}
         race={{ ...character.race, key: character.raceKey }}
         cls={{ ...character.cls, key: character.classKey }}
+        kit={character.kit}
         level={character.level || 1}
         existingProficiencies={character.proficiencies}
         onComplete={(data) => completeStep(4, { proficiencies: data })}
@@ -413,6 +417,7 @@
       <CharacterSummary {character} />
       <EquipmentSelector
         cls={{ ...character.cls, key: character.classKey }}
+        kit={character.kit}
         weaponProficiencies={character.proficiencies.weapons}
         existingEquipment={character.equipment}
         str={character.adjustedAbilities.STR}

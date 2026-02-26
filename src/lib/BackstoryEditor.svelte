@@ -261,7 +261,6 @@
     grid-template-columns: repeat(3, 1fr);
     gap: $space-sm;
     position: relative;
-    z-index: 1;
   }
 
   .alignment-btn {

@@ -21,11 +21,12 @@
   function getStyle() {
     if (!wrapperEl || !visible) return '';
 
-    // Get the first actual element child for positioning
     const target = wrapperEl.firstElementChild || wrapperEl;
     const rect = target.getBoundingClientRect();
 
-    let x = rect.left + rect.width / 2;
+    // Center the tooltip: left position is center of button minus half tooltip width
+    // Use 350px as approximate tooltip width (300-400px range)
+    let x = rect.left + rect.width / 2 - 175;
     let y = position === 'top' ? rect.top - 8 : rect.bottom + 8;
 
     return `left: ${x}px; top: ${y}px;`;
@@ -67,19 +68,11 @@
     background: var(--text-primary);
     color: var(--bg-base);
     border-radius: 4px;
-    max-width: 280px;
+    min-width: 300px;
+    max-width: 400px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     pointer-events: none;
     white-space: normal;
-    animation: fadeIn 0.1s ease forwards;
-  }
-
-  .tooltip-top {
-    transform: translateX(-50%) translateY(-100%);
-  }
-
-  .tooltip-bottom {
-    transform: translateX(-50%);
   }
 
   @keyframes fadeIn {

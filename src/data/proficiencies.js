@@ -209,3 +209,64 @@ export function getAvailableProficiencies(classGroup) {
     cost: getProficiencyCost(classGroup, prof.group)
   }));
 }
+
+/**
+ * Get weapon proficiency slots with kit modifications
+ */
+export function getWeaponSlotsWithKit(classGroup, level = 1, kit = null) {
+  let slots = getWeaponSlots(classGroup, level);
+
+  if (kit?.proficiencyMods?.weaponBonus) {
+    slots += kit.proficiencyMods.weaponBonus;
+  }
+
+  return slots;
+}
+
+/**
+ * Get non-weapon proficiency slots with kit modifications
+ */
+export function getNonWeaponSlotsWithKit(classGroup, intelligence, level = 1, kit = null) {
+  let slots = getNonWeaponSlots(classGroup, intelligence, level);
+
+  if (kit?.proficiencyMods?.nonWeaponBonus) {
+    slots += kit.proficiencyMods.nonWeaponBonus;
+  }
+
+  return slots;
+}
+
+/**
+ * Get allowed weapons for a class with kit restrictions
+ */
+export function getAllowedWeaponsWithKit(classKey, kit = null) {
+  let allowed = getAllowedWeapons(classKey);
+
+  // If kit has restricted weapons, filter them out
+  if (kit?.proficiencyMods?.restrictedWeapons?.length > 0) {
+    allowed = allowed.filter(weaponKey => !kit.proficiencyMods.restrictedWeapons.includes(weaponKey));
+  }
+
+  return allowed;
+}
+
+/**
+ * Get free weapon proficiencies granted by kit
+ */
+export function getKitFreeWeapons(kit = null) {
+  return kit?.proficiencyMods?.freeWeapons || [];
+}
+
+/**
+ * Get free non-weapon proficiencies granted by kit
+ */
+export function getKitFreeNonWeapon(kit = null) {
+  return kit?.proficiencyMods?.freeNonWeapon || [];
+}
+
+/**
+ * Check if a weapon is restricted by kit
+ */
+export function isWeaponRestrictedByKit(weaponKey, kit = null) {
+  return kit?.proficiencyMods?.restrictedWeapons?.includes(weaponKey) || false;
+}
