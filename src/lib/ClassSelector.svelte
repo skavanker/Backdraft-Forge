@@ -1,13 +1,15 @@
 <script>
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
+  import { deities, getDeityList } from '../data/deities.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
 
-  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, onComplete } = $props();
+  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, onComplete } = $props();
 
   let selectedClassKey = $state(existingClassKey);
   let selectedSchool = $state(existingWizardSchool);
+  let selectedDeityKey = $state(existingDeityKey);
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -20,13 +22,24 @@
     selectedClassKey === 'specialist' && abilities ? getAvailableSchools(abilities, raceKey) : []
   );
 
+  let needsDeity = $derived(
+    selectedClassKey === 'cleric' || selectedClassKey === 'paladin'
+  );
+
+  let deityList = $derived(getDeityList());
+
   let canConfirm = $derived(
-    selectedClass && (selectedClassKey !== 'specialist' || selectedSchool)
+    selectedClass &&
+    (selectedClassKey !== 'specialist' || selectedSchool) &&
+    (!needsDeity || selectedDeityKey)
   );
 
   function selectClass(key) {
     selectedClassKey = key;
     selectedSchool = null;
+    if (key !== 'cleric' && key !== 'paladin') {
+      selectedDeityKey = null;
+    }
   }
 
   function confirm() {
@@ -36,7 +49,8 @@
       cls: selectedClass.cls,
       levelLimit: selectedClass.levelLimit,
       xpBonus: selectedClass.xpBonus,
-      wizardSchool: selectedSchool
+      wizardSchool: selectedSchool,
+      deityKey: selectedDeityKey || null
     });
   }
 
@@ -102,9 +116,10 @@
   {/each}
 
   {#if selectedClass}
-    {@const confirmText = selectedClassKey === 'specialist' && !selectedSchool
-      ? 'Select a School to Continue'
-      : `Confirm ${selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
+    {@const confirmText =
+      selectedClassKey === 'specialist' && !selectedSchool ? 'Select a School to Continue' :
+      needsDeity && !selectedDeityKey ? 'Select a Deity to Continue' :
+      `Confirm ${selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
     <SelectionPreview
       title={selectedClass.cls.name}
       confirmLabel={confirmText}
@@ -162,6 +177,27 @@
                 >
                   <span class="school-name">{school.name}</span>
                   <span class="school-desc">{school.school}</span>
+                </button>
+              </Tooltip>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      {#if needsDeity}
+        <div class="deity-selection">
+          <h4>Choose Your Deity</h4>
+          <p class="section-hint">Your deity determines which spell spheres you can access.</p>
+          <div class="deity-grid">
+            {#each deityList as deity}
+              <Tooltip text={deity.description} position="bottom">
+                <button
+                  class="deity-card"
+                  class:selected={selectedDeityKey === deity.key}
+                  onclick={() => selectedDeityKey = deity.key}
+                >
+                  <span class="deity-name">{deity.name}</span>
+                  <span class="deity-align">{deity.alignment}</span>
                 </button>
               </Tooltip>
             {/each}
@@ -346,6 +382,51 @@
 
     &:hover:not(.disabled) {
       .spec-name, .spec-desc {
+        color: var(--text-hover);
+      }
+    }
+  }
+
+  .deity-selection {
+    width: 100%;
+
+    h4 {
+      text-align: center;
+    }
+
+    .section-hint {
+      text-align: center;
+      margin-bottom: $space-sm;
+    }
+  }
+
+  .deity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: $space-sm;
+
+    :global(.tooltip-wrap) {
+      display: flex;
+    }
+  }
+
+  .deity-card {
+    @include selectable-card($lift: -1px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem $space-sm;
+    transition: all 0.15s;
+    width: 100%;
+    min-height: 54px;
+
+    .deity-align {
+      color: var(--text-muted);
+    }
+
+    &:hover:not(.disabled) {
+      .deity-name {
         color: var(--text-hover);
       }
     }

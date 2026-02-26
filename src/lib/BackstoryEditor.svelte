@@ -14,7 +14,8 @@
   let weight = $state(character.weight || '');
   let eyes = $state(character.eyes || '');
   let hair = $state(character.hair || '');
-  let deity = $state(character.deity || '');
+  // deity is now selected in ClassSelector (step 2) — display only here if set
+  let deity = $derived(character.deityKey ? (character.deity || '') : '');
 
   // Tooltip hints showing typical ranges for the selected race
   let raceHints = $derived(() => {
@@ -88,7 +89,7 @@
       weight: weight.trim(),
       eyes: eyes.trim(),
       hair: hair.trim(),
-      deity: deity.trim(),
+      deity: deity,
     });
   }
 
@@ -196,10 +197,12 @@
           <input id="char-hair" type="text" bind:value={hair} placeholder="—" />
         </div>
       </Tooltip>
-      <div class="detail-field">
-        <label for="char-deity">Deity</label>
-        <input id="char-deity" type="text" bind:value={deity} placeholder="—" />
-      </div>
+      {#if deity}
+        <div class="detail-field">
+          <label>Deity</label>
+          <span class="deity-display">{deity}</span>
+        </div>
+      {/if}
     </div>
   </div>
 
@@ -346,6 +349,11 @@
         outline: none;
         border-color: var(--gold);
       }
+    }
+
+    .deity-display {
+      padding: 0.4rem $space-sm;
+      color: var(--text-body);
     }
   }
 

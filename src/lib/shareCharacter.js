@@ -69,6 +69,11 @@ function compressCharacter(character) {
     }
   }
 
+  // Level, XP, HP history (only if above defaults)
+  if (character.level > 1) compressed.lv = character.level;
+  if (character.xp > 0) compressed.xp = character.xp;
+  if (character.hpHistory?.length > 0) compressed.hh = character.hpHistory;
+
   // Name, sex, alignment, backstory, and physical details
   if (character.name) compressed.n = character.name;
   if (character.sex) compressed.sx = character.sex;
@@ -79,7 +84,15 @@ function compressCharacter(character) {
   if (character.weight) compressed.wt = character.weight;
   if (character.eyes) compressed.ey = character.eyes;
   if (character.hair) compressed.hr = character.hair;
+  if (character.deityKey) compressed.dk = character.deityKey;
   if (character.deity) compressed.dy = character.deity;
+
+  // Current HP (only if different from max, i.e. damaged)
+  if (character.currentHP !== null && character.currentHP !== undefined) compressed.hp = character.currentHP;
+  // Thief skills distributed points
+  if (character.thiefSkills) compressed.ts = character.thiefSkills;
+  // Notes
+  if (character.notes) compressed.nt = character.notes;
 
   return compressed;
 }
@@ -111,7 +124,9 @@ async function decompressCharacter(compressed) {
   const { classes, wizardSchools } = await import('../data/classes.js');
   const { weapons, nonWeaponProficiencies } = await import('../data/proficiencies.js');
   const { equipment } = await import('../data/equipment.js');
-  const { wizardSpells, clericSpells, druidSpells } = await import('../data/spells.js');
+  const { wizardSpells } = await import('../data/spells.js');
+  const { priestSpells } = await import('../data/priestSpells.js');
+  const { deities } = await import('../data/deities.js');
   const { languages } = await import('../data/languages.js');
 
   // Reconstruct abilities
@@ -182,11 +197,10 @@ async function decompressCharacter(compressed) {
         spellsPerDay: 1
       };
     } else if (compressed.st === 'divine' && compressed.sp) {
-      const allSpells = compressed.c === 'druid' ? druidSpells : clericSpells;
-      const prepared = compressed.sp.map(key => allSpells.find(s => s.key === key)).filter(Boolean);
+      const prepared = compressed.sp.map(key => priestSpells.find(s => s.key === key)).filter(Boolean);
       spells = {
         type: 'divine',
-        available: allSpells,
+        available: priestSpells,
         prepared,
         spellsPerDay: prepared.length
       };
@@ -219,7 +233,14 @@ async function decompressCharacter(compressed) {
     weight: compressed.wt || null,
     eyes: compressed.ey || null,
     hair: compressed.hr || null,
-    deity: compressed.dy || null
+    deityKey: compressed.dk || null,
+    deity: compressed.dk ? (deities[compressed.dk]?.name || compressed.dy || null) : (compressed.dy || null),
+    level: compressed.lv || 1,
+    xp: compressed.xp || 0,
+    hpHistory: compressed.hh || [],
+    currentHP: compressed.hp ?? null,
+    thiefSkills: compressed.ts || null,
+    notes: compressed.nt || '',
   };
 }
 

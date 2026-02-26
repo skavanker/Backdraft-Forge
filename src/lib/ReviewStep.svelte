@@ -1,7 +1,23 @@
 <script>
   import { getCharacterWarnings } from '../data/classes.js';
+  import { getConstitutionModifiers } from '../data/mechanics.js';
 
   let { character, onContinue } = $props();
+
+  // Initialize hpHistory with max HP at level 1 (standard 2E: max die at first level)
+  function initHPHistory() {
+    if (!character.hpHistory || character.hpHistory.length === 0) {
+      const hitDie = character.cls.hitDie;
+      const match = hitDie.match(/d(\d+)/);
+      const dieMax = match ? parseInt(match[1]) : 4;
+      const conMods = getConstitutionModifiers(character.adjustedAbilities.CON, character.cls.group);
+      const total = Math.max(1, dieMax + conMods.hpAdj);
+      character.hpHistory = [{ level: 1, roll: dieMax, conMod: conMods.hpAdj, total }];
+    }
+  }
+
+  // Run on mount
+  initHPHistory();
 </script>
 
 <div class="character-review">

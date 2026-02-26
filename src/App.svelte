@@ -53,6 +53,13 @@
       eyes: null,
       hair: null,
       deity: null,
+      deityKey: null,
+      level: 1,
+      xp: 0,
+      hpHistory: [],
+      currentHP: null,
+      thiefSkills: null,
+      notes: '',
     };
   }
 
@@ -83,6 +90,7 @@
         name: character.name || 'Unnamed Hero',
         race: character.race?.name || '?',
         cls: character.wizardSchool?.name || character.cls?.name || '?',
+        level: character.level || 1,
         code: encoded,
       };
       // Replace existing save with same name+race+class, or add new
@@ -116,42 +124,58 @@
     persistSavesList();
   }
 
-  onMount(async () => {
+  onMount(() => {
     initTheme();
     theme = document.documentElement.getAttribute('data-theme') || 'light';
 
-    // Check if character data is in URL (shared link)
-    const sharedCharacter = await getCharacterFromUrl();
-    if (sharedCharacter) {
-      character = sharedCharacter;
-      currentStep = 8;
-      window.history.replaceState(null, '', window.location.pathname);
-      return;
-    }
-
-    // Migrate old single-save format
-    try {
-      const oldSave = localStorage.getItem(OLD_SAVE_KEY);
-      if (oldSave) {
-        const restored = await decodeCharacter(oldSave);
-        if (restored) {
-          const encoded = encodeCharacter(restored);
-          const entry = {
-            id: Date.now(),
-            name: restored.name || 'Unnamed Hero',
-            race: restored.race?.name || '?',
-            cls: restored.wizardSchool?.name || restored.cls?.name || '?',
-            code: encoded,
-          };
-          loadSavesList();
-          savedCharacters = [entry, ...savedCharacters];
-          persistSavesList();
-        }
-        localStorage.removeItem(OLD_SAVE_KEY);
+    // Async init (shared links, migration)
+    (async () => {
+      // Check if character data is in URL (shared link)
+      const sharedCharacter = await getCharacterFromUrl();
+      if (sharedCharacter) {
+        character = sharedCharacter;
+        currentStep = 8;
+        window.history.replaceState(null, '', window.location.pathname);
+        return;
       }
-    } catch (e) { /* ignore */ }
 
-    loadSavesList();
+      // Migrate old single-save format
+      try {
+        const oldSave = localStorage.getItem(OLD_SAVE_KEY);
+        if (oldSave) {
+          const restored = await decodeCharacter(oldSave);
+          if (restored) {
+            const encoded = encodeCharacter(restored);
+            const entry = {
+              id: Date.now(),
+              name: restored.name || 'Unnamed Hero',
+              race: restored.race?.name || '?',
+              cls: restored.wizardSchool?.name || restored.cls?.name || '?',
+              level: restored.level || 1,
+              code: encoded,
+            };
+            loadSavesList();
+            savedCharacters = [entry, ...savedCharacters];
+            persistSavesList();
+          }
+          localStorage.removeItem(OLD_SAVE_KEY);
+        }
+      } catch (e) { /* ignore */ }
+
+      loadSavesList();
+    })();
+
+    // Ctrl+Z undo on character sheet
+    function handleKeydown(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        if (currentStep === 8 && undoStack.length > 0) {
+          e.preventDefault();
+          undo();
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
   });
 
   function handleThemeToggle() {
@@ -161,7 +185,7 @@
   const stepFields = {
     0: { fields: ['abilities', 'rollData'], next: 1 },
     1: { fields: ['raceKey', 'race', 'adjustedAbilities'], next: 2 },
-    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool'], next: 3 },
+    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey'], next: 3 },
     4: { fields: ['proficiencies'], next: 5 },
     5: { fields: ['equipment'], next: 6 },
     6: { fields: ['spells'], next: 7 },
@@ -206,7 +230,13 @@
     () => true,                            // 8 Character Sheet
   ];
 
+  // Steps 0-2 (abilities, race, class) are locked once character is level 2+
+  function isStepLocked(index) {
+    return index <= 2 && (character.level || 1) > 1;
+  }
+
   function canNavigateToStep(index) {
+    if (isStepLocked(index)) return false;
     if (index <= currentStep) return true;
     // Can jump forward only if preceding gate satisfied
     // For steps 3 and 4: both require cls (gate index 2)
@@ -221,6 +251,33 @@
   function handleImportCharacter(importedCharacter) {
     character = importedCharacter;
     currentStep = 8;
+    saveToLocalStorage();
+  }
+
+  // Undo stack for character sheet edits (Ctrl+Z)
+  const MAX_UNDO = 20;
+  let undoStack = $state([]);
+  let undoMessage = $state('');
+  let showUndoMessage = $state(false);
+
+  function pushUndo() {
+    undoStack = [...undoStack.slice(-(MAX_UNDO - 1)), JSON.parse(JSON.stringify(character))];
+  }
+
+  function undo() {
+    if (undoStack.length === 0 || currentStep !== 8) return;
+    const prev = undoStack[undoStack.length - 1];
+    undoStack = undoStack.slice(0, -1);
+    Object.assign(character, prev);
+    saveToLocalStorage();
+    undoMessage = 'Undone';
+    showUndoMessage = true;
+    setTimeout(() => showUndoMessage = false, 1500);
+  }
+
+  function handleCharacterUpdate(updated) {
+    pushUndo();
+    Object.assign(character, updated);
     saveToLocalStorage();
   }
 
@@ -241,27 +298,29 @@
 
 </script>
 
-<button class="theme-toggle" onclick={handleThemeToggle} title="Toggle theme">
-  {theme === 'dark' ? '☀️' : '🌙'}
-</button>
+<div class="top-buttons">
+  {#if character.abilities}
+    {#if showResetConfirm}
+      <div class="reset-confirm-popup">
+        <span>Start over?</span>
+        <button class="btn-danger btn-sm" onclick={resetAll}>Yes</button>
+        <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>No</button>
+      </div>
+    {:else}
+      <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over">
+        &times;
+      </button>
+    {/if}
+  {/if}
+  <button class="theme-toggle" onclick={handleThemeToggle} title="Toggle theme">
+    {theme === 'dark' ? '☀️' : '🌙'}
+  </button>
+</div>
 
 <main>
   <header class="header">
-    <h1 class="logo" onclick={() => goToStep(0)}>Backdraft Forge</h1>
+    <h1><button class="logo" type="button" onclick={() => goToStep(0)}>Backdraft Forge</button></h1>
     <p class="tagline">AD&D 2nd Edition Character Creator</p>
-    {#if character.abilities}
-      <div class="header-actions">
-        {#if showResetConfirm}
-          <span class="reset-confirm">Start over? All progress will be lost.</span>
-          <button class="btn-danger btn-sm" onclick={resetAll}>Yes, reset</button>
-          <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>Cancel</button>
-        {:else}
-          <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = true}>
-            🗑 Start Over
-          </button>
-        {/if}
-      </div>
-    {/if}
   </header>
 
   <nav class="step-nav">
@@ -272,10 +331,12 @@
         class:completed={i < currentStep || canNavigateToStep(i)}
         class:incomplete={i <= currentStep && isStepIncomplete(i)}
         class:future={i > currentStep && !canNavigateToStep(i)}
+        class:locked={isStepLocked(i)}
         onclick={() => goToStep(i)}
         disabled={!canNavigateToStep(i)}
+        title={isStepLocked(i) ? 'Locked — cannot change after leveling up' : ''}
       >
-        <span class="step-number">{i + 1}</span>
+        <span class="step-number">{isStepLocked(i) ? '🔒' : i + 1}</span>
         <span class="step-label">{step}</span>
       </button>
     {/each}
@@ -290,7 +351,7 @@
             <div class="save-entry">
               <button class="save-load" onclick={() => loadSavedCharacter(entry)}>
                 <span class="save-name">{entry.name}</span>
-                <span class="save-meta">{entry.race} {entry.cls}</span>
+                <span class="save-meta">{entry.race} {entry.cls}{entry.level > 1 ? ` · Lvl ${entry.level}` : ''}</span>
               </button>
               <button class="save-delete" onclick={() => deleteSavedCharacter(entry.id)} title="Delete save">&times;</button>
             </div>
@@ -327,6 +388,7 @@
         raceKey={character.raceKey}
         existingClassKey={character.classKey}
         existingWizardSchool={character.wizardSchool}
+        existingDeityKey={character.deityKey}
         onComplete={(data) => completeStep(2, data)}
       />
 
@@ -365,6 +427,9 @@
         wizardSchool={character.wizardSchool}
         abilities={character.adjustedAbilities}
         existingSpells={character.spells}
+        deityKey={character.deityKey}
+        mode={character.level > 1 ? 'manage' : 'creation'}
+        characterLevel={character.level || 1}
         onComplete={(data) => completeStep(6, { spells: data })}
       />
 
@@ -377,7 +442,7 @@
       />
 
     {:else if currentStep === 8}
-      <CharacterSheet {character} onImport={handleImportCharacter} onSave={saveToLocalStorage} />
+      <CharacterSheet {character} onImport={handleImportCharacter} onSave={saveToLocalStorage} onCharacterUpdate={handleCharacterUpdate} onUndo={undo} canUndo={undoStack.length > 0} {undoMessage} {showUndoMessage} />
     {/if}
   </section>
 </main>
@@ -460,20 +525,17 @@
 
   .logo {
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
   }
 
   .tagline {
     font-style: italic;
     color: var(--text-muted);
     margin-top: -0.5rem;
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
   }
 
   .btn-sm {
@@ -492,12 +554,6 @@
       background: var(--red-dark);
     }
   }
-
-  .reset-confirm {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-
 
   .step-nav {
     display: flex;
@@ -582,6 +638,16 @@
     &.future {
       opacity: 0.5;
     }
+
+    &.locked {
+      opacity: 0.35;
+      cursor: not-allowed;
+
+      .step-number {
+        background: var(--bg-subtle);
+        font-size: 0.65rem;
+      }
+    }
   }
 
   .content {
@@ -590,22 +656,12 @@
 
   /* Print Styles */
   @media print {
-    .header, .navigation, .theme-toggle {
+    .header, .step-nav {
       display: none !important;
-    }
-
-    .container {
-      padding: 0;
-      max-width: 100%;
     }
 
     .content {
       min-height: auto;
-    }
-
-    /* Only show character sheet on print */
-    body {
-      background: white !important;
     }
   }
 

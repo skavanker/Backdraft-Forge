@@ -204,22 +204,58 @@ export function getCharismaModifiers(cha) {
  * PHB Table 60-63: Saving Throws
  */
 export function getSavingThrows(classGroup, level = 1) {
+  // PHB Tables 60-63: Saving throws by class group and level band
+  // Band lookup: use highest key <= requested level
   const tables = {
     warrior: {
-      1: { paralysis: 14, rod: 16, petrification: 15, breath: 17, spell: 17 }
+      0:  { paralysis: 16, rod: 18, petrification: 17, breath: 20, spell: 19 },
+      1:  { paralysis: 14, rod: 16, petrification: 15, breath: 17, spell: 17 },
+      3:  { paralysis: 13, rod: 15, petrification: 14, breath: 16, spell: 16 },
+      5:  { paralysis: 11, rod: 13, petrification: 12, breath: 13, spell: 14 },
+      7:  { paralysis: 10, rod: 12, petrification: 11, breath: 12, spell: 13 },
+      9:  { paralysis: 8,  rod: 10, petrification: 9,  breath: 9,  spell: 11 },
+      11: { paralysis: 7,  rod: 9,  petrification: 8,  breath: 8,  spell: 10 },
+      13: { paralysis: 5,  rod: 7,  petrification: 6,  breath: 5,  spell: 8 },
+      15: { paralysis: 4,  rod: 6,  petrification: 5,  breath: 4,  spell: 7 },
+      17: { paralysis: 3,  rod: 5,  petrification: 4,  breath: 4,  spell: 6 },
     },
     wizard: {
-      1: { paralysis: 14, rod: 11, petrification: 13, breath: 15, spell: 12 }
+      0:  { paralysis: 16, rod: 13, petrification: 15, breath: 17, spell: 14 },
+      1:  { paralysis: 14, rod: 11, petrification: 13, breath: 15, spell: 12 },
+      6:  { paralysis: 13, rod: 9,  petrification: 11, breath: 13, spell: 10 },
+      11: { paralysis: 11, rod: 7,  petrification: 9,  breath: 11, spell: 8 },
+      16: { paralysis: 10, rod: 5,  petrification: 7,  breath: 9,  spell: 6 },
+      21: { paralysis: 8,  rod: 3,  petrification: 5,  breath: 7,  spell: 4 },
     },
     priest: {
-      1: { paralysis: 10, rod: 14, petrification: 13, breath: 16, spell: 15 }
+      0:  { paralysis: 12, rod: 16, petrification: 15, breath: 18, spell: 17 },
+      1:  { paralysis: 10, rod: 14, petrification: 13, breath: 16, spell: 15 },
+      4:  { paralysis: 9,  rod: 13, petrification: 12, breath: 15, spell: 14 },
+      7:  { paralysis: 7,  rod: 11, petrification: 10, breath: 13, spell: 12 },
+      10: { paralysis: 6,  rod: 10, petrification: 9,  breath: 12, spell: 11 },
+      13: { paralysis: 5,  rod: 9,  petrification: 8,  breath: 11, spell: 10 },
+      16: { paralysis: 4,  rod: 8,  petrification: 7,  breath: 10, spell: 9 },
+      19: { paralysis: 2,  rod: 6,  petrification: 5,  breath: 8,  spell: 7 },
     },
     rogue: {
-      1: { paralysis: 13, rod: 14, petrification: 12, breath: 16, spell: 15 }
+      0:  { paralysis: 15, rod: 16, petrification: 14, breath: 18, spell: 17 },
+      1:  { paralysis: 13, rod: 14, petrification: 12, breath: 16, spell: 15 },
+      5:  { paralysis: 12, rod: 12, petrification: 11, breath: 15, spell: 13 },
+      9:  { paralysis: 11, rod: 10, petrification: 10, breath: 14, spell: 11 },
+      13: { paralysis: 10, rod: 8,  petrification: 9,  breath: 13, spell: 9 },
+      17: { paralysis: 9,  rod: 6,  petrification: 8,  breath: 12, spell: 7 },
+      21: { paralysis: 8,  rod: 4,  petrification: 7,  breath: 11, spell: 5 },
     }
   };
 
-  return tables[classGroup]?.[level] || tables.warrior[1];
+  const groupTable = tables[classGroup] || tables.warrior;
+  const bands = Object.keys(groupTable).map(Number).sort((a, b) => a - b);
+  let best = bands[0];
+  for (const band of bands) {
+    if (band <= level) best = band;
+    else break;
+  }
+  return groupTable[best];
 }
 
 /**
