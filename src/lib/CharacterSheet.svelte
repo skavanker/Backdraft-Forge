@@ -14,7 +14,7 @@
     formatPercentage
   } from '../data/mechanics.js';
 
-  let { character, onImport } = $props();
+  let { character, onImport, onSave } = $props();
 
   let shareMessage = $state('');
   let showShareMessage = $state(false);
@@ -54,6 +54,13 @@
     } else {
       shareMessage = 'Failed to copy. URL: ' + url;
     }
+    showShareMessage = true;
+    setTimeout(() => showShareMessage = false, 3000);
+  }
+
+  function saveCharacter() {
+    onSave?.();
+    shareMessage = 'Character saved!';
     showShareMessage = true;
     setTimeout(() => showShareMessage = false, 3000);
   }
@@ -440,6 +447,9 @@
       {/if}
       <button class="btn-primary" onclick={exportCode}>
         📦 Export Code
+      </button>
+      <button class="btn-primary" onclick={saveCharacter}>
+        💾 Save
       </button>
       <ImportArea {onImport} />
     </div>

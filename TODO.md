@@ -31,7 +31,7 @@
 - [x] Starting gold rules with reroll limit
 - [x] Complete mechanics from AD&D 2E PHB
 - [x] Gear list on character sheet (adventuring gear, clothing, ammunition)
-- [x] Backstory extended to 2000 chars (with share link size warning)
+- [x] Backstory extended to 5000 chars (with share link size warning)
 - [ ] Multi-classing support (demi-humans advance in 2+ classes simultaneously)
 - [ ] Dual-classing for humans (switch class, start over at level 1)
 - [ ] Character leveling/advancement

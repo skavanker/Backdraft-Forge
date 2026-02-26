@@ -58,38 +58,63 @@
 
   let character = $state(makeEmptyCharacter());
 
-  const SAVE_KEY = 'backdraft-forge-character';
+  const SAVES_KEY = 'backdraft-forge-saves';
+  const OLD_SAVE_KEY = 'backdraft-forge-character';
+
+  let savedCharacters = $state([]);
+
+  function loadSavesList() {
+    try {
+      const raw = localStorage.getItem(SAVES_KEY);
+      savedCharacters = raw ? JSON.parse(raw) : [];
+    } catch { savedCharacters = []; }
+  }
+
+  function persistSavesList() {
+    localStorage.setItem(SAVES_KEY, JSON.stringify(savedCharacters));
+  }
 
   function saveToLocalStorage() {
     try {
       const encoded = encodeCharacter(character);
-      if (encoded) localStorage.setItem(SAVE_KEY, encoded);
+      if (!encoded) return;
+      const entry = {
+        id: Date.now(),
+        name: character.name || 'Unnamed Hero',
+        race: character.race?.name || '?',
+        cls: character.wizardSchool?.name || character.cls?.name || '?',
+        code: encoded,
+      };
+      // Replace existing save with same name+race+class, or add new
+      const idx = savedCharacters.findIndex(s =>
+        s.name === entry.name && s.race === entry.race && s.cls === entry.cls
+      );
+      if (idx >= 0) {
+        savedCharacters[idx] = entry;
+      } else {
+        savedCharacters = [entry, ...savedCharacters];
+      }
+      persistSavesList();
     } catch (e) { /* silently fail */ }
   }
 
-  function clearSavedCharacter() {
-    localStorage.removeItem(SAVE_KEY);
-  }
-
-  async function loadSavedCharacter() {
+  async function loadSavedCharacter(entry) {
     try {
-      const saved = localStorage.getItem(SAVE_KEY);
-      if (saved) {
-        const restored = await decodeCharacter(saved);
-        if (restored) {
-          character = restored;
-          currentStep = 8;
-          hasSavedCharacter = false;
-          return;
-        }
+      const restored = await decodeCharacter(entry.code);
+      if (restored) {
+        character = restored;
+        currentStep = 8;
+        return;
       }
     } catch (e) { /* ignore */ }
-    // If load failed, clear bad data
-    clearSavedCharacter();
-    hasSavedCharacter = false;
+    // If load failed, remove bad entry
+    deleteSavedCharacter(entry.id);
   }
 
-  let hasSavedCharacter = $state(false);
+  function deleteSavedCharacter(id) {
+    savedCharacters = savedCharacters.filter(s => s.id !== id);
+    persistSavesList();
+  }
 
   onMount(async () => {
     initTheme();
@@ -104,16 +129,29 @@
       return;
     }
 
-    // Check for saved character in localStorage
+    // Migrate old single-save format
     try {
-      const saved = localStorage.getItem(SAVE_KEY);
-      if (saved) {
-        const restored = await decodeCharacter(saved);
+      const oldSave = localStorage.getItem(OLD_SAVE_KEY);
+      if (oldSave) {
+        const restored = await decodeCharacter(oldSave);
         if (restored) {
-          hasSavedCharacter = true;
+          const encoded = encodeCharacter(restored);
+          const entry = {
+            id: Date.now(),
+            name: restored.name || 'Unnamed Hero',
+            race: restored.race?.name || '?',
+            cls: restored.wizardSchool?.name || restored.cls?.name || '?',
+            code: encoded,
+          };
+          loadSavesList();
+          savedCharacters = [entry, ...savedCharacters];
+          persistSavesList();
         }
+        localStorage.removeItem(OLD_SAVE_KEY);
       }
-    } catch (e) { /* ignore corrupt data */ }
+    } catch (e) { /* ignore */ }
+
+    loadSavesList();
   });
 
   function handleThemeToggle() {
@@ -192,8 +230,6 @@
     character = makeEmptyCharacter();
     currentStep = 0;
     showResetConfirm = false;
-    hasSavedCharacter = false;
-    clearSavedCharacter();
   }
 
 
@@ -211,7 +247,7 @@
 
 <main>
   <header class="header">
-    <h1>Backdraft Forge</h1>
+    <h1 class="logo" onclick={() => goToStep(0)}>Backdraft Forge</h1>
     <p class="tagline">AD&D 2nd Edition Character Creator</p>
     {#if character.abilities}
       <div class="header-actions">
@@ -246,16 +282,19 @@
   </nav>
 
   <section class="content card">
-    {#if hasSavedCharacter && currentStep === 0}
-      <div class="resume-prompt">
-        <p>You have a saved character from a previous session.</p>
-        <div class="resume-buttons">
-          <button class="btn-primary" onclick={loadSavedCharacter}>
-            Resume Saved Character
-          </button>
-          <button class="btn-ghost" onclick={() => { hasSavedCharacter = false; clearSavedCharacter(); }}>
-            Start Fresh
-          </button>
+    {#if savedCharacters.length > 0 && currentStep === 0}
+      <div class="saved-characters">
+        <h3>Saved Characters</h3>
+        <div class="save-list">
+          {#each savedCharacters as entry (entry.id)}
+            <div class="save-entry">
+              <button class="save-load" onclick={() => loadSavedCharacter(entry)}>
+                <span class="save-name">{entry.name}</span>
+                <span class="save-meta">{entry.race} {entry.cls}</span>
+              </button>
+              <button class="save-delete" onclick={() => deleteSavedCharacter(entry.id)} title="Delete save">&times;</button>
+            </div>
+          {/each}
         </div>
       </div>
     {/if}
@@ -338,7 +377,7 @@
       />
 
     {:else if currentStep === 8}
-      <CharacterSheet {character} onImport={handleImportCharacter} />
+      <CharacterSheet {character} onImport={handleImportCharacter} onSave={saveToLocalStorage} />
     {/if}
   </section>
 </main>
@@ -350,30 +389,77 @@
     gap: 1.5rem;
   }
 
-  .resume-prompt {
-    text-align: center;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    border: 2px solid var(--gold);
-    border-radius: 4px;
-    background: rgba(201, 162, 39, 0.08);
+  .saved-characters {
+    margin-bottom: 1.5rem;
 
-    p {
-      margin: 0 0 1rem;
-      color: var(--text-body);
-      font-size: 1.05rem;
+    h3 {
+      margin: 0 0 0.75rem;
     }
   }
 
-  .resume-buttons {
+  .save-list {
     display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .save-entry {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .save-load {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    text-align: left;
+
+    &:hover {
+      border-color: var(--gold);
+    }
+
+    .save-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .save-meta {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  }
+
+  .save-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
+      color: var(--red);
+    }
   }
 
   .header {
     text-align: center;
+  }
+
+  .logo {
+    cursor: pointer;
   }
 
   .tagline {
