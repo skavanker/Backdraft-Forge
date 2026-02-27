@@ -2,7 +2,7 @@
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
   import { deities, getDeityList } from '../data/deities.js';
   import { getAvailableKits, classHasKits } from '../data/kits.js';
-  import { ALIGNMENTS, getAlignmentName, getAllowedAlignments } from '../data/alignment.js';
+  import { ALIGNMENTS, getAlignmentName, filterDeitiesForClass } from '../data/alignment.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
@@ -39,9 +39,7 @@
   );
 
   let deityList = $derived(
-    selectedClassKey === 'paladin'
-      ? getDeityList().filter(d => d.alignment === null || getAllowedAlignments(ALIGNMENTS.LG).includes(d.alignment))
-      : getDeityList()
+    filterDeitiesForClass(getDeityList(), selectedClassKey)
   );
 
   let canConfirm = $derived(

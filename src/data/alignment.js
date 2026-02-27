@@ -89,6 +89,36 @@ export function getAllowedAlignments(deityAlign) {
 }
 
 /**
+ * Get allowed alignments for a class, optionally constrained by deity alignment.
+ * Paladin → always LG. Cleric with deity → within one step. Otherwise → all.
+ * @param {string} classKey
+ * @param {number|null|undefined} deityAlignment - Deity's alignment number, or null/undefined
+ * @returns {number[]}
+ */
+export function getAllowedAlignmentsForClass(classKey, deityAlignment) {
+  if (classKey === 'paladin') return [ALIGNMENTS.LG];
+  if (deityAlignment !== null && deityAlignment !== undefined) {
+    return getAllowedAlignments(deityAlignment);
+  }
+  return [0, 1, 2, 3, 4, 5, 6, 7, 8];
+}
+
+/**
+ * Filter a deity list for class compatibility.
+ * Paladins only see deities compatible with Lawful Good.
+ * @param {Array} deityList - Array of deity objects with .alignment
+ * @param {string} classKey
+ * @returns {Array}
+ */
+export function filterDeitiesForClass(deityList, classKey) {
+  if (classKey === 'paladin') {
+    const allowed = getAllowedAlignments(ALIGNMENTS.LG);
+    return deityList.filter(d => d.alignment === null || allowed.includes(d.alignment));
+  }
+  return deityList;
+}
+
+/**
  * Get alignment grid layout (3x3)
  * @returns {number[][]} 3x3 grid of alignment numbers
  */

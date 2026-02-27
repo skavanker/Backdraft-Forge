@@ -1,5 +1,5 @@
 <script>
-  const ABILITIES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+  import { ABILITIES } from '../data/constants.js';
 
   let { onComplete, existingAbilities = null, existingRollData = null, onBack = null } = $props();
 

@@ -4,6 +4,7 @@
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
   import { isTyping } from './utils/keyboard.js';
+  import { ABILITIES } from '../data/constants.js';
 
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
@@ -108,7 +109,7 @@
       <div class="abilities-section">
         <h4>Adjusted Abilities</h4>
         <div class="flex-column gap-sm">
-          {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
+          {#each ABILITIES as ability}
             {@const base = abilities[ability]}
             {@const adjusted = adjustedAbilities[ability]}
             {@const diff = adjusted - base}

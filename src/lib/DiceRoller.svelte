@@ -1,10 +1,9 @@
 <script>
   import { rollAbilityDice, calculate3d6, calculate4d6DropLowest, rollExceptionalStrength } from './dice.js';
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import ImportArea from './ImportArea.svelte';
   import { isTyping } from './utils/keyboard.js';
-
-  const ABILITIES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+  import { ABILITIES } from '../data/constants.js';
   const MAX_REROLLS = 2;
 
   let { onComplete, onImport, existingRollData = null, onManualMode } = $props();
@@ -73,16 +72,6 @@
     assignments[ability] = null;
   }
 
-  onMount(() => {
-    if (existingRollData) {
-      method = existingRollData.method;
-      rawDice = existingRollData.rawDice;
-      assignments = existingRollData.assignments;
-      exceptionalStr = existingRollData.exceptionalStr;
-      rerollsUsed = existingRollData.rerollsUsed || 0;
-    }
-  });
-
   function handleKeydown(e) {
     if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
 
@@ -110,6 +99,14 @@
   }
 
   onMount(() => {
+    if (existingRollData) {
+      method = existingRollData.method;
+      rawDice = existingRollData.rawDice;
+      assignments = existingRollData.assignments;
+      exceptionalStr = existingRollData.exceptionalStr;
+      rerollsUsed = existingRollData.rerollsUsed || 0;
+    }
+
     window.addEventListener('keydown', handleKeydown);
     return () => window.removeEventListener('keydown', handleKeydown);
   });

@@ -1,4 +1,6 @@
 <script>
+  import { ABILITIES } from '../data/constants.js';
+
   let { character } = $props();
 
   // Check what info is available
@@ -33,7 +35,7 @@
     {#if hasAbilities}
       {@const abilities = character.adjustedAbilities || character.abilities}
       <div class="summary-abilities">
-        {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
+        {#each ABILITIES as ability}
           <span class="ability-stat">
             <span class="meta-text">{ability}</span>
             <span>{abilities[ability]}</span>

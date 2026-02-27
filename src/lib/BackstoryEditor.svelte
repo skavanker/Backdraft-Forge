@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getRandomName } from '../data/names.js';
-  import { ALIGNMENTS, getAlignmentName, getAlignmentGrid, getAllowedAlignments } from '../data/alignment.js';
+  import { ALIGNMENTS, getAlignmentName, getAlignmentGrid, getAllowedAlignmentsForClass } from '../data/alignment.js';
   import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
 
@@ -36,21 +36,10 @@
   // Get alignment grid (3x3 array of numbers)
   const alignmentGrid = getAlignmentGrid();
 
-  // Get allowed alignments based on deity or class restrictions
+  // Get allowed alignments based on class and deity restrictions
   const allowedAlignments = $derived(() => {
-    // For Paladin, only allow Lawful Good
-    if (character.classKey === 'paladin') {
-      return [ALIGNMENTS.LG];
-    }
-    // For clerics with deities, filter by deity alignment
-    if (character.deityKey && character.deityKey !== null) {
-      const deity = deities[character.deityKey];
-      if (deity && deity.alignment !== null) {
-        return getAllowedAlignments(deity.alignment);
-      }
-    }
-    // No restrictions
-    return [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    const deityAlignment = character.deityKey ? deities[character.deityKey]?.alignment : null;
+    return getAllowedAlignmentsForClass(character.classKey, deityAlignment);
   });
 
   // 2E PHB-inspired random ranges by race

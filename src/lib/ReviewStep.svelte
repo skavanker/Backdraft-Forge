@@ -5,6 +5,7 @@
   import AbilityBadge from './components/AbilityBadge.svelte';
   import { onMount } from 'svelte';
   import { isTyping } from './utils/keyboard.js';
+  import { ABILITIES } from '../data/constants.js';
 
   let { character, onContinue } = $props();
 
@@ -75,7 +76,7 @@
     <div class="review-section panel">
       <h4>Ability Scores</h4>
       <div class="ability-summary">
-        {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
+        {#each ABILITIES as ability}
           <AbilityBadge
             {ability}
             score={character.adjustedAbilities[ability]}

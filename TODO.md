@@ -24,14 +24,4 @@
 - [ ] Metric converter
 
 ### Data Completeness
-- [ ] More equipment options
 - [ ] More detailed weapon combat stats (speed factor, range, etc.)
-
-## Refactoring Backlog
-
-### Medium Priority
-- [ ] Spell Management Service — consolidate spell filtering/availability logic (~150 lines)
-- [ ] Alignment/Deity Restriction Logic — unified filtering for ClassSelector, BackstoryEditor, CharacterSheet (~30-40 lines)
-
-### Low Priority
-- [ ] Form Submission Patterns — standardize `onComplete` callback signatures (~20-30 lines)

@@ -11,6 +11,7 @@
   import { getSpellSlots, getXPForNextLevel, getAttacksPerRound, formatSpellSlots } from '../data/levelTables.js';
   import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS } from '../data/thiefSkills.js';
   import { getTurnUndeadRow, formatTurnResult } from '../data/turnUndead.js';
+  import { groupByLevel } from '../data/priestSpells.js';
 
   let { character, onImport, onSave, onCharacterUpdate, onUndo, canUndo = false, undoMessage = '', showUndoMessage = false } = $props();
 
@@ -201,19 +202,6 @@
     return weight;
   });
 
-  // Warn if share link may be too long for browsers
-  // Helper to group spells by level for display
-  function groupSpellsByLevel(spells) {
-    if (!spells) return {};
-    const groups = {};
-    for (const spell of spells) {
-      const lvl = spell.level || 1;
-      if (!groups[lvl]) groups[lvl] = [];
-      groups[lvl].push(spell);
-    }
-    return groups;
-  }
-
   function ordinalLevel(n) {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
@@ -326,7 +314,7 @@
     <div class="stat-block">
       <h3>Spells</h3>
       {#if character.spells.type === 'arcane'}
-        {@const grouped = groupSpellsByLevel(character.spells.spellbook)}
+        {@const grouped = groupByLevel(character.spells.spellbook)}
         {#each Object.entries(grouped) as [level, spells]}
           <div class="spell-level-group">
             <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
@@ -336,7 +324,7 @@
           </div>
         {/each}
       {:else if character.spells.type === 'divine'}
-        {@const grouped = groupSpellsByLevel(character.spells.prepared)}
+        {@const grouped = groupByLevel(character.spells.prepared)}
         {#each Object.entries(grouped) as [level, spells]}
           <div class="spell-level-group">
             <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
@@ -348,7 +336,7 @@
       {:else if character.spells.type === 'dual'}
         {#if character.spells.prepared?.length}
           <div class="data-row"><span><strong>Priest Spells</strong></span></div>
-          {@const grouped = groupSpellsByLevel(character.spells.prepared)}
+          {@const grouped = groupByLevel(character.spells.prepared)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
               <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
@@ -360,7 +348,7 @@
         {/if}
         {#if character.spells.spellbook?.length}
           <div class="data-row" style="margin-top: 0.5rem"><span><strong>Wizard Spells</strong></span></div>
-          {@const grouped = groupSpellsByLevel(character.spells.spellbook)}
+          {@const grouped = groupByLevel(character.spells.spellbook)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
               <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
