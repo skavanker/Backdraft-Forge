@@ -3,7 +3,7 @@
   import { deities } from '../../data/deities.js';
   import { formatSpeciesEnemy } from '../../data/speciesEnemies.js';
   import { getAlignmentName } from '../../data/alignment.js';
-  import { formatEncumbranceValue, formatWeightUnit } from '../settings.svelte.js';
+  import { formatEncumbranceValue, formatWeightUnit, formatHeight, formatWeight } from '../settings.svelte.js';
 
   let {
     character,
@@ -38,8 +38,8 @@
       <div class="info-item"><span class="label">Sex:</span> {character.sex || 'Male'}</div>
       <div class="info-item"><span class="label">Alignment:</span> {getAlignmentName(character.alignment !== undefined ? character.alignment : 4)}</div>
       {#if character.age}<div class="info-item"><span class="label">Age:</span> {character.age}</div>{/if}
-      {#if character.height}<div class="info-item"><span class="label">Height:</span> {character.height}</div>{/if}
-      {#if character.weight}<div class="info-item"><span class="label">Weight:</span> {character.weight}</div>{/if}
+      {#if character.heightInches}<div class="info-item"><span class="label">Height:</span> {formatHeight(character.heightInches)}</div>{/if}
+      {#if character.weightLbs}<div class="info-item"><span class="label">Weight:</span> {formatWeight(character.weightLbs)}</div>{/if}
       {#if character.eyes}<div class="info-item"><span class="label">Eyes:</span> {character.eyes}</div>{/if}
       {#if character.hair}<div class="info-item"><span class="label">Hair:</span> {character.hair}</div>{/if}
       {#if character.deityKey || character.deity}<div class="info-item"><span class="label">Deity:</span> {character.deityKey ? (deities[character.deityKey]?.name || character.deity) : character.deity}</div>{/if}

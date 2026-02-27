@@ -35,3 +35,8 @@ pip_burrows_character_sheet.html
 .claude/
 REFACTORING.md
 nul
+
+# Agent-generated reports
+code-review-report.md
+rules-validation-report.md
+css-design-review.md

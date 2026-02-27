@@ -56,7 +56,21 @@
     gap: $space-sm;
     margin-top: $space-sm;
     .dice-rolls { display: flex; gap: $space-sm; }
-    .die { display: inline-flex; align-items: center; justify-content: center; img { width: 20px; height: 20px; display: block; } }
+    .die {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        width: 20px;
+        height: 20px;
+        display: block;
+        // Size adjustments for d4 and d20 (appear smaller than d6)
+        &[src*="/d4-"], &[src*="/d20-"] {
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
   }
 }
 .section h3 { margin: 0 0 $space-sm; }

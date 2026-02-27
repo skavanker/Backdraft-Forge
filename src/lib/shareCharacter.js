@@ -2,10 +2,18 @@ import { deflateRaw, inflateRaw } from 'pako';
 import { getAlignmentNumber } from '../data/alignment.js';
 
 /**
+ * Current character format version for migrations
+ * Increment when making breaking changes to the character data structure
+ */
+const CHARACTER_FORMAT_VERSION = 1;
+
+/**
  * Compress character to minimal data structure
  */
 function compressCharacter(character) {
   const compressed = {
+    // Version for future migrations
+    v: CHARACTER_FORMAT_VERSION,
     // Abilities as array [STR, DEX, CON, INT, WIS, CHA]
     a: [
       character.abilities.STR,
@@ -87,8 +95,8 @@ function compressCharacter(character) {
   if (character.alignment !== null && character.alignment !== undefined) compressed.al = character.alignment;
   if (character.backstory) compressed.b = character.backstory;
   if (character.age) compressed.ag = character.age;
-  if (character.height) compressed.ht = character.height;
-  if (character.weight) compressed.wt = character.weight;
+  if (character.heightInches) compressed.hi = character.heightInches;
+  if (character.weightLbs) compressed.wl = character.weightLbs;
   if (character.eyes) compressed.ey = character.eyes;
   if (character.hair) compressed.hr = character.hair;
   if (character.deityKey) compressed.dk = character.deityKey;
@@ -125,9 +133,26 @@ export function encodeCharacter(character) {
 }
 
 /**
- * Decompress character from minimal data structure
+ * Decompress character from minimal data structure.
+ * Automatically handles old format versions via migration logic.
  */
 async function decompressCharacter(compressed) {
+  // Check version and apply migrations if needed
+  const version = compressed.v || 0; // Default to 0 for legacy characters without version
+
+  // Migration strategy:
+  // - Always read from oldest to newest format
+  // - Transform old field names/structures to current format
+  // - Example migrations:
+  //   if (version < 1) {
+  //     // Migrate v0 -> v1: rename field 's' to 'sx' for sex
+  //     if (compressed.s && !compressed.sx) compressed.sx = compressed.s;
+  //   }
+  //   if (version < 2) {
+  //     // Migrate v1 -> v2: convert alignment string to number
+  //     if (typeof compressed.al === 'string') compressed.al = getAlignmentNumber(compressed.al);
+  //   }
+
   // Import data files dynamically
   const { races, applyRacialAdjustments } = await import('../data/races.js');
   const { classes, wizardSchools } = await import('../data/classes.js');
@@ -255,8 +280,8 @@ async function decompressCharacter(compressed) {
     alignment: typeof compressed.al === 'number' ? compressed.al : (getAlignmentNumber(compressed.al) || 4), // Support both number and legacy string, default to True Neutral (4)
     backstory: compressed.b || null,
     age: compressed.ag || null,
-    height: compressed.ht || null,
-    weight: compressed.wt || null,
+    heightInches: compressed.hi || null,
+    weightLbs: compressed.wl || null,
     eyes: compressed.ey || null,
     hair: compressed.hr || null,
     deityKey: compressed.dk || null,

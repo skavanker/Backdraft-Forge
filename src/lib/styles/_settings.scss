@@ -15,6 +15,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  transform-origin: calc(100% + 1rem) calc(0% - 1rem);
   width: min(480px, 90vw);
   max-height: 85vh;
   overflow-y: auto;
@@ -222,6 +223,16 @@
   color: var(--gold-dark);
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+// Version footer
+.settings-version {
+  margin-top: $space-lg;
+  padding-top: $space-md;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  font-size: $text-sm;
+  color: var(--text-faint);
 }
 
 // Print

@@ -187,6 +187,7 @@
     {baseTHAC0}
     {meleeTHAC0}
     {missileTHAC0}
+    damageAdj={strMods.dmgAdj}
     baseAC={baseAC}
     movement={character.race.movement || 12}
     {attacksPerRound}

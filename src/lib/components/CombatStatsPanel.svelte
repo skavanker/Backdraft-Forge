@@ -6,6 +6,7 @@
     baseTHAC0,
     meleeTHAC0,
     missileTHAC0,
+    damageAdj,
     baseAC,
     movement,
     attacksPerRound,
@@ -39,7 +40,7 @@
     <div class="data-row"><span>Base THAC0</span> <span class="val">{baseTHAC0}</span></div>
     <div class="data-row"><span>Melee THAC0</span> <span class="val">{meleeTHAC0}</span></div>
     <div class="data-row"><span>Missile THAC0</span> <span class="val">{missileTHAC0}</span></div>
-    <div class="data-row"><span>Damage Adj</span> <span class="val">{formatModifier(0)}</span></div>
+    <div class="data-row"><span>Damage Adj</span> <span class="val">{formatModifier(damageAdj)}</span></div>
     <div class="data-row"><span>AC</span> <span class="val">{baseAC}</span></div>
     <div class="data-row"><span>Movement</span> <span class="val">{movement}</span></div>
     {#if isWarrior}

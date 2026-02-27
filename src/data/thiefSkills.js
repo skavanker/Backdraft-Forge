@@ -86,6 +86,11 @@ export function getBaseThiefSkills(raceKey, dex, classKey, level = 1) {
     base[skill] = Math.max(0, base[skill]);
   }
 
+  // Read Languages is only available at level 4+ for thieves (PHB p. 39)
+  if (level < 4) {
+    base.readLanguages = 0;
+  }
+
   return base;
 }
 

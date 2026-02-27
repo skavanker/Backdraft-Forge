@@ -44,20 +44,6 @@ export function getWizardSpellsByLevel(spellLevel, schoolKey = null) {
 }
 
 /**
- * Get cleric spells at a specific level (legacy — now returns sphere-unfiltered list)
- */
-export function getClericSpellsByLevel(spellLevel) {
-  return priestSpells.filter(s => s.level <= spellLevel);
-}
-
-/**
- * Get druid spells at a specific level (legacy — now returns sphere-unfiltered list)
- */
-export function getDruidSpellsByLevel(spellLevel) {
-  return priestSpells.filter(s => s.level <= spellLevel);
-}
-
-/**
  * Get spells for a class filtered by maximum spell level
  * @param {string} classKey
  * @param {number} maxSpellLevel

@@ -121,6 +121,11 @@
           </div>
         </div>
       {/if}
+
+      <!-- App version footer -->
+      <div class="settings-version">
+        Backdraft Forge v{__APP_VERSION__}
+      </div>
     </div>
   </div>
 {/if}

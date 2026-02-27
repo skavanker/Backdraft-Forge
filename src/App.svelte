@@ -24,8 +24,7 @@
     deleteSavedCharacter as deleteSave,
     saveMidCreation as persistWip,
     clearMidCreation,
-    loadMidCreation,
-    migrateOldSave
+    loadMidCreation
   } from './lib/persistence.svelte.js';
 
   const steps = [
@@ -117,9 +116,8 @@
         return;
       }
 
-      // Migrate old single-save format, then load saves
+      // Load saved characters
       savedCharacters = loadSaves();
-      savedCharacters = await migrateOldSave(savedCharacters);
 
       const wip = loadMidCreation();
       if (wip) wipPrompt = wip;

@@ -13,10 +13,15 @@
   let alignment = $state(character.alignment !== undefined ? character.alignment : ALIGNMENTS.N); // Default to True Neutral
   let backstory = $state(character.backstory || '');
   let age = $state(character.age || '');
-  let height = $state(character.height || '');
-  let weight = $state(character.weight || '');
+  // Store height/weight as raw numbers (inches/lbs) for reactive formatting
+  let heightInches = $state(character.heightInches || 0);
+  let weightLbs = $state(character.weightLbs || 0);
   let eyes = $state(character.eyes || '');
   let hair = $state(character.hair || '');
+
+  // Reactive formatted display
+  let heightDisplay = $derived(heightInches > 0 ? fmtHeight(heightInches) : '');
+  let weightDisplay = $derived(weightLbs > 0 ? fmtWeight(weightLbs) : '');
   // deity is now selected in ClassSelector (step 2) — display only here if set
   let deity = $derived(character.deityKey ? (character.deity || '') : '');
 
@@ -66,18 +71,12 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  function formatHeight(inches) {
-    return fmtHeight(inches);
-  }
-
   function randomizeDetails() {
     const r = raceDetails[character.raceKey] || raceDetails.human;
     const isFemale = sex === 'Female';
     age = String(rand(r.age[0], r.age[1]));
-    const h = rand(isFemale ? r.heightF[0] : r.heightM[0], isFemale ? r.heightF[1] : r.heightM[1]);
-    height = fmtHeight(h);
-    const w = rand(isFemale ? r.weightF[0] : r.weightF[1], isFemale ? r.weightF[1] : r.weightM[1]);
-    weight = fmtWeight(w);
+    heightInches = rand(isFemale ? r.heightF[0] : r.heightM[0], isFemale ? r.heightF[1] : r.heightM[1]);
+    weightLbs = rand(isFemale ? r.weightF[0] : r.weightM[0], isFemale ? r.weightF[1] : r.weightM[1]);
     const isElven = character.raceKey === 'elf' || character.raceKey === 'halfElf';
     eyes = pick(isElven ? elfEyeColors : eyeColors);
     hair = pick(isElven ? elfHairColors : hairColors);
@@ -85,7 +84,7 @@
 
   // Auto-randomize on mount if enabled and fields are empty
   onMount(() => {
-    if (settings.autoRandomize && !age && !height && !weight && !eyes && !hair) {
+    if (settings.autoRandomize && !age && heightInches === 0 && weightLbs === 0 && !eyes && !hair) {
       randomizeDetails();
     }
   });
@@ -97,8 +96,8 @@
       alignment,
       backstory: backstory.trim(),
       age: age.trim(),
-      height: height.trim(),
-      weight: weight.trim(),
+      heightInches: heightInches || null,
+      weightLbs: weightLbs || null,
       eyes: eyes.trim(),
       hair: hair.trim(),
       deity: deity,
@@ -196,13 +195,13 @@
       <Tooltip text={raceHints().height} position="bottom">
         <div class="detail-field">
           <label for="char-height">Height ⓘ</label>
-          <input id="char-height" type="text" bind:value={height} placeholder="—" />
+          <input id="char-height" type="text" value={heightDisplay} readonly placeholder="—" />
         </div>
       </Tooltip>
       <Tooltip text={raceHints().weight} position="bottom">
         <div class="detail-field">
           <label for="char-weight">Weight ⓘ</label>
-          <input id="char-weight" type="text" bind:value={weight} placeholder="—" />
+          <input id="char-weight" type="text" value={weightDisplay} readonly placeholder="—" />
         </div>
       </Tooltip>
       <Tooltip text={raceHints().eyes} position="bottom">

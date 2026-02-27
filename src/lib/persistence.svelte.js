@@ -5,7 +5,6 @@
 import { encodeCharacter, decodeCharacter } from './shareCharacter.js';
 
 const SAVES_KEY = 'backdraft-forge-saves';
-const OLD_SAVE_KEY = 'backdraft-forge-character';
 const WIP_KEY = 'backdraft-forge-wip';
 
 /**
@@ -44,6 +43,7 @@ export function saveToLocalStorage(character, savedCharacters) {
       cls: character.kit?.name || character.wizardSchool?.name || character.cls?.name || '?',
       level: character.level || 1,
       code: encoded,
+      appVersion: __APP_VERSION__, // Track which version saved this character
     };
     const idx = savedCharacters.findIndex(s =>
       s.name === entry.name && s.race === entry.race && s.cls === entry.cls
@@ -120,31 +120,3 @@ export function loadMidCreation() {
   return null;
 }
 
-/**
- * Migrate old single-save format to multi-save.
- * @param {Array} existingSaves
- * @returns {Promise<Array>} updated saves list
- */
-export async function migrateOldSave(existingSaves) {
-  try {
-    const oldSave = localStorage.getItem(OLD_SAVE_KEY);
-    if (oldSave) {
-      const restored = await decodeCharacter(oldSave);
-      if (restored) {
-        const encoded = encodeCharacter(restored);
-        const entry = {
-          id: Date.now(),
-          name: restored.name || 'Unnamed Hero',
-          race: restored.race?.name || '?',
-          cls: restored.wizardSchool?.name || restored.cls?.name || '?',
-          level: restored.level || 1,
-          code: encoded,
-        };
-        existingSaves = [entry, ...existingSaves];
-        persistSavesList(existingSaves);
-      }
-      localStorage.removeItem(OLD_SAVE_KEY);
-    }
-  } catch (e) { /* ignore */ }
-  return existingSaves;
-}
