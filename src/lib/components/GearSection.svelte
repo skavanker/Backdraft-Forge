@@ -29,6 +29,7 @@
         class:disabled={!affordable && !selected}
         onclick={(e) => addGear(item, e.shiftKey ? 5 : 1)}
         oncontextmenu={(e) => { e.preventDefault(); removeGear(item, e.shiftKey ? 5 : 1); }}
+        onkeydown={(e) => { if (e.key === 'Backspace' && selected) { e.preventDefault(); removeGear(item, e.shiftKey ? 5 : 1); } }}
       >
         <span class="item-name">{item.name}</span>
         <span class="item-price">{formatPrice(item.price)}</span>

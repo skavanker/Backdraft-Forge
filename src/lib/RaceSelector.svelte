@@ -3,6 +3,8 @@
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
+  import { isTyping } from './utils/keyboard.js';
+
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
 
@@ -31,6 +33,20 @@
       adjustedAbilities
     });
   }
+
+  function handleKeydown(e) {
+    if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (e.key === 'Enter' && selectedRace) {
+      e.preventDefault();
+      confirm();
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  });
 </script>
 
 <div class="flex-column gap-lg">

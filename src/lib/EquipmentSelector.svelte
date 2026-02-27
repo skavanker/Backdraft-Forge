@@ -25,6 +25,7 @@
   let goldRolled = $state(false);
   let goldDice = $state([]);
   let goldDiceFormula = $state('');
+  let goldDieSize = $state(6);
   let manualGoldInput = $state('');
 
   function resetGold() {
@@ -32,6 +33,7 @@
     goldRolled = false;
     goldDice = [];
     goldDiceFormula = '';
+    goldDieSize = 6;
     selectedArmor = null;
     selectedShield = null;
     selectedWeapons = [];
@@ -70,7 +72,7 @@
     for (const g of selectedGear) {
       for (let i = 0; i < (g.qty || 1); i++) items.push(g);
     }
-    return calculateTotalWeight(items);
+    return Math.round(calculateTotalWeight(items) * 10) / 10;
   });
   let isEncumbered = $derived(totalWeight() > weightAllowance);
 
@@ -79,6 +81,7 @@
     gold = result.gold;
     goldDice = result.dice;
     goldDiceFormula = result.diceFormula;
+    goldDieSize = result.dieSize || 6;
     goldRolled = true;
   }
 
@@ -194,7 +197,8 @@
       gear: selectedGear,
       totalWeight: totalWeight(),
       goldDice,
-      goldDiceFormula
+      goldDiceFormula,
+      goldDieSize
     });
   }
 
@@ -205,6 +209,7 @@
       goldRolled = true;
       goldDice = existingEquipment.goldDice || [];
       goldDiceFormula = existingEquipment.goldDiceFormula || '';
+      goldDieSize = existingEquipment.goldDieSize || 6;
 
       // Check if armor is still allowed, otherwise clear and refund
       if (existingEquipment.armor) {
@@ -293,7 +298,7 @@
               <div class="dice-rolls">
                 {#each goldDice as die}
                   <span class="die">
-                    <img src="/dice/dice0{die}.svg" alt="{die}" />
+                    <img src="/dice/d{goldDieSize}-{die}.svg" alt="{die}" />
                   </span>
                 {/each}
               </div>
@@ -328,6 +333,7 @@
                   {selected}
                   disabled={!affordable}
                   onclick={() => selectArmor(armor)}
+                  oncontextmenu={selected ? () => selectArmor(armor) : null}
                 >
                   {#snippet children()}
                     <span class="item-name">{armor.name}</span>
@@ -358,6 +364,7 @@
                   {selected}
                   disabled={!affordable}
                   onclick={() => selectShield(shield)}
+                  oncontextmenu={selected ? () => selectShield(shield) : null}
                 >
                   {#snippet children()}
                     <span class="item-name">{shield.name}</span>
@@ -385,6 +392,7 @@
                 selected={!!selected}
                 disabled={!affordable}
                 onclick={() => toggleWeapon(weapon)}
+                oncontextmenu={selected ? () => toggleWeapon(weapon) : null}
               >
                 {#snippet children()}
                   <span class="item-name">{weapon.name}</span>
@@ -483,6 +491,7 @@
                 class="item-card small selected"
                 onclick={() => addGear(item)}
                 oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
+                onkeydown={(e) => { if (e.key === 'Backspace') { e.preventDefault(); removeGear(item); } }}
               >
                 <span class="item-name">{item.name}</span>
                 <span class="item-price">{item.price?.gp || 0} gp</span>

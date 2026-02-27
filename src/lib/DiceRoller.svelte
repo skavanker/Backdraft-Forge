@@ -1,7 +1,8 @@
 <script>
   import { rollAbilityDice, calculate3d6, calculate4d6DropLowest, rollExceptionalStrength } from './dice.js';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import ImportArea from './ImportArea.svelte';
+  import { isTyping } from './utils/keyboard.js';
 
   const ABILITIES = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
   const MAX_REROLLS = 2;
@@ -80,6 +81,37 @@
       exceptionalStr = existingRollData.exceptionalStr;
       rerollsUsed = existingRollData.rerollsUsed || 0;
     }
+  });
+
+  function handleKeydown(e) {
+    if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
+
+    // Space or Enter — context-sensitive roll/continue
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      if (!rawDice) {
+        rollScores();
+      } else if (needsExceptionalRoll) {
+        rollExceptional();
+      } else if (allAssigned && !needsExceptionalRoll) {
+        complete();
+      }
+      return;
+    }
+
+    // 1-6 — quick-assign selected roll to ability
+    const num = parseInt(e.key);
+    if (num >= 1 && num <= 6 && rawDice && selectedRollIndex !== null) {
+      const ability = ABILITIES[num - 1];
+      if (assignments[ability] === null) {
+        assignToAbility(ability);
+      }
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
   });
 
   function complete() {

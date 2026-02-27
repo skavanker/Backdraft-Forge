@@ -6,6 +6,7 @@
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
+  import { isTyping } from './utils/keyboard.js';
 
   let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, onComplete } = $props();
 
@@ -82,6 +83,20 @@
 
     onComplete(result);
   }
+
+  function handleKeydown(e) {
+    if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (e.key === 'Enter' && canConfirm) {
+      e.preventDefault();
+      confirm();
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  });
 
   // Group classes by type
   let groupedClasses = $derived(() => {

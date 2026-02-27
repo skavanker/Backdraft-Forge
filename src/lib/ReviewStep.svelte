@@ -3,6 +3,8 @@
   import { getConstitutionModifiers } from '../data/mechanics.js';
   import { applyRacialAdjustments } from '../data/races.js';
   import AbilityBadge from './components/AbilityBadge.svelte';
+  import { onMount } from 'svelte';
+  import { isTyping } from './utils/keyboard.js';
 
   let { character, onContinue } = $props();
 
@@ -40,6 +42,19 @@
 
   // Run on mount
   initHPHistory();
+
+  function handleKeydown(e) {
+    if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onContinue();
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  });
 </script>
 
 <div class="flex-column gap-lg" style="align-items:center">

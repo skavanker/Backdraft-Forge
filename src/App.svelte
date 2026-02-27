@@ -13,6 +13,7 @@
   import { initTheme, toggleTheme } from './lib/theme.js';
   import { getCharacterFromUrl, encodeCharacter, decodeCharacter } from './lib/shareCharacter.js';
   import { isSpellcaster } from './data/spells.js';
+  import { isTyping } from './lib/utils/keyboard.js';
 
   const steps = [
     'Abilities',
@@ -70,6 +71,7 @@
 
   const SAVES_KEY = 'backdraft-forge-saves';
   const OLD_SAVE_KEY = 'backdraft-forge-character';
+  const WIP_KEY = 'backdraft-forge-wip';
 
   let savedCharacters = $state([]);
 
@@ -166,15 +168,51 @@
       } catch (e) { /* ignore */ }
 
       loadSavesList();
+      loadMidCreation();
     })();
 
-    // Ctrl+Z undo on character sheet
     function handleKeydown(e) {
+      // Ctrl+S — save progress
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveMidCreation();
+        return;
+      }
+
+      // Ctrl+Z — undo on character sheet
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         if (currentStep === 8 && undoStack.length > 0) {
           e.preventDefault();
           undo();
         }
+        return;
+      }
+
+      // Escape — close reset popup or go back a step
+      if (e.key === 'Escape') {
+        if (showResetConfirm) {
+          showResetConfirm = false;
+        } else if (currentStep > 0 && currentStep < 8) {
+          goToStep(currentStep - 1);
+        }
+        return;
+      }
+
+      // Arrow keys — move focus like Tab/Shift+Tab
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' ||
+          e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        if (isTyping()) return;
+        const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
+        const focusable = [...document.querySelectorAll(
+          '.content button:not(:disabled), .content input:not(:disabled), .content select:not(:disabled), .content textarea:not(:disabled), .content [tabindex]:not([tabindex="-1"])'
+        )];
+        if (focusable.length === 0) return;
+        const idx = focusable.indexOf(document.activeElement);
+        const next = forward
+          ? (idx + 1) % focusable.length
+          : (idx - 1 + focusable.length) % focusable.length;
+        e.preventDefault();
+        focusable[next].focus();
       }
     }
     window.addEventListener('keydown', handleKeydown);
@@ -192,7 +230,7 @@
     4: { fields: ['proficiencies'], next: 5 },
     5: { fields: ['equipment'], get next() { return isSpellcaster(character.classKey) ? 6 : 7; }, after() { if (!isSpellcaster(character.classKey)) character.spells = []; } },
     6: { fields: ['spells'], next: 7 },
-    7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: 8, after: saveToLocalStorage },
+    7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: 8, after() { saveToLocalStorage(); clearMidCreation(); } },
   };
 
   function completeStep(step, data) {
@@ -285,11 +323,62 @@
   }
 
   let showResetConfirm = $state(false);
+  let saveMessage = $state('');
+  let showSaveMessage = $state(false);
+  let wipPrompt = $state(null);
+
+  function flashSave(msg = 'Progress saved') {
+    saveMessage = msg;
+    showSaveMessage = true;
+    setTimeout(() => showSaveMessage = false, 1500);
+  }
+
+  function saveMidCreation() {
+    if (currentStep === 8) {
+      saveToLocalStorage();
+      flashSave('Character saved');
+      return;
+    }
+    try {
+      const payload = { character: JSON.parse(JSON.stringify(character)), currentStep };
+      localStorage.setItem(WIP_KEY, JSON.stringify(payload));
+      flashSave();
+    } catch { /* silently fail */ }
+  }
+
+  function clearMidCreation() {
+    localStorage.removeItem(WIP_KEY);
+  }
+
+  function loadMidCreation() {
+    try {
+      const raw = localStorage.getItem(WIP_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data?.character && typeof data.currentStep === 'number') {
+        wipPrompt = data;
+      }
+    } catch { /* ignore */ }
+  }
+
+  function resumeWip() {
+    if (!wipPrompt) return;
+    Object.assign(character, wipPrompt.character);
+    currentStep = wipPrompt.currentStep;
+    wipPrompt = null;
+    clearMidCreation();
+  }
+
+  function discardWip() {
+    wipPrompt = null;
+    clearMidCreation();
+  }
 
   function resetAll() {
     character = makeEmptyCharacter();
     currentStep = 0;
     showResetConfirm = false;
+    clearMidCreation();
   }
 
 
@@ -344,6 +433,16 @@
   </nav>
 
   <section class="content card">
+    {#if wipPrompt && currentStep === 0}
+      <div class="wip-prompt alert alert-info">
+        <span>Unfinished character found — {wipPrompt.character.race?.name || '?'} {wipPrompt.character.kit?.name || wipPrompt.character.wizardSchool?.name || wipPrompt.character.cls?.name || '?'} (Step {wipPrompt.currentStep + 1}: {steps[wipPrompt.currentStep]})</span>
+        <div class="wip-actions">
+          <button class="btn-primary btn-sm" onclick={resumeWip}>Resume</button>
+          <button class="btn-ghost btn-sm" onclick={discardWip}>Discard</button>
+        </div>
+      </div>
+    {/if}
+
     {#if savedCharacters.length > 0 && currentStep === 0}
       <div class="saved-characters">
         <h3>Saved Characters</h3>
@@ -453,6 +552,10 @@
     {/if}
   </section>
 </main>
+
+{#if showSaveMessage}
+  <div class="save-toast">{saveMessage}</div>
+{/if}
 
 <style lang="scss">
   main {
@@ -659,6 +762,34 @@
 
   .content {
     min-height: 400px;
+  }
+
+  .wip-prompt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .wip-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  :global(.save-toast) {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--gold);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    z-index: 1000;
+    animation: fade-in 0.15s ease-out;
   }
 
   /* Print Styles */

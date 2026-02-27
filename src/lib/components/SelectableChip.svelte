@@ -12,12 +12,27 @@
     metadata = null,
     cost = null,
     onclick = null,
+    oncontextmenu = null,
     children
   } = $props();
 
   function handleClick() {
     if (!disabled && !locked && !auto && onclick) {
       onclick();
+    }
+  }
+
+  function handleContext(e) {
+    if (oncontextmenu && !disabled && !locked && !auto) {
+      e.preventDefault();
+      oncontextmenu();
+    }
+  }
+
+  function handleKeydown(e) {
+    if (e.key === 'Backspace' && selected && oncontextmenu && !disabled && !locked && !auto) {
+      e.preventDefault();
+      oncontextmenu();
     }
   }
 </script>
@@ -29,6 +44,8 @@
   class:locked
   class:auto
   onclick={handleClick}
+  oncontextmenu={handleContext}
+  onkeydown={handleKeydown}
 >
   {#if children}
     {@render children()}
