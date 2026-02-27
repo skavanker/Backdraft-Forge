@@ -14,10 +14,10 @@
       }
     </style>
   </defs>
-  <rect class="st1" x="2.13" y="2.13" width="24.09" height="24.09" rx="3.67" ry="3.67"/>
-  <circle class="st0" cx="14.17" cy="14.17" r="2.83"/>
+  <rect class="st1" x="2.12" y="2.13" width="24.09" height="24.09" rx="3.67" ry="3.67"/>
+  <circle class="st0" cx="14.16" cy="14.17" r="2.83"/>
   <g>
-    <circle class="st0" cx="7.9" cy="20.52" r="2.83"/>
-    <circle class="st0" cx="20.44" cy="7.82" r="2.83"/>
+    <circle class="st0" cx="7.89" cy="20.52" r="2.83"/>
+    <circle class="st0" cx="20.43" cy="7.82" r="2.83"/>
   </g>
 </svg>

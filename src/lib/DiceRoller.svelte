@@ -203,18 +203,18 @@
             {#if method === '3d6'}
               {#each rawDice[i].slice(0, 3) as die}
                 <span class="die">
-                  <img src="/dice/dice0{die}.svg" alt="{die}" />
+                  <img src="/dice/d6-{die}.svg" alt="{die}" />
                 </span>
               {/each}
               <span class="die unused">
-                <img src="/dice/dice0{rawDice[i][3]}.svg" alt="{rawDice[i][3]}" />
+                <img src="/dice/d6-{rawDice[i][3]}.svg" alt="{rawDice[i][3]}" />
               </span>
             {:else}
               {@const sorted = [...rawDice[i]].sort((a, b) => a - b)}
               {@const droppedIdx = sorted.indexOf(score.dropped)}
               {#each sorted as die, j}
                 <span class="die" class:dropped={j === droppedIdx}>
-                  <img src="/dice/dice0{die}.svg" alt="{die}" />
+                  <img src="/dice/d6-{die}.svg" alt="{die}" />
                 </span>
               {/each}
             {/if}
