@@ -210,7 +210,7 @@
     </div>
 
     {#if step === STEP_SUMMARY}
-      <div class="wizard-step">
+      <div class="levelup-step">
         <h3>{character.name} has reached Level {newLevel}!</h3>
         <div class="summary-grid">
           <div class="summary-item">
@@ -274,7 +274,7 @@
       </div>
 
     {:else if step === STEP_HP}
-      <div class="wizard-step">
+      <div class="levelup-step">
         {#if isPastNameLevel(classKey, newLevel)}
           <h3>Hit Points</h3>
           <p class="meta-text">Past name level — you gain a fixed +{getPostNameHP(classKey)} HP (no CON bonus).</p>
@@ -325,7 +325,7 @@
       </div>
 
     {:else if step === STEP_THIEF_SKILLS}
-      <div class="wizard-step">
+      <div class="levelup-step">
         <h3>Distribute Thief Skill Points</h3>
         <p class="meta-text">You have <strong>{thiefPointsRemaining}</strong> of {THIEF_POINTS_PER_LEVEL} points to distribute.</p>
 
@@ -363,7 +363,7 @@
       </div>
 
     {:else if step === STEP_SPELLS}
-      <div class="wizard-step">
+      <div class="levelup-step">
         <h3>{becomesCaster ? 'Spellcasting Gained!' : 'New Spell Slots'}</h3>
         {#if becomesCaster}
           <p class="meta-text">
@@ -402,7 +402,7 @@
       </div>
 
     {:else if step === STEP_PROFICIENCIES}
-      <div class="wizard-step">
+      <div class="levelup-step">
         <h3>New Proficiency Slots</h3>
         <div class="prof-gains">
           {#if gainsWeaponProf}
@@ -421,7 +421,7 @@
       </div>
 
     {:else if step === STEP_FEATURES}
-      <div class="wizard-step">
+      <div class="levelup-step">
         <h3>Updated Stats & Features</h3>
 
         <div class="features-list">
@@ -466,7 +466,7 @@
       </div>
 
     {:else if step === STEP_CONFIRM}
-      <div class="wizard-step">
+      <div class="levelup-step">
         <h3>Confirm Level Up</h3>
         <div class="confirm-summary">
           <div class="confirm-row"><span>New Level</span> <span>{newLevel}</span></div>
@@ -500,7 +500,7 @@
 
 
 <style lang="scss">
-  @import './LevelUpWizard.module.scss';
+  @import './components.module.scss';
 
 </style>
 

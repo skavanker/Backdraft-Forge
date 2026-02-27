@@ -91,10 +91,11 @@
   - Layout: ActionMenu, CharacterSheetHeader, BasicInfoPanel, AbilitiesPanel, CombatStatsPanel, EquipmentPanel
   - Utilities: useToggle, useEditMode, useSelection, useAbilityModifiers
 
-**CSS Modules Created:** 13 (all component styles externalized)
-  - CharacterSheet, LevelUpWizard, ClassSelector, EquipmentSelector, DiceRoller
-  - BackstoryEditor, SpellSelector, RaceSelector, ProficiencySelector, ManualEntry
-  - ReviewStep, CharacterSummary, SelectionPreview
+**CSS Organization:** Single consolidated stylesheet
+  - `components.module.scss` (2406 lines, deduplicated) - All component styles in one place
+  - Removed 238 lines of duplicate CSS class definitions
+  - Standardized to design tokens (font sizes, spacing, border radius)
+  - All components import the same stylesheet for consistency
 
 **Files Refactored:** 20 major files
 **CSS Extraction:** 100% complete - all .svelte files use CSS modules

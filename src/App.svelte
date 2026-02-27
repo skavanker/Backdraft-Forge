@@ -552,12 +552,12 @@
   .btn-danger {
     background: var(--red);
     color: white;
-    border: 1px solid var(--red-dark);
+    border: 1px solid var(--red);
     border-radius: 4px;
     cursor: pointer;
 
     &:hover {
-      background: var(--red-dark);
+      filter: brightness(0.9);
     }
   }
 

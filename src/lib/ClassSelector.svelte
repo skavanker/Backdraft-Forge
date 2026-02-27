@@ -98,7 +98,7 @@
   });
 </script>
 
-<div class="class-selector">
+<div class="wizard-step">
   <p class="intro">
     As a <strong>{race.name}</strong>, you qualify for <strong>{qualifiedCount}</strong> of {classOptions.length} classes.
   </p>
@@ -106,26 +106,26 @@
   {#each Object.entries(groupedClasses()) as [groupKey, group]}
     {#if group.classes.length > 0}
       <div class="class-group">
-        <h3 class="group-title">{group.name}</h3>
-        <div class="class-grid">
+        <h3 class="section-title">{group.name}</h3>
+        <div class="selection-grid">
           {#each group.classes as { key, cls, qualified, failedReqs, levelLimit, xpBonus }}
             {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : ''}
             <Tooltip text={tooltipText} position="bottom">
               <button
-                class="class-card"
+                class="selection-card"
                 class:selected={selectedClassKey === key}
                 class:disabled={!qualified}
                 onclick={() => qualified && selectClass(key)}
                 disabled={!qualified}
               >
-                <div class="class-header">
-                  <h4 class="class-name">{cls.name}</h4>
+                <div class="card-header">
+                  <h4 class="card-name">{cls.name}</h4>
                   <span class="hit-die">{cls.hitDie}</span>
                 </div>
-                <p class="class-desc">{cls.description}</p>
+                <p class="card-desc">{cls.description}</p>
 
                 {#if qualified}
-                  <div class="class-meta">
+                  <div class="card-meta">
                     {#if xpBonus > 0}
                       <span class="xp-bonus">+{xpBonus}% XP</span>
                     {/if}
@@ -152,19 +152,19 @@
         <p class="section-hint">Specialist wizards gain bonus spells but cannot cast from opposition schools.</p>
       </div>
 
-      <div class="option-grid">
+      <div class="selection-grid">
         {#each availableSchools as school}
           {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
           <Tooltip text={tooltipText} position="bottom">
             <button
-              class="option-card"
+              class="selection-card"
               class:selected={selectedSchool?.key === school.key}
               class:disabled={!school.qualified}
               onclick={() => school.qualified && (selectedSchool = { key: school.key, ...school })}
               disabled={!school.qualified}
             >
-              <span class="option-name">{school.name}</span>
-              <span class="option-desc">{school.school}</span>
+              <span class="card-name">{school.name}</span>
+              <span class="card-desc">{school.school}</span>
               {#if !school.qualified}
                 <span class="unavailable-badge">Unavailable</span>
               {/if}
@@ -183,15 +183,15 @@
         <p class="section-hint">Kits modify your class with special abilities and restrictions. You can play without a kit.</p>
       </div>
 
-      <div class="option-grid">
+      <div class="selection-grid">
         <Tooltip text="Play as a standard {selectedClass.cls.name} without kit modifications" position="bottom">
           <button
-            class="option-card skip-kit"
+            class="selection-card skip-kit"
             class:selected={selectedKit === null}
             onclick={() => selectedKit = null}
           >
-            <span class="option-name">Skip Kit</span>
-            <span class="option-desc">Play Vanilla {selectedClass.cls.name}</span>
+            <span class="card-name">Skip Kit</span>
+            <span class="card-desc">Play Vanilla {selectedClass.cls.name}</span>
           </button>
         </Tooltip>
 
@@ -201,14 +201,14 @@
             : `${kit.description}\n\nAbilities: ${kit.specialAbilities.join(' • ')}`}
           <Tooltip text={tooltipText} position="bottom">
             <button
-              class="option-card"
+              class="selection-card"
               class:selected={selectedKit?.key === kit.key}
               class:disabled={!kit.qualified}
               onclick={() => kit.qualified && (selectedKit = kit)}
               disabled={!kit.qualified}
             >
-              <span class="option-name">{kit.name}</span>
-              <span class="option-desc">{kit.description}</span>
+              <span class="card-name">{kit.name}</span>
+              <span class="card-desc">{kit.description}</span>
               {#if !kit.qualified}
                 <span class="unavailable-badge">Unavailable</span>
               {/if}
@@ -251,24 +251,24 @@
       <div class="option-grid deity-grid">
         <Tooltip text="Standard cleric with access to all common spell spheres" position="bottom">
           <button
-            class="option-card deity-card skip-deity"
+            class="selection-card deity-card skip-deity"
             class:selected={selectedDeityKey === null}
             onclick={() => selectedDeityKey = null}
           >
-            <span class="option-name">Skip Deity</span>
-            <span class="option-desc">Standard Cleric</span>
+            <span class="card-name">Skip Deity</span>
+            <span class="card-desc">Standard Cleric</span>
           </button>
         </Tooltip>
 
         {#each deityList as deity}
           <Tooltip text={deity.description} position="bottom">
             <button
-              class="option-card deity-card"
+              class="selection-card deity-card"
               class:selected={selectedDeityKey === deity.key}
               onclick={() => selectedDeityKey = deity.key}
             >
-              <span class="option-name">{deity.name}</span>
-              <span class="option-desc">{getAlignmentName(deity.alignment)}</span>
+              <span class="card-name">{deity.name}</span>
+              <span class="card-desc">{getAlignmentName(deity.alignment)}</span>
             </button>
           </Tooltip>
         {/each}
@@ -328,7 +328,7 @@
 
 
 <style lang="scss">
-  @import './ClassSelector.module.scss';
+  @import './components.module.scss';
 
 </style>
 

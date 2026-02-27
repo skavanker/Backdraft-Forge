@@ -249,7 +249,7 @@
 
 
 <style lang="scss">
-  @import './BackstoryEditor.module.scss';
+  @import './components.module.scss';
 
 </style>
 

@@ -33,27 +33,27 @@
   }
 </script>
 
-<div class="race-selector">
+<div class="wizard-step">
   <p class="intro">
     Based on your ability scores, you qualify for <strong>{qualifiedCount}</strong> of {raceOptions.length} races.
   </p>
 
-  <div class="race-grid">
+  <div class="selection-grid">
     {#each raceOptions as { key, race, qualified, failedReqs }}
       {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : ''}
       <Tooltip text={tooltipText} position="bottom">
         <button
-          class="race-card"
+          class="selection-card"
           class:selected={selectedRaceKey === key}
           class:disabled={!qualified}
           onclick={() => qualified && selectRace(key)}
           disabled={!qualified}
         >
-          <h3 class="race-name">{race.name}</h3>
-          <p class="race-desc">{race.description}</p>
+          <h3 class="card-name">{race.name}</h3>
+          <p class="card-desc">{race.description}</p>
 
           {#if Object.keys(race.adjustments).length > 0}
-            <div class="adjustments">
+            <div class="card-meta">
               {#each Object.entries(race.adjustments) as [ability, mod]}
                 <span class="adjustment" class:positive={mod > 0} class:negative={mod < 0}>
                   {mod > 0 ? '+' : ''}{mod} {ability}
@@ -122,7 +122,7 @@
 
 
 <style lang="scss">
-  @import './RaceSelector.module.scss';
+  @import './components.module.scss';
 
 </style>
 

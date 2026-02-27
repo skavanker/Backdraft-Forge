@@ -162,7 +162,7 @@
 
 
 <style lang="scss">
-  @import './ManualEntry.module.scss';
+  @import './components.module.scss';
 
 </style>
 

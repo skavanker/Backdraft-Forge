@@ -235,7 +235,7 @@
   });
 </script>
 
-<div class="proficiency-selector">
+<div class="wizard-step">
   <div class="slot-summary">
     <SlotCounter label="Weapon Proficiencies" used={weaponSlotsUsed} total={weaponSlots} />
     <SlotCounter label="Non-Weapon Proficiencies" used={nonWeaponSlotsUsed} total={nonWeaponSlots} />
@@ -409,7 +409,7 @@
 
 
 <style lang="scss">
-  @import './ProficiencySelector.module.scss';
+  @import './components.module.scss';
 
 </style>
 

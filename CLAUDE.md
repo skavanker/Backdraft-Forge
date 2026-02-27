@@ -53,11 +53,15 @@ npm run preview  # preview production build
 ## Code Organization
 
 ### CSS/SCSS Structure
-- **All component styles MUST be in separate `.module.scss` files**
+- **All component styles are in ONE file: `src/lib/components.module.scss`**
 - Never inline CSS in `<style>` blocks within `.svelte` files
-- Each component should have its own module file (e.g., `CharacterSheet.svelte` → `CharacterSheet.module.scss`)
-- Import modules using: `<style lang="scss">@import './ComponentName.module.scss';</style>`
+- All components import the same stylesheet: `<style lang="scss">@import './components.module.scss';</style>`
+- Design tokens (spacing, font sizes, border radius) are defined in `src/styles/mixins.scss`:
+  - Spacing: `$space-xs` through `$space-2xl`
+  - Font sizes: `$text-xs` through `$text-xl`
+  - Border radius: `$radius-sm`, `$radius`, `$radius-md`, `$radius-lg`
 - Shared utilities and mixins live in `src/styles/_utilities.scss` and `src/styles/mixins.scss`
+- **Simplification over design variation**: Use existing classes/tokens rather than creating slight variations
 
 ### Component Extraction
 - Keep components focused and single-purpose

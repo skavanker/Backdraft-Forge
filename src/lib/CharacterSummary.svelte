@@ -46,7 +46,7 @@
 
 
 <style lang="scss">
-  @import './CharacterSummary.module.scss';
+  @import './components.module.scss';
 
 </style>
 

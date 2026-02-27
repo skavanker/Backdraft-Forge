@@ -66,7 +66,7 @@
     z-index: 1000;
     padding: $space-sm $space-md;
     background: var(--text-primary);
-    color: var(--bg-base);
+    color: var(--bg-gradient-start);
     border-radius: 4px;
     min-width: 300px;
     max-width: 400px;

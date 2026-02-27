@@ -301,7 +301,7 @@
   }
 </script>
 
-<div class="spell-selector" class:manage-mode={mode === 'manage'}>
+<div class="wizard-step" class:manage-mode={mode === 'manage'}>
   {#if mode === 'manage'}
     <!-- ═══ MANAGE MODE ═══════════════════════════════════ -->
     {#if usesArcane && classKey !== 'ranger'}
@@ -615,7 +615,7 @@
 
 
 <style lang="scss">
-  @import './SpellSelector.module.scss';
+  @import './components.module.scss';
 
 </style>
 

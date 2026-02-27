@@ -26,7 +26,7 @@
 }
 
 .text-hover {
-  color: var(--text-hover);
+  color: var(--text-secondary);
 }
 
 // ─── State Classes ──────────────────────────────────────────────────────────
@@ -124,6 +124,10 @@
   letter-spacing: 0.05em;
 }
 
+.font-display {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+}
+
 // ─── Common Patterns ────────────────────────────────────────────────────────
 
 .section-hint {
@@ -137,12 +141,74 @@
   font-weight: 600;
 }
 
-// ─── Border/Divider Utilities ───────────────────────────────────────────────
+// Small badge/chip pattern (used for hit-die, level-limit, etc)
+.badge-small {
+  padding: $space-xs $space-sm;
+  background: var(--bg-panel);
+  border-radius: $radius-sm;
+  font-size: $text-sm;
+}
+
+// ─── Border Utilities ───────────────────────────────────────────────────────
+
+.border-default {
+  border: 1px solid var(--border-color);
+}
+
+.border-strong {
+  border: 1px solid var(--border-strong);
+}
+
+.border-accent {
+  border: 2px solid var(--gold);
+}
+
+.border-dashed {
+  border: 2px dashed var(--border-color);
+}
+
+.rounded {
+  border-radius: $radius;
+}
+
+.rounded-sm {
+  border-radius: $radius-sm;
+}
+
+.rounded-md {
+  border-radius: $radius-md;
+}
+
+.rounded-lg {
+  border-radius: $radius-lg;
+}
+
+.rounded-full {
+  border-radius: 50%;
+}
+
+// ─── Shadow Utilities (simplified to 1 standard)────────────────────────────
+
+.shadow {
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+.shadow-none {
+  box-shadow: none;
+}
+
+// ─── Transition Utilities (simplified to 1 standard) ───────────────────────
+
+.transition {
+  transition: all 0.2s ease;
+}
+
+// ─── Divider Utilities ──────────────────────────────────────────────────────
 
 .divider-ornamental {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: $space-md;
 
   &::before, &::after {
     content: '';

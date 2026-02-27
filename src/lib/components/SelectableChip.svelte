@@ -59,7 +59,7 @@
     text-align: left;
 
     &:hover:not(.disabled):not(.auto):not(.locked) {
-      color: var(--text-hover);
+      color: var(--text-secondary);
     }
 
     &.auto {

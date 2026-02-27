@@ -245,7 +245,7 @@
 
 
 <style lang="scss">
-  @import './DiceRoller.module.scss';
+  @import './components.module.scss';
 
 </style>
 

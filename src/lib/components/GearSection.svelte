@@ -61,7 +61,7 @@
 
     &:hover:not(.disabled) {
       .item-name {
-        color: var(--text-hover);
+        color: var(--text-secondary);
       }
     }
   }

@@ -1,28 +1,89 @@
-// Spacing variables
-$space-xs: 0.25rem;
-$space-sm: 0.5rem;
-$space-md: 1rem;
-$space-lg: 1.5rem;
-$space-xl: 2rem;
-$space-2xl: 3rem;
+// Font families
+$font-display: 'Cinzel', 'Times New Roman', serif;
+$font-body: 'Crimson Text', 'Georgia', serif;
 
-// Font sizes
-$text-xs: 0.75rem;
-$text-sm: 0.875rem;
-$text-base: 1rem;
-$text-lg: 1.125rem;
-$text-xl: 1.25rem;
+// ═══════════════════════════════════════════════════════════════
+// ULTRA-MINIMAL DESIGN SYSTEM
+// Philosophy: Simplicity > Slight design variations
+// ═══════════════════════════════════════════════════════════════
+
+// SPACING: 3 levels (was 6)
+$space-sm: 0.5rem;   // Tight
+$space-md: 1rem;     // Normal
+$space-lg: 1.5rem;   // Loose
+
+// Legacy mappings
+$space-xs: $space-sm;
+$space-xl: $space-lg;
+$space-2xl: $space-lg;
+
+// FONT SIZES: 3 levels (was 5)
+$text-sm: 0.875rem;  // Small
+$text-base: 1rem;    // Normal
+$text-lg: 1.25rem;   // Large
+
+// Legacy mappings
+$text-xs: $text-sm;
+$text-xl: $text-lg;
+
+// BORDER RADIUS: 1 value (was 7)
+$radius: 4px;
+
+// Legacy mappings
+$radius-sm: $radius;
+$radius-md: $radius;
+$radius-lg: $radius;
+
+// ═══════════════════════════════════════════════════════════════
+// COMMON PATTERN MIXINS - Reduce duplication
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// STANDARD PATTERNS - Use these everywhere
+// ═══════════════════════════════════════════════════════════════
+
+@mixin border-default {
+  border: 1px solid var(--border-color);
+}
+
+@mixin rounded {
+  border-radius: $radius;
+}
+
+@mixin shadow {
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+@mixin transition {
+  transition: all 0.2s ease;
+}
+
+// Common combinations
+@mixin panel {
+  @include border-default;
+  @include rounded;
+  padding: $space-md;
+  background: var(--bg-panel);
+}
+
+@mixin card {
+  @include border-default;
+  @include rounded;
+  @include shadow;
+  padding: $space-md;
+  background: var(--bg-card);
+}
 
 @mixin selectable-card($border-width: 2px, $lift: -2px) {
   background: var(--bg-input);
   border: $border-width solid var(--border-color);
-  border-radius: 4px;
+  border-radius: $radius;
   cursor: pointer;
   transition: all 0.2s ease-out 0.1s;
 
   &:hover:not(.disabled):not(:disabled) {
     border-color: var(--border-strong);
-    background: var(--bg-hover);
+    background: var(--bg-input);
     @if $lift != 0 {
       transform: translateY($lift);
       box-shadow: 0 4px 12px var(--shadow-color);
@@ -48,8 +109,21 @@ $text-xl: 1.25rem;
 @mixin selectable-chip {
   @include selectable-card($border-width: 1px, $lift: 0);
   transition: all 0.15s ease-out 0.05s;
-  font-size: 0.85rem;
-  padding: 0.35rem 0.65rem;
+  font-size: $text-sm;
+  padding: calc($space-sm * 0.7) calc($space-md * 0.65);
+}
+
+// Responsive grid
+@mixin grid-responsive($min-width: 200px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min-width, 1fr));
+  gap: $space-md;
+}
+
+// Section with border-bottom header
+@mixin section-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: $space-sm;
 }
 
 // Import utility classes

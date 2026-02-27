@@ -3,35 +3,57 @@
 // =============================================================================
 
 :root {
-  // Light theme (default) - Parchment
-  --bg-base: #f8f3e8;
-  --bg-gradient-start: #faf6ed;
-  --bg-gradient-end: #e8d5b5;
+  // ═══════════════════════════════════════════════════════════════
+  // CORE COLORS (8 total) - Light Theme
+  // Everything else derived from these
+  // ═══════════════════════════════════════════════════════════════
+
+  --parchment: #faf6ed;
+  --parchment-dark: #e8d5b5;
+  --ink: #1a1410;
+  --gold: #c9a227;
+  --gold-dark: #a68520;
+  --danger: #8b2500;
+  --success: #228b22;
+  --border: rgba(74, 60, 46, 0.2);
+
+  // ═══════════════════════════════════════════════════════════════
+  // DERIVED COLORS (backwards compatible - mapped to core colors)
+  // ═══════════════════════════════════════════════════════════════
+
+  // Backgrounds - derived from parchment
+  --bg-gradient-start: var(--parchment);
+  --bg-gradient-end: var(--parchment-dark);
   --bg-card: rgba(250, 246, 237, 0.95);
-  --bg-card-end: rgba(244, 232, 209, 0.95);
+  --bg-card-end: rgba(232, 213, 181, 0.95);
   --bg-panel: rgba(212, 188, 148, 0.3);
   --bg-subtle: rgba(0, 0, 0, 0.03);
-  --bg-hover: rgba(255, 250, 240, 0.9);
   --bg-input: rgba(255, 255, 255, 0.8);
 
-  --text-primary: #1a1410;
+  // Text - derived from ink (#1a1410)
+  --text-primary: var(--ink);
   --text-secondary: #2c241c;
   --text-body: #4a3c2e;
   --text-muted: #6b5a48;
   --text-faint: #8c7a66;
-  --text-hover: #2c241c;
 
-  --gold: #c9a227;
-  --gold-light: #dbb94a;
-  --gold-dark: #a68520;
-  --red: #8b2500;
-  --red-dark: #932f1f;
-  --green: #228b22;
+  // Accents - use core colors
+  --red: var(--danger);
+  --green: var(--success);
 
-  --border-color: rgba(74, 60, 46, 0.2);
+  // Overlays - derived from accents
+  --gold-overlay: rgba(201, 162, 39, 0.15);
+  --gold-overlay-border: rgba(201, 162, 39, 0.3);
+  --green-overlay: rgba(34, 139, 34, 0.1);
+  --green-overlay-border: rgba(34, 139, 34, 0.3);
+  --red-overlay: rgba(139, 37, 0, 0.1);
+  --red-overlay-border: rgba(139, 37, 0, 0.3);
+
+  --border-color: var(--border);
   --border-strong: rgba(74, 60, 46, 0.4);
   --shadow-color: rgba(26, 20, 16, 0.1);
 
+  // Buttons - derived from ink + parchment
   --btn-bg: linear-gradient(to bottom, #4a3c2e 0%, #2c241c 100%);
   --btn-bg-hover: linear-gradient(to bottom, #6b5a48 0%, #4a3c2e 100%);
   --btn-text: #f4e8d1;
@@ -39,34 +61,57 @@
 
 // Dark theme - Aged Leather / Tome
 [data-theme="dark"] {
-  --bg-base: #1a1612;
-  --bg-gradient-start: #1e1a15;
-  --bg-gradient-end: #12100d;
+
+  // ═══════════════════════════════════════════════════════════════
+  // CORE COLORS (8 total) - Dark Theme
+  // ═══════════════════════════════════════════════════════════════
+
+  --parchment: #1e1a15;
+  --parchment-dark: #12100d;
+  --ink: #f0e6d6;
+  --gold: #d4af37;
+  --gold-dark: #b8962d;
+  --danger: #c44a2d;
+  --success: #2ea043;
+  --border: rgba(180, 160, 130, 0.15);
+
+  // ═══════════════════════════════════════════════════════════════
+  // DERIVED COLORS (backwards compatible - mapped to core colors)
+  // ═══════════════════════════════════════════════════════════════
+
+  // Backgrounds - derived from parchment
+  --bg-gradient-start: var(--parchment);
+  --bg-gradient-end: var(--parchment-dark);
   --bg-card: rgba(35, 30, 25, 0.95);
-  --bg-card-end: rgba(28, 24, 20, 0.95);
+  --bg-card-end: rgba(18, 16, 13, 0.95);
   --bg-panel: rgba(45, 38, 30, 0.5);
   --bg-subtle: rgba(255, 255, 255, 0.03);
-  --bg-hover: rgba(60, 50, 40, 0.6);
-  --bg-input: rgba(45, 38, 30, 0.8);
+  --bg-input: rgba(50, 42, 34, 0.7);
 
-  --text-primary: #f0e6d6;
+  // Text - derived from ink (#f0e6d6)
+  --text-primary: var(--ink);
   --text-secondary: #d4c8b4;
   --text-body: #b8a890;
   --text-muted: #8c7a66;
   --text-faint: #6b5a48;
-  --text-hover: #f0e6d6;
 
-  --gold: #d4af37;
-  --gold-light: #e8c555;
-  --gold-dark: #b8962d;
-  --red: #c44a2d;
-  --red-dark: #a83520;
-  --green: #2ea043;
+  // Accents - use core colors
+  --red: var(--danger);
+  --green: var(--success);
 
-  --border-color: rgba(180, 160, 130, 0.15);
+  // Overlays - derived from accents
+  --gold-overlay: rgba(212, 175, 55, 0.15);
+  --gold-overlay-border: rgba(212, 175, 55, 0.3);
+  --green-overlay: rgba(46, 160, 67, 0.1);
+  --green-overlay-border: rgba(46, 160, 67, 0.3);
+  --red-overlay: rgba(196, 74, 45, 0.1);
+  --red-overlay-border: rgba(196, 74, 45, 0.3);
+
+  --border-color: var(--border);
   --border-strong: rgba(180, 160, 130, 0.25);
   --shadow-color: rgba(0, 0, 0, 0.3);
 
+  // Buttons - derived from ink + parchment
   --btn-bg: linear-gradient(to bottom, #3d3428 0%, #2a241e 100%);
   --btn-bg-hover: linear-gradient(to bottom, #4d4235 0%, #3d3428 100%);
   --btn-text: #e8dcc8;
@@ -280,7 +325,8 @@ button {
   padding: $space-md $space-xl;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(to bottom, var(--gold-light) 0%, var(--gold) 100%);
+    background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
+    filter: brightness(1.1);
   }
 }
 
@@ -291,8 +337,8 @@ button {
   border: 1px solid var(--border-strong);
 
   &:hover:not(:disabled) {
-    background: var(--bg-hover);
-    color: var(--text-hover);
+    background: var(--bg-input);
+    color: var(--text-secondary);
     transform: none;
     box-shadow: none;
   }

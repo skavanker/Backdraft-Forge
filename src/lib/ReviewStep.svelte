@@ -122,7 +122,7 @@
 
 
 <style lang="scss">
-  @import './ReviewStep.module.scss';
+  @import './components.module.scss';
 
 </style>
 

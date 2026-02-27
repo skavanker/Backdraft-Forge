@@ -18,7 +18,7 @@
 
 
 <style lang="scss">
-  @import './SelectionPreview.module.scss';
+  @import './components.module.scss';
 
 </style>
 

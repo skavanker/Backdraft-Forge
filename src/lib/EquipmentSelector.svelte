@@ -246,7 +246,7 @@
   });
 </script>
 
-<div class="equipment-selector">
+<div class="wizard-step">
   <!-- Gold Section -->
   <div class="gold-section">
     {#if !goldRolled}
@@ -506,7 +506,7 @@
 
 
 <style lang="scss">
-  @import './EquipmentSelector.module.scss';
+  @import './components.module.scss';
 
 </style>
 

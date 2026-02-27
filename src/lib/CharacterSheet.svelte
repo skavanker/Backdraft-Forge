@@ -503,6 +503,6 @@
 
 
 <style lang="scss">
-  @import './CharacterSheet.module.scss';
+  @import './components.module.scss';
 
 </style>
