@@ -2,6 +2,7 @@
   import { getCharacterWarnings } from '../data/classes.js';
   import { getConstitutionModifiers } from '../data/mechanics.js';
   import { applyRacialAdjustments } from '../data/races.js';
+  import { speciesEnemies } from '../data/speciesEnemies.js';
   import AbilityBadge from './components/AbilityBadge.svelte';
   import { onMount } from 'svelte';
   import { isTyping } from './utils/keyboard.js';
@@ -123,6 +124,12 @@
           <div class="info-row">
             <span>Base Class</span>
             <span>{character.cls.name}</span>
+          </div>
+        {/if}
+        {#if character.speciesEnemy}
+          <div class="info-row">
+            <span>Species Enemy</span>
+            <span>{speciesEnemies[character.speciesEnemy]?.name ?? character.speciesEnemy} (+4 to hit)</span>
           </div>
         {/if}
         {#if character.xpBonus > 0}

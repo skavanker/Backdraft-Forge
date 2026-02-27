@@ -60,6 +60,9 @@ function compressCharacter(character) {
     }
   }
 
+  // Kit (if selected)
+  if (character.kitKey) compressed.kk = character.kitKey;
+
   // Spells
   if (character.spells) {
     compressed.st = character.spells.type;
@@ -67,6 +70,9 @@ function compressCharacter(character) {
       compressed.sp = character.spells.spellbook.map(s => s.key);
     } else if (character.spells.type === 'divine' && character.spells.prepared) {
       compressed.sp = character.spells.prepared.map(s => s.key);
+    } else if (character.spells.type === 'dual') {
+      if (character.spells.prepared) compressed.sp = character.spells.prepared.map(s => s.key);
+      if (character.spells.spellbook) compressed.sb = character.spells.spellbook.map(s => s.key);
     }
   }
 
@@ -78,7 +84,7 @@ function compressCharacter(character) {
   // Name, sex, alignment, backstory, and physical details
   if (character.name) compressed.n = character.name;
   if (character.sex) compressed.sx = character.sex;
-  if (character.alignment) compressed.al = character.alignment;
+  if (character.alignment !== null && character.alignment !== undefined) compressed.al = character.alignment;
   if (character.backstory) compressed.b = character.backstory;
   if (character.age) compressed.ag = character.age;
   if (character.height) compressed.ht = character.height;
@@ -94,6 +100,8 @@ function compressCharacter(character) {
   if (character.thiefSkills) compressed.ts = character.thiefSkills;
   // Notes
   if (character.notes) compressed.nt = character.notes;
+  // Species enemy (ranger)
+  if (character.speciesEnemy) compressed.se = character.speciesEnemy;
 
   return compressed;
 }
@@ -129,6 +137,7 @@ async function decompressCharacter(compressed) {
   const { priestSpells } = await import('../data/priestSpells.js');
   const { deities } = await import('../data/deities.js');
   const { languages } = await import('../data/languages.js');
+  const { kits } = await import('../data/kits.js');
 
   // Reconstruct abilities
   const abilities = {
@@ -186,6 +195,10 @@ async function decompressCharacter(compressed) {
     };
   }
 
+  // Reconstruct kit
+  let kitKey = compressed.kk || null;
+  let kit = kitKey && kits[kitKey] ? { key: kitKey, ...kits[kitKey] } : null;
+
   // Reconstruct spells
   let spells = null;
   if (compressed.st) {
@@ -205,6 +218,16 @@ async function decompressCharacter(compressed) {
         prepared,
         spellsPerDay: prepared.length
       };
+    } else if (compressed.st === 'dual') {
+      const prepared = compressed.sp ? compressed.sp.map(key => priestSpells.find(s => s.key === key)).filter(Boolean) : [];
+      const spellbook = compressed.sb ? compressed.sb.map(key => wizardSpells.find(s => s.key === key)).filter(Boolean) : [];
+      spells = {
+        type: 'dual',
+        prepared,
+        spellbook,
+        memorized: spellbook.slice(0, 1),
+        spellsPerDay: prepared.length + (spellbook.length > 0 ? 1 : 0)
+      };
     } else {
       spells = { type: 'none' };
     }
@@ -222,6 +245,8 @@ async function decompressCharacter(compressed) {
     levelLimit: compressed.l || null,
     xpBonus: compressed.x || 0,
     wizardSchool,
+    kitKey,
+    kit,
     proficiencies,
     equipment: equipmentData,
     spells,
@@ -241,6 +266,7 @@ async function decompressCharacter(compressed) {
     hpHistory: compressed.hh || [],
     currentHP: compressed.hp ?? null,
     thiefSkills: compressed.ts || null,
+    speciesEnemy: compressed.se || null,
     notes: compressed.nt || '',
   };
 }

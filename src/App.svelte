@@ -63,6 +63,7 @@
       hpHistory: [],
       currentHP: null,
       thiefSkills: null,
+      speciesEnemy: null,
       notes: '',
     };
   }
@@ -226,7 +227,7 @@
   const stepFields = {
     0: { fields: ['abilities', 'rollData'], next: 1 },
     1: { fields: ['raceKey', 'race', 'adjustedAbilities'], next: 2 },
-    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey', 'kitKey', 'kit'], next: 3 },
+    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey', 'kitKey', 'kit', 'speciesEnemy'], next: 3 },
     4: { fields: ['proficiencies'], next: 5 },
     5: { fields: ['equipment'], get next() { return isSpellcaster(character.classKey) ? 6 : 7; }, after() { if (!isSpellcaster(character.classKey)) character.spells = []; } },
     6: { fields: ['spells'], next: 7 },
@@ -492,6 +493,7 @@
         existingWizardSchool={character.wizardSchool}
         existingDeityKey={character.deityKey}
         existingKitKey={character.kitKey}
+        existingSpeciesEnemy={character.speciesEnemy}
         onComplete={(data) => completeStep(2, data)}
       />
 

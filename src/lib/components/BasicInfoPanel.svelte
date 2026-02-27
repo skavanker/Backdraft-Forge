@@ -1,6 +1,7 @@
 <script>
   import EditableInput from './EditableInput.svelte';
   import { deities } from '../../data/deities.js';
+  import { speciesEnemies } from '../../data/speciesEnemies.js';
   import { getAlignmentName } from '../../data/alignment.js';
 
   let {
@@ -41,6 +42,7 @@
       {#if character.eyes}<div class="info-item"><span class="label">Eyes:</span> {character.eyes}</div>{/if}
       {#if character.hair}<div class="info-item"><span class="label">Hair:</span> {character.hair}</div>{/if}
       {#if character.deityKey || character.deity}<div class="info-item"><span class="label">Deity:</span> {character.deityKey ? (deities[character.deityKey]?.name || character.deity) : character.deity}</div>{/if}
+      {#if character.speciesEnemy}<div class="info-item"><span class="label">Species Enemy:</span> {speciesEnemies[character.speciesEnemy]?.name ?? character.speciesEnemy}</div>{/if}
       <div class="info-item">
         <span class="label">HP:</span>
         <EditableInput

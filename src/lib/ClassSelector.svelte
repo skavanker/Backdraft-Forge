@@ -2,18 +2,20 @@
   import { getAvailableClasses, getAvailableSchools } from '../data/classes.js';
   import { deities, getDeityList } from '../data/deities.js';
   import { getAvailableKits, classHasKits } from '../data/kits.js';
+  import { getSpeciesEnemyList } from '../data/speciesEnemies.js';
   import { ALIGNMENTS, getAlignmentName, filterDeitiesForClass } from '../data/alignment.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
   import { isTyping } from './utils/keyboard.js';
 
-  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, onComplete } = $props();
+  let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, existingSpeciesEnemy = null, onComplete } = $props();
 
   let selectedClassKey = $state(existingClassKey);
   let selectedSchool = $state(existingWizardSchool);
   let selectedDeityKey = $state(existingDeityKey ?? null); // null = skipped deity (default), string = deity key
   let selectedKit = $state(existingKitKey ?? null); // null = skipped kit (default), string = kit key
+  let selectedSpeciesEnemy = $state(existingSpeciesEnemy ?? null);
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -34,6 +36,10 @@
 
   let hasKits = $derived(availableKits.length > 0);
 
+  let isRanger = $derived(selectedClassKey === 'ranger');
+
+  let speciesEnemyList = $derived(isRanger ? getSpeciesEnemyList() : []);
+
   let needsDeity = $derived(
     selectedClassKey === 'cleric' || selectedClassKey === 'paladin'
   );
@@ -44,7 +50,8 @@
 
   let canConfirm = $derived(
     selectedClass &&
-    (selectedClassKey !== 'specialist' || selectedSchool)
+    (selectedClassKey !== 'specialist' || selectedSchool) &&
+    (!isRanger || selectedSpeciesEnemy)
     // Deity and kit are auto-defaulted to "skipped" (null) so always valid
   );
 
@@ -53,6 +60,7 @@
     selectedSchool = null;
     selectedKit = null; // Default to skipped
     selectedDeityKey = null; // Default to skipped
+    selectedSpeciesEnemy = null;
   }
 
   function confirm() {
@@ -71,7 +79,8 @@
       wizardSchool: selectedSchool,
       deityKey: selectedDeityKey || null,
       kitKey: kitKey,
-      kit: kitData
+      kit: kitData,
+      speciesEnemy: selectedSpeciesEnemy || null
     };
 
     // Auto-set paladin alignment
@@ -265,6 +274,31 @@
     </div>
   {/if}
 
+  <!-- Species Enemy (for Rangers) -->
+  {#if selectedClass && isRanger}
+    <div class="selection-section panel panel-lg">
+      <div class="section-header">
+        <h3>Choose Your Species Enemy</h3>
+        <p class="section-hint">Rangers gain +4 to hit against their chosen enemy but suffer -4 reaction from that species.</p>
+      </div>
+
+      <div class="selection-grid">
+        {#each speciesEnemyList as enemy}
+          <Tooltip text="{enemy.description} — e.g. {enemy.examples}" position="bottom">
+            <button
+              class="selection-card"
+              class:selected={selectedSpeciesEnemy === enemy.key}
+              onclick={() => selectedSpeciesEnemy = enemy.key}
+            >
+              <span class="card-name">{enemy.name}</span>
+              <span class="card-desc">{enemy.description}</span>
+            </button>
+          </Tooltip>
+        {/each}
+      </div>
+    </div>
+  {/if}
+
   <!-- Deity Selection (for Clerics/Paladins) - after kit selection -->
   {#if selectedClass && needsDeity}
     <div class="selection-section panel panel-lg">
@@ -304,6 +338,7 @@
   {#if selectedClass}
     {@const confirmText =
       selectedClassKey === 'specialist' && !selectedSchool ? 'Select a School to Continue' :
+      isRanger && !selectedSpeciesEnemy ? 'Select a Species Enemy to Continue' :
       `Confirm ${selectedKit?.name ?? selectedSchool?.name ?? selectedClass.cls.name} → Review Stats`}
     <div class="fade-in">
       <SelectionPreview

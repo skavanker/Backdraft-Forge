@@ -8,7 +8,6 @@
 
 ### Visuals
 - [ ] Remaining portraits (16 Half-Elf and Halfling combinations)
-- [ ] Use d4/d20 dice SVGs for HP rolling and other contexts
 
 ### AI Integration
 - [ ] AI-generated backstory (provider-agnostic)
@@ -17,7 +16,7 @@
 ### Gameplay Additions
 - [ ] Multi-classing support (demi-humans advance in 2+ classes simultaneously)
 - [ ] Dual-classing for humans (switch class, start over at level 1)
-- [ ] Ranger species enemy selection
+- [x] Ranger species enemy selection
 
 ### UI/UX
 - [ ] Mobile responsiveness improvements

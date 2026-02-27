@@ -12,6 +12,7 @@
   import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS } from '../data/thiefSkills.js';
   import { getTurnUndeadRow, formatTurnResult } from '../data/turnUndead.js';
   import { groupByLevel } from '../data/priestSpells.js';
+  import { speciesEnemies } from '../data/speciesEnemies.js';
 
   let { character, onImport, onSave, onCharacterUpdate, onUndo, canUndo = false, undoMessage = '', showUndoMessage = false } = $props();
 
@@ -414,7 +415,7 @@
     <div class="stat-block">
       <h3>Class Features</h3>
       {#each character.cls.features as feature}
-        <div class="data-row">◆ {feature}</div>
+        <div class="data-row">◆ {#if feature.includes('Species enemy') && character.speciesEnemy}Species enemy: {speciesEnemies[character.speciesEnemy]?.name ?? character.speciesEnemy} (+4 to hit){:else}{feature}{/if}</div>
       {/each}
     </div>
     <hr class="divider">
