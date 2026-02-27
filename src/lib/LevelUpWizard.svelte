@@ -29,13 +29,17 @@
   let hpTotal = $state(0);
   let isPostName = $state(false);
   let diceAnimating = $state(false);
-  let animDieFace = $state(1); // 1-6 for SVG dice during animation
+  let animDieFace = $state(1);
 
   // Derived data
   let classKey = character.classKey;
   let classGroup = character.cls.group;
   let hitDie = character.cls.hitDie;
   let dieMax = parseInt(hitDie.match(/d(\d+)/)?.[1] || '4');
+
+  // Map hit die to SVG die type: d4→d4, d6→d6, d8/d10/d12→d20
+  let dieSvgType = dieMax <= 4 ? 'd4' : dieMax <= 6 ? 'd6' : 'd20';
+  let dieSvgMax = dieMax <= 4 ? 4 : dieMax <= 6 ? 6 : 20;
 
   // Check what this level grants
   let newFeatures = getNewFeaturesAtLevel(classKey, newLevel);
@@ -151,7 +155,7 @@
       let frame = 0;
 
       function tick() {
-        animDieFace = Math.floor(Math.random() * 6) + 1;
+        animDieFace = Math.floor(Math.random() * dieSvgMax) + 1;
         hpRoll = Math.floor(Math.random() * dieMax) + 1;
         frame++;
 
@@ -288,19 +292,19 @@
           <div class="hp-roll-area">
             {#if !hpRolled && !diceAnimating}
               <button class="btn-roll" onclick={rollHP}>
-                <img class="btn-roll-die" src="/dice/dice0{Math.floor(Math.random() * 6) + 1}.svg" alt="die" />
+                <img class="btn-roll-die" src="/dice/{dieSvgType}-{Math.floor(Math.random() * dieSvgMax) + 1}.svg" alt="die" />
                 Roll {hitDie}
               </button>
             {:else}
               <div class="dice-result" class:animating={diceAnimating}>
                 {#if diceAnimating}
                   <div class="die-graphic">
-                    <img src="/dice/dice0{animDieFace}.svg" alt="rolling..." />
+                    <img src="/dice/{dieSvgType}-{animDieFace}.svg" alt="rolling..." />
                   </div>
                   <div class="die-value-preview">{hpRoll}</div>
                 {:else}
                   <div class="die-graphic landed">
-                    <img src="/dice/dice0{Math.min(hpRoll, 6)}.svg" alt="{hpRoll}" />
+                    <img src="/dice/{dieSvgType}-{Math.min(hpRoll, dieSvgMax)}.svg" alt="{hpRoll}" />
                   </div>
                   <div class="die-value-final">{hpRoll}</div>
                 {/if}
