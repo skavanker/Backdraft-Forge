@@ -22,17 +22,7 @@ export function rollDice(count, sides) {
  * @returns {number[][]} Array of 6 sets of 4 dice each
  */
 export function rollAbilityDice() {
-  // DEBUG: Always give high rolls that result in 17 when using 4d6 drop lowest
-  // [6,6,6,5] -> drop 5 -> 6+6+6 = 18
-  // [6,6,5,1] -> drop 1 -> 6+6+5 = 17
-  return [
-    [6, 6, 5, 1], // 17
-    [6, 6, 5, 1], // 17
-    [6, 6, 5, 1], // 17
-    [6, 6, 5, 1], // 17
-    [6, 6, 5, 1], // 17
-    [6, 6, 5, 1]  // 17
-  ];
+  return Array.from({ length: 6 }, () => rollDice(4, 6));
 }
 
 /**
