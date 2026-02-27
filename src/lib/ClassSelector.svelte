@@ -8,6 +8,7 @@
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
   import { isTyping } from './utils/keyboard.js';
+  import { settings } from './settings.svelte.js';
 
   let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, existingSpeciesEnemy = null, onComplete } = $props();
 
@@ -17,7 +18,7 @@
   let selectedKit = $state(existingKitKey ?? null); // null = skipped kit (default), string = kit key
   let selectedSpeciesEnemy = $state(existingSpeciesEnemy ?? null);
 
-  let classOptions = $derived(getAvailableClasses(abilities, race, raceKey));
+  let classOptions = $derived(getAvailableClasses(abilities, race, raceKey, { lenient: settings.lenientMode }));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
 
   let selectedClass = $derived(
@@ -83,8 +84,8 @@
       speciesEnemy: selectedSpeciesEnemy || null
     };
 
-    // Auto-set paladin alignment
-    if (selectedClassKey === 'paladin') {
+    // Auto-set paladin alignment (unless lenient mode)
+    if (selectedClassKey === 'paladin' && !settings.lenientMode) {
       result.alignment = ALIGNMENTS.LG;
     }
 
@@ -131,12 +132,14 @@
         <h3 class="section-title">{group.name}</h3>
         <div class="selection-grid">
           {#each group.classes as { key, cls, qualified, failedReqs, levelLimit, xpBonus }}
-            {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : ''}
+            {@const hasWarnings = qualified && failedReqs.length > 0}
+            {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
             <Tooltip text={tooltipText} position="bottom">
               <button
                 class="selection-card"
                 class:selected={selectedClassKey === key}
                 class:disabled={!qualified}
+                class:lenient-warning={hasWarnings}
                 onclick={() => qualified && selectClass(key)}
                 disabled={!qualified}
               >

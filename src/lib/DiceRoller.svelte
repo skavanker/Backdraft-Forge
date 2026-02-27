@@ -4,11 +4,12 @@
   import ImportArea from './ImportArea.svelte';
   import { isTyping } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
+  import { settings } from './settings.svelte.js';
   const MAX_REROLLS = 2;
 
   let { onComplete, onImport, existingRollData = null, onManualMode } = $props();
 
-  let method = $state('4d6drop');
+  let method = $state(settings.rollMethod);
   let rawDice = $state(null);
   let assignments = $state({
     STR: null, DEX: null, CON: null, INT: null, WIS: null, CHA: null

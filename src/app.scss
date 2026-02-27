@@ -90,8 +90,12 @@
   box-sizing: border-box;
 }
 
+:root { --font-scale: 1; }
+:root[data-font="small"] { --font-scale: 0.875; }
+:root[data-font="large"] { --font-scale: 1.125; }
+
 html {
-  font-size: 16px;
+  font-size: calc(var(--font-scale) * 16px);
 }
 
 body {
@@ -468,7 +472,7 @@ hr {
 }
 
 .reset-toggle,
-.theme-toggle {
+.settings-toggle {
   padding: 0.5rem;
   background: var(--bg-panel);
   border: 1px solid var(--border-color);

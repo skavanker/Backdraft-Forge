@@ -100,3 +100,27 @@
   }
   &:hover .remove-btn { opacity: 0.5; }
 }
+
+// ════════════ LENIENT MODE WARNING ════════════
+.selection-card.lenient-warning {
+  position: relative;
+  border-color: var(--gold-overlay-border);
+  &.selected {
+    border-color: var(--gold);
+  }
+  &::after {
+    content: 'House Rules';
+    position: absolute;
+    top: $space-sm;
+    right: $space-sm;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.1rem 0.3rem;
+    background: var(--gold-overlay);
+    border: 1px solid var(--gold-overlay-border);
+    border-radius: 2px;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+}

@@ -165,7 +165,7 @@ export const classes = {
  * @param {string} classKey - Class key
  * @returns {{ qualified: boolean, failedReqs: string[] }}
  */
-export function checkClassRequirements(abilities, race, raceKey, cls, classKey) {
+export function checkClassRequirements(abilities, race, raceKey, cls, classKey, { lenient = false } = {}) {
   const failedReqs = [];
 
   // Check ability minimums
@@ -207,7 +207,7 @@ export function checkClassRequirements(abilities, race, raceKey, cls, classKey) 
   }
 
   return {
-    qualified: failedReqs.length === 0,
+    qualified: lenient || failedReqs.length === 0,
     failedReqs
   };
 }
@@ -245,9 +245,9 @@ export function getLevelLimit(race, classKey) {
  * @param {Object} race - Race object
  * @returns {Array<{ key: string, cls: Object, qualified: boolean, failedReqs: string[], levelLimit: number|null, xpBonus: number }>}
  */
-export function getAvailableClasses(abilities, race, raceKey) {
+export function getAvailableClasses(abilities, race, raceKey, { lenient = false } = {}) {
   return Object.entries(classes).map(([key, cls]) => {
-    const check = checkClassRequirements(abilities, race, raceKey, cls, key);
+    const check = checkClassRequirements(abilities, race, raceKey, cls, key, { lenient });
     return {
       key,
       cls,

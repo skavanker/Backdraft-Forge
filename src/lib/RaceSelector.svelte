@@ -5,13 +5,14 @@
   import SelectionPreview from './SelectionPreview.svelte';
   import { isTyping } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
+  import { settings } from './settings.svelte.js';
 
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
 
   let selectedRaceKey = $state(existingRaceKey || 'human');
 
-  let raceOptions = $derived(getAvailableRaces(abilities));
+  let raceOptions = $derived(getAvailableRaces(abilities, { lenient: settings.lenientMode }));
   let qualifiedCount = $derived(raceOptions.filter(r => r.qualified).length);
 
   let selectedRace = $derived(
@@ -57,12 +58,14 @@
 
   <div class="selection-grid">
     {#each raceOptions as { key, race, qualified, failedReqs }}
-      {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : ''}
+      {@const hasWarnings = qualified && failedReqs.length > 0}
+      {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
       <Tooltip text={tooltipText} position="bottom">
         <button
           class="selection-card"
           class:selected={selectedRaceKey === key}
           class:disabled={!qualified}
+          class:lenient-warning={hasWarnings}
           onclick={() => qualified && selectRace(key)}
           disabled={!qualified}
         >

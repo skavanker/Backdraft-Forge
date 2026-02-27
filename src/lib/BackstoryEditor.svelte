@@ -4,6 +4,7 @@
   import { ALIGNMENTS, getAlignmentName, getAlignmentGrid, getAllowedAlignmentsForClass } from '../data/alignment.js';
   import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
+  import { settings, formatHeight as fmtHeight, formatWeight as fmtWeight } from './settings.svelte.js';
 
   let { character, onComplete } = $props();
 
@@ -26,8 +27,8 @@
     const isElven = character.raceKey === 'elf' || character.raceKey === 'halfElf';
     return {
       age: `${raceName}: typically ${r.age[0]}–${r.age[1]} years`,
-      height: `${raceName}: M ${formatHeight(r.heightM[0])}–${formatHeight(r.heightM[1])}, F ${formatHeight(r.heightF[0])}–${formatHeight(r.heightF[1])}`,
-      weight: `${raceName}: M ${r.weightM[0]}–${r.weightM[1]} lbs, F ${r.weightF[0]}–${r.weightF[1]} lbs`,
+      height: `${raceName}: M ${fmtHeight(r.heightM[0])}–${fmtHeight(r.heightM[1])}, F ${fmtHeight(r.heightF[0])}–${fmtHeight(r.heightF[1])}`,
+      weight: `${raceName}: M ${fmtWeight(r.weightM[0])}–${fmtWeight(r.weightM[1])}, F ${fmtWeight(r.weightF[0])}–${fmtWeight(r.weightF[1])}`,
       eyes: `Common: ${(isElven ? elfEyeColors : eyeColors).join(', ')}`,
       hair: `Common: ${(isElven ? elfHairColors : hairColors).join(', ')}`,
     };
@@ -66,9 +67,7 @@
   }
 
   function formatHeight(inches) {
-    const ft = Math.floor(inches / 12);
-    const ins = inches % 12;
-    return `${ft}'${ins}"`;
+    return fmtHeight(inches);
   }
 
   function randomizeDetails() {
@@ -76,12 +75,20 @@
     const isFemale = sex === 'Female';
     age = String(rand(r.age[0], r.age[1]));
     const h = rand(isFemale ? r.heightF[0] : r.heightM[0], isFemale ? r.heightF[1] : r.heightM[1]);
-    height = formatHeight(h);
-    weight = String(rand(isFemale ? r.weightF[0] : r.weightF[1], isFemale ? r.weightF[1] : r.weightM[1])) + ' lbs';
+    height = fmtHeight(h);
+    const w = rand(isFemale ? r.weightF[0] : r.weightF[1], isFemale ? r.weightF[1] : r.weightM[1]);
+    weight = fmtWeight(w);
     const isElven = character.raceKey === 'elf' || character.raceKey === 'halfElf';
     eyes = pick(isElven ? elfEyeColors : eyeColors);
     hair = pick(isElven ? elfHairColors : hairColors);
   }
+
+  // Auto-randomize on mount if enabled and fields are empty
+  onMount(() => {
+    if (settings.autoRandomize && !age && !height && !weight && !eyes && !hair) {
+      randomizeDetails();
+    }
+  });
 
   function confirm() {
     onComplete({

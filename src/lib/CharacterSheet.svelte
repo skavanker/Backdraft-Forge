@@ -1,6 +1,5 @@
 <script>
   import Tooltip from './Tooltip.svelte';
-  import ActionMenu from './components/ActionMenu.svelte';
   import CharacterSheetHeader from './components/CharacterSheetHeader.svelte';
   import BasicInfoPanel from './components/BasicInfoPanel.svelte';
   import AbilitiesPanel from './components/AbilitiesPanel.svelte';
@@ -14,10 +13,7 @@
   import { groupByLevel } from '../data/priestSpells.js';
   import { speciesEnemies } from '../data/speciesEnemies.js';
 
-  let { character, onImport, onSave, onCharacterUpdate, onUndo, canUndo = false, undoMessage = '', showUndoMessage = false } = $props();
-
-  let shareMessage = $state('');
-  let showShareMessage = $state(false);
+  let { character, onCharacterUpdate, undoMessage = '', showUndoMessage = false } = $props();
 
   // Calculate ability modifiers
   const abilityMods = useAbilityModifiers(character);
@@ -45,21 +41,6 @@
 
   // State management using composables
   const showLevelUp = useToggle(false);
-  const confirmResetLevel = useToggle(false);
-  const menuOpen = useToggle(false);
-
-  function resetLevel() {
-    onCharacterUpdate?.({
-      level: 1,
-      xp: 0,
-      hpHistory: [],
-      currentHP: null,
-      thiefSkills: null,
-      spells: null,
-      proficiencies: null,
-    });
-    confirmResetLevel.close();
-  }
 
   // Current HP derived
   let currentHP = $derived(character.currentHP ?? hitPoints());
@@ -115,48 +96,6 @@
   let meleeTHAC0 = $derived(baseTHAC0 - strMods.hitAdj);
   let missileTHAC0 = $derived(baseTHAC0 - dexMods.missileAdj);
 
-  async function shareCharacter() {
-    const { generateShareableUrl, copyToClipboard } = await import('./shareCharacter.js');
-    const url = generateShareableUrl(character);
-    if (!url) {
-      shareMessage = 'Failed to generate link';
-      showShareMessage = true;
-      setTimeout(() => showShareMessage = false, 3000);
-      return;
-    }
-
-    const success = await copyToClipboard(url);
-    if (success) {
-      shareMessage = 'Link copied to clipboard!';
-    } else {
-      shareMessage = 'Failed to copy. URL: ' + url;
-    }
-    showShareMessage = true;
-    setTimeout(() => showShareMessage = false, 3000);
-  }
-
-  function saveCharacter() {
-    onSave?.();
-    shareMessage = 'Character saved!';
-    showShareMessage = true;
-    setTimeout(() => showShareMessage = false, 3000);
-  }
-
-  async function exportCode() {
-    const { encodeCharacter, copyToClipboard } = await import('./shareCharacter.js');
-    const encoded = encodeCharacter(character);
-    if (!encoded) {
-      shareMessage = 'Failed to generate code';
-      showShareMessage = true;
-      setTimeout(() => showShareMessage = false, 3000);
-      return;
-    }
-    const success = await copyToClipboard(encoded);
-    shareMessage = success ? 'Character code copied to clipboard!' : 'Failed to copy code';
-    showShareMessage = true;
-    setTimeout(() => showShareMessage = false, 3000);
-  }
-
   // Calculate AC with DEX modifier
   let baseAC = $derived(() => {
     let ac = 10;
@@ -209,29 +148,9 @@
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
 
-  let shareLinkWarning = $derived(
-    (character.backstory?.length || 0) > 300
-      ? 'Long backstory may make the share link too large for some browsers. Use Export Code instead for full fidelity.'
-      : ''
-  );
 </script>
 
 <div class="sheet">
-  <ActionMenu
-    {menuOpen}
-    {canUndo}
-    {shareLinkWarning}
-    charLevel={charLevel}
-    {confirmResetLevel}
-    onSave={saveCharacter}
-    onShare={shareCharacter}
-    onExportCode={exportCode}
-    {onImport}
-    {onUndo}
-    onPrint={() => window.print()}
-    onResetLevel={resetLevel}
-  />
-
   <CharacterSheetHeader
     name={character.name}
     raceName={character.race.name}
@@ -467,9 +386,6 @@
 
   <!-- Toast Messages -->
   <div class="toast-area">
-    {#if showShareMessage}
-      <p class="alert alert-success">{shareMessage}</p>
-    {/if}
     {#if showUndoMessage}
       <p class="undo-toast alert alert-info">{undoMessage}</p>
     {/if}

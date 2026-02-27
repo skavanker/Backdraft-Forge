@@ -3,6 +3,7 @@
   import { deities } from '../../data/deities.js';
   import { speciesEnemies } from '../../data/speciesEnemies.js';
   import { getAlignmentName } from '../../data/alignment.js';
+  import { formatEncumbranceValue, formatWeightUnit } from '../settings.svelte.js';
 
   let {
     character,
@@ -59,7 +60,7 @@
       <div class="info-item"><span class="label">AC:</span> {baseAC}</div>
       <div class="info-item"><span class="label">THAC0:</span> {baseTHAC0}</div>
       <div class="info-item"><span class="label">Movement:</span> {character.race.movement || 12}</div>
-      <div class="info-item" class:encumbered={isEncumbered}><span class="label">Encumbrance:</span> {totalWeight} / {strMods.weightAllow} lbs</div>
+      <div class="info-item" class:encumbered={isEncumbered}><span class="label">Encumbrance:</span> {formatEncumbranceValue(totalWeight)} / {formatEncumbranceValue(strMods.weightAllow)} {formatWeightUnit()}</div>
       {#if isEncumbered}
         <div class="info-item encumbered"><span class="label">⚠ Encumbered!</span></div>
       {/if}

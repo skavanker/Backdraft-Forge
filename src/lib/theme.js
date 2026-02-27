@@ -32,13 +32,6 @@ export function applyTheme(theme) {
   setStoredTheme(theme);
 }
 
-export function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  return next;
-}
-
 // Initialize on load
 export function initTheme() {
   applyTheme(getPreferredTheme());

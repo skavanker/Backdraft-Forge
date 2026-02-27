@@ -13,6 +13,7 @@
   import { getStrengthModifiers } from '../data/mechanics.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
+  import { formatEncumbranceValue, formatWeightUnit } from './settings.svelte.js';
   import SelectableChip from './components/SelectableChip.svelte';
   import GearSection from './components/GearSection.svelte';
 
@@ -307,12 +308,12 @@
         </div>
         <div class="gold-stat">
           <span class="gold-label">Weight</span>
-          <span class="gold-value" class:warning={isEncumbered}>{totalWeight()} / {weightAllowance} lbs</span>
+          <span class="gold-value" class:warning={isEncumbered}>{formatEncumbranceValue(totalWeight())} / {formatEncumbranceValue(weightAllowance)} {formatWeightUnit()}</span>
         </div>
       </div>
       {#if isEncumbered}
         <div class="encumbrance-warning alert alert-danger">
-          ⚠ Encumbered! Carrying {totalWeight() - weightAllowance} lbs over your weight allowance. Movement and combat will be penalized.
+          ⚠ Encumbered! Carrying {formatEncumbranceValue(totalWeight() - weightAllowance)} {formatWeightUnit()} over your weight allowance. Movement and combat will be penalized.
         </div>
       {/if}
     {/if}

@@ -140,7 +140,7 @@ export const races = {
  * @param {Object} race - Race object from races
  * @returns {{ qualified: boolean, failedReqs: string[] }}
  */
-export function checkRaceRequirements(abilities, race) {
+export function checkRaceRequirements(abilities, race, { lenient = false } = {}) {
   const failedReqs = [];
 
   // Check minimums
@@ -159,7 +159,7 @@ export function checkRaceRequirements(abilities, race) {
   }
 
   return {
-    qualified: failedReqs.length === 0,
+    qualified: lenient || failedReqs.length === 0,
     failedReqs
   };
 }
@@ -183,9 +183,9 @@ export function applyRacialAdjustments(abilities, race) {
  * @param {Object} abilities - Character's ability scores
  * @returns {Array<{ key: string, race: Object, qualified: boolean, failedReqs: string[] }>}
  */
-export function getAvailableRaces(abilities) {
+export function getAvailableRaces(abilities, { lenient = false } = {}) {
   return Object.entries(races).map(([key, race]) => {
-    const check = checkRaceRequirements(abilities, race);
+    const check = checkRaceRequirements(abilities, race, { lenient });
     return {
       key,
       race,

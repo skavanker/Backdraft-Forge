@@ -1,0 +1,232 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ SETTINGS PANEL ════════════
+
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, 90vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 2px solid var(--border-strong);
+  @include rounded;
+  @include shadow;
+  z-index: 201;
+  padding: $space-lg;
+  animation: scaleIn 0.15s ease-out;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-lg;
+  padding-bottom: $space-sm;
+  border-bottom: 2px solid var(--border-color);
+
+  h3 {
+    margin: 0;
+    font-size: $text-lg;
+  }
+}
+
+.settings-close {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: $space-sm;
+  line-height: 1;
+
+  &:hover {
+    color: var(--text-primary);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.settings-section {
+  margin-bottom: $space-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.settings-section-title {
+  font-size: $text-sm;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: $space-md;
+  padding-bottom: $space-sm;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+  padding: $space-sm 0;
+
+  & + .setting-row {
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+.setting-label {
+  font-weight: 600;
+  color: var(--text-body);
+  font-size: $text-sm;
+}
+
+.setting-description {
+  font-size: $text-sm;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  line-height: 1.4;
+}
+
+// Toggle button group
+.toggle-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border-strong);
+  @include rounded;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.toggle-option {
+  padding: 0.35rem 0.65rem;
+  font-size: $text-sm;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border-color);
+  box-shadow: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  @include transition;
+  border-radius: 0;
+  white-space: nowrap;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &:hover:not(.active) {
+    background: var(--bg-subtle);
+    color: var(--text-body);
+    transform: none;
+    box-shadow: none;
+  }
+
+  &.active {
+    background: var(--gold-overlay);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+}
+
+// Checkbox setting
+.setting-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-sm;
+  padding: $space-sm 0;
+  cursor: pointer;
+
+  & + .setting-checkbox {
+    border-top: 1px solid var(--border-color);
+  }
+
+  input[type="checkbox"] {
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+  }
+}
+
+.setting-checkbox-text {
+  flex: 1;
+}
+
+// Actions section
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.settings-action-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--text-body);
+  padding: $space-sm $space-md;
+  text-align: left;
+  cursor: pointer;
+  font-size: $text-sm;
+  @include rounded;
+  @include transition;
+
+  &:hover {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    transform: none;
+    box-shadow: none;
+  }
+
+  &.danger {
+    color: var(--red);
+    &:hover {
+      background: var(--red-overlay);
+    }
+  }
+}
+
+.settings-confirm-row {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+  font-size: $text-sm;
+  color: var(--text-muted);
+}
+
+// Lenient mode badge
+.house-rules-badge {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--gold-overlay);
+  border: 1px solid var(--gold-overlay-border);
+  @include rounded;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+// Print
+@media print {
+  .settings-backdrop, .settings-panel {
+    display: none !important;
+  }
+}

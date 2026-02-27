@@ -10,10 +10,11 @@
   import CharacterSheet from './lib/CharacterSheet.svelte';
   import CharacterSummary from './lib/CharacterSummary.svelte';
   import ReviewStep from './lib/ReviewStep.svelte';
-  import { initTheme, toggleTheme } from './lib/theme.js';
   import { getCharacterFromUrl, encodeCharacter, decodeCharacter } from './lib/shareCharacter.js';
   import { isSpellcaster } from './data/spells.js';
   import { isTyping } from './lib/utils/keyboard.js';
+  import { settings, initSettings } from './lib/settings.svelte.js';
+  import SettingsPanel from './lib/components/SettingsPanel.svelte';
 
   const steps = [
     'Abilities',
@@ -28,7 +29,7 @@
   ];
 
   let currentStep = $state(0);
-  let theme = $state('light');
+  let settingsOpen = $state(false);
 
   function makeEmptyCharacter() {
     return {
@@ -131,8 +132,7 @@
   }
 
   onMount(() => {
-    initTheme();
-    theme = document.documentElement.getAttribute('data-theme') || 'light';
+    initSettings();
 
     // Async init (shared links, migration)
     (async () => {
@@ -180,6 +180,15 @@
         return;
       }
 
+      // Ctrl+E — export character code (on sheet step)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        if (currentStep === 8) {
+          e.preventDefault();
+          exportCharacterCode();
+        }
+        return;
+      }
+
       // Ctrl+Z — undo on character sheet
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         if (currentStep === 8 && undoStack.length > 0) {
@@ -189,9 +198,11 @@
         return;
       }
 
-      // Escape — close reset popup or go back a step
+      // Escape — close settings/reset popup or go back a step
       if (e.key === 'Escape') {
-        if (showResetConfirm) {
+        if (settingsOpen) {
+          settingsOpen = false;
+        } else if (showResetConfirm) {
           showResetConfirm = false;
         } else if (currentStep > 0 && currentStep < 8) {
           goToStep(currentStep - 1);
@@ -219,10 +230,6 @@
     window.addEventListener('keydown', handleKeydown);
     return () => window.removeEventListener('keydown', handleKeydown);
   });
-
-  function handleThemeToggle() {
-    theme = toggleTheme();
-  }
 
   const stepFields = {
     0: { fields: ['abilities', 'rollData'], next: 1 },
@@ -375,6 +382,14 @@
     clearMidCreation();
   }
 
+  async function exportCharacterCode() {
+    const encoded = encodeCharacter(character);
+    if (!encoded) { flashSave('Failed to generate code'); return; }
+    const { copyToClipboard } = await import('./lib/shareCharacter.js');
+    const success = await copyToClipboard(encoded);
+    flashSave(success ? 'Character code copied!' : 'Failed to copy code');
+  }
+
   function resetAll() {
     character = makeEmptyCharacter();
     currentStep = 0;
@@ -403,10 +418,36 @@
       &times;
     </button>
   {/if}
-  <button class="theme-toggle" onclick={handleThemeToggle} title="Toggle theme">
-    {theme === 'dark' ? '☀️' : '🌙'}
+  <button class="settings-toggle" onclick={() => settingsOpen = !settingsOpen} title="Settings">
+    &#9881;
   </button>
 </div>
+
+<SettingsPanel
+  open={settingsOpen}
+  onClose={() => settingsOpen = false}
+  showActions={currentStep === 8}
+  onSave={() => { saveToLocalStorage(); flashSave('Character saved'); }}
+  onShare={async () => {
+    const { generateShareableUrl, copyToClipboard } = await import('./lib/shareCharacter.js');
+    const url = generateShareableUrl(character);
+    if (!url) { flashSave('Failed to generate link'); return; }
+    const success = await copyToClipboard(url);
+    flashSave(success ? 'Link copied to clipboard!' : 'Failed to copy');
+  }}
+  onExportCode={exportCharacterCode}
+  onImport={handleImportCharacter}
+  onUndo={undo}
+  onPrint={() => window.print()}
+  onResetLevel={() => {
+    handleCharacterUpdate({
+      level: 1, xp: 0, hpHistory: [],
+      currentHP: null, thiefSkills: null, spells: null, proficiencies: null,
+    });
+  }}
+  canUndo={undoStack.length > 0}
+  charLevel={character.level || 1}
+/>
 
 <main>
   <header class="header">
@@ -550,7 +591,7 @@
       />
 
     {:else if currentStep === 8}
-      <CharacterSheet {character} onImport={handleImportCharacter} onSave={saveToLocalStorage} onCharacterUpdate={handleCharacterUpdate} onUndo={undo} canUndo={undoStack.length > 0} {undoMessage} {showUndoMessage} />
+      <CharacterSheet {character} onCharacterUpdate={handleCharacterUpdate} {undoMessage} {showUndoMessage} />
     {/if}
   </section>
 </main>
