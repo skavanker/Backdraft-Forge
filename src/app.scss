@@ -4,56 +4,47 @@
 
 :root {
   // ═══════════════════════════════════════════════════════════════
-  // CORE COLORS (8 total) - Light Theme
-  // Everything else derived from these
+  // CORE COLORS (8 total) - Light defaults
   // ═══════════════════════════════════════════════════════════════
 
   --parchment: #faf6ed;
   --parchment-dark: #e8d5b5;
-  --ink: #1a1410;
+  --text-primary: #1a1410;
   --gold: #c9a227;
   --gold-dark: #a68520;
-  --danger: #8b2500;
-  --success: #228b22;
-  --border: rgba(74, 60, 46, 0.2);
+  --red: #8b2500;
+  --green: #228b22;
+  --border-color: rgba(74, 60, 46, 0.2);
 
   // ═══════════════════════════════════════════════════════════════
-  // DERIVED COLORS (backwards compatible - mapped to core colors)
+  // OVERLAYS — auto-derived from accent colors via color-mix()
   // ═══════════════════════════════════════════════════════════════
 
-  // Backgrounds - derived from parchment
-  --bg-gradient-start: var(--parchment);
-  --bg-gradient-end: var(--parchment-dark);
+  --gold-overlay: color-mix(in srgb, var(--gold) 15%, transparent);
+  --gold-overlay-border: color-mix(in srgb, var(--gold) 30%, transparent);
+  --green-overlay: color-mix(in srgb, var(--green) 10%, transparent);
+  --green-overlay-border: color-mix(in srgb, var(--green) 30%, transparent);
+  --red-overlay: color-mix(in srgb, var(--red) 10%, transparent);
+  --red-overlay-border: color-mix(in srgb, var(--red) 30%, transparent);
+
+  // ═══════════════════════════════════════════════════════════════
+  // HAND-TUNED — theme-specific, overridden in dark theme
+  // ═══════════════════════════════════════════════════════════════
+
   --bg-card: rgba(250, 246, 237, 0.95);
   --bg-card-end: rgba(232, 213, 181, 0.95);
   --bg-panel: rgba(212, 188, 148, 0.3);
   --bg-subtle: rgba(0, 0, 0, 0.03);
   --bg-input: rgba(255, 255, 255, 0.8);
 
-  // Text - derived from ink (#1a1410)
-  --text-primary: var(--ink);
   --text-secondary: #2c241c;
   --text-body: #4a3c2e;
   --text-muted: #6b5a48;
   --text-faint: #8c7a66;
 
-  // Accents - use core colors
-  --red: var(--danger);
-  --green: var(--success);
-
-  // Overlays - derived from accents
-  --gold-overlay: rgba(201, 162, 39, 0.15);
-  --gold-overlay-border: rgba(201, 162, 39, 0.3);
-  --green-overlay: rgba(34, 139, 34, 0.1);
-  --green-overlay-border: rgba(34, 139, 34, 0.3);
-  --red-overlay: rgba(139, 37, 0, 0.1);
-  --red-overlay-border: rgba(139, 37, 0, 0.3);
-
-  --border-color: var(--border);
   --border-strong: rgba(74, 60, 46, 0.4);
   --shadow-color: rgba(26, 20, 16, 0.1);
 
-  // Buttons - derived from ink + parchment
   --btn-bg: linear-gradient(to bottom, #4a3c2e 0%, #2c241c 100%);
   --btn-bg-hover: linear-gradient(to bottom, #6b5a48 0%, #4a3c2e 100%);
   --btn-text: #f4e8d1;
@@ -61,82 +52,35 @@
 
 // Dark theme - Aged Leather / Tome
 [data-theme="dark"] {
-
-  // ═══════════════════════════════════════════════════════════════
-  // CORE COLORS (8 total) - Dark Theme
-  // ═══════════════════════════════════════════════════════════════
-
   --parchment: #1e1a15;
   --parchment-dark: #12100d;
-  --ink: #f0e6d6;
+  --text-primary: #f0e6d6;
   --gold: #d4af37;
   --gold-dark: #b8962d;
-  --danger: #c44a2d;
-  --success: #2ea043;
-  --border: rgba(180, 160, 130, 0.15);
+  --red: #c44a2d;
+  --green: #2ea043;
+  --border-color: rgba(180, 160, 130, 0.15);
 
-  // ═══════════════════════════════════════════════════════════════
-  // DERIVED COLORS (backwards compatible - mapped to core colors)
-  // ═══════════════════════════════════════════════════════════════
-
-  // Backgrounds - derived from parchment
-  --bg-gradient-start: var(--parchment);
-  --bg-gradient-end: var(--parchment-dark);
   --bg-card: rgba(35, 30, 25, 0.95);
   --bg-card-end: rgba(18, 16, 13, 0.95);
   --bg-panel: rgba(45, 38, 30, 0.5);
   --bg-subtle: rgba(255, 255, 255, 0.03);
   --bg-input: rgba(50, 42, 34, 0.7);
 
-  // Text - derived from ink (#f0e6d6)
-  --text-primary: var(--ink);
   --text-secondary: #d4c8b4;
   --text-body: #b8a890;
   --text-muted: #8c7a66;
   --text-faint: #6b5a48;
 
-  // Accents - use core colors
-  --red: var(--danger);
-  --green: var(--success);
-
-  // Overlays - derived from accents
-  --gold-overlay: rgba(212, 175, 55, 0.15);
-  --gold-overlay-border: rgba(212, 175, 55, 0.3);
-  --green-overlay: rgba(46, 160, 67, 0.1);
-  --green-overlay-border: rgba(46, 160, 67, 0.3);
-  --red-overlay: rgba(196, 74, 45, 0.1);
-  --red-overlay-border: rgba(196, 74, 45, 0.3);
-
-  --border-color: var(--border);
   --border-strong: rgba(180, 160, 130, 0.25);
   --shadow-color: rgba(0, 0, 0, 0.3);
 
-  // Buttons - derived from ink + parchment
   --btn-bg: linear-gradient(to bottom, #3d3428 0%, #2a241e 100%);
   --btn-bg-hover: linear-gradient(to bottom, #4d4235 0%, #3d3428 100%);
   --btn-text: #e8dcc8;
 }
 
-// =============================================================================
-// SCSS VARIABLES (non-themed)
-// =============================================================================
-
-$font-display: 'Cinzel', 'Times New Roman', serif;
-$font-body: 'Crimson Text', 'Georgia', serif;
-
-$space-xs: 0.25rem;
-$space-sm: 0.5rem;
-$space-md: 1rem;
-$space-lg: 1.5rem;
-$space-xl: 2rem;
-$space-2xl: 3rem;
-
-// Font sizes (standardized across all components)
-$text-xs: 0.75rem;    // Small badges, meta text
-$text-sm: 0.875rem;   // Hints, descriptions, secondary text
-$text-base: 1rem;     // Body text, card names
-$text-lg: 1.125rem;   // Section headers
-$text-xl: 1.25rem;    // Major headers
+@import './styles/mixins.scss';
 
 // =============================================================================
 // BASE STYLES
@@ -155,7 +99,7 @@ body {
   min-height: 100vh;
   background:
     linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%),
-    linear-gradient(to bottom, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    linear-gradient(to bottom, var(--parchment) 0%, var(--parchment-dark) 100%);
   color: var(--text-body);
   font-family: $font-body;
   line-height: 1.6;
@@ -165,7 +109,7 @@ body {
 #app {
   max-width: 960px;
   margin: 0 auto;
-  padding: $space-xl;
+  padding: $space-lg;
   min-height: 100vh;
 }
 
@@ -207,13 +151,13 @@ h2 {
     display: block;
     width: 120px;
     height: 2px;
-    margin: $space-xs auto 0;
+    margin: $space-sm auto 0;
     background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
   }
 }
 
 h3 {
-  font-size: $text-xl;
+  font-size: $text-lg;
   color: var(--text-primary);
 }
 
@@ -250,7 +194,7 @@ p {
 
 // Small meta/descriptive text (ability names, damage, etc)
 .meta-text {
-  font-size: $text-xs;
+  font-size: $text-sm;
   color: var(--text-muted);
 }
 
@@ -258,7 +202,7 @@ p {
 .badge {
   display: inline-block;
   padding: 0.2rem 0.5rem;
-  font-size: $text-xs;
+  font-size: $text-sm;
   font-weight: 600;
   border-radius: 2px;
   text-transform: uppercase;
@@ -322,7 +266,7 @@ button {
   font-weight: 600;
   font-family: $font-display;
   letter-spacing: 0.03em;
-  padding: $space-md $space-xl;
+  padding: $space-md $space-lg;
 
   &:hover:not(:disabled) {
     background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
@@ -345,7 +289,7 @@ button {
 }
 
 .btn-sm {
-  padding: $space-xs $space-md;
+  padding: $space-sm $space-md;
   font-size: $text-sm;
 }
 
@@ -392,7 +336,7 @@ label {
   background: linear-gradient(to bottom, var(--bg-card) 0%, var(--bg-card-end) 100%);
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  padding: $space-xl;
+  padding: $space-lg;
   box-shadow: 0 4px 16px var(--shadow-color);
   position: relative;
 
@@ -418,13 +362,6 @@ label {
     right: 8px;
     border-width: 0 2px 2px 0;
   }
-}
-
-.panel {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-color);
-  border-radius: 2px;
-  padding: $space-lg;
 }
 
 // =============================================================================
@@ -488,7 +425,7 @@ button, .class-card, .kit-card, .school-card, .deity-card, .option-card {
   display: flex;
   align-items: center;
   gap: $space-md;
-  margin: $space-xl 0;
+  margin: $space-lg 0;
 
   &::before,
   &::after {
@@ -508,7 +445,7 @@ hr {
   border: none;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border-color), transparent);
-  margin: $space-xl 0;
+  margin: $space-lg 0;
 }
 
 // =============================================================================

@@ -33,7 +33,7 @@
   }
 </script>
 
-<div class="wizard-step">
+<div class="flex-column gap-lg">
   <p class="intro">
     Based on your ability scores, you qualify for <strong>{qualifiedCount}</strong> of {raceOptions.length} races.
   </p>
@@ -87,7 +87,7 @@
 
       <div class="abilities-section">
         <h4>Adjusted Abilities</h4>
-        <div class="ability-comparison">
+        <div class="flex-column gap-sm">
           {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
             {@const base = abilities[ability]}
             {@const adjusted = adjustedAbilities[ability]}
@@ -122,7 +122,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/selectors';
 </style>
 

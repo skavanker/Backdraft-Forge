@@ -53,15 +53,30 @@ npm run preview  # preview production build
 ## Code Organization
 
 ### CSS/SCSS Structure
-- **All component styles are in ONE file: `src/lib/components.module.scss`**
+- **Component styles are split into focused partials in `src/lib/styles/`**:
+  - `_shared.scss` — Card patterns, selection grids, data rows (used by 3+ components)
+  - `_sheet.scss` — CharacterSheet, sub-panels, menus, XP, turn undead, editable input
+  - `_selectors.scss` — Race/Class/Deity/Kit selection
+  - `_equipment.scss` — Equipment & gear sections
+  - `_spells.scss` — Spell selection & manage mode
+  - `_proficiency.scss` — Proficiency selection
+  - `_levelup.scss` — Level-up wizard modal
+  - `_roller.scss` — Ability rolling, dice roller, manual entry
+  - `_backstory.scss` — Backstory & name entry
+  - `_review.scss` — Review, summary, preview
+  - `_widgets.scss` — Tooltip, SlotCounter, AbilityBadge, ImportArea, GridSection, SelectableChip
 - Never inline CSS in `<style>` blocks within `.svelte` files
-- All components import the same stylesheet: `<style lang="scss">@import './components.module.scss';</style>`
+- Each component imports only the partials it needs: `<style lang="scss">@import './styles/shared'; @import './styles/sheet';</style>`
+- `src/lib/components.module.scss` exists as a barrel file (imports all partials) but is NOT imported by components directly
 - Design tokens (spacing, font sizes, border radius) are defined in `src/styles/mixins.scss`:
-  - Spacing: `$space-xs` through `$space-2xl`
-  - Font sizes: `$text-xs` through `$text-xl`
-  - Border radius: `$radius-sm`, `$radius`, `$radius-md`, `$radius-lg`
+  - Spacing: `$space-sm` (0.5rem), `$space-md` (1rem), `$space-lg` (1.5rem)
+  - Font sizes: `$text-sm` (0.875rem), `$text-base` (1rem), `$text-lg` (1.25rem)
+  - Border radius: `$radius` (4px) — single value
+- Generic reusable classes in `src/styles/_utilities.scss`:
+  - Panels: `.panel`, `.panel-subtle`, `.panel-lg` (bg + border + rounded + padding)
+  - Alerts: `.alert` + `.alert-info`, `.alert-success`, `.alert-warning`, `.alert-danger`
 - Shared utilities and mixins live in `src/styles/_utilities.scss` and `src/styles/mixins.scss`
-- **Simplification over design variation**: Use existing classes/tokens rather than creating slight variations
+- **Simplification over design variation**: Use existing generic classes/tokens rather than creating slight variations
 
 ### Component Extraction
 - Keep components focused and single-purpose

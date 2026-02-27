@@ -43,32 +43,4 @@
   </div>
 {/if}
 
-<style lang="scss">
-  @import '../styles/mixins.scss';
-
-  .import-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $space-sm;
-    width: 100%;
-    max-width: 500px;
-
-    textarea {
-      width: 100%;
-      padding: $space-md;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: var(--bg-input);
-      resize: vertical;
-    }
-  }
-
-  .import-error {
-    padding: $space-sm $space-md;
-    background: rgba(180, 60, 40, 0.15);
-    border: 1px solid rgba(180, 60, 40, 0.3);
-    border-radius: 4px;
-    color: var(--red);
-  }
-</style>
+<style lang="scss">@import './styles/widgets';</style>

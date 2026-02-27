@@ -98,7 +98,7 @@
   });
 </script>
 
-<div class="wizard-step">
+<div class="flex-column gap-lg">
   <p class="intro">
     As a <strong>{race.name}</strong>, you qualify for <strong>{qualifiedCount}</strong> of {classOptions.length} classes.
   </p>
@@ -120,7 +120,7 @@
               >
                 <div class="card-header">
                   <h4 class="card-name">{cls.name}</h4>
-                  <span class="hit-die">{cls.hitDie}</span>
+                  <span class="badge-small">{cls.hitDie}</span>
                 </div>
                 <p class="card-desc">{cls.description}</p>
 
@@ -146,7 +146,7 @@
 
   <!-- School Selection (for Specialist Wizards) -->
   {#if selectedClass && selectedClassKey === 'specialist'}
-    <div class="selection-section">
+    <div class="selection-section panel panel-lg">
       <div class="section-header">
         <h3>Choose Your School of Magic</h3>
         <p class="section-hint">Specialist wizards gain bonus spells but cannot cast from opposition schools.</p>
@@ -177,7 +177,7 @@
 
   <!-- Kit Selection (appears underneath class grid) -->
   {#if selectedClass && hasKits && selectedClassKey !== 'specialist'}
-    <div class="selection-section">
+    <div class="selection-section panel panel-lg">
       <div class="section-header">
         <h3>Choose a Kit (Optional)</h3>
         <p class="section-hint">Kits modify your class with special abilities and restrictions. You can play without a kit.</p>
@@ -218,7 +218,7 @@
       </div>
 
       {#if selectedKit && selectedKit !== null}
-        <div class="kit-details fade-in">
+        <div class="kit-details panel-subtle panel-lg fade-in">
           <div class="kit-abilities">
             <h5>Special Abilities</h5>
             <ul>
@@ -242,7 +242,7 @@
 
   <!-- Deity Selection (for Clerics/Paladins) - after kit selection -->
   {#if selectedClass && needsDeity}
-    <div class="selection-section">
+    <div class="selection-section panel panel-lg">
       <div class="section-header">
         <h3>Choose Your Deity (Optional)</h3>
         <p class="section-hint">Your deity determines which spell spheres you can access. Skip for standard cleric access.</p>
@@ -298,23 +298,23 @@
 
       <div class="stats-section">
         <h4>Class Stats</h4>
-        <div class="stat-list">
-          <div class="stat-row">
+        <div class="flex-column gap-sm">
+          <div class="data-row">
             <span class="stat-label">Hit Die</span>
             <span class="stat-value">{selectedClass.cls.hitDie}</span>
           </div>
-          <div class="stat-row">
+          <div class="data-row">
             <span class="stat-label">Prime Requisite</span>
             <span class="stat-value">{selectedClass.cls.primeRequisite.join(', ')}</span>
           </div>
           {#if selectedClass.xpBonus > 0}
-            <div class="stat-row highlight">
+            <div class="data-row highlight">
               <span class="stat-label">XP Bonus</span>
               <span class="stat-value">+{selectedClass.xpBonus}%</span>
             </div>
           {/if}
           {#if selectedClass.levelLimit !== null}
-            <div class="stat-row warning">
+            <div class="data-row warning">
               <span class="stat-label">Level Limit</span>
               <span class="stat-value">{selectedClass.levelLimit}</span>
             </div>
@@ -328,7 +328,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/selectors';
 </style>
 

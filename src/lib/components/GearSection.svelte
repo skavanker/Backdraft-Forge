@@ -41,47 +41,4 @@
   </div>
 </div>
 
-<style lang="scss">
-  @import '../../styles/mixins.scss';
-
-  .item-card {
-    @include selectable-chip;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.6rem 0.8rem;
-    text-align: left;
-    width: 100%;
-    position: relative;
-
-    &.small {
-      padding: 0.4rem 0.6rem;
-    }
-
-    &:hover:not(.disabled) {
-      .item-name {
-        color: var(--text-secondary);
-      }
-    }
-  }
-
-  .item-name {
-    flex: 1;
-  }
-
-  .item-price {
-    color: var(--gold-dark);
-    margin-left: $space-sm;
-  }
-
-  .qty-badge {
-    background: var(--gold);
-    color: var(--bg-card);
-    border-radius: 8px;
-    padding: 0 0.35rem;
-    margin-left: $space-xs;
-    line-height: 1.4;
-    font-size: $text-xs;
-  }
-</style>
+<style lang="scss">@import '../styles/equipment';</style>

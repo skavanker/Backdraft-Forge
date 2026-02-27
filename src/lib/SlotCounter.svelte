@@ -9,19 +9,4 @@
   </span>
 </div>
 
-<style lang="scss">
-  @import '../styles/mixins.scss';
-
-  .slot-counter {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $space-xs;
-
-    .slot-value {
-      &.complete {
-        color: var(--green);
-      }
-    }
-  }
-</style>
+<style lang="scss">@import './styles/widgets';</style>

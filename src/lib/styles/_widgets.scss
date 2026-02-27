@@ -1,0 +1,99 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ TOOLTIP ════════════
+.tooltip-wrap { display: inline-block; }
+.tooltip {
+  position: fixed;
+  z-index: 1000;
+  padding: $space-sm $space-md;
+  background: var(--text-primary);
+  color: var(--parchment);
+  @include rounded;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  white-space: normal;
+}
+
+// ════════════ SLOT COUNTER ════════════
+.slot-counter {
+  @extend .flex-column;
+  align-items: center;
+  gap: $space-sm;
+  .slot-value { &.complete { color: var(--green); } }
+}
+
+// ════════════ ABILITY BADGE ════════════
+.ability-badge {
+  @extend .flex-column;
+  align-items: center;
+  padding: $space-sm $space-md;
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  @include rounded;
+  min-width: 50px;
+}
+.ability {
+  border: 2px solid var(--border-color);
+  padding: $space-md $space-sm;
+  background: var(--bg-input);
+  text-align: center;
+}
+@media print {
+  .ability .name, .ability .score, .ability .mod { color: #000 !important; }
+  .ability { background: white !important; border-color: #000 !important; }
+}
+
+// ════════════ IMPORT AREA ════════════
+.import-area {
+  @extend .flex-column;
+  align-items: center;
+  gap: $space-sm;
+  width: 100%;
+  max-width: 500px;
+  textarea {
+    width: 100%;
+    padding: $space-md;
+    @include border-default;
+    @include rounded;
+    background: var(--bg-input);
+    resize: vertical;
+  }
+}
+.import-error {
+  padding: $space-sm $space-md;
+  background: rgba(180, 60, 40, 0.15);
+  border: 1px solid rgba(180, 60, 40, 0.3);
+  @include rounded;
+  color: var(--red);
+}
+
+// ════════════ GRID SECTION ════════════
+.grid-section { h3 { margin: 0 0 $space-sm; } }
+
+// ════════════ SELECTABLE CHIP ════════════
+.selectable-chip {
+  @include selectable-chip;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  &:hover:not(.disabled):not(.auto):not(.locked) { color: var(--text-secondary); }
+  &.auto { border-color: var(--border-strong); cursor: default; opacity: 0.9; }
+  &.locked { cursor: default; opacity: 0.7; }
+  &:has(.item-name) { flex-direction: column; align-items: flex-start; padding: 0.6rem 0.8rem; }
+}
+.chip-name { flex: 1; }
+.chip-meta { padding: 0.1rem 0.3rem; background: var(--bg-panel); border-radius: 2px; flex-shrink: 0; }
+.chip-cost {
+  color: var(--gold-dark);
+  padding: 0.1rem 0.35rem;
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.chip-lock { font-size: 0.7em; margin-left: 0.3rem; flex-shrink: 0; }

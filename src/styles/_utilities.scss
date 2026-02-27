@@ -74,20 +74,6 @@
   flex-wrap: wrap;
 }
 
-// ─── Grid Mixins ────────────────────────────────────────────────────────────
-
-@mixin grid-responsive($min-size: 200px) {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax($min-size, 1fr));
-  gap: $space-sm;
-}
-
-@mixin grid-auto-fit($min-size: 200px) {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax($min-size, 1fr));
-  gap: $space-sm;
-}
-
 // Grid utility classes (for common sizes)
 .grid-cards {
   @include grid-responsive(220px);
@@ -103,11 +89,9 @@
 
 // ─── Spacing Utilities ──────────────────────────────────────────────────────
 
-.gap-xs { gap: $space-xs; }
 .gap-sm { gap: $space-sm; }
 .gap-md { gap: $space-md; }
 .gap-lg { gap: $space-lg; }
-.gap-xl { gap: $space-xl; }
 
 // ─── Text Utilities ─────────────────────────────────────────────────────────
 
@@ -143,10 +127,61 @@
 
 // Small badge/chip pattern (used for hit-die, level-limit, etc)
 .badge-small {
-  padding: $space-xs $space-sm;
+  padding: $space-sm $space-sm;
   background: var(--bg-panel);
-  border-radius: $radius-sm;
+  border-radius: $radius;
   font-size: $text-sm;
+}
+
+// ─── Panel Variants ─────────────────────────────────────────────────────────
+
+.panel {
+  background: var(--bg-panel);
+  @include border-default;
+  @include rounded;
+  padding: $space-md;
+}
+
+.panel-subtle {
+  background: var(--bg-subtle);
+  @include border-default;
+  @include rounded;
+  padding: $space-md;
+}
+
+.panel-lg {
+  padding: $space-lg;
+}
+
+// ─── Alert Variants ─────────────────────────────────────────────────────────
+
+.alert {
+  padding: $space-sm $space-md;
+  @include rounded;
+}
+
+.alert-info {
+  background: rgba(100, 100, 180, 0.15);
+  border: 1px solid rgba(100, 100, 180, 0.3);
+  color: var(--text-body);
+}
+
+.alert-success {
+  background: var(--green-overlay);
+  border: 1px solid var(--green-overlay-border);
+  color: var(--green);
+}
+
+.alert-warning {
+  background: var(--gold-overlay);
+  border: 1px solid var(--gold-overlay-border);
+  color: var(--gold-dark);
+}
+
+.alert-danger {
+  background: var(--red-overlay);
+  border: 1px solid var(--red-overlay-border);
+  color: var(--red);
 }
 
 // ─── Border Utilities ───────────────────────────────────────────────────────
@@ -171,23 +206,11 @@
   border-radius: $radius;
 }
 
-.rounded-sm {
-  border-radius: $radius-sm;
-}
-
-.rounded-md {
-  border-radius: $radius-md;
-}
-
-.rounded-lg {
-  border-radius: $radius-lg;
-}
-
 .rounded-full {
   border-radius: 50%;
 }
 
-// ─── Shadow Utilities (simplified to 1 standard)────────────────────────────
+// ─── Shadow Utilities ───────────────────────────────────────────────────────
 
 .shadow {
   box-shadow: 0 4px 16px var(--shadow-color);
@@ -197,7 +220,7 @@
   box-shadow: none;
 }
 
-// ─── Transition Utilities (simplified to 1 standard) ───────────────────────
+// ─── Transition Utilities ───────────────────────────────────────────────────
 
 .transition {
   transition: all 0.2s ease;

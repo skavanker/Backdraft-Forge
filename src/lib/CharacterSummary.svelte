@@ -10,7 +10,7 @@
 </script>
 
 {#if showSummary}
-  <div class="character-summary">
+  <div class="character-summary panel">
     {#if hasName || hasRace || hasClass}
       <div class="summary-main">
         {#if hasName}
@@ -45,8 +45,5 @@
 {/if}
 
 
-<style lang="scss">
-  @import './components.module.scss';
-
-</style>
+<style lang="scss">@import './styles/review';</style>
 

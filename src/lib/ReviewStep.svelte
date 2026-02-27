@@ -21,7 +21,7 @@
   initHPHistory();
 </script>
 
-<div class="character-review">
+<div class="flex-column gap-lg" style="align-items:center">
   <div class="review-header">
     <span class="review-race">{character.race.name}</span>
     <span>
@@ -36,7 +36,7 @@
   </div>
 
   <div class="review-grid">
-    <div class="review-section">
+    <div class="review-section panel">
       <h4>Ability Scores</h4>
       <div class="ability-summary">
         {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
@@ -50,9 +50,9 @@
       </div>
     </div>
 
-    <div class="review-section">
+    <div class="review-section panel">
       <h4>Class Info</h4>
-      <div class="info-list">
+      <div class="flex-column gap-sm">
         <div class="info-row">
           <span>Hit Die</span>
           <span>{character.cls.hitDie}</span>
@@ -122,7 +122,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/review';
 </style>
 

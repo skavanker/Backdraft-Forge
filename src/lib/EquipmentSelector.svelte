@@ -246,7 +246,7 @@
   });
 </script>
 
-<div class="wizard-step">
+<div class="flex-column gap-lg">
   <!-- Gold Section -->
   <div class="gold-section">
     {#if !goldRolled}
@@ -276,7 +276,7 @@
         </div>
       </div>
     {:else}
-      <div class="gold-display">
+      <div class="gold-display panel">
         <button class="reroll-btn" onclick={resetGold} title="Reset gold">×</button>
         <div class="gold-stat">
           <span class="gold-label">Gold</span>
@@ -302,7 +302,7 @@
         </div>
       </div>
       {#if isEncumbered}
-        <div class="encumbrance-warning">
+        <div class="encumbrance-warning alert alert-danger">
           ⚠ Encumbered! Carrying {totalWeight() - weightAllowance} lbs over your weight allowance. Movement and combat will be penalized.
         </div>
       {/if}
@@ -310,7 +310,7 @@
   </div>
 
   {#if goldRolled}
-    <div class="equipment-sections">
+    <div class="flex-column gap-lg">
       <!-- Armor -->
       {#if allowedArmor.length > 0}
         <div class="section">
@@ -506,7 +506,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/equipment';
 </style>
 

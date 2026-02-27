@@ -1,0 +1,82 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ UNIVERSAL CARD PATTERN ════════════
+.card {
+  @include selectable-card;
+  display: flex;
+  flex-direction: column;
+  padding: $space-md;
+  &.disabled { opacity: 0.5; background: var(--bg-subtle); }
+}
+
+// ════════════ SHARED PATTERNS ════════════
+.intro { text-align: center; }
+.section-title {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-bottom: $space-sm;
+  border-bottom: 1px solid var(--border-color);
+}
+.selection-grid { @include grid-responsive(220px); }
+
+// Universal card for all selections
+.selection-card {
+  @extend .card;
+  align-items: flex-start;
+  text-align: left;
+  min-height: 120px;
+  &:hover:not(.disabled) {
+    .card-name,
+    .card-desc { color: var(--text-secondary); }
+  }
+  &.selected {
+    background: var(--gold-overlay);
+    &:hover:not(.disabled) { background: var(--gold-overlay); }
+  }
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: $space-sm;
+}
+.level-limit { @extend .badge-small; background: var(--gold-overlay); color: var(--gold-dark); }
+.unavailable-badge {
+  @extend .badge-small;
+  margin-top: $space-md;
+  background: var(--red-overlay);
+  border: 1px solid var(--red-overlay-border);
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.card-desc { flex: 1; font-size: $text-sm; color: var(--text-muted); line-height: 1.4; }
+.card-meta { display: flex; gap: $space-sm; margin-top: $space-md; flex-wrap: wrap; }
+.adjustment {
+  @extend .badge-small;
+  &.positive { background: var(--green-overlay); @extend .text-positive; }
+  &.negative { background: var(--red-overlay); @extend .text-negative; }
+}
+
+// ════════════ SHARED LISTS ════════════
+.features-list,
+.traits-list { margin: 0; padding-left: $space-lg; li { margin-bottom: $space-sm; } }
+
+// ════════════ DATA ROW ════════════
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  padding: $space-sm 0;
+  border-bottom: 1px dotted var(--border-color);
+  &.locked { opacity: 0.4; font-style: italic; }
+}
+
+// ════════════ UTILITY: Remove button ════════════
+.has-remove {
+  flex-wrap: nowrap;
+  > span:first-child { flex: 1; min-width: 0; }
+  > .val { flex-shrink: 0; text-align: right; }
+  .remove-btn { opacity: 0; @include transition; }
+  &:hover .remove-btn { opacity: 0.5; }
+}

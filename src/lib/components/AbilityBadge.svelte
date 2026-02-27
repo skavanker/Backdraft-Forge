@@ -34,40 +34,4 @@
   </div>
 {/if}
 
-<style lang="scss">
-  @import '../../styles/mixins.scss';
-
-  /* Simple variant (ReviewStep) */
-  .ability-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: $space-sm $space-md;
-    background: rgba(201, 162, 39, 0.15);
-    border: 1px solid rgba(201, 162, 39, 0.3);
-    border-radius: 4px;
-    min-width: 50px;
-  }
-
-  /* Detailed variant (CharacterSheet) */
-  .ability {
-    border: 2px solid var(--border-color);
-    padding: $space-md $space-xs;
-    background: var(--bg-input);
-    text-align: center;
-  }
-
-  /* Print styles */
-  @media print {
-    .ability .name,
-    .ability .score,
-    .ability .mod {
-      color: #000 !important;
-    }
-
-    .ability {
-      background: white !important;
-      border-color: #000 !important;
-    }
-  }
-</style>
+<style lang="scss">@import '../styles/widgets';</style>

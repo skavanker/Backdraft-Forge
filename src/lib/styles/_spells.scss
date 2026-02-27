@@ -1,0 +1,28 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ SPELL SELECTOR ════════════
+.no-spells { text-align: center; p { margin-bottom: $space-lg; } }
+.school-note { text-align: center; }
+.auto-spell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  .spell-name { color: var(--green); }
+}
+.spell-grid { display: flex; flex-wrap: wrap; gap: $space-sm; }
+.selected-summary {
+  h4 { margin: 0 0 $space-sm; }
+  ul { margin: 0; padding-left: $space-lg; li { margin-bottom: $space-sm; } }
+}
+
+// ════════════ MANAGE MODE ════════════
+.manage-section {
+  @extend .flex-column;
+  gap: $space-md;
+  h3 { border-bottom: 2px solid var(--gold); padding-bottom: $space-sm; }
+}
+.level-header { display: flex; justify-content: space-between; align-items: center; h4 { margin: 0; } }
+.spell-subsection h5 { margin: $space-sm 0; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.manage-actions { display: flex; gap: $space-md; justify-content: center; margin-top: $space-lg; }
+.manage-mode { max-height: 80vh; overflow-y: auto; }

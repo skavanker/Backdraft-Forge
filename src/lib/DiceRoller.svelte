@@ -224,7 +224,7 @@
 
   <!-- Exceptional Strength -->
   {#if needsExceptionalRoll}
-    <div class="exceptional-prompt">
+    <div class="exceptional-prompt alert alert-warning">
       <p><strong>18 Strength!</strong> Warriors with exceptional strength roll d100 for additional power.</p>
       <button class="btn-primary" onclick={rollExceptional}>
         🎲 Roll Exceptional Strength
@@ -245,7 +245,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/roller';
 </style>
 

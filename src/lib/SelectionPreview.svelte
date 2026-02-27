@@ -17,8 +17,5 @@
 </div>
 
 
-<style lang="scss">
-  @import './components.module.scss';
-
-</style>
+<style lang="scss">@import './styles/review';</style>
 

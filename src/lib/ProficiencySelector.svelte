@@ -235,13 +235,13 @@
   });
 </script>
 
-<div class="wizard-step">
-  <div class="slot-summary">
+<div class="flex-column gap-lg">
+  <div class="slot-summary panel">
     <SlotCounter label="Weapon Proficiencies" used={weaponSlotsUsed} total={weaponSlots} />
     <SlotCounter label="Non-Weapon Proficiencies" used={nonWeaponSlotsUsed} total={nonWeaponSlots} />
   </div>
 
-  <div class="proficiency-sections">
+  <div class="flex-column gap-lg">
     <!-- Weapon Proficiencies -->
     <div class="section">
       <h3>Weapon Proficiencies</h3>
@@ -252,12 +252,12 @@
         {/if}
       </p>
 
-      <div class="weapon-section">
+      <div class="prof-column-section">
         {#each Object.entries(groupedWeapons()) as [groupKey, group]}
           {#if group.weapons.length > 0}
-            <div class="weapon-group">
+            <div class="prof-group">
               <h4 class="group-title">{group.name}</h4>
-              <div class="weapon-grid">
+              <div class="flex-column gap-sm">
                 {#each group.weapons as weapon}
                   {@const isLocked = lockedWeapons.includes(weapon.key)}
                   {@const selected = selectedWeapons.includes(weapon.key)}
@@ -319,16 +319,16 @@
         {/if}
       </p>
 
-      <div class="nonweapon-section">
+      <div class="prof-column-section">
         {#each Object.entries(groupedProficiencies()) as [groupKey, group]}
           {#if group.profs.length > 0}
             {@const costForGroup = group.profs[0]?.cost ?? 1}
-            <div class="proficiency-group">
+            <div class="prof-group">
               <h4 class="group-title">
                 {group.name}
                 <span class="group-cost">({costForGroup} slot{costForGroup !== 1 ? 's' : ''} each)</span>
               </h4>
-              <div class="proficiency-grid">
+              <div class="flex-column gap-sm">
                 {#each group.profs as prof}
                   {@const isLocked = lockedNonWeapon.includes(prof.key)}
                   {@const selected = selectedNonWeapon.includes(prof.key)}
@@ -355,7 +355,7 @@
 
   <!-- Selection Summary -->
   {#if selectedWeapons.length > 0 || selectedNonWeapon.length > 0}
-    <div class="selection-summary">
+    <div class="selection-summary panel-subtle">
       <div class="divider"><span class="ornament">◆</span></div>
 
       <h3>Selected Proficiencies</h3>
@@ -409,7 +409,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/proficiency';
 </style>
 

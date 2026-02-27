@@ -301,7 +301,7 @@
   }
 </script>
 
-<div class="wizard-step" class:manage-mode={mode === 'manage'}>
+<div class="flex-column gap-lg" class:manage-mode={mode === 'manage'}>
   {#if mode === 'manage'}
     <!-- ═══ MANAGE MODE ═══════════════════════════════════ -->
     {#if usesArcane && classKey !== 'ranger'}
@@ -314,7 +314,7 @@
           {@const bookSpells = manageSpellbook[level] || []}
           {@const memSpells = manageMemorized[level] || []}
           {#if slots > 0}
-            <div class="level-section">
+            <div class="flex-column gap-sm panel">
               <div class="level-header">
                 <h4>{ordinal(Number(level))} Level</h4>
                 <SlotCounter label="Memorized" used={memSpells.length} total={slots} />
@@ -368,7 +368,7 @@
           {@const slots = getSlotsForLevel(Number(level))}
           {@const prepSpells = managePrepared[level] || []}
           {#if slots > 0}
-            <div class="level-section">
+            <div class="flex-column gap-sm panel">
               <div class="level-header">
                 <h4>{ordinal(Number(level))} Level</h4>
                 <SlotCounter label="Prepared" used={prepSpells.length} total={slots} />
@@ -401,7 +401,7 @@
           {@const slots = getSlotsForLevel(Number(level))}
           {@const prepSpells = managePrepared[level] || []}
           {#if slots > 0}
-            <div class="level-section">
+            <div class="flex-column gap-sm panel">
               <div class="level-header">
                 <h4>{ordinal(Number(level))} Level</h4>
                 <SlotCounter label="Prepared" used={prepSpells.length} total={slots} />
@@ -432,7 +432,7 @@
           {@const bookSpells = manageSpellbook[level] || []}
           {@const memSpells = manageMemorized[level] || []}
           {#if slots > 0}
-            <div class="level-section">
+            <div class="flex-column gap-sm panel">
               <div class="level-header">
                 <h4>{ordinal(Number(level))} Level</h4>
                 <SlotCounter label="Memorized" used={memSpells.length} total={slots} />
@@ -493,8 +493,8 @@
       </div>
 
     {:else if isWizard}
-      <div class="wizard-spells">
-        <div class="spell-header">
+      <div class="flex-column gap-lg">
+        <div class="flex-column gap-md" style="align-items:center">
           <p class="section-hint">
             Your spellbook starts with <strong>Read Magic</strong> plus
             <strong>{startingCount - 1}</strong> additional spells based on your Intelligence.
@@ -503,13 +503,13 @@
         </div>
 
         {#if wizardSchool}
-          <p class="section-hint school-note">
+          <p class="section-hint school-note alert alert-warning">
             As a {wizardSchool.name}, you cannot learn spells from:
             <strong>{wizardSchool.oppositionSchools.join(', ')}</strong>
           </p>
         {/if}
 
-        <div class="auto-spell">
+        <div class="auto-spell alert alert-success">
           <span class="auto-label">Automatically included:</span>
           <span class="spell-name">Read Magic</span>
           <span class="spell-school">(Divination)</span>
@@ -536,7 +536,7 @@
         {/each}
 
         {#if selectedSpells.length > 0}
-          <div class="selected-summary">
+          <div class="selected-summary panel">
             <h4>Your Spellbook</h4>
             <ul>
               <li><strong>Read Magic</strong> (required)</li>
@@ -561,8 +561,8 @@
       </div>
 
     {:else if isDivine}
-      <div class="divine-spells">
-        <div class="spell-header">
+      <div class="flex-column gap-lg">
+        <div class="flex-column gap-md" style="align-items:center">
           <p class="section-hint">
             As a {classKey === 'cleric' ? 'Cleric' : 'Druid'}, you have access to
             {deityOverride ? deityOverride.name + "'s" : 'all 1st-level ' + (classKey === 'cleric' ? 'clerical' : 'druidic')} spells.
@@ -587,7 +587,7 @@
         </div>
 
         {#if preparedSpells.length > 0}
-          <div class="selected-summary">
+          <div class="selected-summary panel">
             <h4>Prepared Spells</h4>
             <ul>
               {#each preparedSpells as spell}
@@ -615,7 +615,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/spells';
 </style>
 

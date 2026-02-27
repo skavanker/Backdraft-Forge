@@ -1,0 +1,32 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ PROFICIENCY SELECTOR ════════════
+.slot-summary { display: flex; justify-content: center; gap: $space-lg; }
+.remaining { color: var(--gold-dark); }
+.prof-column-section {
+  columns: 4 180px;
+  column-gap: $space-lg;
+  .prof-group { break-inside: avoid; margin-bottom: $space-md; }
+}
+.group-cost { text-transform: none; opacity: 0.8; }
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: $space-sm;
+  @media (max-width: 768px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
+}
+.selection-summary {
+  @extend .flex-column;
+  gap: $space-md;
+  margin-top: $space-sm;
+  h3 { text-align: center; }
+}
+.summary-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: $space-md; }
+.summary-section h4 { @include section-header; }
+.summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  li { display: flex; justify-content: space-between; padding: $space-sm 0; }
+}

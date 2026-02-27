@@ -54,29 +54,4 @@
   {/if}
 </span>
 
-<style lang="scss">
-  @import '../styles/mixins.scss';
-
-  .tooltip-wrap {
-    display: inline-block;
-  }
-
-  .tooltip {
-    position: fixed;
-    z-index: 1000;
-    padding: $space-sm $space-md;
-    background: var(--text-primary);
-    color: var(--bg-gradient-start);
-    border-radius: 4px;
-    min-width: 300px;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    pointer-events: none;
-    white-space: normal;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-</style>
+<style lang="scss">@import './styles/widgets';</style>

@@ -331,7 +331,7 @@
           <div class="spell-level-group">
             <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
             {#each spells as spell}
-              <div class="stat-row"><span>{spell.name}</span></div>
+              <div class="data-row"><span>{spell.name}</span></div>
             {/each}
           </div>
         {/each}
@@ -341,31 +341,31 @@
           <div class="spell-level-group">
             <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
             {#each spells as spell}
-              <div class="stat-row"><span>{spell.name}</span></div>
+              <div class="data-row"><span>{spell.name}</span></div>
             {/each}
           </div>
         {/each}
       {:else if character.spells.type === 'dual'}
         {#if character.spells.prepared?.length}
-          <div class="stat-row"><span><strong>Priest Spells</strong></span></div>
+          <div class="data-row"><span><strong>Priest Spells</strong></span></div>
           {@const grouped = groupSpellsByLevel(character.spells.prepared)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
               <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
               {#each spells as spell}
-                <div class="stat-row"><span>{spell.name}</span></div>
+                <div class="data-row"><span>{spell.name}</span></div>
               {/each}
             </div>
           {/each}
         {/if}
         {#if character.spells.spellbook?.length}
-          <div class="stat-row" style="margin-top: 0.5rem"><span><strong>Wizard Spells</strong></span></div>
+          <div class="data-row" style="margin-top: 0.5rem"><span><strong>Wizard Spells</strong></span></div>
           {@const grouped = groupSpellsByLevel(character.spells.spellbook)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
               <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
               {#each spells as spell}
-                <div class="stat-row"><span>{spell.name}</span></div>
+                <div class="data-row"><span>{spell.name}</span></div>
               {/each}
             </div>
           {/each}
@@ -380,7 +380,7 @@
     <div class="stat-block">
       <h3>Non-Weapon Proficiencies</h3>
       {#each character.proficiencies.nonWeapon as prof}
-        <div class="stat-row"><span>{prof.name}</span> <span class="val">{prof.ability}</span></div>
+        <div class="data-row"><span>{prof.name}</span> <span class="val">{prof.ability}</span></div>
       {/each}
     </div>
     <hr class="divider">
@@ -392,9 +392,9 @@
       <h3>Thief Skills</h3>
       {#each Object.entries(thiefSkills()) as [key, value]}
         {#if key === 'readLanguages' && charLevel < 4}
-          <div class="stat-row locked"><span>{SKILL_LABELS[key]}</span> <span class="val">Lv 4</span></div>
+          <div class="data-row locked"><span>{SKILL_LABELS[key]}</span> <span class="val">Lv 4</span></div>
         {:else}
-          <div class="stat-row"><span>{SKILL_LABELS[key]}</span> <span class="val">{value}%</span></div>
+          <div class="data-row"><span>{SKILL_LABELS[key]}</span> <span class="val">{value}%</span></div>
         {/if}
       {/each}
     </div>
@@ -405,7 +405,7 @@
   {#if character.proficiencies?.languages}
     <div class="stat-block">
       <h3>Languages</h3>
-      <div class="stat-row"><span>{character.proficiencies.languages.map(l => l.name).join(', ')}</span></div>
+      <div class="data-row"><span>{character.proficiencies.languages.map(l => l.name).join(', ')}</span></div>
     </div>
     <hr class="divider">
   {/if}
@@ -415,7 +415,7 @@
     <div class="stat-block">
       <h3>Racial Abilities</h3>
       {#each character.race.traits as trait}
-        <div class="trait-row">◆ {trait}</div>
+        <div class="data-row">◆ {trait}</div>
       {/each}
     </div>
     <hr class="divider">
@@ -426,7 +426,7 @@
     <div class="stat-block">
       <h3>Class Features</h3>
       {#each character.cls.features as feature}
-        <div class="trait-row">◆ {feature}</div>
+        <div class="data-row">◆ {feature}</div>
       {/each}
     </div>
     <hr class="divider">
@@ -479,10 +479,10 @@
   <!-- Toast Messages -->
   <div class="toast-area">
     {#if showShareMessage}
-      <p class="share-message">{shareMessage}</p>
+      <p class="alert alert-success">{shareMessage}</p>
     {/if}
     {#if showUndoMessage}
-      <p class="undo-toast">{undoMessage}</p>
+      <p class="undo-toast alert alert-info">{undoMessage}</p>
     {/if}
   </div>
 </div>
@@ -503,6 +503,6 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/sheet';
 </style>

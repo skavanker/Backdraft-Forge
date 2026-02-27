@@ -1,0 +1,58 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ SELECTION SECTIONS (schools, deities, kits) ════════════
+.selection-grid.deity-grid { @include grid-responsive(160px); }
+
+.selection-card.deity-card { align-items: center; justify-content: center; text-align: center; min-height: 80px; }
+.selection-card.skip-deity,
+.selection-card.skip-kit {
+  background: var(--bg-subtle);
+  border: 2px dashed var(--border-color);
+  &.selected { background: var(--gold-overlay); border-color: var(--gold); border-style: solid; }
+  &:hover:not(.disabled) { border-style: solid; transform: translateY(-2px); }
+}
+.selection-card.skip-deity { grid-column: span 4; }
+
+.selection-section {
+  width: 100%;
+  margin-top: $space-lg;
+  .section-header {
+    text-align: center;
+    margin-bottom: $space-md;
+    h3 { margin: 0 0 $space-sm; color: var(--text-primary); }
+    .section-hint { color: var(--text-muted); margin: 0; }
+  }
+}
+.kit-details {
+  margin-top: $space-md;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-lg;
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  h5 { margin: 0 0 $space-sm; @include section-header; font-size: 1rem; color: var(--text-primary); }
+  ul {
+    margin: 0;
+    padding-left: $space-lg;
+    font-size: $text-sm;
+    line-height: 1.5;
+    li { margin-bottom: $space-sm; color: var(--text-secondary); &::marker { color: var(--gold-dark); } }
+  }
+  .kit-abilities li { color: var(--green); &::marker { color: var(--green); } }
+  .kit-restrictions li { color: var(--text-muted); }
+}
+
+// ════════════ ABILITY COMPARISON ════════════
+.ability-row {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  .ability-label { width: 2.5rem; }
+  .ability-base { width: 1.5rem; text-align: center; }
+  .ability-arrow { color: var(--text-faint); }
+  .ability-adjusted {
+    &.positive { @extend .text-positive; }
+    &.negative { @extend .text-negative; }
+  }
+}
+.class-list { display: flex; flex-wrap: wrap; gap: $space-sm; }
+.class-tag { padding: $space-sm; background: var(--bg-panel); @include rounded; text-transform: capitalize; }

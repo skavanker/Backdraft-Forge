@@ -213,11 +213,11 @@
       <div class="levelup-step">
         <h3>{character.name} has reached Level {newLevel}!</h3>
         <div class="summary-grid">
-          <div class="summary-item">
+          <div class="summary-item panel">
             <span class="label">Class</span>
             <span>{character.wizardSchool?.name || character.cls.name}</span>
           </div>
-          <div class="summary-item">
+          <div class="summary-item panel">
             <span class="label">HP</span>
             <span>{isPastNameLevel(classKey, newLevel) ? `+${getPostNameHP(classKey)} (fixed)` : `Roll ${hitDie}`}</span>
           </div>
@@ -306,7 +306,7 @@
                 {/if}
               </div>
               {#if hpRolled}
-                <div class="hp-breakdown">
+                <div class="hp-breakdown panel">
                   <span class="hp-part"><span class="hp-label">Roll</span> {hpRoll}</span>
                   {#if hpConMod !== 0}
                     <span class="hp-part"><span class="hp-label">CON</span> {hpConMod >= 0 ? '+' : ''}{hpConMod}</span>
@@ -329,14 +329,14 @@
         <h3>Distribute Thief Skill Points</h3>
         <p class="meta-text">You have <strong>{thiefPointsRemaining}</strong> of {THIEF_POINTS_PER_LEVEL} points to distribute.</p>
 
-        <div class="thief-skills-grid">
+        <div class="flex-column gap-sm">
           {#each Object.keys(thiefBase) as skill}
             {@const baseVal = thiefBase[skill]}
             {@const distributed = thiefDistributed[skill] || 0}
             {@const total = baseVal + distributed}
             {@const newPts = thiefNewPoints[skill] || 0}
             {@const atCap = total >= SKILL_CAP}
-            <div class="thief-skill-row">
+            <div class="thief-skill-row panel">
               <span class="skill-name">{SKILL_LABELS[skill]}</span>
               <span class="skill-total" class:at-cap={atCap}>{total}%</span>
               <div class="skill-controls">
@@ -404,7 +404,7 @@
     {:else if step === STEP_PROFICIENCIES}
       <div class="levelup-step">
         <h3>New Proficiency Slots</h3>
-        <div class="prof-gains">
+        <div class="flex-column gap-sm">
           {#if gainsWeaponProf}
             <div class="prof-gain">+1 Weapon Proficiency Slot</div>
           {/if}
@@ -500,7 +500,7 @@
 
 
 <style lang="scss">
-  @import './components.module.scss';
-
+  @import './styles/shared';
+  @import './styles/levelup';
 </style>
 

@@ -1,0 +1,63 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ BACKSTORY & NAME ENTRY ════════════
+.backstory-editor { max-width: 600px; margin: 0 auto; }
+.toggle-btn {
+  @include selectable-card($lift: 0);
+  padding: $space-sm;
+  text-align: center;
+}
+.sex-btn { flex: 1; padding: $space-md; }
+.alignment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $space-sm; }
+.name-row { display: flex; gap: $space-sm; align-items: stretch; input[type="text"] { flex: 1; } }
+.btn-random {
+  padding: $space-sm $space-md;
+  border: 2px solid var(--gold);
+  @include rounded;
+  background: var(--gold-overlay);
+  color: var(--gold);
+  cursor: pointer;
+  white-space: nowrap;
+  @include transition;
+  &:hover { background: var(--gold-overlay); color: var(--text-primary); }
+  &:active { background: rgba(201, 162, 39, 0.35); }
+  &.small { padding: $space-sm $space-md; }
+}
+.details-header { display: flex; justify-content: space-between; align-items: center; }
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-sm;
+  @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
+}
+.detail-field {
+  @extend .flex-column;
+  gap: $space-sm;
+  input { padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); width: 100%; &:focus { outline: none; border-color: var(--gold); } }
+  .deity-display { padding: $space-sm; color: var(--text-body); }
+}
+input[type="text"] {
+  padding: $space-md;
+  @include border-default;
+  @include rounded;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: $font-display;
+  &:focus { outline: none; border-color: var(--gold); }
+}
+textarea {
+  padding: $space-md;
+  @include border-default;
+  @include rounded;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 200px;
+  &:focus { outline: none; border-color: var(--gold); }
+  &::placeholder { color: var(--text-faint); }
+}
+.backstory-meta { display: flex; justify-content: space-between; align-items: center; }
+.char-count { &.near-limit { color: var(--red); } }
+.back-btn { display: block; margin: 0 auto $space-md; font-size: $text-sm; padding: $space-sm $space-md; }
+.existing-note { text-align: center; color: var(--text-muted); font-size: $text-sm; font-style: italic; margin: $space-sm 0 $space-md; }

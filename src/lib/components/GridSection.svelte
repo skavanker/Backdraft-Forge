@@ -24,12 +24,4 @@
   </div>
 </div>
 
-<style lang="scss">
-  @import '../../styles/mixins.scss';
-
-  .grid-section {
-    h3 {
-      margin: 0 0 $space-sm;
-    }
-  }
-</style>
+<style lang="scss">@import '../styles/widgets';</style>

@@ -122,8 +122,8 @@
   let charCount = $derived(backstory.length);
 </script>
 
-<div class="backstory-editor">
-  <div class="name-section">
+<div class="flex-column gap-lg backstory-editor">
+  <div class="flex-column gap-sm">
     <label for="char-name">Character Name</label>
     <div class="name-row">
       <input
@@ -139,18 +139,18 @@
     </div>
   </div>
 
-  <div class="sex-section">
+  <div class="flex-column gap-sm">
     <label>Sex</label>
-    <div class="sex-buttons">
+    <div class="flex-row gap-sm">
       <button
-        class="sex-btn"
+        class="toggle-btn sex-btn"
         class:selected={sex === 'Male'}
         onclick={() => sex = 'Male'}
       >
         Male
       </button>
       <button
-        class="sex-btn"
+        class="toggle-btn sex-btn"
         class:selected={sex === 'Female'}
         onclick={() => sex = 'Female'}
       >
@@ -159,14 +159,14 @@
     </div>
   </div>
 
-  <div class="alignment-section">
+  <div class="flex-column gap-sm">
     <label>Alignment</label>
     <div class="alignment-grid">
       {#each alignmentGrid as row}
         {#each row as alignNum}
           {@const isAllowed = allowedAlignments().includes(alignNum)}
           <button
-            class="alignment-btn"
+            class="toggle-btn"
             class:selected={alignment === alignNum}
             class:disabled={!isAllowed}
             disabled={!isAllowed}
@@ -180,7 +180,7 @@
   </div>
 
   <!-- Physical Details -->
-  <div class="details-section">
+  <div class="flex-column gap-sm">
     <div class="details-header">
       <label>Physical Details</label>
       <button class="btn-random small" onclick={randomizeDetails} title="Randomize all details">
@@ -227,7 +227,7 @@
     </div>
   </div>
 
-  <div class="backstory-section">
+  <div class="flex-column gap-sm">
     <label for="backstory">Backstory</label>
     <textarea
       id="backstory"
@@ -248,8 +248,5 @@
 </div>
 
 
-<style lang="scss">
-  @import './components.module.scss';
-
-</style>
+<style lang="scss">@import './styles/backstory';</style>
 

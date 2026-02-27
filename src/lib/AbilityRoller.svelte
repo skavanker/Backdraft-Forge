@@ -14,7 +14,7 @@
   });
 </script>
 
-<div class="roller">
+<div class="flex-column gap-lg">
   {#if manualMode}
     <ManualEntry
       {onComplete}
@@ -32,10 +32,4 @@
   {/if}
 </div>
 
-<style lang="scss">
-  .roller {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-  }
-</style>
+<style lang="scss">@import './styles/roller';</style>
