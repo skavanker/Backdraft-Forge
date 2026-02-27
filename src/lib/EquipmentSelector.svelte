@@ -13,6 +13,8 @@
   import { getStrengthModifiers } from '../data/mechanics.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
+  import SelectableChip from './components/SelectableChip.svelte';
+  import GearSection from './components/GearSection.svelte';
 
   let { cls, kit = null, weaponProficiencies, existingEquipment = null, str = 10, exceptionalStr = null, onComplete } = $props();
 
@@ -318,18 +320,19 @@
               {@const selected = selectedArmor?.key === armor.key}
               {@const affordable = canAfford(armor.price) || selected}
               <Tooltip text="AC {armor.ac}, {armor.weight} lbs" position="bottom">
-                <button
-                  class="item-card"
-                  class:selected
-                  class:disabled={!affordable}
-                  onclick={() => affordable && selectArmor(armor)}
+                <SelectableChip
+                  {selected}
+                  disabled={!affordable}
+                  onclick={() => selectArmor(armor)}
                 >
-                  <span class="item-name">{armor.name}</span>
-                  <span class="item-meta">
-                    <span class="item-ac">AC {armor.ac}</span>
-                    <span class="item-price">{formatPrice(armor.price)}</span>
-                  </span>
-                </button>
+                  {#snippet children()}
+                    <span class="item-name">{armor.name}</span>
+                    <span class="item-meta">
+                      <span class="item-ac">AC {armor.ac}</span>
+                      <span class="item-price">{formatPrice(armor.price)}</span>
+                    </span>
+                  {/snippet}
+                </SelectableChip>
               </Tooltip>
             {/each}
           </div>
@@ -347,17 +350,18 @@
               {@const selected = selectedShield?.key === shield.key}
               {@const affordable = canAfford(shield.price) || selected}
               <Tooltip text="+{shield.acBonus} AC, {shield.weight} lbs" position="bottom">
-                <button
-                  class="item-card"
-                  class:selected
-                  class:disabled={!affordable}
-                  onclick={() => affordable && selectShield(shield)}
+                <SelectableChip
+                  {selected}
+                  disabled={!affordable}
+                  onclick={() => selectShield(shield)}
                 >
-                  <span class="item-name">{shield.name}</span>
-                  <span class="item-meta">
-                    <span class="item-price">{formatPrice(shield.price)}</span>
-                  </span>
-                </button>
+                  {#snippet children()}
+                    <span class="item-name">{shield.name}</span>
+                    <span class="item-meta">
+                      <span class="item-price">{formatPrice(shield.price)}</span>
+                    </span>
+                  {/snippet}
+                </SelectableChip>
               </Tooltip>
             {/each}
           </div>
@@ -373,172 +377,83 @@
             {@const selected = selectedWeapons.find(w => w.key === weapon.key)}
             {@const affordable = canAfford(weapon.price) || selected}
             <Tooltip text="{weapon.damage} damage, {weapon.weight} lbs" position="bottom">
-              <button
-                class="item-card"
-                class:selected
-                class:disabled={!affordable}
-                onclick={() => affordable && toggleWeapon(weapon)}
+              <SelectableChip
+                selected={!!selected}
+                disabled={!affordable}
+                onclick={() => toggleWeapon(weapon)}
               >
-                <span class="item-name">{weapon.name}</span>
-                <span class="item-meta">
-                  <span class="item-damage">{weapon.damage}</span>
-                  <span class="item-price">{formatPrice(weapon.price)}</span>
-                </span>
-              </button>
+                {#snippet children()}
+                  <span class="item-name">{weapon.name}</span>
+                  <span class="item-meta">
+                    <span class="item-damage">{weapon.damage}</span>
+                    <span class="item-price">{formatPrice(weapon.price)}</span>
+                  </span>
+                {/snippet}
+              </SelectableChip>
             </Tooltip>
           {/each}
         </div>
       </div>
 
-      <!-- Ammunition -->
-      <div class="section">
-        <h3>Ammunition</h3>
-        <p class="section-hint">Left-click to add, right-click to remove</p>
-        <div class="item-grid small">
-          {#each equipment.ammunition as ammo}
-            {@const selected = selectedGear.find(g => g.key === ammo.key)}
-            {@const affordable = canAfford(ammo.price) || selected}
-            <button
-              class="item-card small"
-              class:selected
-              class:disabled={!affordable && !selected}
-              onclick={() => addGear(ammo)}
-              oncontextmenu={(e) => { e.preventDefault(); removeGear(ammo); }}
-            >
-              <span class="item-name">{ammo.name}</span>
-              <span class="item-price">{formatPrice(ammo.price)}</span>
-              {#if selected?.qty > 1}
-                <span class="qty-badge">&times;{selected.qty}</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <GearSection
+        title="Ammunition"
+        items={equipment.ammunition}
+        {selectedGear}
+        {canAfford}
+        {addGear}
+        {removeGear}
+        small={true}
+      />
 
-      <!-- Adventuring Gear -->
-      <div class="section">
-        <h3>Adventuring Gear</h3>
-        <p class="section-hint">Left-click to add, right-click to remove</p>
-        <div class="item-grid small">
-          {#each equipment.adventuringGear as item}
-            {@const selected = selectedGear.find(g => g.key === item.key)}
-            {@const affordable = canAfford(item.price) || selected}
-            <button
-              class="item-card small"
-              class:selected
-              class:disabled={!affordable && !selected}
-              onclick={() => addGear(item)}
-              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
-            >
-              <span class="item-name">{item.name}</span>
-              <span class="item-price">{formatPrice(item.price)}</span>
-              {#if selected?.qty > 1}
-                <span class="qty-badge">&times;{selected.qty}</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <GearSection
+        title="Adventuring Gear"
+        items={equipment.adventuringGear}
+        {selectedGear}
+        {canAfford}
+        {addGear}
+        {removeGear}
+        small={true}
+      />
 
-      <!-- Clothing -->
-      <div class="section">
-        <h3>Clothing</h3>
-        <p class="section-hint">Left-click to add, right-click to remove</p>
-        <div class="item-grid small">
-          {#each equipment.clothing as item}
-            {@const selected = selectedGear.find(g => g.key === item.key)}
-            {@const affordable = canAfford(item.price) || selected}
-            <button
-              class="item-card small"
-              class:selected
-              class:disabled={!affordable && !selected}
-              onclick={() => addGear(item)}
-              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
-            >
-              <span class="item-name">{item.name}</span>
-              <span class="item-price">{formatPrice(item.price)}</span>
-              {#if selected?.qty > 1}
-                <span class="qty-badge">&times;{selected.qty}</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <GearSection
+        title="Clothing"
+        items={equipment.clothing}
+        {selectedGear}
+        {canAfford}
+        {addGear}
+        {removeGear}
+        small={true}
+      />
 
-      <!-- Tools & Kits -->
-      <div class="section">
-        <h3>Tools & Kits</h3>
-        <p class="section-hint">Left-click to add, right-click to remove</p>
-        <div class="item-grid small">
-          {#each equipment.toolsAndKits as item}
-            {@const selected = selectedGear.find(g => g.key === item.key)}
-            {@const affordable = canAfford(item.price) || selected}
-            <button
-              class="item-card small"
-              class:selected
-              class:disabled={!affordable && !selected}
-              onclick={() => addGear(item)}
-              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
-            >
-              <span class="item-name">{item.name}</span>
-              <span class="item-price">{formatPrice(item.price)}</span>
-              {#if selected?.qty > 1}
-                <span class="qty-badge">&times;{selected.qty}</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <GearSection
+        title="Tools & Kits"
+        items={equipment.toolsAndKits}
+        {selectedGear}
+        {canAfford}
+        {addGear}
+        {removeGear}
+        small={true}
+      />
 
-      <!-- Provisions -->
-      <div class="section">
-        <h3>Provisions</h3>
-        <p class="section-hint">Left-click to add, right-click to remove</p>
-        <div class="item-grid small">
-          {#each equipment.provisions as item}
-            {@const selected = selectedGear.find(g => g.key === item.key)}
-            {@const affordable = canAfford(item.price) || selected}
-            <button
-              class="item-card small"
-              class:selected
-              class:disabled={!affordable && !selected}
-              onclick={() => addGear(item)}
-              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
-            >
-              <span class="item-name">{item.name}</span>
-              <span class="item-price">{formatPrice(item.price)}</span>
-              {#if selected?.qty > 1}
-                <span class="qty-badge">&times;{selected.qty}</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <GearSection
+        title="Provisions"
+        items={equipment.provisions}
+        {selectedGear}
+        {canAfford}
+        {addGear}
+        {removeGear}
+        small={true}
+      />
 
-      <!-- Transport & Animals -->
-      <div class="section">
-        <h3>Transport & Animals</h3>
-        <p class="section-hint">Left-click to add, right-click to remove</p>
-        <div class="item-grid small">
-          {#each equipment.transport as item}
-            {@const selected = selectedGear.find(g => g.key === item.key)}
-            {@const affordable = canAfford(item.price) || selected}
-            <button
-              class="item-card small"
-              class:selected
-              class:disabled={!affordable && !selected}
-              onclick={() => addGear(item)}
-              oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
-            >
-              <span class="item-name">{item.name}</span>
-              <span class="item-price">{formatPrice(item.price)}</span>
-              {#if selected?.qty > 1}
-                <span class="qty-badge">&times;{selected.qty}</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
+      <GearSection
+        title="Transport & Animals"
+        items={equipment.transport}
+        {selectedGear}
+        {canAfford}
+        {addGear}
+        {removeGear}
+        small={true}
+      />
 
       <!-- Custom Item -->
       <div class="section">
@@ -589,259 +504,9 @@
   {/if}
 </div>
 
+
 <style lang="scss">
-  .equipment-selector {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-  }
+  @import './EquipmentSelector.module.scss';
 
-  .gold-section {
-    text-align: center;
-
-    .intro-with-info {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: $space-sm;
-      margin-bottom: $space-md;
-    }
-
-    .info-icon {
-      cursor: help;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-  }
-
-  .gold-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $space-md;
-    flex-wrap: wrap;
-
-    .or-divider {
-      font-style: italic;
-    }
-
-    .manual-gold {
-      display: flex;
-      align-items: center;
-      gap: $space-sm;
-
-      input {
-        width: 100px;
-        padding: $space-sm;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background: var(--bg-input);
-        color: var(--text-primary);
-      }
-    }
-  }
-
-  .gold-display {
-    display: flex;
-    justify-content: center;
-    gap: $space-xl;
-    padding: $space-md;
-    background: var(--bg-panel);
-    border-radius: 4px;
-    flex-wrap: wrap;
-    position: relative;
-  }
-
-  .reroll-btn {
-    position: absolute;
-    top: $space-sm;
-    right: $space-sm;
-    background: transparent;
-    border: none;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0.3;
-    transition: opacity 0.2s;
-    padding: $space-xs $space-sm;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  .encumbrance-warning {
-    text-align: center;
-    padding: $space-sm $space-md;
-    background: rgba(180, 60, 40, 0.15);
-    border: 1px solid rgba(180, 60, 40, 0.3);
-    border-radius: 4px;
-    color: var(--red);
-    margin-top: $space-sm;
-  }
-
-  .gold-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .gold-value {
-      font-family: 'Cinzel', serif;
-      color: var(--gold);
-
-      &.warning {
-        color: var(--red);
-      }
-    }
-
-    .gold-dice {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: $space-xs;
-      margin-top: $space-sm;
-
-      .dice-rolls {
-        display: flex;
-        gap: 2px;
-      }
-
-      .die {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        img {
-          width: 20px;
-          height: 20px;
-          display: block;
-        }
-      }
-    }
-  }
-
-  .equipment-sections {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-  }
-
-  .section {
-    h3 {
-      margin: 0 0 $space-sm;
-    }
-  }
-
-  .restriction-note {
-    font-style: italic;
-    text-align: center;
-  }
-
-  .item-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: $space-sm;
-
-    &.small {
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    }
-  }
-
-  .item-card {
-    @include selectable-chip;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0.6rem 0.8rem;
-    text-align: left;
-    width: 100%;
-
-    &.small {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.4rem 0.6rem;
-    }
-
-    .item-meta {
-      display: flex;
-      gap: $space-sm;
-      margin-top: $space-xs;
-    }
-
-    .item-price {
-      color: var(--gold-dark);
-    }
-
-    &:hover:not(.disabled) {
-      .item-name {
-        color: var(--text-hover);
-      }
-    }
-  }
-
-  .qty-badge {
-    background: var(--gold);
-    color: var(--bg-card);
-    border-radius: 8px;
-    padding: 0 0.35rem;
-    margin-left: auto;
-    line-height: 1.4;
-  }
-
-  .custom-gear-form {
-    display: flex;
-    align-items: center;
-    gap: $space-sm;
-    flex-wrap: wrap;
-
-    input {
-      padding: 0.4rem 0.6rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: var(--bg-input);
-      color: var(--text-primary);
-    }
-
-    input:not([type="number"]) {
-      flex: 1;
-      min-width: 120px;
-    }
-
-    input[type="number"] {
-      width: 90px;
-    }
-
-    .btn-add {
-      padding: 0.4rem 0.8rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: var(--bg-panel);
-      color: var(--text-primary);
-      cursor: pointer;
-      transition: background 0.2s;
-
-      &:hover:not(:disabled) {
-        background: var(--gold);
-        color: var(--bg-card);
-      }
-
-      &:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-    }
-  }
-
-  .btn-primary {
-    align-self: center;
-
-    &:disabled {
-      background: var(--red);
-      opacity: 0.8;
-    }
-  }
 </style>
+

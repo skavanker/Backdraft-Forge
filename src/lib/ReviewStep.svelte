@@ -1,6 +1,7 @@
 <script>
   import { getCharacterWarnings } from '../data/classes.js';
   import { getConstitutionModifiers } from '../data/mechanics.js';
+  import AbilityBadge from './components/AbilityBadge.svelte';
 
   let { character, onContinue } = $props();
 
@@ -39,12 +40,12 @@
       <h4>Ability Scores</h4>
       <div class="ability-summary">
         {#each ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as ability}
-          <div class="ability-badge">
-            <span class="meta-text">{ability}</span>
-            <span class="text-xl">
-              {character.adjustedAbilities[ability]}{#if ability === 'STR' && character.abilities.exceptionalStr}/{character.abilities.exceptionalStr.toString().padStart(2, '0')}{/if}
-            </span>
-          </div>
+          <AbilityBadge
+            {ability}
+            score={character.adjustedAbilities[ability]}
+            exceptionalStr={ability === 'STR' ? character.abilities.exceptionalStr : null}
+            variant="simple"
+          />
         {/each}
       </div>
     </div>
@@ -119,113 +120,9 @@
   </button>
 </div>
 
+
 <style lang="scss">
-  @import '../styles/mixins.scss';
+  @import './ReviewStep.module.scss';
 
-  .ability-summary {
-    display: flex;
-    justify-content: center;
-    gap: $space-md;
-    flex-wrap: wrap;
-  }
-
-  .ability-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: $space-sm $space-md;
-    background: rgba(201, 162, 39, 0.15);
-    border: 1px solid rgba(201, 162, 39, 0.3);
-    border-radius: 4px;
-    min-width: 50px;
-  }
-
-  .character-review {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-    align-items: center;
-
-    .btn-primary {
-      margin-top: $space-md;
-    }
-  }
-
-  .review-header {
-    display: flex;
-    justify-content: center;
-    gap: $space-sm;
-    width: 100%;
-
-    .review-race {
-      color: var(--text-muted);
-    }
-  }
-
-  .review-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: $space-lg;
-    width: 100%;
-  }
-
-  .review-section {
-    padding: $space-md;
-    background: var(--bg-panel);
-    border-radius: 4px;
-
-    h4 {
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: $space-xs;
-    }
-  }
-
-  .info-list {
-    display: flex;
-    flex-direction: column;
-    gap: $space-sm;
-  }
-
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-
-    &.highlight span:last-child {
-      color: var(--green);
-    }
-
-    &.warning span:last-child {
-      color: var(--gold-dark);
-    }
-  }
-
-  .review-warnings {
-    width: 100%;
-    margin-top: $space-sm;
-  }
-
-  .review-warning {
-    display: flex;
-    align-items: flex-start;
-    gap: $space-sm;
-    padding: $space-sm;
-    border-radius: 4px;
-    margin-bottom: $space-xs;
-
-    .warning-icon {
-      flex-shrink: 0;
-    }
-
-    &.caution {
-      background: rgba(184, 148, 60, 0.1);
-      color: var(--gold-dark);
-      border-left: 3px solid var(--gold-dark);
-    }
-
-    &.concern {
-      background: rgba(180, 60, 40, 0.1);
-      color: var(--red);
-      border-left: 3px solid var(--red);
-    }
-  }
 </style>
+

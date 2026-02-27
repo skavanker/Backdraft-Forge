@@ -1,0 +1,150 @@
+  .spell-selector {
+    @extend .flex-column;
+    gap: $space-lg;
+  }
+
+  .no-spells {
+    text-align: center;
+
+    p {
+      margin-bottom: $space-lg;
+    }
+  }
+
+  .spell-header {
+    @extend .flex-column;
+    gap: $space-md;
+    align-items: center;
+
+    .section-hint {
+      text-align: center;
+    }
+  }
+
+  .school-note {
+    text-align: center;
+    color: var(--gold-dark);
+    padding: $space-sm $space-md;
+    background: rgba(201, 162, 39, 0.1);
+    border-radius: 4px;
+  }
+
+  .auto-spell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-sm;
+    padding: $space-sm;
+    background: rgba(34, 139, 34, 0.1);
+    border: 1px solid rgba(34, 139, 34, 0.3);
+    border-radius: 4px;
+
+    .spell-name {
+      color: var(--green);
+    }
+  }
+
+  .school-section {
+    .school-title {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 $space-sm;
+      padding-bottom: $space-xs;
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+
+  .spell-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-sm;
+  }
+
+  .selected-summary {
+    padding: $space-md;
+    background: var(--bg-panel);
+    border-radius: 4px;
+
+    h4 {
+      margin: 0 0 $space-sm;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+
+      li {
+        margin-bottom: $space-xs;
+      }
+    }
+  }
+
+  .btn-primary {
+    align-self: center;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  .wizard-spells,
+  .divine-spells {
+    @extend .flex-column;
+    gap: $space-lg;
+  }
+
+  // ─── Manage mode styles ─────────────────────────────────
+  .manage-section {
+    @extend .flex-column;
+    gap: $space-md;
+
+    h3 {
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: $space-xs;
+    }
+
+    .section-hint {
+      text-align: center;
+      margin-bottom: $space-sm;
+    }
+  }
+
+  .level-section {
+    @extend .flex-column;
+    gap: $space-sm;
+    padding: $space-md;
+    background: var(--bg-panel);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+  }
+
+  .level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h4 {
+      margin: 0;
+    }
+  }
+
+  .spell-subsection {
+    h5 {
+      margin: $space-xs 0;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .manage-actions {
+    display: flex;
+    gap: $space-md;
+    justify-content: center;
+    margin-top: $space-lg;
+  }
+
+  .manage-mode {
+    max-height: 80vh;
+    overflow-y: auto;
+  }

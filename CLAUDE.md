@@ -50,6 +50,21 @@ npm run preview  # preview production build
 9. Optional AI backstory
 10. Export (printable sheet, PDF)
 
+## Code Organization
+
+### CSS/SCSS Structure
+- **All component styles MUST be in separate `.module.scss` files**
+- Never inline CSS in `<style>` blocks within `.svelte` files
+- Each component should have its own module file (e.g., `CharacterSheet.svelte` → `CharacterSheet.module.scss`)
+- Import modules using: `<style lang="scss">@import './ComponentName.module.scss';</style>`
+- Shared utilities and mixins live in `src/styles/_utilities.scss` and `src/styles/mixins.scss`
+
+### Component Extraction
+- Keep components focused and single-purpose
+- Extract sub-components when a component exceeds 500 lines
+- Use reusable components from `src/lib/components/` directory
+- Leverage state utilities from `src/lib/utils/stateUtils.svelte.js`
+
 ## Style
 
 Parchment/fantasy aesthetic. Must look good printed.

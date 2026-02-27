@@ -1,0 +1,157 @@
+// ============================================================================
+// UTILITY CLASSES
+// Reusable CSS utilities to reduce duplication across components
+// ============================================================================
+
+// ─── Text Colors ────────────────────────────────────────────────────────────
+
+.text-positive {
+  color: var(--green);
+}
+
+.text-negative {
+  color: var(--red);
+}
+
+.text-gold {
+  color: var(--gold-dark);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-hover {
+  color: var(--text-hover);
+}
+
+// ─── State Classes ──────────────────────────────────────────────────────────
+
+.state-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.state-locked {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.state-selected {
+  border-color: var(--gold);
+  background: rgba(201, 162, 39, 0.15);
+}
+
+// ─── Layout Utilities ───────────────────────────────────────────────────────
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+// ─── Grid Mixins ────────────────────────────────────────────────────────────
+
+@mixin grid-responsive($min-size: 200px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min-size, 1fr));
+  gap: $space-sm;
+}
+
+@mixin grid-auto-fit($min-size: 200px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-size, 1fr));
+  gap: $space-sm;
+}
+
+// Grid utility classes (for common sizes)
+.grid-cards {
+  @include grid-responsive(220px);
+}
+
+.grid-items {
+  @include grid-responsive(200px);
+}
+
+.grid-compact {
+  @include grid-responsive(180px);
+}
+
+// ─── Spacing Utilities ──────────────────────────────────────────────────────
+
+.gap-xs { gap: $space-xs; }
+.gap-sm { gap: $space-sm; }
+.gap-md { gap: $space-md; }
+.gap-lg { gap: $space-lg; }
+.gap-xl { gap: $space-xl; }
+
+// ─── Text Utilities ─────────────────────────────────────────────────────────
+
+.text-center {
+  text-align: center;
+}
+
+.text-italic {
+  font-style: italic;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// ─── Common Patterns ────────────────────────────────────────────────────────
+
+.section-hint {
+  color: var(--text-muted);
+  font-size: $text-sm;
+}
+
+.meta-text {
+  color: var(--text-muted);
+  font-size: $text-sm;
+  font-weight: 600;
+}
+
+// ─── Border/Divider Utilities ───────────────────────────────────────────────
+
+.divider-ornamental {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+
+  .ornament {
+    color: var(--gold-dark);
+  }
+}

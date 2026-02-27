@@ -22,16 +22,14 @@
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
+  import SelectableChip from './components/SelectableChip.svelte';
+  import { useSelection } from './utils/stateUtils.svelte.js';
 
   let { abilities, race, cls, kit = null, level = 1, existingProficiencies = null, onComplete } = $props();
 
   // Calculate available slots (level-aware, kit-aware)
   let weaponSlots = $derived(getWeaponSlotsWithKit(cls.group, level, kit));
   let nonWeaponSlots = $derived(getNonWeaponSlotsWithKit(cls.group, abilities.INT, level, kit));
-
-  // Track which proficiencies are locked (from previous levels, can't be removed)
-  let lockedWeapons = $state([]);
-  let lockedNonWeapon = $state([]);
 
   // Get allowed weapons for this class (kit-aware)
   let allowedWeaponKeys = $derived(getAllowedWeaponsWithKit(cls.key, kit));
@@ -46,10 +44,14 @@
   // Get available non-weapon proficiencies with costs
   let availableProficiencies = $derived(getAvailableProficiencies(cls.group));
 
-  // Selected proficiencies
+  // Selected proficiencies (using simpler state for now, slots are derived)
   let selectedWeapons = $state([]);
   let selectedNonWeapon = $state([]);
   let selectedBonusLanguages = $state([]);
+
+  // Track locked items
+  let lockedWeapons = $state([]);
+  let lockedNonWeapon = $state([]);
 
   // Languages
   let racialLanguageKeys = $derived(getRacialLanguages(race.key));
@@ -261,16 +263,14 @@
                   {@const selected = selectedWeapons.includes(weapon.key)}
                   {@const disabled = !selected && weaponSlotsRemaining === 0}
                   <Tooltip text="{weapon.damage} damage, Speed {weapon.speed}" position="bottom">
-                    <button
-                      class="proficiency-chip"
-                      class:selected
-                      class:disabled
-                      class:locked={isLocked}
-                      onclick={() => !disabled && !isLocked && toggleWeapon(weapon.key)}
-                    >
-                      <span class="chip-name">{weapon.name}</span>
-                      <span class="chip-meta">{weapon.damage}</span>
-                    </button>
+                    <SelectableChip
+                      label={weapon.name}
+                      metadata={weapon.damage}
+                      {selected}
+                      {disabled}
+                      locked={isLocked}
+                      onclick={() => toggleWeapon(weapon.key)}
+                    />
                   </Tooltip>
                 {/each}
               </div>
@@ -298,15 +298,13 @@
           {@const isAuto = autoLanguages.includes(key)}
           {@const selected = isAuto || selectedBonusLanguages.includes(key)}
           {@const disabled = isAuto || (!selected && bonusLanguageSlotsRemaining === 0)}
-          <button
-            class="language-chip"
-            class:selected
-            class:disabled
-            class:auto={isAuto}
-            onclick={() => !disabled && !isAuto && toggleLanguage(key)}
-          >
-            {languages[key].name}
-          </button>
+          <SelectableChip
+            label={languages[key].name}
+            {selected}
+            {disabled}
+            auto={isAuto}
+            onclick={() => toggleLanguage(key)}
+          />
         {/each}
       </div>
     </div>
@@ -336,19 +334,15 @@
                   {@const selected = selectedNonWeapon.includes(prof.key)}
                   {@const disabled = !selected && nonWeaponSlotsRemaining < prof.cost}
                   <Tooltip text="{prof.description} (Check: {prof.ability}{prof.modifier >= 0 ? '+' : ''}{prof.modifier})" position="bottom">
-                    <button
-                      class="proficiency-chip"
-                      class:selected
-                      class:disabled
-                      class:locked={isLocked}
-                      onclick={() => !disabled && !isLocked && toggleProficiency(prof.key)}
-                    >
-                      <span class="chip-name">{prof.name}</span>
-                      <span class="chip-meta">{prof.ability}</span>
-                      {#if prof.cost > 1}
-                        <span class="chip-cost">{prof.cost}</span>
-                      {/if}
-                    </button>
+                    <SelectableChip
+                      label={prof.name}
+                      metadata={prof.ability}
+                      cost={prof.cost}
+                      {selected}
+                      {disabled}
+                      locked={isLocked}
+                      onclick={() => toggleProficiency(prof.key)}
+                    />
                   </Tooltip>
                 {/each}
               </div>
@@ -413,207 +407,9 @@
   </button>
 </div>
 
+
 <style lang="scss">
-  .proficiency-selector {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-  }
+  @import './ProficiencySelector.module.scss';
 
-  .slot-summary {
-    display: flex;
-    justify-content: center;
-    gap: $space-xl;
-    padding: $space-md;
-    background: var(--bg-panel);
-    border-radius: 4px;
-  }
-
-  .proficiency-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .section {
-    h3 {
-      margin: 0 0 0.35rem;
-    }
-  }
-
-  .remaining {
-    color: var(--gold-dark);
-  }
-
-  .weapon-section,
-  .nonweapon-section {
-    columns: 4 180px;
-    column-gap: $space-lg;
-
-    .weapon-group,
-    .proficiency-group {
-      break-inside: avoid;
-      margin-bottom: $space-md;
-    }
-
-    .group-title {
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0 0 0.4rem;
-      padding-bottom: 0.2rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-  }
-
-  .group-cost {
-    text-transform: none;
-    opacity: 0.8;
-  }
-
-  .language-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: $space-sm;
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    @media (max-width: 480px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  .language-chip {
-    @include selectable-chip;
-
-    &:hover:not(.disabled):not(.auto) {
-      color: var(--text-hover);
-    }
-
-    &.auto {
-      border-color: var(--border-strong);
-      cursor: default;
-      opacity: 0.9;
-    }
-  }
-
-  .weapon-grid,
-  .proficiency-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .proficiency-chip {
-    @include selectable-chip;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.4rem;
-    width: 100%;
-    text-align: left;
-
-    .chip-name {
-      flex: 1;
-    }
-
-    .chip-meta {
-      padding: 0.1rem 0.3rem;
-      background: var(--bg-panel);
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    .chip-cost {
-      color: var(--gold-dark);
-      padding: 0.1rem 0.35rem;
-      background: rgba(201, 162, 39, 0.15);
-      border: 1px solid rgba(201, 162, 39, 0.3);
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    &:hover:not(.disabled):not(.locked) {
-      .chip-name {
-        color: var(--text-hover);
-      }
-    }
-
-    &.locked {
-      cursor: default;
-      opacity: 0.7;
-
-      &::after {
-        content: '🔒';
-        font-size: 0.7em;
-        margin-left: 0.3rem;
-      }
-    }
-  }
-
-  .selection-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: $space-md;
-    background: var(--bg-subtle);
-    border-radius: 4px;
-    margin-top: $space-sm;
-
-    h3 {
-      text-align: center;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-
-      &::before, &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-      }
-
-      .ornament {
-        color: var(--gold-dark);
-      }
-    }
-  }
-
-  .summary-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: $space-md;
-  }
-
-  .summary-section {
-    h4 {
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.2rem;
-    }
-  }
-
-  .summary-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.2rem 0;
-    }
-  }
-
-  .btn-primary {
-    align-self: center;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
 </style>
+

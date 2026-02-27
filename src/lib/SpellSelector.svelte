@@ -12,6 +12,7 @@
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
+  import SelectableChip from './components/SelectableChip.svelte';
 
   let {
     classKey,
@@ -325,13 +326,11 @@
                   {#each spells as spell}
                     {@const inBook = bookSpells.find(s => s.key === spell.key)}
                     <Tooltip text={spell.description} position="bottom">
-                      <button
-                        class="spell-card"
-                        class:selected={inBook}
+                      <SelectableChip
+                        label={spell.name}
+                        selected={!!inBook}
                         onclick={() => toggleManageSpellbook(level, spell)}
-                      >
-                        {spell.name}
-                      </button>
+                      />
                     </Tooltip>
                   {/each}
                 </div>
@@ -344,14 +343,12 @@
                     {#each bookSpells as spell}
                       {@const memorized = memSpells.find(s => s.key === spell.key)}
                       {@const disabled = !memorized && memSpells.length >= slots}
-                      <button
-                        class="spell-card memorize"
-                        class:selected={memorized}
-                        class:disabled
-                        onclick={() => !disabled && toggleManageMemorized(level, spell)}
-                      >
-                        {spell.name}
-                      </button>
+                      <SelectableChip
+                        label={spell.name}
+                        selected={!!memorized}
+                        {disabled}
+                        onclick={() => toggleManageMemorized(level, spell)}
+                      />
                     {/each}
                   </div>
                 </div>
@@ -381,14 +378,12 @@
                   {@const selected = prepSpells.find(s => s.key === spell.key)}
                   {@const disabled = !selected && prepSpells.length >= slots}
                   <Tooltip text={spell.description} position="bottom">
-                    <button
-                      class="spell-card divine"
-                      class:selected
-                      class:disabled
-                      onclick={() => !disabled && toggleManagePrepared(level, spell)}
-                    >
-                      {spell.name}
-                    </button>
+                    <SelectableChip
+                      label={spell.name}
+                      selected={!!selected}
+                      {disabled}
+                      onclick={() => toggleManagePrepared(level, spell)}
+                    />
                   </Tooltip>
                 {/each}
               </div>
@@ -416,14 +411,12 @@
                   {@const selected = prepSpells.find(s => s.key === spell.key)}
                   {@const disabled = !selected && prepSpells.length >= slots}
                   <Tooltip text={spell.description} position="bottom">
-                    <button
-                      class="spell-card divine"
-                      class:selected
-                      class:disabled
-                      onclick={() => !disabled && toggleManagePrepared(level, spell)}
-                    >
-                      {spell.name}
-                    </button>
+                    <SelectableChip
+                      label={spell.name}
+                      selected={!!selected}
+                      {disabled}
+                      onclick={() => toggleManagePrepared(level, spell)}
+                    />
                   </Tooltip>
                 {/each}
               </div>
@@ -450,13 +443,11 @@
                   {#each spells as spell}
                     {@const inBook = bookSpells.find(s => s.key === spell.key)}
                     <Tooltip text={spell.description} position="bottom">
-                      <button
-                        class="spell-card"
-                        class:selected={inBook}
+                      <SelectableChip
+                        label={spell.name}
+                        selected={!!inBook}
                         onclick={() => toggleManageSpellbook(level, spell)}
-                      >
-                        {spell.name}
-                      </button>
+                      />
                     </Tooltip>
                   {/each}
                 </div>
@@ -468,14 +459,12 @@
                     {#each bookSpells as spell}
                       {@const memorized = memSpells.find(s => s.key === spell.key)}
                       {@const disabled = !memorized && memSpells.length >= slots}
-                      <button
-                        class="spell-card memorize"
-                        class:selected={memorized}
-                        class:disabled
-                        onclick={() => !disabled && toggleManageMemorized(level, spell)}
-                      >
-                        {spell.name}
-                      </button>
+                      <SelectableChip
+                        label={spell.name}
+                        selected={!!memorized}
+                        {disabled}
+                        onclick={() => toggleManageMemorized(level, spell)}
+                      />
                     {/each}
                   </div>
                 </div>
@@ -534,14 +523,12 @@
                 {@const selected = selectedSpells.find(s => s.key === spell.key)}
                 {@const disabled = !selected && remainingSlots === 0}
                 <Tooltip text={spell.description} position="bottom">
-                  <button
-                    class="spell-card"
-                    class:selected
-                    class:disabled
-                    onclick={() => !disabled && toggleSpell(spell)}
-                  >
-                    {spell.name}
-                  </button>
+                  <SelectableChip
+                    label={spell.name}
+                    selected={!!selected}
+                    {disabled}
+                    onclick={() => toggleSpell(spell)}
+                  />
                 </Tooltip>
               {/each}
             </div>
@@ -589,14 +576,12 @@
             {@const selected = preparedSpells.find(s => s.key === spell.key)}
             {@const disabled = !selected && remainingSlots === 0}
             <Tooltip text={spell.description} position="bottom">
-              <button
-                class="spell-card divine"
-                class:selected
-                class:disabled
-                onclick={() => !disabled && togglePrepared(spell)}
-              >
-                {spell.name}
-              </button>
+              <SelectableChip
+                label={spell.name}
+                selected={!!selected}
+                {disabled}
+                onclick={() => togglePrepared(spell)}
+              />
             </Tooltip>
           {/each}
         </div>
@@ -628,176 +613,9 @@
   {/if}
 </div>
 
+
 <style lang="scss">
-  .spell-selector {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-  }
+  @import './SpellSelector.module.scss';
 
-  .no-spells {
-    text-align: center;
-
-    p {
-      margin-bottom: $space-lg;
-    }
-  }
-
-  .spell-header {
-    display: flex;
-    flex-direction: column;
-    gap: $space-md;
-    align-items: center;
-
-    .section-hint {
-      text-align: center;
-    }
-  }
-
-  .school-note {
-    text-align: center;
-    color: var(--gold-dark);
-    padding: $space-sm $space-md;
-    background: rgba(201, 162, 39, 0.1);
-    border-radius: 4px;
-  }
-
-  .auto-spell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $space-sm;
-    padding: $space-sm;
-    background: rgba(34, 139, 34, 0.1);
-    border: 1px solid rgba(34, 139, 34, 0.3);
-    border-radius: 4px;
-
-    .spell-name {
-      color: var(--green);
-    }
-  }
-
-  .school-section {
-    .school-title {
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 0 0 $space-sm;
-      padding-bottom: $space-xs;
-      border-bottom: 1px solid var(--border-color);
-    }
-  }
-
-  .spell-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $space-sm;
-  }
-
-  .spell-card {
-    @include selectable-chip;
-    padding: $space-sm 0.75rem;
-
-    &:hover:not(.disabled) {
-      .spell-name {
-        color: var(--text-hover);
-      }
-    }
-
-    &.memorize.selected {
-      background: rgba(100, 149, 237, 0.15);
-      border-color: cornflowerblue;
-    }
-  }
-
-  .selected-summary {
-    padding: $space-md;
-    background: var(--bg-panel);
-    border-radius: 4px;
-
-    h4 {
-      margin: 0 0 $space-sm;
-    }
-
-    ul {
-      margin: 0;
-      padding-left: 1.25rem;
-
-      li {
-        margin-bottom: $space-xs;
-      }
-    }
-  }
-
-  .btn-primary {
-    align-self: center;
-
-    &:disabled {
-      opacity: 0.6;
-    }
-  }
-
-  .wizard-spells,
-  .divine-spells {
-    display: flex;
-    flex-direction: column;
-    gap: $space-lg;
-  }
-
-  // ─── Manage mode styles ─────────────────────────────────
-  .manage-section {
-    display: flex;
-    flex-direction: column;
-    gap: $space-md;
-
-    h3 {
-      border-bottom: 2px solid var(--gold);
-      padding-bottom: $space-xs;
-    }
-
-    .section-hint {
-      text-align: center;
-      margin-bottom: $space-sm;
-    }
-  }
-
-  .level-section {
-    display: flex;
-    flex-direction: column;
-    gap: $space-sm;
-    padding: $space-md;
-    background: var(--bg-panel);
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-  }
-
-  .level-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    h4 {
-      margin: 0;
-    }
-  }
-
-  .spell-subsection {
-    h5 {
-      margin: $space-xs 0;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-  }
-
-  .manage-actions {
-    display: flex;
-    gap: $space-md;
-    justify-content: center;
-    margin-top: $space-lg;
-  }
-
-  .manage-mode {
-    max-height: 80vh;
-    overflow-y: auto;
-  }
 </style>
+

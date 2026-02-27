@@ -1,0 +1,45 @@
+  @import '../styles/mixins.scss';
+
+  .character-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-md;
+    padding: $space-md;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: $space-lg;
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $space-sm;
+    }
+  }
+
+  .summary-main {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+
+    .char-class {
+      color: var(--gold-dark);
+    }
+  }
+
+  .summary-abilities {
+    display: flex;
+    gap: $space-md;
+    flex-wrap: wrap;
+  }
+
+  .ability-stat {
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+    padding: $space-xs $space-sm;
+    background: var(--bg-input);
+    border-radius: 2px;
+  }
