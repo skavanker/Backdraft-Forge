@@ -1,5 +1,5 @@
 <script>
-  import { rollAbilityDice, calculate3d6, calculate4d6DropLowest, rollExceptionalStrength } from './dice.js';
+  import { rollAbilityDice, calculate3d6, calculate4d6DropLowest } from './dice.js';
   import { onMount } from 'svelte';
   import ImportArea from './ImportArea.svelte';
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
@@ -14,7 +14,6 @@
   let assignments = $state({
     STR: null, DEX: null, CON: null, INT: null, WIS: null, CHA: null
   });
-  let exceptionalStr = $state(null);
   let selectedRollIndex = $state(null);
   let rerollsUsed = $state(0);
 
@@ -33,13 +32,6 @@
     Object.values(assignments).every(v => v !== null)
   );
 
-  let needsExceptionalRoll = $derived(
-    assignments.STR !== null &&
-    calculatedScores() &&
-    calculatedScores()[assignments.STR]?.total === 18 &&
-    exceptionalStr === null
-  );
-
   let canReroll = $derived(rerollsUsed < MAX_REROLLS);
 
   function rollScores() {
@@ -48,7 +40,6 @@
     }
     rawDice = rollAbilityDice();
     assignments = { STR: 0, DEX: 1, CON: 2, INT: 3, WIS: 4, CHA: 5 };
-    exceptionalStr = null;
     selectedRollIndex = null;
   }
 
@@ -64,12 +55,7 @@
     selectedRollIndex = null;
   }
 
-  function rollExceptional() {
-    exceptionalStr = rollExceptionalStrength();
-  }
-
   function unassign(ability) {
-    if (ability === 'STR') exceptionalStr = null;
     assignments[ability] = null;
   }
 
@@ -81,9 +67,7 @@
       e.preventDefault();
       if (!rawDice) {
         rollScores();
-      } else if (needsExceptionalRoll) {
-        rollExceptional();
-      } else if (allAssigned && !needsExceptionalRoll) {
+      } else if (allAssigned) {
         complete();
       }
       return;
@@ -104,7 +88,6 @@
       method = existingRollData.method;
       rawDice = existingRollData.rawDice;
       assignments = existingRollData.assignments;
-      exceptionalStr = existingRollData.exceptionalStr;
       rerollsUsed = existingRollData.rerollsUsed || 0;
     }
   });
@@ -115,15 +98,11 @@
     for (const ability of ABILITIES) {
       finalScores[ability] = scores[assignments[ability]].total;
     }
-    if (exceptionalStr !== null) {
-      finalScores.exceptionalStr = exceptionalStr;
-    }
 
     const rollData = {
       method,
       rawDice,
       assignments,
-      exceptionalStr,
       rerollsUsed
     };
 
@@ -190,9 +169,6 @@
           {#if assignments[ability] !== null}
             <span class="slot-value">
               {scores[assignments[ability]].total}
-              {#if ability === 'STR' && scores[assignments[ability]].total === 18 && exceptionalStr !== null}
-                <span class="exceptional">/{exceptionalStr.toString().padStart(2, '0')}</span>
-              {/if}
             </span>
             <button class="slot-clear" onclick={() => unassign(ability)} title="Clear to reassign">×</button>
           {:else}
@@ -251,18 +227,8 @@
     </div>
   </div>
 
-  <!-- Exceptional Strength -->
-  {#if needsExceptionalRoll}
-    <div class="exceptional-prompt alert alert-warning">
-      <p><strong>18 Strength!</strong> Warriors with exceptional strength roll d100 for additional power.</p>
-      <button class="btn-primary" onclick={rollExceptional}>
-        🎲 Roll Exceptional Strength
-      </button>
-    </div>
-  {/if}
-
   <!-- Continue -->
-  {#if allAssigned && !needsExceptionalRoll}
+  {#if allAssigned}
     <div class="continue-section">
       <div class="divider"><span class="ornament">◆</span></div>
       <button class="btn-primary" onclick={complete}>

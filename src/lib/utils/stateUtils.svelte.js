@@ -196,7 +196,7 @@ export function useToast(defaultDuration = 1500) {
 export function useAbilityModifiers(character) {
   const str = $derived(getStrengthModifiers(
     character.adjustedAbilities.STR,
-    character.abilities.exceptionalStr
+    character.cls.group === 'warrior' ? character.abilities.exceptionalStr : null
   ));
   const dex = $derived(getDexterityModifiers(character.adjustedAbilities.DEX));
   const con = $derived(getConstitutionModifiers(character.adjustedAbilities.CON, character.cls.group));

@@ -4,6 +4,7 @@
   import { getAvailableKits, classHasKits } from '../data/kits.js';
   import { getSpeciesEnemyList } from '../data/speciesEnemies.js';
   import { ALIGNMENTS, getAlignmentName, filterDeitiesForClass } from '../data/alignment.js';
+  import { rollExceptionalStrength } from './dice.js';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
@@ -16,6 +17,8 @@
   let selectedDeityKey = $state(existingDeityKey ?? null); // null = skipped deity (default), string = deity key
   let selectedKit = $state(existingKitKey ?? null); // null = skipped kit (default), string = kit key
   let selectedSpeciesEnemy = $state(existingSpeciesEnemy ?? null);
+  let showExceptionalStrModal = $state(false);
+  let rolledExceptionalStr = $state(null);
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey, { lenient: settings.lenientMode }));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -66,6 +69,20 @@
   function confirm() {
     if (!canConfirm) return;
 
+    // Check if warrior with 18 STR needs exceptional strength roll
+    const isWarrior = selectedClass.cls.group === 'warrior';
+    const has18Str = abilities.STR === 18;
+
+    if (isWarrior && has18Str && !rolledExceptionalStr) {
+      // Show exceptional strength modal instead of completing
+      showExceptionalStrModal = true;
+      return;
+    }
+
+    completeClassSelection();
+  }
+
+  function completeClassSelection() {
     // Get the full kit object if a kit was selected
     const kitData = selectedKit && typeof selectedKit === 'object' ? selectedKit : null;
     const kitKey = kitData ? kitData.key : null;
@@ -88,7 +105,23 @@
       result.alignment = ALIGNMENTS.LG;
     }
 
+    // Include exceptional strength if rolled
+    if (rolledExceptionalStr !== null) {
+      result.exceptionalStr = rolledExceptionalStr;
+    }
+
     onComplete(result);
+  }
+
+  function handleExceptionalRoll(value) {
+    rolledExceptionalStr = value;
+    // Modal stays open to show result, user clicks Continue
+  }
+
+  function skipExceptionalStr() {
+    rolledExceptionalStr = null;
+    showExceptionalStrModal = false;
+    completeClassSelection();
   }
 
   useGlobalKeydown((e) => {
@@ -382,10 +415,80 @@
   {/if}
 </div>
 
+<!-- Exceptional Strength Modal -->
+{#if showExceptionalStrModal}
+  <div class="modal-backdrop" onclick={(e) => e.target === e.currentTarget && (showExceptionalStrModal = false)}>
+    <div class="modal-content">
+      <h3>⚔️ Exceptional Strength!</h3>
+      <p>Your {selectedClass.cls.name} has 18 Strength!</p>
+      <p>Roll d100 for exceptional strength (18/XX):</p>
+
+      {#if rolledExceptionalStr === null}
+        <button class="btn-primary" onclick={() => handleExceptionalRoll(rollExceptionalStrength())}>
+          🎲 Roll for 18/XX
+        </button>
+        <button class="btn-ghost" onclick={skipExceptionalStr}>
+          Skip
+        </button>
+      {:else}
+        <div class="exceptional-result">
+          <p class="result-text">You rolled: <strong>18/{rolledExceptionalStr.toString().padStart(2, '0')}</strong></p>
+          <button class="btn-primary" onclick={() => { showExceptionalStrModal = false; completeClassSelection(); }}>
+            Continue →
+          </button>
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
 
 <style lang="scss">
   @import './styles/shared';
   @import './styles/selectors';
   .deity-grid > :global(:first-child) { grid-column: 1 / -1; }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.15s ease-out;
+  }
+
+  .modal-content {
+    background: var(--bg-card);
+    border: 2px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 2rem;
+    max-width: 400px;
+    text-align: center;
+    animation: scaleIn 0.15s ease-out;
+
+    h3 {
+      margin: 0 0 1rem;
+      font-size: 1.5rem;
+    }
+
+    p {
+      margin: 0.5rem 0;
+    }
+
+    button {
+      margin: 0.5rem;
+    }
+  }
+
+  .exceptional-result {
+    margin-top: 1rem;
+
+    .result-text {
+      font-size: 1.25rem;
+      color: var(--gold);
+      margin: 1rem 0;
+    }
+  }
 </style>
 

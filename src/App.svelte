@@ -211,6 +211,12 @@
       }
     }
 
+    // Step 2 special case: handle exceptional strength from class selection
+    if (step === 2 && data.exceptionalStr !== undefined) {
+      if (!character.abilities) character.abilities = {};
+      character.abilities.exceptionalStr = data.exceptionalStr;
+    }
+
     const config = stepFields[step];
     for (const field of config.fields) {
       character[field] = data[field] ?? null;

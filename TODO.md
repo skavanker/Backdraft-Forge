@@ -40,7 +40,6 @@
 - [ ] Mobile responsiveness improvements
 
 ### Settings Panel Enhancements
-- [ ] Reduce animations setting
 - [ ] Custom starting gold multiplier
 - Wait for settings feature to land before planning more — house rules stuff should live there
 
@@ -55,4 +54,72 @@
 
 ## Bugs
 
-(No known bugs at this time)
+### Critical
+- [ ] **Character Import Crash** (src/lib/shareCharacter.js:217-218) — Gear decompression returns null for missing items, causes crash. Filter nulls before adding to array.
+- [ ] **Current HP Display Bug** (src/lib/CharacterSheet.svelte:48) — Unsafe fallback with `??` could show wrong HP at 0 HP. Use explicit null check.
+- [ ] **Missing __APP_VERSION__** (src/lib/persistence.svelte.js:46) — Build variable undefined, causes save crash. Already defined in vite.config.js, verify build.
+
+### High Priority
+- [ ] **Ranger Post-Name-Level HP** (src/data/levelTables.js:30) — Rangers get +2 HP/level after 9th, should be +3 per PHB.
+- [ ] **Undo Deep Clone Corruption** (src/App.svelte:268) — JSON.parse/stringify will fail on non-serializable values. Use structuredClone() instead.
+- [ ] **Equipment Mount Race Condition** (src/lib/EquipmentSelector.svelte:188-231) — Gold ledger modified during mount, could cause inconsistent state.
+
+### Medium Priority
+- [ ] **Thief Starting Skills** — Verify 1st level gets 60 discretionary points (not 30). Check src/data/thiefSkills.js.
+- [ ] **Sex Field Fallback** (src/lib/shareCharacter.js:279) — Uses `||` instead of `??`, empty string defaults to 'Male'.
+- [ ] **HP Auto-Set During Render** (src/lib/LevelUpWizard.svelte:119-124) — HP set in top-level code, could reset during re-render.
+- [ ] **Ability Comparison Float** (src/App.svelte:204-212) — Strict equality on floats could fail with fractional values.
+
+### Low Priority
+- [ ] **HP Color at 0 Max** (src/lib/CharacterSheet.svelte:55) — Division by zero when maxHP is 0.
+- [ ] **groupedClasses Derived** (src/lib/ClassSelector.svelte:103) — Wrapped in function unnecessarily.
+
+## Code Quality & Technical Debt
+
+### Component Refactoring (Over 500 Lines)
+- [ ] **Split App.svelte** (780 lines) — Extract step management, keyboard handlers, save/load logic
+- [ ] **Split LevelUpWizard.svelte** (507 lines) — Extract step components (HPRollStep, ThiefSkillsStep, SpellsStep)
+- [ ] **Split EquipmentSelector.svelte** (505 lines) — Extract gold ledger UI and custom item form
+
+### Code Quality Issues
+- [ ] **Large handleKeydown** (src/App.svelte:126-183, 57 lines) — Extract keyboard shortcuts to utility
+- [ ] **Large compressCharacter** (src/lib/shareCharacter.js:12-115, 103 lines) — Split by data category
+- [ ] **Large decompressCharacter** (src/lib/shareCharacter.js:139-297, 158 lines) — Split into transformer functions
+- [ ] **Duplicated Equipment Selection** (src/lib/EquipmentSelector.svelte:82-102) — Extract common pattern for selectArmor/selectShield
+- [ ] **Paladin Auto-Alignment Magic** (src/lib/ClassSelector.svelte:58-92) — Add comment explaining behavior
+
+### Documentation Gaps
+- [ ] Add JSDoc to 15+ exported utility functions (see code-review-report.md for full list)
+- [ ] Document error handling patterns project-wide
+- [ ] Add inline comments for complex logic blocks
+- [ ] Document the 19 ability cap in races.js
+
+### CSS/SCSS Issues
+
+#### Critical
+- [ ] **Extract App.svelte CSS** (247 lines) — Move to _app.scss partial per CLAUDE.md rules
+- [ ] **Fix Contrast Ratios** — Darken --text-muted to #4a3821 and --text-faint for WCAG AA compliance
+
+#### High Priority
+- [ ] **Add Missing Design Tokens** — $text-xs, $text-xl, $text-xxl, $space-xs for consistency
+- [ ] **Consolidate Badge Styles** — Single source in _utilities.scss (removes 30-40 duplicate lines)
+- [ ] **Create Print Stylesheet** — _print.scss with white backgrounds, black text, page breaks
+- [ ] **Standardize Breakpoints** — Create mixin system for responsive design
+- [ ] **Increase Touch Targets** — 44px minimum for mobile buttons
+
+#### Medium Priority
+- [ ] Remove questionable !important from _levelup.scss:143
+- [ ] Unify .data-row and .info-row patterns
+- [ ] Add parchment texture/noise for enhanced aesthetic
+- [ ] Document magic numbers with inline comments
+
+### AD&D Rules Verification Needed
+- [ ] **Bard Spell Slots** — Verify against PHB Table 23
+- [ ] **Ranger Spell Slots** — Verify both priest and wizard slots
+- [ ] **Weapon Damage** — Document that simplified (single value vs. S-M/L split) or expand
+
+## Notes
+
+- **Agent Reports Generated**: 2026-02-27
+  - See: code-review-report.md, rules-validation-report.md, css-design-review.md
+  - **Security Note**: Future agent prompts should use relative paths, not absolute user paths
