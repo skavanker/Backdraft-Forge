@@ -1,9 +1,8 @@
 <script>
   import { getAvailableRaces, applyRacialAdjustments } from '../data/races.js';
-  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
-  import { isTyping } from './utils/keyboard.js';
+  import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
   import { settings } from './settings.svelte.js';
 
@@ -36,18 +35,12 @@
     });
   }
 
-  function handleKeydown(e) {
+  useGlobalKeydown((e) => {
     if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
-
     if (e.key === 'Enter' && selectedRace) {
       e.preventDefault();
       confirm();
     }
-  }
-
-  onMount(() => {
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
   });
 </script>
 

@@ -33,4 +33,5 @@ pip_burrows_character_sheet.html
 *.sln
 *.sw?
 .claude/
+REFACTORING.md
 nul

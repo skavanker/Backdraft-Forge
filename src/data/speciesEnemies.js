@@ -73,6 +73,15 @@ export const speciesEnemies = {
 };
 
 /**
+ * Format a species enemy key to its display name, with fallback.
+ * @param {string} key
+ * @returns {string}
+ */
+export function formatSpeciesEnemy(key) {
+  return speciesEnemies[key]?.name ?? key;
+}
+
+/**
  * Get species enemies as a flat list with keys
  */
 export function getSpeciesEnemyList() {

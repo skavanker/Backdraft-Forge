@@ -29,7 +29,7 @@
           THAC0 {weapon.ranged ? missileTHAC0 : meleeTHAC0}
           · {weapon.damage}{#if !weapon.ranged && strMods.dmgAdj !== 0}{formatModifier(strMods.dmgAdj)} dmg{:else} dmg{/if}
         </span>
-        <button class="remove-btn" onclick={() => onRemoveWeapon(i)} title="Remove {weapon.name}">&times;</button>
+        <button class="remove-btn" onclick={() => onRemoveWeapon(i)} title="Remove {weapon.name}" aria-label="Remove {weapon.name}">&times;</button>
       </div>
     {/each}
   </div>
@@ -54,13 +54,13 @@
     {#if equipment?.armor}
       <div class="data-row has-remove">
         <span>Armor:</span> <span class="val">{equipment.armor.name} (AC {equipment.armor.ac})</span>
-        <button class="remove-btn" onclick={onRemoveArmor} title="Remove armor">&times;</button>
+        <button class="remove-btn" onclick={onRemoveArmor} title="Remove armor" aria-label="Remove armor">&times;</button>
       </div>
     {/if}
     {#if equipment?.shield}
       <div class="data-row has-remove">
         <span>Shield:</span> <span class="val">{equipment.shield.name}</span>
-        <button class="remove-btn" onclick={onRemoveShield} title="Remove shield">&times;</button>
+        <button class="remove-btn" onclick={onRemoveShield} title="Remove shield" aria-label="Remove shield">&times;</button>
       </div>
     {/if}
     {#if equipment?.gear?.length}
@@ -68,7 +68,7 @@
         <div class="data-row has-remove">
           <span>{item.name}{(item.qty || 1) > 1 ? ` \u00d7${item.qty}` : ''}</span>
           <span class="val">{(item.weight || 0) * (item.qty || 1)} lbs</span>
-          <button class="remove-btn" onclick={() => onRemoveGear(i)} title="Remove {item.name}">&times;</button>
+          <button class="remove-btn" onclick={() => onRemoveGear(i)} title="Remove {item.name}" aria-label="Remove {item.name}">&times;</button>
         </div>
       {/each}
     {/if}

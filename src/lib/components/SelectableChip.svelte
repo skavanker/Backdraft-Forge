@@ -43,6 +43,7 @@
   class:disabled
   class:locked
   class:auto
+  aria-pressed={selected}
   onclick={handleClick}
   oncontextmenu={handleContext}
   onkeydown={handleKeydown}
@@ -59,7 +60,7 @@
     {/if}
   {/if}
   {#if locked}
-    <span class="chip-lock">🔒</span>
+    <span class="chip-lock" aria-hidden="true">🔒</span>
   {/if}
 </button>
 

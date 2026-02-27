@@ -33,6 +33,7 @@
       bind:value={importCode}
       placeholder="Paste character code here..."
       rows="6"
+      aria-label="Character import code"
     ></textarea>
     <button class="btn-primary" onclick={loadImportedCharacter}>
       Load Character

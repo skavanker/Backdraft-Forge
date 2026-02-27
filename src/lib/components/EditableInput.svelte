@@ -18,7 +18,8 @@
     buttonClass = '',
     inputClass = '',
     onUpdate = null,
-    title = ''
+    title = '',
+    ariaLabel = ''
   } = $props();
 
   let editing = $state(false);
@@ -95,6 +96,7 @@
       class="display-button {buttonClass}"
       onclick={startEdit}
       {title}
+      aria-label={ariaLabel || title || undefined}
     >
       {displayFormat(value)}{#if suffix} {suffix}{/if}
     </button>

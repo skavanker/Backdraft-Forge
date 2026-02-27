@@ -1,3 +1,16 @@
+import { onMount } from 'svelte';
+
+/**
+ * Register a global keydown handler that auto-cleans up on component destroy.
+ * @param {(e: KeyboardEvent) => void} handler
+ */
+export function useGlobalKeydown(handler) {
+  onMount(() => {
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
+}
+
 /** Returns true if the focused element is a text input, textarea, or contenteditable. */
 export function isTyping() {
   const el = document.activeElement;

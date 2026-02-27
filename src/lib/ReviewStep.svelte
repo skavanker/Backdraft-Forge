@@ -2,10 +2,9 @@
   import { getCharacterWarnings } from '../data/classes.js';
   import { getConstitutionModifiers } from '../data/mechanics.js';
   import { applyRacialAdjustments } from '../data/races.js';
-  import { speciesEnemies } from '../data/speciesEnemies.js';
+  import { formatSpeciesEnemy } from '../data/speciesEnemies.js';
   import AbilityBadge from './components/AbilityBadge.svelte';
-  import { onMount } from 'svelte';
-  import { isTyping } from './utils/keyboard.js';
+  import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
 
   let { character, onContinue } = $props();
@@ -45,17 +44,12 @@
   // Run on mount
   initHPHistory();
 
-  function handleKeydown(e) {
+  useGlobalKeydown((e) => {
     if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === 'Enter') {
       e.preventDefault();
       onContinue();
     }
-  }
-
-  onMount(() => {
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
   });
 </script>
 
@@ -129,7 +123,7 @@
         {#if character.speciesEnemy}
           <div class="info-row">
             <span>Species Enemy</span>
-            <span>{speciesEnemies[character.speciesEnemy]?.name ?? character.speciesEnemy} (+4 to hit)</span>
+            <span>{formatSpeciesEnemy(character.speciesEnemy)} (+4 to hit)</span>
           </div>
         {/if}
         {#if character.xpBonus > 0}

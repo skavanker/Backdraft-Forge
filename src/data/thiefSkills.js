@@ -51,6 +51,10 @@ const DEX_ADJUSTMENTS = {
   19: { pickPockets:  15, openLocks:  20, findTraps:  10, moveSilently:  15, hideInShadows:  15 },
 };
 
+// Skill caps and points per level
+export const THIEF_SKILL_CAP = 95;
+export const THIEF_POINTS_PER_LEVEL = 30;
+
 // Skill display labels
 export const SKILL_LABELS = {
   pickPockets:   'Pick Pockets',

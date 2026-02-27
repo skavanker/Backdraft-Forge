@@ -167,6 +167,28 @@ export function useSelection(options = {}) {
 }
 
 /**
+ * Toast composable — flash a message for a given duration.
+ * @param {number} defaultDuration - default duration in ms (default 1500)
+ * @returns {{ message: string, visible: boolean, flash: Function }}
+ */
+export function useToast(defaultDuration = 1500) {
+  let message = $state('');
+  let visible = $state(false);
+  let timer;
+
+  return {
+    get message() { return message; },
+    get visible() { return visible; },
+    flash(msg, duration = defaultDuration) {
+      message = msg;
+      visible = true;
+      clearTimeout(timer);
+      timer = setTimeout(() => { visible = false; }, duration);
+    }
+  };
+}
+
+/**
  * Ability modifiers utility - calculates all ability score modifiers
  * @param {object} character - Character object with abilities and class info
  * @returns {{ str: object, dex: object, con: object, int: object, wis: object, cha: object }}

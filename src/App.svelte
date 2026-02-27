@@ -10,11 +10,23 @@
   import CharacterSheet from './lib/CharacterSheet.svelte';
   import CharacterSummary from './lib/CharacterSummary.svelte';
   import ReviewStep from './lib/ReviewStep.svelte';
-  import { getCharacterFromUrl, encodeCharacter, decodeCharacter } from './lib/shareCharacter.js';
+  import { getCharacterFromUrl, encodeCharacter } from './lib/shareCharacter.js';
   import { isSpellcaster } from './data/spells.js';
   import { isTyping } from './lib/utils/keyboard.js';
   import { settings, initSettings } from './lib/settings.svelte.js';
   import SettingsPanel from './lib/components/SettingsPanel.svelte';
+  import { STEP_SHEET, TOAST_DURATION } from './data/constants.js';
+  import { useToast } from './lib/utils/stateUtils.svelte.js';
+  import {
+    loadSavesList as loadSaves,
+    saveToLocalStorage as persistSave,
+    loadSavedCharacter as loadSaved,
+    deleteSavedCharacter as deleteSave,
+    saveMidCreation as persistWip,
+    clearMidCreation,
+    loadMidCreation,
+    migrateOldSave
+  } from './lib/persistence.svelte.js';
 
   const steps = [
     'Abilities',
@@ -71,64 +83,24 @@
 
   let character = $state(makeEmptyCharacter());
 
-  const SAVES_KEY = 'backdraft-forge-saves';
-  const OLD_SAVE_KEY = 'backdraft-forge-character';
-  const WIP_KEY = 'backdraft-forge-wip';
-
   let savedCharacters = $state([]);
 
-  function loadSavesList() {
-    try {
-      const raw = localStorage.getItem(SAVES_KEY);
-      savedCharacters = raw ? JSON.parse(raw) : [];
-    } catch { savedCharacters = []; }
-  }
-
-  function persistSavesList() {
-    localStorage.setItem(SAVES_KEY, JSON.stringify(savedCharacters));
-  }
-
   function saveToLocalStorage() {
-    try {
-      const encoded = encodeCharacter(character);
-      if (!encoded) return;
-      const entry = {
-        id: Date.now(),
-        name: character.name || 'Unnamed Hero',
-        race: character.race?.name || '?',
-        cls: character.kit?.name || character.wizardSchool?.name || character.cls?.name || '?',
-        level: character.level || 1,
-        code: encoded,
-      };
-      // Replace existing save with same name+race+class, or add new
-      const idx = savedCharacters.findIndex(s =>
-        s.name === entry.name && s.race === entry.race && s.cls === entry.cls
-      );
-      if (idx >= 0) {
-        savedCharacters[idx] = entry;
-      } else {
-        savedCharacters = [entry, ...savedCharacters];
-      }
-      persistSavesList();
-    } catch (e) { /* silently fail */ }
+    savedCharacters = persistSave(character, savedCharacters);
   }
 
   async function loadSavedCharacter(entry) {
-    try {
-      const restored = await decodeCharacter(entry.code);
-      if (restored) {
-        character = restored;
-        currentStep = 8;
-        return;
-      }
-    } catch (e) { /* ignore */ }
-    // If load failed, remove bad entry
-    deleteSavedCharacter(entry.id);
+    const restored = await loadSaved(entry);
+    if (restored) {
+      character = restored;
+      currentStep = STEP_SHEET;
+    } else {
+      savedCharacters = deleteSave(entry.id, savedCharacters);
+    }
   }
 
   function deleteSavedCharacter(id) {
-    savedCharacters = savedCharacters.filter(s => s.id !== id);
-    persistSavesList();
+    savedCharacters = deleteSave(id, savedCharacters);
   }
 
   onMount(() => {
@@ -140,36 +112,17 @@
       const sharedCharacter = await getCharacterFromUrl();
       if (sharedCharacter) {
         character = sharedCharacter;
-        currentStep = 8;
+        currentStep = STEP_SHEET;
         window.history.replaceState(null, '', window.location.pathname);
         return;
       }
 
-      // Migrate old single-save format
-      try {
-        const oldSave = localStorage.getItem(OLD_SAVE_KEY);
-        if (oldSave) {
-          const restored = await decodeCharacter(oldSave);
-          if (restored) {
-            const encoded = encodeCharacter(restored);
-            const entry = {
-              id: Date.now(),
-              name: restored.name || 'Unnamed Hero',
-              race: restored.race?.name || '?',
-              cls: restored.wizardSchool?.name || restored.cls?.name || '?',
-              level: restored.level || 1,
-              code: encoded,
-            };
-            loadSavesList();
-            savedCharacters = [entry, ...savedCharacters];
-            persistSavesList();
-          }
-          localStorage.removeItem(OLD_SAVE_KEY);
-        }
-      } catch (e) { /* ignore */ }
+      // Migrate old single-save format, then load saves
+      savedCharacters = loadSaves();
+      savedCharacters = await migrateOldSave(savedCharacters);
 
-      loadSavesList();
-      loadMidCreation();
+      const wip = loadMidCreation();
+      if (wip) wipPrompt = wip;
     })();
 
     function handleKeydown(e) {
@@ -182,7 +135,7 @@
 
       // Ctrl+E — export character code (on sheet step)
       if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-        if (currentStep === 8) {
+        if (currentStep === STEP_SHEET) {
           e.preventDefault();
           exportCharacterCode();
         }
@@ -191,7 +144,7 @@
 
       // Ctrl+Z — undo on character sheet
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        if (currentStep === 8 && undoStack.length > 0) {
+        if (currentStep === STEP_SHEET && undoStack.length > 0) {
           e.preventDefault();
           undo();
         }
@@ -204,7 +157,7 @@
           settingsOpen = false;
         } else if (showResetConfirm) {
           showResetConfirm = false;
-        } else if (currentStep > 0 && currentStep < 8) {
+        } else if (currentStep > 0 && currentStep < STEP_SHEET) {
           goToStep(currentStep - 1);
         }
         return;
@@ -238,8 +191,15 @@
     4: { fields: ['proficiencies'], next: 5 },
     5: { fields: ['equipment'], get next() { return isSpellcaster(character.classKey) ? 6 : 7; }, after() { if (!isSpellcaster(character.classKey)) character.spells = []; } },
     6: { fields: ['spells'], next: 7 },
-    7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: 8, after() { saveToLocalStorage(); clearMidCreation(); } },
+    7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: STEP_SHEET, after() { saveToLocalStorage(); clearMidCreation(); } },
   };
+
+  function clearForwardProgress(keepFields = []) {
+    const empty = makeEmptyCharacter();
+    for (const key of Object.keys(empty)) {
+      if (!keepFields.includes(key)) character[key] = empty[key];
+    }
+  }
 
   function completeStep(step, data) {
     // Step 0 special case: if abilities changed, clear forward progress
@@ -249,10 +209,7 @@
         a.INT !== b.INT || a.WIS !== b.WIS || a.CHA !== b.CHA ||
         a.exceptionalStr !== b.exceptionalStr;
       if (changed) {
-        const empty = makeEmptyCharacter();
-        for (const key of Object.keys(empty)) {
-          if (key !== 'abilities' && key !== 'rollData') character[key] = empty[key];
-        }
+        clearForwardProgress(['abilities', 'rollData']);
       }
     }
 
@@ -299,29 +256,27 @@
 
   function handleImportCharacter(importedCharacter) {
     character = importedCharacter;
-    currentStep = 8;
+    currentStep = STEP_SHEET;
     saveToLocalStorage();
   }
 
   // Undo stack for character sheet edits (Ctrl+Z)
   const MAX_UNDO = 20;
   let undoStack = $state([]);
-  let undoMessage = $state('');
-  let showUndoMessage = $state(false);
+  const undoToast = useToast(TOAST_DURATION);
+  const saveToast = useToast(TOAST_DURATION);
 
   function pushUndo() {
     undoStack = [...undoStack.slice(-(MAX_UNDO - 1)), JSON.parse(JSON.stringify(character))];
   }
 
   function undo() {
-    if (undoStack.length === 0 || currentStep !== 8) return;
+    if (undoStack.length === 0 || currentStep !== STEP_SHEET) return;
     const prev = undoStack[undoStack.length - 1];
     undoStack = undoStack.slice(0, -1);
     Object.assign(character, prev);
     saveToLocalStorage();
-    undoMessage = 'Undone';
-    showUndoMessage = true;
-    setTimeout(() => showUndoMessage = false, 1500);
+    undoToast.flash('Undone');
   }
 
   function handleCharacterUpdate(updated) {
@@ -331,42 +286,20 @@
   }
 
   let showResetConfirm = $state(false);
-  let saveMessage = $state('');
-  let showSaveMessage = $state(false);
   let wipPrompt = $state(null);
 
   function flashSave(msg = 'Progress saved') {
-    saveMessage = msg;
-    showSaveMessage = true;
-    setTimeout(() => showSaveMessage = false, 1500);
+    saveToast.flash(msg);
   }
 
   function saveMidCreation() {
-    if (currentStep === 8) {
+    if (currentStep === STEP_SHEET) {
       saveToLocalStorage();
       flashSave('Character saved');
       return;
     }
-    try {
-      const payload = { character: JSON.parse(JSON.stringify(character)), currentStep };
-      localStorage.setItem(WIP_KEY, JSON.stringify(payload));
-      flashSave();
-    } catch { /* silently fail */ }
-  }
-
-  function clearMidCreation() {
-    localStorage.removeItem(WIP_KEY);
-  }
-
-  function loadMidCreation() {
-    try {
-      const raw = localStorage.getItem(WIP_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (data?.character && typeof data.currentStep === 'number') {
-        wipPrompt = data;
-      }
-    } catch { /* ignore */ }
+    persistWip(character, currentStep);
+    flashSave();
   }
 
   function resumeWip() {
@@ -414,11 +347,11 @@
       <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>No</button>
     </div>
   {:else}
-    <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over">
+    <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over" aria-label="Start over">
       &times;
     </button>
   {/if}
-  <button class="settings-toggle" onclick={() => settingsOpen = !settingsOpen} title="Settings">
+  <button class="settings-toggle" onclick={() => settingsOpen = !settingsOpen} title="Settings" aria-label="Settings">
     &#9881;
   </button>
 </div>
@@ -426,7 +359,7 @@
 <SettingsPanel
   open={settingsOpen}
   onClose={() => settingsOpen = false}
-  showActions={currentStep === 8}
+  showActions={currentStep === STEP_SHEET}
   onSave={() => { saveToLocalStorage(); flashSave('Character saved'); }}
   onShare={async () => {
     const { generateShareableUrl, copyToClipboard } = await import('./lib/shareCharacter.js');
@@ -468,7 +401,7 @@
         disabled={!canNavigateToStep(i)}
         title={isStepLocked(i) ? 'Locked — cannot change after leveling up' : ''}
       >
-        <span class="step-number">{isStepLocked(i) ? '🔒' : i + 1}</span>
+        <span class="step-number">{#if isStepLocked(i)}<span aria-hidden="true">🔒</span>{:else}{i + 1}{/if}</span>
         <span class="step-label">{step}</span>
       </button>
     {/each}
@@ -495,7 +428,7 @@
                 <span class="save-name">{entry.name}</span>
                 <span class="save-meta">{entry.race} {entry.cls}{entry.level > 1 ? ` · Lvl ${entry.level}` : ''}</span>
               </button>
-              <button class="save-delete" onclick={() => deleteSavedCharacter(entry.id)} title="Delete save">&times;</button>
+              <button class="save-delete" onclick={() => deleteSavedCharacter(entry.id)} title="Delete save" aria-label="Delete save">&times;</button>
             </div>
           {/each}
         </div>
@@ -590,14 +523,14 @@
         onComplete={(data) => completeStep(7, data)}
       />
 
-    {:else if currentStep === 8}
-      <CharacterSheet {character} onCharacterUpdate={handleCharacterUpdate} {undoMessage} {showUndoMessage} />
+    {:else if currentStep === STEP_SHEET}
+      <CharacterSheet {character} onCharacterUpdate={handleCharacterUpdate} undoMessage={undoToast.message} showUndoMessage={undoToast.visible} />
     {/if}
   </section>
 </main>
 
-{#if showSaveMessage}
-  <div class="save-toast">{saveMessage}</div>
+{#if saveToast.visible}
+  <div class="save-toast">{saveToast.message}</div>
 {/if}
 
 <style lang="scss">

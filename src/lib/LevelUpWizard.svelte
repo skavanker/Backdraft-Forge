@@ -4,7 +4,9 @@
   import { getNewFeaturesAtLevel, gainsWeaponProficiency, gainsNonWeaponProficiency } from '../data/classFeatures.js';
   import { isSpellcaster } from '../data/spells.js';
   import { getSavingThrows, getBaseTHAC0 } from '../data/mechanics.js';
-  import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS } from '../data/thiefSkills.js';
+  import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_POINTS_PER_LEVEL } from '../data/thiefSkills.js';
+  import { parseDieMax } from './utils/hpUtils.js';
+  import { ordinal } from './utils/formatUtils.js';
 
   let { character, onComplete, onCancel } = $props();
 
@@ -31,11 +33,16 @@
   let diceAnimating = $state(false);
   let animDieFace = $state(1);
 
+  // Dice animation constants
+  const ANIM_TOTAL_FRAMES = 16;
+  const ANIM_BASE_DELAY = 80;
+  const ANIM_MAX_EXTRA_DELAY = 420;
+
   // Derived data
   let classKey = character.classKey;
   let classGroup = character.cls.group;
   let hitDie = character.cls.hitDie;
-  let dieMax = parseInt(hitDie.match(/d(\d+)/)?.[1] || '4');
+  let dieMax = parseDieMax(hitDie);
 
   // Map hit die to SVG die type: d4→d4, d6→d6, d8/d10/d12→d20
   let dieSvgType = dieMax <= 4 ? 'd4' : dieMax <= 6 ? 'd6' : 'd20';
@@ -65,24 +72,19 @@
 
   // Thief skills
   let isThiefClass = classKey === 'thief' || classKey === 'bard';
-  let THIEF_POINTS_PER_LEVEL = 30;
   let thiefPointsRemaining = $state(THIEF_POINTS_PER_LEVEL);
-  // Start from existing distributed points
   let thiefDistributed = $state(isThiefClass ? { ...(character.thiefSkills || {}) } : {});
-  // New points added this level (track separately so we know what was just allocated)
   let thiefNewPoints = $state({});
   let thiefBase = isThiefClass
     ? getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, classKey, newLevel)
     : {};
-  // Max any skill can reach
-  const SKILL_CAP = 95;
 
   function addThiefPoints(skill, amount) {
     const existingDistributed = (thiefDistributed[skill] || 0);
     const baseVal = thiefBase[skill] || 0;
     const currentTotal = baseVal + existingDistributed;
     // Can't exceed 95%
-    const maxAdd = Math.min(amount, SKILL_CAP - currentTotal, thiefPointsRemaining);
+    const maxAdd = Math.min(amount, THIEF_SKILL_CAP - currentTotal, thiefPointsRemaining);
     if (maxAdd <= 0) return;
 
     thiefDistributed = { ...thiefDistributed, [skill]: existingDistributed + maxAdd };
@@ -149,9 +151,6 @@
       hpConMod = conMods.hpAdj;
       diceAnimating = true;
 
-      // Animate the dice — starts fast, decelerates like a real die settling
-      // Total duration ~3.5 seconds
-      const totalFrames = 16;
       let frame = 0;
 
       function tick() {
@@ -159,8 +158,7 @@
         hpRoll = Math.floor(Math.random() * dieMax) + 1;
         frame++;
 
-        if (frame >= totalFrames) {
-          // Final result
+        if (frame >= ANIM_TOTAL_FRAMES) {
           hpRoll = Math.floor(Math.random() * dieMax) + 1;
           hpTotal = Math.max(1, hpRoll + hpConMod);
           hpRolled = true;
@@ -168,13 +166,12 @@
           return;
         }
 
-        // Decelerate: 80ms at start → 500ms near end
-        const progress = frame / totalFrames;
-        const delay = 80 + Math.pow(progress, 1.8) * 420;
+        const progress = frame / ANIM_TOTAL_FRAMES;
+        const delay = ANIM_BASE_DELAY + Math.pow(progress, 1.8) * ANIM_MAX_EXTRA_DELAY;
         setTimeout(tick, delay);
       }
 
-      setTimeout(tick, 80);
+      setTimeout(tick, ANIM_BASE_DELAY);
       return;
     }
 
@@ -206,7 +203,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="overlay" onkeydown={(e) => e.key === 'Escape' && onCancel()}>
   <div class="wizard-modal" role="dialog" aria-label="Level Up">
-    <button class="close-btn" onclick={onCancel}>&times;</button>
+    <button class="close-btn" onclick={onCancel} aria-label="Close level up">&times;</button>
 
     <div class="wizard-header">
       <h2>Level Up!</h2>
@@ -339,7 +336,7 @@
             {@const distributed = thiefDistributed[skill] || 0}
             {@const total = baseVal + distributed}
             {@const newPts = thiefNewPoints[skill] || 0}
-            {@const atCap = total >= SKILL_CAP}
+            {@const atCap = total >= THIEF_SKILL_CAP}
             <div class="thief-skill-row panel">
               <span class="skill-name">{SKILL_LABELS[skill]}</span>
               <span class="skill-total" class:at-cap={atCap}>{total}%</span>
@@ -387,7 +384,7 @@
           {#each (newSpellSlots || []) as slots, i}
             {#if slots > 0 || (oldSpellSlots?.[i] || 0) > 0}
               <div class="slot-row" class:improved={slots > (oldSpellSlots?.[i] || 0)}>
-                <span>{i + 1}{i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}</span>
+                <span>{ordinal(i + 1)}</span>
                 <span>{oldSpellSlots?.[i] || 0}</span>
                 <span>{slots}</span>
               </div>

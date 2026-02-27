@@ -1,11 +1,10 @@
 <script>
   import {
     equipment,
-    rollStartingGold,
-    getAllowedArmor,
-    getAllowedShields,
     formatPrice,
     calculateTotalWeight,
+    priceToGp,
+    getWeaponsForProficiencies,
     getAllowedArmorWithKit,
     getAllowedShieldsWithKit,
     rollStartingGoldWithKit
@@ -16,25 +15,18 @@
   import { formatEncumbranceValue, formatWeightUnit } from './settings.svelte.js';
   import SelectableChip from './components/SelectableChip.svelte';
   import GearSection from './components/GearSection.svelte';
+  import { useGoldLedger } from './utils/useGoldLedger.svelte.js';
 
   let { cls, kit = null, weaponProficiencies, existingEquipment = null, str = 10, exceptionalStr = null, onComplete } = $props();
 
   let weightAllowance = $derived(getStrengthModifiers(str, exceptionalStr).weightAllow);
 
-  // Starting gold
-  let gold = $state(null);
-  let goldRolled = $state(false);
-  let goldDice = $state([]);
-  let goldDiceFormula = $state('');
-  let goldDieSize = $state(6);
+  // Gold ledger
+  const ledger = useGoldLedger();
   let manualGoldInput = $state('');
 
   function resetGold() {
-    gold = null;
-    goldRolled = false;
-    goldDice = [];
-    goldDiceFormula = '';
-    goldDieSize = 6;
+    ledger.reset();
     selectedArmor = null;
     selectedShield = null;
     selectedWeapons = [];
@@ -56,13 +48,8 @@
     weaponProficiencies.map(p => p.key)
   );
   let availableWeapons = $derived(
-    equipment.weapons.filter(w => proficientWeaponKeys.includes(w.key))
+    getWeaponsForProficiencies(proficientWeaponKeys)
   );
-
-  // Price helper: convert item price to gp
-  function priceGp(price) {
-    return ((price.gp || 0) * 100 + (price.sp || 0) * 10 + (price.cp || 0)) / 100;
-  }
 
   // Weight tracking
   let totalWeight = $derived(() => {
@@ -79,61 +66,56 @@
 
   function rollGold() {
     const result = rollStartingGoldWithKit(cls.group, kit);
-    gold = result.gold;
-    goldDice = result.dice;
-    goldDiceFormula = result.diceFormula;
-    goldDieSize = result.dieSize || 6;
-    goldRolled = true;
+    ledger.setFromRoll(result);
   }
 
   function setManualGold() {
     const value = parseInt(manualGoldInput);
     if (!isNaN(value) && value >= 0) {
-      gold = value;
-      goldRolled = true;
-      goldDice = []; // Clear dice for manual entry
-      goldDiceFormula = '';
+      ledger.gold = value;
+      ledger.goldRolled = true;
+      ledger.goldDice = [];
+      ledger.goldDiceFormula = '';
     }
   }
 
   function selectArmor(armor) {
     if (selectedArmor?.key === armor.key) {
-      gold += priceGp(selectedArmor.price);
+      ledger.refundPrice(selectedArmor.price);
       selectedArmor = null;
     } else {
-      if (selectedArmor) gold += priceGp(selectedArmor.price);
-      gold -= priceGp(armor.price);
+      if (selectedArmor) ledger.refundPrice(selectedArmor.price);
+      ledger.deductPrice(armor.price);
       selectedArmor = armor;
     }
   }
 
   function selectShield(shield) {
     if (selectedShield?.key === shield.key) {
-      gold += priceGp(selectedShield.price);
+      ledger.refundPrice(selectedShield.price);
       selectedShield = null;
     } else {
-      if (selectedShield) gold += priceGp(selectedShield.price);
-      gold -= priceGp(shield.price);
+      if (selectedShield) ledger.refundPrice(selectedShield.price);
+      ledger.deductPrice(shield.price);
       selectedShield = shield;
     }
   }
 
   function toggleWeapon(weapon) {
     if (selectedWeapons.find(w => w.key === weapon.key)) {
-      gold += priceGp(weapon.price);
+      ledger.refundPrice(weapon.price);
       selectedWeapons = selectedWeapons.filter(w => w.key !== weapon.key);
     } else {
-      gold -= priceGp(weapon.price);
+      ledger.deductPrice(weapon.price);
       selectedWeapons = [...selectedWeapons, weapon];
     }
   }
 
   function addGear(item, count = 1) {
-    // Buy as many as we can afford up to count
-    const unitCost = priceGp(item.price);
-    const affordable = Math.min(count, Math.floor(gold / unitCost));
+    const unitCost = priceToGp(item.price);
+    const affordable = Math.min(count, Math.floor(ledger.gold / unitCost));
     if (affordable <= 0) return;
-    gold -= unitCost * affordable;
+    ledger.deduct(unitCost * affordable);
     const existing = selectedGear.find(g => g.key === item.key);
     if (existing) {
       selectedGear = selectedGear.map(g =>
@@ -149,7 +131,7 @@
     if (!existing) return;
     const qty = existing.qty || 1;
     const toRemove = Math.min(count, qty);
-    gold += priceGp(item.price) * toRemove;
+    ledger.refund(priceToGp(item.price) * toRemove);
     if (qty - toRemove <= 0) {
       selectedGear = selectedGear.filter(g => g.key !== item.key);
     } else {
@@ -168,8 +150,8 @@
   function addCustomItem() {
     if (!customName.trim()) return;
     const price = { gp: customPrice || 0 };
-    if (!canAfford(price)) return;
-    gold -= priceGp(price);
+    if (!ledger.canAfford(price)) return;
+    ledger.deductPrice(price);
     const key = `custom_${customIdCounter}`;
     customIdCounter++;
     selectedGear = [...selectedGear, {
@@ -185,32 +167,27 @@
   }
 
   function canAfford(price) {
-    if (gold === null) return false;
-    return gold >= priceGp(price);
+    return ledger.canAfford(price);
   }
 
   function confirm() {
     onComplete({
-      remaining: Math.round(gold * 100) / 100,
+      remaining: Math.round(ledger.gold * 100) / 100,
       armor: selectedArmor,
       shield: selectedShield,
       weapons: selectedWeapons,
       gear: selectedGear,
       totalWeight: totalWeight(),
-      goldDice,
-      goldDiceFormula,
-      goldDieSize
+      goldDice: ledger.goldDice,
+      goldDiceFormula: ledger.goldDiceFormula,
+      goldDieSize: ledger.goldDieSize
     });
   }
 
   // Initialize from existing data
   onMount(() => {
     if (existingEquipment) {
-      gold = existingEquipment.remaining ?? existingEquipment.gold ?? 0;
-      goldRolled = true;
-      goldDice = existingEquipment.goldDice || [];
-      goldDiceFormula = existingEquipment.goldDiceFormula || '';
-      goldDieSize = existingEquipment.goldDieSize || 6;
+      ledger.restore(existingEquipment);
 
       // Check if armor is still allowed, otherwise clear and refund
       if (existingEquipment.armor) {
@@ -218,7 +195,7 @@
         if (armorAllowed) {
           selectedArmor = existingEquipment.armor;
         } else {
-          gold += priceGp(existingEquipment.armor.price);
+          ledger.refundPrice(existingEquipment.armor.price);
           selectedArmor = null;
         }
       }
@@ -229,7 +206,7 @@
         if (shieldAllowed) {
           selectedShield = existingEquipment.shield;
         } else {
-          gold += priceGp(existingEquipment.shield.price);
+          ledger.refundPrice(existingEquipment.shield.price);
           selectedShield = null;
         }
       }
@@ -245,11 +222,10 @@
         !availableWeapons.some(aw => aw.key === weapon.key)
       );
       for (const weapon of removedWeapons) {
-        gold += priceGp(weapon.price);
+        ledger.refundPrice(weapon.price);
       }
 
       selectedGear = (existingEquipment.gear || []).map(g => ({ ...g, qty: g.qty || 1 }));
-      // Restore custom ID counter past any existing custom items
       const customKeys = selectedGear.filter(g => g.key.startsWith('custom_')).map(g => parseInt(g.key.split('_')[1]) + 1);
       if (customKeys.length) customIdCounter = Math.max(...customKeys);
     }
@@ -259,7 +235,7 @@
 <div class="flex-column gap-lg">
   <!-- Gold Section -->
   <div class="gold-section">
-    {#if !goldRolled}
+    {#if !ledger.goldRolled}
       <div class="intro-with-info">
         <p class="section-hint">Roll for starting gold or enter a custom amount.</p>
         <Tooltip text="Starting gold per AD&D 2E: Warriors 5d4×10 (50-200 gp), Wizards 1d4+1×10 (20-50 gp), Priests 3d6×10 (30-180 gp), Rogues 2d6×10 (20-120 gp)" position="bottom">
@@ -276,6 +252,7 @@
             type="number"
             min="0"
             placeholder="Enter gold"
+            aria-label="Starting gold amount"
             bind:value={manualGoldInput}
             onkeydown={(e) => e.key === 'Enter' && setManualGold()}
           />
@@ -287,19 +264,19 @@
       </div>
     {:else}
       <div class="gold-display panel">
-        <button class="reroll-btn" onclick={resetGold} title="Reset gold">×</button>
+        <button class="reroll-btn" onclick={resetGold} title="Reset gold" aria-label="Reset gold">×</button>
         <div class="gold-stat">
           <span class="gold-label">Gold</span>
-          <span class="gold-value" class:warning={gold < 0}>
-            {gold.toFixed(1)} gp
+          <span class="gold-value" class:warning={ledger.gold < 0}>
+            {ledger.gold.toFixed(1)} gp
           </span>
-          {#if goldDice.length > 0}
+          {#if ledger.goldDice.length > 0}
             <div class="gold-dice">
-              <span class="dice-formula">{goldDiceFormula} × 10</span>
+              <span class="dice-formula">{ledger.goldDiceFormula} × 10</span>
               <div class="dice-rolls">
-                {#each goldDice as die}
+                {#each ledger.goldDice as die}
                   <span class="die">
-                    <img src="/dice/d{goldDieSize}-{die}.svg" alt="{die}" />
+                    <img src="/dice/d{ledger.goldDieSize}-{die}.svg" alt="{die}" />
                   </span>
                 {/each}
               </div>
@@ -319,7 +296,7 @@
     {/if}
   </div>
 
-  {#if goldRolled}
+  {#if ledger.goldRolled}
     <div class="flex-column gap-lg">
       <!-- Armor -->
       {#if allowedArmor.length > 0}
@@ -475,9 +452,9 @@
         <h3>Custom Item</h3>
         <p class="section-hint">Add items not found in the equipment lists above</p>
         <div class="custom-gear-form">
-          <input placeholder="Item name" bind:value={customName} />
-          <input type="number" placeholder="Price (gp)" bind:value={customPrice} min="0" />
-          <input type="number" placeholder="Weight (lbs)" bind:value={customWeight} min="0" />
+          <input placeholder="Item name" aria-label="Custom item name" bind:value={customName} />
+          <input type="number" placeholder="Price (gp)" aria-label="Custom item price in gold" bind:value={customPrice} min="0" />
+          <input type="number" placeholder="Weight (lbs)" aria-label="Custom item weight" bind:value={customWeight} min="0" />
           <button class="btn-add" onclick={addCustomItem} disabled={!customName.trim()}>Add</button>
         </div>
       </div>
@@ -509,10 +486,10 @@
     <button
       class="btn-primary"
       onclick={confirm}
-      disabled={gold < 0}
+      disabled={ledger.gold < 0}
     >
-      {#if gold < 0}
-        Over budget by {Math.abs(gold).toFixed(1)} gp
+      {#if ledger.gold < 0}
+        Over budget by {Math.abs(ledger.gold).toFixed(1)} gp
       {:else}
         Confirm Equipment → Spells
       {/if}

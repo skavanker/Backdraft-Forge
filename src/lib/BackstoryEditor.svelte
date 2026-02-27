@@ -141,6 +141,7 @@
       <button
         class="toggle-btn sex-btn"
         class:selected={sex === 'Male'}
+        aria-pressed={sex === 'Male'}
         onclick={() => sex = 'Male'}
       >
         Male
@@ -148,6 +149,7 @@
       <button
         class="toggle-btn sex-btn"
         class:selected={sex === 'Female'}
+        aria-pressed={sex === 'Female'}
         onclick={() => sex = 'Female'}
       >
         Female
@@ -165,6 +167,7 @@
             class="toggle-btn"
             class:selected={alignment === alignNum}
             class:disabled={!isAllowed}
+            aria-pressed={alignment === alignNum}
             disabled={!isAllowed}
             onclick={() => isAllowed && (alignment = alignNum)}
           >

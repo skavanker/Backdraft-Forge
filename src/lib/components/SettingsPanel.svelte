@@ -36,7 +36,7 @@
     <div class="settings-panel" role="dialog" aria-label="Settings">
       <div class="settings-header">
         <h3>Settings</h3>
-        <button class="settings-close" onclick={onClose}>&times;</button>
+        <button class="settings-close" onclick={onClose} aria-label="Close settings">&times;</button>
       </div>
 
       <!-- Preferences -->
@@ -46,34 +46,34 @@
         <div class="setting-row">
           <span class="setting-label">Theme</span>
           <div class="toggle-group">
-            <button class="toggle-option" class:active={settings.theme === 'light'} onclick={() => settings.theme = 'light'}>Light</button>
-            <button class="toggle-option" class:active={settings.theme === 'dark'} onclick={() => settings.theme = 'dark'}>Dark</button>
-            <button class="toggle-option" class:active={settings.theme === 'auto'} onclick={() => settings.theme = 'auto'}>Auto</button>
+            <button class="toggle-option" class:active={settings.theme === 'light'} aria-pressed={settings.theme === 'light'} onclick={() => settings.theme = 'light'}>Light</button>
+            <button class="toggle-option" class:active={settings.theme === 'dark'} aria-pressed={settings.theme === 'dark'} onclick={() => settings.theme = 'dark'}>Dark</button>
+            <button class="toggle-option" class:active={settings.theme === 'auto'} aria-pressed={settings.theme === 'auto'} onclick={() => settings.theme = 'auto'}>Auto</button>
           </div>
         </div>
 
         <div class="setting-row">
           <span class="setting-label">Units</span>
           <div class="toggle-group">
-            <button class="toggle-option" class:active={settings.units === 'imperial'} onclick={() => settings.units = 'imperial'}>Imperial</button>
-            <button class="toggle-option" class:active={settings.units === 'metric'} onclick={() => settings.units = 'metric'}>Metric</button>
+            <button class="toggle-option" class:active={settings.units === 'imperial'} aria-pressed={settings.units === 'imperial'} onclick={() => settings.units = 'imperial'}>Imperial</button>
+            <button class="toggle-option" class:active={settings.units === 'metric'} aria-pressed={settings.units === 'metric'} onclick={() => settings.units = 'metric'}>Metric</button>
           </div>
         </div>
 
         <div class="setting-row">
           <span class="setting-label">Default Roll</span>
           <div class="toggle-group">
-            <button class="toggle-option" class:active={settings.rollMethod === '4d6drop'} onclick={() => settings.rollMethod = '4d6drop'}>4d6 Drop</button>
-            <button class="toggle-option" class:active={settings.rollMethod === '3d6'} onclick={() => settings.rollMethod = '3d6'}>3d6</button>
+            <button class="toggle-option" class:active={settings.rollMethod === '4d6drop'} aria-pressed={settings.rollMethod === '4d6drop'} onclick={() => settings.rollMethod = '4d6drop'}>4d6 Drop</button>
+            <button class="toggle-option" class:active={settings.rollMethod === '3d6'} aria-pressed={settings.rollMethod === '3d6'} onclick={() => settings.rollMethod = '3d6'}>3d6</button>
           </div>
         </div>
 
         <div class="setting-row">
           <span class="setting-label">Font Size</span>
           <div class="toggle-group">
-            <button class="toggle-option" class:active={settings.fontSize === 'small'} onclick={() => settings.fontSize = 'small'}>S</button>
-            <button class="toggle-option" class:active={settings.fontSize === 'medium'} onclick={() => settings.fontSize = 'medium'}>M</button>
-            <button class="toggle-option" class:active={settings.fontSize === 'large'} onclick={() => settings.fontSize = 'large'}>L</button>
+            <button class="toggle-option" class:active={settings.fontSize === 'small'} aria-pressed={settings.fontSize === 'small'} onclick={() => settings.fontSize = 'small'}>S</button>
+            <button class="toggle-option" class:active={settings.fontSize === 'medium'} aria-pressed={settings.fontSize === 'medium'} onclick={() => settings.fontSize = 'medium'}>M</button>
+            <button class="toggle-option" class:active={settings.fontSize === 'large'} aria-pressed={settings.fontSize === 'large'} onclick={() => settings.fontSize = 'large'}>L</button>
           </div>
         </div>
 

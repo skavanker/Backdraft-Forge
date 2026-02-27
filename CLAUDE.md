@@ -84,6 +84,11 @@ npm run preview  # preview production build
 - Use reusable components from `src/lib/components/` directory
 - Leverage state utilities from `src/lib/utils/stateUtils.svelte.js`
 
+## TODO.md Rules
+
+- Never commit TODO.md edits separately — bundle with the next real commit
+- No "Done" or "Notes" sections — keep it lean, just open tasks
+
 ## Style
 
 Parchment/fantasy aesthetic. Must look good printed.

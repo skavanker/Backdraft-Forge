@@ -309,6 +309,24 @@ export function copperToGold(copper) {
 }
 
 /**
+ * Convert a price object to gold pieces (mixed denomination aware).
+ * @param {{ gp?: number, sp?: number, cp?: number }} price
+ * @returns {number} value in gp
+ */
+export function priceToGp(price) {
+  return ((price.gp || 0) * 100 + (price.sp || 0) * 10 + (price.cp || 0)) / 100;
+}
+
+/**
+ * Filter weapons list to only those matching given proficiency keys.
+ * @param {string[]} profKeys - array of weapon keys the character is proficient with
+ * @returns {Array} matching weapon objects
+ */
+export function getWeaponsForProficiencies(profKeys) {
+  return equipment.weapons.filter(w => profKeys.includes(w.key));
+}
+
+/**
  * Calculate total weight
  */
 export function calculateTotalWeight(items) {

@@ -2,7 +2,7 @@
   import { rollAbilityDice, calculate3d6, calculate4d6DropLowest, rollExceptionalStrength } from './dice.js';
   import { onMount } from 'svelte';
   import ImportArea from './ImportArea.svelte';
-  import { isTyping } from './utils/keyboard.js';
+  import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
   import { settings } from './settings.svelte.js';
   const MAX_REROLLS = 2;
@@ -73,7 +73,7 @@
     assignments[ability] = null;
   }
 
-  function handleKeydown(e) {
+  useGlobalKeydown((e) => {
     if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
 
     // Space or Enter — context-sensitive roll/continue
@@ -97,7 +97,7 @@
         assignToAbility(ability);
       }
     }
-  }
+  });
 
   onMount(() => {
     if (existingRollData) {
@@ -107,9 +107,6 @@
       exceptionalStr = existingRollData.exceptionalStr;
       rerollsUsed = existingRollData.rerollsUsed || 0;
     }
-
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
   });
 
   function complete() {

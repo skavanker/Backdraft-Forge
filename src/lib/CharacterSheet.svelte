@@ -11,7 +11,9 @@
   import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS } from '../data/thiefSkills.js';
   import { getTurnUndeadRow, formatTurnResult } from '../data/turnUndead.js';
   import { groupByLevel } from '../data/priestSpells.js';
-  import { speciesEnemies } from '../data/speciesEnemies.js';
+  import { formatSpeciesEnemy } from '../data/speciesEnemies.js';
+  import { ordinal } from './utils/formatUtils.js';
+  import { calcTotalHP, parseDieMax } from './utils/hpUtils.js';
 
   let { character, onCharacterUpdate, undoMessage = '', showUndoMessage = false } = $props();
 
@@ -43,8 +45,8 @@
   const showLevelUp = useToggle(false);
 
   // Current HP derived
-  let currentHP = $derived(character.currentHP ?? hitPoints());
-  let hpRatio = $derived(hitPoints() > 0 ? currentHP / hitPoints() : 1);
+  let currentHP = $derived(character.currentHP ?? hitPoints);
+  let hpRatio = $derived(hitPoints > 0 ? currentHP / hitPoints : 1);
   let hpColor = $derived(
     hpRatio > 0.5 ? 'hp-green' :
     hpRatio > 0.25 ? 'hp-yellow' : 'hp-red'
@@ -52,18 +54,18 @@
 
   // Thief skills (for thieves and bards)
   let isThiefClass = $derived(character.classKey === 'thief' || character.classKey === 'bard');
-  let thiefSkills = $derived(() => {
+  let thiefSkills = $derived((() => {
     if (!isThiefClass) return null;
     const base = getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, character.classKey, charLevel);
     return applyDistributedPoints(base, character.thiefSkills);
-  });
+  })());
 
   // Turn undead (for clerics and paladins)
   let canTurnUndead = $derived(character.classKey === 'cleric' || character.classKey === 'paladin');
-  let turnUndeadRow = $derived(() => {
+  let turnUndeadRow = $derived((() => {
     if (!canTurnUndead) return null;
     return getTurnUndeadRow(character.classKey, charLevel);
-  });
+  })());
 
   // Notes state
   let notesValue = $state(character.notes || '');
@@ -97,38 +99,29 @@
   let missileTHAC0 = $derived(baseTHAC0 - dexMods.missileAdj);
 
   // Calculate AC with DEX modifier
-  let baseAC = $derived(() => {
+  let baseAC = $derived((() => {
     let ac = 10;
     if (character.equipment?.armor) ac = character.equipment.armor.ac;
     if (character.equipment?.shield) ac -= character.equipment.shield.acBonus;
-    ac += dexMods.acAdj; // Apply DEX AC adjustment (negative is better)
+    ac += dexMods.acAdj;
     return ac;
-  });
+  })());
 
-  // Calculate HP: sum hpHistory if available, fallback to max-die for old saves
-  let hitPoints = $derived(() => {
-    if (character.hpHistory?.length > 0) {
-      return character.hpHistory.reduce((sum, entry) => sum + entry.total, 0);
-    }
-    // Fallback for old saves without hpHistory: max die + CON mod at level 1
-    const hitDie = character.cls.hitDie;
-    const match = hitDie.match(/d(\d+)/);
-    const dieMax = match ? parseInt(match[1]) : 4;
-    return Math.max(1, dieMax + conMods.hpAdj);
-  });
+  // Calculate HP using shared utility
+  let hitPoints = $derived(calcTotalHP(character.hpHistory, character.cls.hitDie, conMods.hpAdj));
 
   let className = $derived(character.wizardSchool?.name || character.cls.name);
 
   // Get portrait filename based on race, sex, and class
-  let portraitFilename = $derived(() => {
-    const race = character.raceKey.charAt(0).toUpperCase() + character.raceKey.slice(1); // Capitalize
+  let portraitFilename = $derived((() => {
+    const race = character.raceKey.charAt(0).toUpperCase() + character.raceKey.slice(1);
     const gender = character.sex || 'Male';
     const cls = character.wizardSchool ? 'SpecialistWizard' : (character.classKey.charAt(0).toUpperCase() + character.classKey.slice(1));
     return `${race}${gender}${cls}.webp`;
-  });
+  })());
 
   // Calculate total weight carried
-  let totalWeight = $derived(() => {
+  let totalWeight = $derived((() => {
     if (character.equipment?.totalWeight) return character.equipment.totalWeight;
     let weight = 0;
     if (character.equipment?.armor) weight += character.equipment.armor.weight || 0;
@@ -140,13 +133,7 @@
       for (const g of character.equipment.gear) weight += (g.weight || 0) * (g.qty || 1);
     }
     return weight;
-  });
-
-  function ordinalLevel(n) {
-    const s = ['th', 'st', 'nd', 'rd'];
-    const v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  }
+  })());
 
 </script>
 
@@ -169,13 +156,13 @@
 
   <BasicInfoPanel
     {character}
-    portraitFilename={portraitFilename()}
+    portraitFilename={portraitFilename}
     currentHP={currentHP}
-    maxHP={hitPoints()}
+    maxHP={hitPoints}
     {hpColor}
-    baseAC={baseAC()}
+    baseAC={baseAC}
     {baseTHAC0}
-    totalWeight={totalWeight()}
+    totalWeight={totalWeight}
     {strMods}
     onUpdateHP={(val) => onCharacterUpdate?.({ currentHP: val })}
   />
@@ -200,7 +187,7 @@
     {baseTHAC0}
     {meleeTHAC0}
     {missileTHAC0}
-    baseAC={baseAC()}
+    baseAC={baseAC}
     movement={character.race.movement || 12}
     {attacksPerRound}
     isWarrior={character.cls.group === 'warrior'}
@@ -237,7 +224,7 @@
         {@const grouped = groupByLevel(character.spells.spellbook)}
         {#each Object.entries(grouped) as [level, spells]}
           <div class="spell-level-group">
-            <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
+            <div class="spell-level-header">{ordinal(Number(level))} Level</div>
             {#each spells as spell}
               <div class="data-row"><span>{spell.name}</span></div>
             {/each}
@@ -247,7 +234,7 @@
         {@const grouped = groupByLevel(character.spells.prepared)}
         {#each Object.entries(grouped) as [level, spells]}
           <div class="spell-level-group">
-            <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
+            <div class="spell-level-header">{ordinal(Number(level))} Level</div>
             {#each spells as spell}
               <div class="data-row"><span>{spell.name}</span></div>
             {/each}
@@ -259,7 +246,7 @@
           {@const grouped = groupByLevel(character.spells.prepared)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
-              <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
+              <div class="spell-level-header">{ordinal(Number(level))} Level</div>
               {#each spells as spell}
                 <div class="data-row"><span>{spell.name}</span></div>
               {/each}
@@ -271,7 +258,7 @@
           {@const grouped = groupByLevel(character.spells.spellbook)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
-              <div class="spell-level-header">{ordinalLevel(Number(level))} Level</div>
+              <div class="spell-level-header">{ordinal(Number(level))} Level</div>
               {#each spells as spell}
                 <div class="data-row"><span>{spell.name}</span></div>
               {/each}
@@ -295,10 +282,10 @@
   {/if}
 
   <!-- Thief Skills -->
-  {#if isThiefClass && thiefSkills()}
+  {#if isThiefClass && thiefSkills}
     <div class="stat-block">
       <h3>Thief Skills</h3>
-      {#each Object.entries(thiefSkills()) as [key, value]}
+      {#each Object.entries(thiefSkills) as [key, value]}
         {#if key === 'readLanguages' && charLevel < 4}
           <div class="data-row locked"><span>{SKILL_LABELS[key]}</span> <span class="val">Lv 4</span></div>
         {:else}
@@ -334,21 +321,21 @@
     <div class="stat-block">
       <h3>Class Features</h3>
       {#each character.cls.features as feature}
-        <div class="data-row">◆ {#if feature.includes('Species enemy') && character.speciesEnemy}Species enemy: {speciesEnemies[character.speciesEnemy]?.name ?? character.speciesEnemy} (+4 to hit){:else}{feature}{/if}</div>
+        <div class="data-row">◆ {#if feature.includes('Species enemy') && character.speciesEnemy}Species enemy: {formatSpeciesEnemy(character.speciesEnemy)} (+4 to hit){:else}{feature}{/if}</div>
       {/each}
     </div>
     <hr class="divider">
   {/if}
 
   <!-- Turn Undead -->
-  {#if canTurnUndead && turnUndeadRow()}
+  {#if canTurnUndead && turnUndeadRow}
     <div class="stat-block">
       <h3>Turn Undead</h3>
       <div class="turn-undead-grid">
-        {#each turnUndeadRow().types as type, i}
+        {#each turnUndeadRow.types as type, i}
           <div class="turn-col">
             <div class="turn-type">{type}</div>
-            <div class="turn-val" class:turn-auto={turnUndeadRow().values[i] === 'T' || turnUndeadRow().values[i] === 'D'}>{formatTurnResult(turnUndeadRow().values[i])}</div>
+            <div class="turn-val" class:turn-auto={turnUndeadRow.values[i] === 'T' || turnUndeadRow.values[i] === 'D'}>{formatTurnResult(turnUndeadRow.values[i])}</div>
           </div>
         {/each}
       </div>
@@ -368,13 +355,14 @@
 
   <!-- Notes -->
   <div class="notes-section" class:notes-empty={!notesValue}>
-    <h3 class="section-title">Notes</h3>
+    <h3 class="section-title" id="notes-heading">Notes</h3>
     <textarea
       class="notes-textarea"
       bind:value={notesValue}
       onblur={saveNotes}
       placeholder="Add notes here..."
       rows="4"
+      aria-labelledby="notes-heading"
     ></textarea>
   </div>
   <hr class="divider">

@@ -4,10 +4,9 @@
   import { getAvailableKits, classHasKits } from '../data/kits.js';
   import { getSpeciesEnemyList } from '../data/speciesEnemies.js';
   import { ALIGNMENTS, getAlignmentName, filterDeitiesForClass } from '../data/alignment.js';
-  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SelectionPreview from './SelectionPreview.svelte';
-  import { isTyping } from './utils/keyboard.js';
+  import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { settings } from './settings.svelte.js';
 
   let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, existingSpeciesEnemy = null, onComplete } = $props();
@@ -92,18 +91,12 @@
     onComplete(result);
   }
 
-  function handleKeydown(e) {
+  useGlobalKeydown((e) => {
     if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
-
     if (e.key === 'Enter' && canConfirm) {
       e.preventDefault();
       confirm();
     }
-  }
-
-  onMount(() => {
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
   });
 
   // Group classes by type
