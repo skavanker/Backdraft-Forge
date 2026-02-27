@@ -146,7 +146,7 @@ export function checkRaceRequirements(abilities, race) {
   // Check minimums
   for (const [ability, min] of Object.entries(race.minimums)) {
     if (abilities[ability] < min) {
-      failedReqs.push(`${ability} ${abilities[ability]} < ${min} required`);
+      failedReqs.push(`Need ${ability} ${min}`);
     }
   }
 
@@ -154,7 +154,7 @@ export function checkRaceRequirements(abilities, race) {
   for (const [ability, max] of Object.entries(race.maximums)) {
     const adjusted = abilities[ability] + (race.adjustments[ability] || 0);
     if (adjusted > max) {
-      failedReqs.push(`${ability} would exceed ${max} maximum`);
+      failedReqs.push(`${ability} exceeds ${max} max`);
     }
   }
 

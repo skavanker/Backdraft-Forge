@@ -6,7 +6,7 @@
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
 
-  let selectedRaceKey = $state(existingRaceKey);
+  let selectedRaceKey = $state(existingRaceKey || 'human');
 
   let raceOptions = $derived(getAvailableRaces(abilities));
   let qualifiedCount = $derived(raceOptions.filter(r => r.qualified).length);
@@ -49,21 +49,25 @@
           onclick={() => qualified && selectRace(key)}
           disabled={!qualified}
         >
-          <h3 class="card-name">{race.name}</h3>
+          <h4 class="card-name">{race.name}</h4>
           <p class="card-desc">{race.description}</p>
 
-          {#if Object.keys(race.adjustments).length > 0}
+          {#if qualified}
+            {#if Object.keys(race.adjustments).length > 0}
+              <div class="card-meta">
+                {#each Object.entries(race.adjustments) as [ability, mod]}
+                  <span class="adjustment" class:positive={mod > 0} class:negative={mod < 0}>
+                    {mod > 0 ? '+' : ''}{mod} {ability}
+                  </span>
+                {/each}
+              </div>
+            {/if}
+          {:else}
             <div class="card-meta">
-              {#each Object.entries(race.adjustments) as [ability, mod]}
-                <span class="adjustment" class:positive={mod > 0} class:negative={mod < 0}>
-                  {mod > 0 ? '+' : ''}{mod} {ability}
-                </span>
+              {#each failedReqs as req}
+                <span class="req-badge">{req}</span>
               {/each}
             </div>
-          {/if}
-
-          {#if !qualified}
-            <span class="unavailable-badge">Unavailable</span>
           {/if}
         </button>
       </Tooltip>

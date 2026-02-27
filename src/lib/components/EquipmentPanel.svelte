@@ -16,6 +16,8 @@
   } = $props();
 </script>
 
+<style lang="scss">@import '../styles/shared'; @import '../styles/sheet';</style>
+
 <!-- Weapons with calculated THAC0 -->
 {#if equipment?.weapons?.length}
   <div class="stat-block">

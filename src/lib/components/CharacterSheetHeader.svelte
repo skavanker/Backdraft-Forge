@@ -18,6 +18,8 @@
   let xpProgress = $derived(xpForNext ? Math.min(100, (xp / xpForNext) * 100) : 0);
 </script>
 
+<style lang="scss">@import '../styles/sheet';</style>
+
 <h1>{name}</h1>
 <div class="subtitle">{raceName} {className} · Level {level}</div>
 

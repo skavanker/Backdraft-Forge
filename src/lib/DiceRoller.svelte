@@ -210,8 +210,10 @@
                 <img src="/dice/dice0{rawDice[i][3]}.svg" alt="{rawDice[i][3]}" />
               </span>
             {:else}
-              {#each rawDice[i] as die}
-                <span class="die" class:dropped={die === score.dropped}>
+              {@const sorted = [...rawDice[i]].sort((a, b) => a - b)}
+              {@const droppedIdx = sorted.indexOf(score.dropped)}
+              {#each sorted as die, j}
+                <span class="die" class:dropped={j === droppedIdx}>
                   <img src="/dice/dice0{die}.svg" alt="{die}" />
                 </span>
               {/each}

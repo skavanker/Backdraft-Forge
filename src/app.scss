@@ -123,6 +123,10 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   margin: 0 0 $space-md;
   line-height: 1.3;
+
+  &+ p, &+ .meta-text, &+ .section-hint {
+    margin-top: calc($space-sm * -1);
+  }
 }
 
 h1 {
@@ -159,6 +163,7 @@ h2 {
 h3 {
   font-size: $text-lg;
   color: var(--text-primary);
+  margin-bottom: $space-sm;
 }
 
 h4 {
@@ -518,5 +523,10 @@ hr {
 
   body {
     background: white !important;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 }

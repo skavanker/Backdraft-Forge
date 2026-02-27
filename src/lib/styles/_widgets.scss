@@ -1,7 +1,7 @@
 @import '../../styles/mixins.scss';
 
 // ════════════ TOOLTIP ════════════
-.tooltip-wrap { display: inline-block; }
+.tooltip-wrap { display: flex; }
 .tooltip {
   position: fixed;
   z-index: 1000;
@@ -28,11 +28,11 @@
 .ability-badge {
   @extend .flex-column;
   align-items: center;
-  padding: $space-sm $space-md;
+  padding: $space-sm;
   background: rgba(201, 162, 39, 0.15);
   border: 1px solid rgba(201, 162, 39, 0.3);
   @include rounded;
-  min-width: 50px;
+  min-width: 55px;
 }
 .ability {
   border: 2px solid var(--border-color);

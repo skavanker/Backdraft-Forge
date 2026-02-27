@@ -1,7 +1,7 @@
 @import '../../styles/mixins.scss';
 
 // ════════════ CHARACTER REVIEW ════════════
-.ability-summary { display: flex; justify-content: center; gap: $space-md; flex-wrap: wrap; }
+.ability-summary { display: flex; justify-content: center; gap: $space-sm; flex-wrap: wrap; }
 .review-header { display: flex; justify-content: center; gap: $space-sm; width: 100%; .review-race { color: var(--text-muted); } }
 .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: $space-lg; width: 100%; }
 .review-section { h4 { @include section-header; } }
@@ -22,6 +22,21 @@
   .warning-icon { flex-shrink: 0; }
   &.caution { background: rgba(184, 148, 60, 0.1); color: var(--gold-dark); border-left: 3px solid var(--gold-dark); }
   &.concern { background: rgba(180, 60, 40, 0.1); color: var(--red); border-left: 3px solid var(--red); }
+  &.suggestion { background: rgba(60, 160, 80, 0.1); color: var(--green); border-left: 3px solid var(--green); }
+  &.clickable {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    @include transition;
+    &:hover { filter: brightness(1.2); }
+  }
+}
+.traits-list {
+  margin: 0;
+  padding-left: $space-lg;
+  li { padding: 2px 0; }
 }
 
 // ════════════ CHARACTER SUMMARY ════════════

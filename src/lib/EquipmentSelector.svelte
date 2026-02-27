@@ -124,29 +124,33 @@
     }
   }
 
-  function addGear(item) {
-    if (!canAfford(item.price)) return;
-    gold -= priceGp(item.price);
+  function addGear(item, count = 1) {
+    // Buy as many as we can afford up to count
+    const unitCost = priceGp(item.price);
+    const affordable = Math.min(count, Math.floor(gold / unitCost));
+    if (affordable <= 0) return;
+    gold -= unitCost * affordable;
     const existing = selectedGear.find(g => g.key === item.key);
     if (existing) {
       selectedGear = selectedGear.map(g =>
-        g.key === item.key ? { ...g, qty: (g.qty || 1) + 1 } : g
+        g.key === item.key ? { ...g, qty: (g.qty || 1) + affordable } : g
       );
     } else {
-      selectedGear = [...selectedGear, { ...item, qty: 1 }];
+      selectedGear = [...selectedGear, { ...item, qty: affordable }];
     }
   }
 
-  function removeGear(item) {
+  function removeGear(item, count = 1) {
     const existing = selectedGear.find(g => g.key === item.key);
     if (!existing) return;
-    gold += priceGp(item.price);
     const qty = existing.qty || 1;
-    if (qty <= 1) {
+    const toRemove = Math.min(count, qty);
+    gold += priceGp(item.price) * toRemove;
+    if (qty - toRemove <= 0) {
       selectedGear = selectedGear.filter(g => g.key !== item.key);
     } else {
       selectedGear = selectedGear.map(g =>
-        g.key === item.key ? { ...g, qty: g.qty - 1 } : g
+        g.key === item.key ? { ...g, qty: g.qty - toRemove } : g
       );
     }
   }
@@ -394,6 +398,8 @@
           {/each}
         </div>
       </div>
+
+      <p class="alert alert-info">Left-click to add, right-click to remove. Hold Shift for ×5.</p>
 
       <GearSection
         title="Ammunition"

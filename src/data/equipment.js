@@ -96,9 +96,9 @@ export const equipment = {
   ],
 
   ammunition: [
-    { key: 'arrows', name: 'Arrows (20)', price: { gp: 1 }, weight: 2 },
-    { key: 'bolts', name: 'Crossbow Bolts (10)', price: { gp: 1 }, weight: 1 },
-    { key: 'slingBullets', name: 'Sling Bullets (20)', price: { sp: 1 }, weight: 2 }
+    { key: 'arrows', name: 'Arrow', price: { cp: 5 }, weight: 0.1 },
+    { key: 'bolts', name: 'Crossbow Bolt', price: { sp: 1 }, weight: 0.1 },
+    { key: 'slingBullets', name: 'Sling Bullet', price: { cp: 1 }, weight: 0.1 }
   ],
 
   adventuringGear: [
@@ -108,7 +108,7 @@ export const equipment = {
     { key: 'blockAndTackle', name: 'Block & Tackle', price: { gp: 5 }, weight: 5 },
     { key: 'candle', name: 'Candle', price: { cp: 1 }, weight: 0 },
     { key: 'chain', name: 'Chain (10 ft)', price: { gp: 30 }, weight: 2 },
-    { key: 'chalk', name: 'Chalk (10 pieces)', price: { cp: 1 }, weight: 0 },
+    { key: 'chalk', name: 'Chalk', price: { cp: 1 }, weight: 0 },
     { key: 'crowbar', name: 'Crowbar', price: { gp: 2 }, weight: 5 },
     { key: 'fishingHook', name: 'Fishing Hook & Line', price: { sp: 1 }, weight: 0 },
     { key: 'flintSteel', name: 'Flint & Steel', price: { sp: 5 }, weight: 0 },

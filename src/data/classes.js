@@ -171,7 +171,7 @@ export function checkClassRequirements(abilities, race, raceKey, cls, classKey) 
   // Check ability minimums
   for (const [ability, min] of Object.entries(cls.minimums)) {
     if (abilities[ability] < min) {
-      failedReqs.push(`${ability} ${abilities[ability]} < ${min} required`);
+      failedReqs.push(`Need ${ability} ${min}`);
     }
   }
 
@@ -346,7 +346,7 @@ function raceCanBeSpecialist(raceKey) {
  * @param {string} classKey - Class key
  * @returns {Array<{ severity: 'caution'|'concern', message: string }>}
  */
-export function getCharacterWarnings(abilities, cls, classKey) {
+export function getCharacterWarnings(abilities, cls, classKey, race = null, raceKey = null) {
   const warnings = [];
   const group = cls.group;
 
@@ -446,6 +446,80 @@ export function getCharacterWarnings(abilities, cls, classKey) {
     });
   }
 
+  // ── Swap Suggestion ──
+  const abilityImportance = {
+    warrior: ['STR', 'CON', 'DEX', 'WIS', 'INT', 'CHA'],
+    priest:  ['WIS', 'CON', 'STR', 'DEX', 'INT', 'CHA'],
+    wizard:  ['INT', 'DEX', 'CON', 'WIS', 'STR', 'CHA'],
+    rogue:   ['DEX', 'INT', 'CON', 'WIS', 'STR', 'CHA']
+  };
+
+  const ranking = abilityImportance[group];
+  if (ranking) {
+    // Prime requisites override to top positions
+    const ordered = [...new Set([...cls.primeRequisite, ...ranking])];
+
+    let bestSwap = null;
+    let bestGain = 0;
+    for (let i = 0; i < ordered.length; i++) {
+      for (let j = i + 1; j < ordered.length; j++) {
+        const high = ordered[i]; // more important
+        const low = ordered[j];  // less important
+        if (abilities[high] < abilities[low]) {
+          const gain = abilities[low] - abilities[high];
+          if (gain >= 2 && gain > bestGain) {
+            // Check swapping wouldn't break class minimums
+            const swapped = { ...abilities, [high]: abilities[low], [low]: abilities[high] };
+            const meetsMinimums = Object.entries(cls.minimums).every(
+              ([ab, min]) => swapped[ab] >= min
+            );
+            if (meetsMinimums) {
+              bestSwap = { high, low, gain };
+              bestGain = gain;
+            }
+          }
+        }
+      }
+    }
+    if (bestSwap) {
+      warnings.push({
+        severity: 'suggestion',
+        swap: { a: bestSwap.high, b: bestSwap.low },
+        message: `Ask your DM: swap ${bestSwap.high} ${abilities[bestSwap.high]} ↔ ${bestSwap.low} ${abilities[bestSwap.low]} — ${bestSwap.high} is your key ability`
+      });
+    }
+  }
+
+  // ── Best Class Fit ──
+  if (race && raceKey) {
+    const available = getAvailableClasses(abilities, race, raceKey).filter(c => c.qualified);
+    const importanceMap = abilityImportance;
+
+    function scoreClass(entry) {
+      const r = importanceMap[entry.cls.group];
+      if (!r) return 0;
+      const order = [...new Set([...entry.cls.primeRequisite, ...r])];
+      let score = 0;
+      for (let i = 0; i < order.length; i++) {
+        score += abilities[order[i]] * (order.length - i);
+      }
+      return score;
+    }
+
+    const currentScore = scoreClass({ cls, key: classKey });
+    const best = available
+      .filter(c => c.key !== classKey)
+      .map(c => ({ ...c, score: scoreClass(c) }))
+      .sort((a, b) => b.score - a.score)[0];
+
+    if (best && best.score > currentScore * 1.05) {
+      warnings.push({
+        severity: 'suggestion',
+        message: `Your scores are also a strong fit for ${best.cls.name}`
+      });
+    }
+  }
+
   return warnings;
 }
 
@@ -462,7 +536,7 @@ export function getAvailableSchools(abilities, raceKey) {
     // Check ability requirements
     for (const [ability, min] of Object.entries(school.minimums)) {
       if (abilities[ability] < min) {
-        failedReqs.push(`${ability} ${abilities[ability]} < ${min} required`);
+        failedReqs.push(`Need ${ability} ${min}`);
       }
     }
 

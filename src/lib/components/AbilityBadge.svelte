@@ -8,6 +8,7 @@
     score,
     exceptionalStr = null,
     modifier = null,
+    tooltip = '',
     variant = 'simple'
   } = $props();
 
@@ -25,7 +26,7 @@
     <span class="text-xl">{displayScore()}</span>
   </div>
 {:else if variant === 'detailed'}
-  <div class="ability">
+  <div class="ability" title={tooltip}>
     <div class="name meta-text">{ability}</div>
     <div class="score">{displayScore()}</div>
     {#if modifier !== null}

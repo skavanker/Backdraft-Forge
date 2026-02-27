@@ -324,10 +324,8 @@
           {#if group.profs.length > 0}
             {@const costForGroup = group.profs[0]?.cost ?? 1}
             <div class="prof-group">
-              <h4 class="group-title">
-                {group.name}
-                <span class="group-cost">({costForGroup} slot{costForGroup !== 1 ? 's' : ''} each)</span>
-              </h4>
+              <h4 class="group-title">{group.name}</h4>
+              <p class="meta-text">{costForGroup} slot{costForGroup !== 1 ? 's' : ''} each</p>
               <div class="flex-column gap-sm">
                 {#each group.profs as prof}
                   {@const isLocked = lockedNonWeapon.includes(prof.key)}

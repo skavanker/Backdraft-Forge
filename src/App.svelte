@@ -12,17 +12,18 @@
   import ReviewStep from './lib/ReviewStep.svelte';
   import { initTheme, toggleTheme } from './lib/theme.js';
   import { getCharacterFromUrl, encodeCharacter, decodeCharacter } from './lib/shareCharacter.js';
+  import { isSpellcaster } from './data/spells.js';
 
   const steps = [
-    'Roll Abilities',
-    'Choose Race',
-    'Choose Class',
-    'Review Stats',
+    'Abilities',
+    'Race',
+    'Class',
+    'Review',
     'Proficiencies',
     'Equipment',
     'Spells',
     'Backstory',
-    'Character Sheet'
+    'Sheet'
   ];
 
   let currentStep = $state(0);
@@ -189,7 +190,7 @@
     1: { fields: ['raceKey', 'race', 'adjustedAbilities'], next: 2 },
     2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey', 'kitKey', 'kit'], next: 3 },
     4: { fields: ['proficiencies'], next: 5 },
-    5: { fields: ['equipment'], next: 6 },
+    5: { fields: ['equipment'], get next() { return isSpellcaster(character.classKey) ? 6 : 7; }, after() { if (!isSpellcaster(character.classKey)) character.spells = []; } },
     6: { fields: ['spells'], next: 7 },
     7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: 8, after: saveToLocalStorage },
   };
@@ -301,18 +302,16 @@
 </script>
 
 <div class="top-buttons">
-  {#if character.abilities}
-    {#if showResetConfirm}
-      <div class="reset-confirm-popup">
-        <span>Start over?</span>
-        <button class="btn-danger btn-sm" onclick={resetAll}>Yes</button>
-        <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>No</button>
-      </div>
-    {:else}
-      <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over">
-        &times;
-      </button>
-    {/if}
+  {#if showResetConfirm}
+    <div class="reset-confirm-popup">
+      <span>Start over?</span>
+      <button class="btn-danger btn-sm" onclick={resetAll}>Yes</button>
+      <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>No</button>
+    </div>
+  {:else}
+    <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over">
+      &times;
+    </button>
   {/if}
   <button class="theme-toggle" onclick={handleThemeToggle} title="Toggle theme">
     {theme === 'dark' ? '☀️' : '🌙'}
@@ -321,7 +320,7 @@
 
 <main>
   <header class="header">
-    <h1><button class="logo" type="button" onclick={() => goToStep(0)}>Backdraft Forge</button></h1>
+    <h1><button class="logo" type="button" onclick={() => isStepLocked(0) ? showResetConfirm = true : goToStep(0)}>Backdraft Forge</button></h1>
     <p class="tagline">AD&D 2nd Edition Character Creator</p>
   </header>
 
@@ -365,12 +364,14 @@
     {#if currentStep === 0}
       <h2>Roll Your Abilities</h2>
       <CharacterSummary {character} />
-      <AbilityRoller
-        onComplete={(data) => completeStep(0, data)}
-        onImport={handleImportCharacter}
-        existingAbilities={character.abilities}
-        existingRollData={character.rollData}
-      />
+      {#key character.rollData}
+        <AbilityRoller
+          onComplete={(data) => completeStep(0, data)}
+          onImport={handleImportCharacter}
+          existingAbilities={character.abilities}
+          existingRollData={character.rollData}
+        />
+      {/key}
 
     {:else if currentStep === 1}
       <h2>Choose Your Race</h2>

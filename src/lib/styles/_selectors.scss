@@ -1,7 +1,11 @@
 @import '../../styles/mixins.scss';
 
 // ════════════ SELECTION SECTIONS (schools, deities, kits) ════════════
-.selection-grid.deity-grid { @include grid-responsive(160px); }
+.selection-grid.deity-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space-md;
+}
 
 .selection-card.deity-card { align-items: center; justify-content: center; text-align: center; min-height: 80px; }
 .selection-card.skip-deity,
@@ -11,7 +15,6 @@
   &.selected { background: var(--gold-overlay); border-color: var(--gold); border-style: solid; }
   &:hover:not(.disabled) { border-style: solid; transform: translateY(-2px); }
 }
-.selection-card.skip-deity { grid-column: span 4; }
 
 .selection-section {
   width: 100%;

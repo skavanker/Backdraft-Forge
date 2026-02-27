@@ -150,5 +150,7 @@ export const deities = {
  * @returns {object[]} Array of deity objects
  */
 export function getDeityList() {
-  return Object.values(deities).filter(d => d.key !== 'standardCleric');
+  return Object.values(deities)
+    .filter(d => d.key !== 'standardCleric')
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

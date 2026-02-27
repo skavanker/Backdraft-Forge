@@ -1,7 +1,7 @@
 <script>
   /**
    * GearSection - Reusable section for equipment/gear grids
-   * Handles common pattern for left-click add, right-click remove
+   * Left-click to add, right-click to remove. Hold Shift for ×5.
    */
   import { formatPrice } from '../../data/equipment.js';
 
@@ -18,7 +18,6 @@
 
 <div class="section">
   <h3>{title}</h3>
-  <p class="section-hint">Left-click to add, right-click to remove</p>
   <div class="item-grid" class:small>
     {#each items as item}
       {@const selected = selectedGear.find(g => g.key === item.key)}
@@ -28,8 +27,8 @@
         class:small
         class:selected
         class:disabled={!affordable && !selected}
-        onclick={() => addGear(item)}
-        oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
+        onclick={(e) => addGear(item, e.shiftKey ? 5 : 1)}
+        oncontextmenu={(e) => { e.preventDefault(); removeGear(item, e.shiftKey ? 5 : 1); }}
       >
         <span class="item-name">{item.name}</span>
         <span class="item-price">{formatPrice(item.price)}</span>

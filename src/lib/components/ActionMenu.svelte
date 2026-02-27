@@ -60,3 +60,5 @@
     </div>
   {/if}
 </div>
+
+<style lang="scss">@import '../styles/sheet';</style>

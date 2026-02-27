@@ -24,7 +24,8 @@
   @extend .card;
   align-items: flex-start;
   text-align: left;
-  min-height: 120px;
+  width: 100%;
+  height: 100%;
   &:hover:not(.disabled) {
     .card-name,
     .card-desc { color: var(--text-secondary); }
@@ -52,6 +53,12 @@
   letter-spacing: 0.05em;
 }
 .card-desc { flex: 1; font-size: $text-sm; color: var(--text-muted); line-height: 1.4; }
+.req-badge {
+  @extend .badge-small;
+  background: var(--red-overlay);
+  border: 1px solid var(--red-overlay-border);
+  color: var(--red);
+}
 .card-meta { display: flex; gap: $space-sm; margin-top: $space-md; flex-wrap: wrap; }
 .adjustment {
   @extend .badge-small;
@@ -67,9 +74,11 @@
 .data-row {
   display: flex;
   justify-content: space-between;
-  padding: $space-sm 0;
+  padding: 0 0 $space-sm;
   border-bottom: 1px dotted var(--border-color);
+  &:last-child { border-bottom: none; }
   &.locked { opacity: 0.4; font-style: italic; }
+  .val { font-weight: 600; color: var(--text-primary); }
 }
 
 // ════════════ UTILITY: Remove button ════════════
@@ -77,6 +86,17 @@
   flex-wrap: nowrap;
   > span:first-child { flex: 1; min-width: 0; }
   > .val { flex-shrink: 0; text-align: right; }
-  .remove-btn { opacity: 0; @include transition; }
+  .remove-btn {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 $space-sm;
+    color: var(--red);
+    cursor: pointer;
+    font-size: $text-lg;
+    opacity: 0;
+    @include transition;
+    &:hover { transform: none; box-shadow: none; opacity: 0.8; }
+  }
   &:hover .remove-btn { opacity: 0.5; }
 }

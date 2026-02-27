@@ -22,6 +22,8 @@
   let isArcane = $derived(classGroup === 'wizard' || classKey === 'bard');
 </script>
 
+<style lang="scss">@import '../styles/shared'; @import '../styles/sheet';</style>
+
 <div class="two-col">
   <div class="stat-block">
     <h3>Saving Throws</h3>

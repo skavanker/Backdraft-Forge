@@ -134,7 +134,11 @@
                     {/if}
                   </div>
                 {:else}
-                  <span class="unavailable-badge">Unavailable</span>
+                  <div class="card-meta">
+                    {#each failedReqs as req}
+                      <span class="req-badge">{req}</span>
+                    {/each}
+                  </div>
                 {/if}
               </button>
             </Tooltip>
@@ -166,7 +170,11 @@
               <span class="card-name">{school.name}</span>
               <span class="card-desc">{school.school}</span>
               {#if !school.qualified}
-                <span class="unavailable-badge">Unavailable</span>
+                <div class="card-meta">
+                  {#each school.failedReqs as req}
+                    <span class="req-badge">{req}</span>
+                  {/each}
+                </div>
               {/if}
             </button>
           </Tooltip>
@@ -210,7 +218,11 @@
               <span class="card-name">{kit.name}</span>
               <span class="card-desc">{kit.description}</span>
               {#if !kit.qualified}
-                <span class="unavailable-badge">Unavailable</span>
+                <div class="card-meta">
+                  {#each kit.failedReqs as req}
+                    <span class="req-badge">{req}</span>
+                  {/each}
+                </div>
               {/if}
             </button>
           </Tooltip>
@@ -248,7 +260,7 @@
         <p class="section-hint">Your deity determines which spell spheres you can access. Skip for standard cleric access.</p>
       </div>
 
-      <div class="option-grid deity-grid">
+      <div class="selection-grid deity-grid">
         <Tooltip text="Standard cleric with access to all common spell spheres" position="bottom">
           <button
             class="selection-card deity-card skip-deity"
@@ -300,11 +312,11 @@
         <h4>Class Stats</h4>
         <div class="flex-column gap-sm">
           <div class="data-row">
-            <span class="stat-label">Hit Die</span>
+            <span class="stat-label">Hit Points</span>
             <span class="stat-value">{selectedClass.cls.hitDie}</span>
           </div>
           <div class="data-row">
-            <span class="stat-label">Prime Requisite</span>
+            <span class="stat-label">Key Ability</span>
             <span class="stat-value">{selectedClass.cls.primeRequisite.join(', ')}</span>
           </div>
           {#if selectedClass.xpBonus > 0}
@@ -330,5 +342,6 @@
 <style lang="scss">
   @import './styles/shared';
   @import './styles/selectors';
+  .deity-grid > :global(:first-child) { grid-column: 1 / -1; }
 </style>
 
