@@ -6,7 +6,6 @@
   let manualScores = $state({
     STR: null, DEX: null, CON: null, INT: null, WIS: null, CHA: null
   });
-  let manualExceptionalStr = $state(null);
   let manualInput = $state('');
 
   // Next ability to assign
@@ -18,15 +17,7 @@
     ABILITIES.every(a => manualScores[a] !== null)
   );
 
-  let manualValid = $derived(() => {
-    if (!manualAllAssigned) return false;
-    if (manualScores.STR === 18 && manualExceptionalStr === null) return false;
-    return true;
-  });
-
-  let manualNeedsExceptional = $derived(
-    manualScores.STR === 18 && manualExceptionalStr === null
-  );
+  let manualValid = $derived(manualAllAssigned);
 
   function addManualScore() {
     const val = parseInt(manualInput);
@@ -41,25 +32,12 @@
       if (a === ability) found = true;
       if (found) manualScores[a] = null;
     }
-    if (ability === 'STR') {
-      manualExceptionalStr = null;
-    }
-  }
-
-  function setManualExceptional() {
-    const val = parseInt(manualInput);
-    if (isNaN(val) || val < 1 || val > 100) return;
-    manualExceptionalStr = val;
-    manualInput = '';
   }
 
   function completeManual() {
     const finalScores = {};
     for (const ability of ABILITIES) {
       finalScores[ability] = manualScores[ability];
-    }
-    if (manualScores.STR === 18 && manualExceptionalStr !== null) {
-      finalScores.exceptionalStr = manualExceptionalStr;
     }
     onComplete({ abilities: finalScores, rollData: null });
   }
@@ -74,9 +52,6 @@
       WIS: existingAbilities.WIS,
       CHA: existingAbilities.CHA
     };
-    if (existingAbilities.exceptionalStr) {
-      manualExceptionalStr = existingAbilities.exceptionalStr;
-    }
   }
 </script>
 
@@ -88,7 +63,7 @@
   {/if}
 
   <h3>{existingAbilities && !existingRollData ? 'Your Ability Scores' : 'Enter Your Scores'}</h3>
-  {#if existingAbilities && !existingRollData && manualValid()}
+  {#if existingAbilities && !existingRollData && manualValid}
     <p class="existing-note">These are your previously entered scores. You can continue with these or clear them to enter new ones.</p>
   {/if}
 
@@ -100,9 +75,6 @@
         {#if manualScores[ability] !== null}
           <span class="slot-value">
             {manualScores[ability]}
-            {#if ability === 'STR' && manualScores[ability] === 18 && manualExceptionalStr !== null}
-              /{manualExceptionalStr.toString().padStart(2, '0')}
-            {/if}
           </span>
           <button class="slot-clear" onclick={() => clearManualScore(ability)} title="Clear">×</button>
         {:else}
@@ -113,7 +85,7 @@
   </div>
 
   <!-- Input for next score -->
-  {#if nextManualAbility && !manualNeedsExceptional}
+  {#if nextManualAbility}
     <div class="manual-entry">
       <label for="manual-input">Enter {nextManualAbility} score:</label>
       <div class="entry-row">
@@ -131,26 +103,7 @@
     </div>
   {/if}
 
-  <!-- Exceptional strength input -->
-  {#if manualNeedsExceptional}
-    <div class="manual-entry exceptional">
-      <label for="manual-input"><strong>18 Strength!</strong> Enter exceptional strength (1-100):</label>
-      <div class="entry-row">
-        <input
-          id="manual-input"
-          type="number"
-          min="1"
-          max="100"
-          bind:value={manualInput}
-          placeholder="1-100"
-          onkeydown={(e) => e.key === 'Enter' && setManualExceptional()}
-        />
-        <button class="btn-primary" onclick={setManualExceptional}>Add</button>
-      </div>
-    </div>
-  {/if}
-
-  {#if manualValid()}
+  {#if manualValid}
     <div class="continue-section">
       <div class="divider"><span class="ornament">◆</span></div>
       <button class="btn-primary" onclick={completeManual}>
