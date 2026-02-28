@@ -8,13 +8,10 @@ import { getAlignmentNumber } from '../data/alignment.js';
 const CHARACTER_FORMAT_VERSION = 1;
 
 /**
- * Compress character to minimal data structure
+ * Compress abilities to minimal array format
  */
-function compressCharacter(character) {
-  const compressed = {
-    // Version for future migrations
-    v: CHARACTER_FORMAT_VERSION,
-    // Abilities as array [STR, DEX, CON, INT, WIS, CHA]
+function compressAbilities(character) {
+  const result = {
     a: [
       character.abilities.STR,
       character.abilities.DEX,
@@ -25,93 +22,140 @@ function compressCharacter(character) {
     ]
   };
 
-  // Exceptional strength (if exists)
   if (character.abilities.exceptionalStr) {
-    compressed.e = character.abilities.exceptionalStr;
+    result.e = character.abilities.exceptionalStr;
   }
 
-  // Race and class keys
-  compressed.r = character.raceKey;
-  compressed.c = character.classKey;
+  return result;
+}
 
-  // Wizard school (if specialist)
-  if (character.wizardSchool) {
-    compressed.w = character.wizardSchool.key;
+/**
+ * Compress race, class, and related classification data
+ */
+function compressClassification(character) {
+  const result = {
+    r: character.raceKey,
+    c: character.classKey
+  };
+
+  if (character.wizardSchool) result.w = character.wizardSchool.key;
+  if (character.levelLimit) result.l = character.levelLimit;
+  if (character.xpBonus) result.x = character.xpBonus;
+
+  return result;
+}
+
+/**
+ * Compress proficiency data to keys only
+ */
+function compressProficiencies(character) {
+  if (!character.proficiencies) return {};
+
+  const result = {
+    wp: character.proficiencies.weapons.map(w => w.key),
+    np: character.proficiencies.nonWeapon.map(p => p.key)
+  };
+
+  if (character.proficiencies.languages) {
+    result.lg = character.proficiencies.languages.map(l => l.key);
   }
 
-  // Level limit and XP bonus
-  if (character.levelLimit) compressed.l = character.levelLimit;
-  if (character.xpBonus) compressed.x = character.xpBonus;
+  return result;
+}
 
-  // Proficiencies (just keys)
-  if (character.proficiencies) {
-    compressed.wp = character.proficiencies.weapons.map(w => w.key);
-    compressed.np = character.proficiencies.nonWeapon.map(p => p.key);
-    if (character.proficiencies.languages) {
-      compressed.lg = character.proficiencies.languages.map(l => l.key);
-    }
+/**
+ * Compress equipment data
+ */
+function compressEquipment(character) {
+  if (!character.equipment) return {};
+
+  const result = {
+    g: character.equipment.remaining ?? character.equipment.gold
+  };
+
+  if (character.equipment.armor) result.ar = character.equipment.armor.key;
+  if (character.equipment.shield) result.sh = character.equipment.shield.key;
+  if (character.equipment.weapons) result.wk = character.equipment.weapons.map(w => w.key);
+
+  if (character.equipment.gear) {
+    result.gk = character.equipment.gear.map(g => {
+      if (g.key.startsWith('custom_')) {
+        return { n: g.name, p: g.price?.gp || 0, w: g.weight || 0, q: g.qty || 1 };
+      }
+      return (g.qty || 1) > 1 ? [g.key, g.qty] : g.key;
+    });
   }
 
-  // Equipment
-  if (character.equipment) {
-    compressed.g = character.equipment.remaining ?? character.equipment.gold;
-    if (character.equipment.armor) compressed.ar = character.equipment.armor.key;
-    if (character.equipment.shield) compressed.sh = character.equipment.shield.key;
-    if (character.equipment.weapons) compressed.wk = character.equipment.weapons.map(w => w.key);
-    if (character.equipment.gear) {
-      compressed.gk = character.equipment.gear.map(g => {
-        if (g.key.startsWith('custom_')) {
-          return { n: g.name, p: g.price?.gp || 0, w: g.weight || 0, q: g.qty || 1 };
-        }
-        return (g.qty || 1) > 1 ? [g.key, g.qty] : g.key;
-      });
-    }
+  return result;
+}
+
+/**
+ * Compress spell data
+ */
+function compressSpells(character) {
+  if (!character.spells) return {};
+
+  const result = { st: character.spells.type };
+
+  if (character.spells.type === 'arcane' && character.spells.spellbook) {
+    result.sp = character.spells.spellbook.map(s => s.key);
+  } else if (character.spells.type === 'divine' && character.spells.prepared) {
+    result.sp = character.spells.prepared.map(s => s.key);
+  } else if (character.spells.type === 'dual') {
+    if (character.spells.prepared) result.sp = character.spells.prepared.map(s => s.key);
+    if (character.spells.spellbook) result.sb = character.spells.spellbook.map(s => s.key);
   }
 
-  // Kit (if selected)
-  if (character.kitKey) compressed.kk = character.kitKey;
+  return result;
+}
 
-  // Spells
-  if (character.spells) {
-    compressed.st = character.spells.type;
-    if (character.spells.type === 'arcane' && character.spells.spellbook) {
-      compressed.sp = character.spells.spellbook.map(s => s.key);
-    } else if (character.spells.type === 'divine' && character.spells.prepared) {
-      compressed.sp = character.spells.prepared.map(s => s.key);
-    } else if (character.spells.type === 'dual') {
-      if (character.spells.prepared) compressed.sp = character.spells.prepared.map(s => s.key);
-      if (character.spells.spellbook) compressed.sb = character.spells.spellbook.map(s => s.key);
-    }
-  }
+/**
+ * Compress character metadata (name, backstory, physical details, etc.)
+ */
+function compressCharacterMetadata(character) {
+  const result = {};
 
-  // Level, XP, HP history (only if above defaults)
-  if (character.level > 1) compressed.lv = character.level;
-  if (character.xp > 0) compressed.xp = character.xp;
-  if (character.hpHistory?.length > 0) compressed.hh = character.hpHistory;
+  // Level and XP (only if above defaults)
+  if (character.level > 1) result.lv = character.level;
+  if (character.xp > 0) result.xp = character.xp;
+  if (character.hpHistory?.length > 0) result.hh = character.hpHistory;
 
-  // Name, sex, alignment, backstory, and physical details
-  if (character.name) compressed.n = character.name;
-  if (character.sex) compressed.sx = character.sex;
-  if (character.alignment !== null && character.alignment !== undefined) compressed.al = character.alignment;
-  if (character.backstory) compressed.b = character.backstory;
-  if (character.age) compressed.ag = character.age;
-  if (character.heightInches) compressed.hi = character.heightInches;
-  if (character.weightLbs) compressed.wl = character.weightLbs;
-  if (character.eyes) compressed.ey = character.eyes;
-  if (character.hair) compressed.hr = character.hair;
-  if (character.deityKey) compressed.dk = character.deityKey;
-  if (character.deity) compressed.dy = character.deity;
+  // Personal details
+  if (character.name) result.n = character.name;
+  if (character.sex) result.sx = character.sex;
+  if (character.alignment !== null && character.alignment !== undefined) result.al = character.alignment;
+  if (character.backstory) result.b = character.backstory;
+  if (character.age) result.ag = character.age;
+  if (character.heightInches) result.hi = character.heightInches;
+  if (character.weightLbs) result.wl = character.weightLbs;
+  if (character.eyes) result.ey = character.eyes;
+  if (character.hair) result.hr = character.hair;
+  if (character.deityKey) result.dk = character.deityKey;
+  if (character.deity) result.dy = character.deity;
 
-  // Current HP (only if different from max, i.e. damaged)
-  if (character.currentHP !== null && character.currentHP !== undefined) compressed.hp = character.currentHP;
-  // Thief skills distributed points
-  if (character.thiefSkills) compressed.ts = character.thiefSkills;
-  // Notes
-  if (character.notes) compressed.nt = character.notes;
-  // Species enemy (ranger)
-  if (character.speciesEnemy) compressed.se = character.speciesEnemy;
+  // Current state
+  if (character.currentHP !== null && character.currentHP !== undefined) result.hp = character.currentHP;
+  if (character.thiefSkills) result.ts = character.thiefSkills;
+  if (character.notes) result.nt = character.notes;
+  if (character.speciesEnemy) result.se = character.speciesEnemy;
 
-  return compressed;
+  return result;
+}
+
+/**
+ * Compress character to minimal data structure
+ */
+function compressCharacter(character) {
+  return {
+    v: CHARACTER_FORMAT_VERSION,
+    ...compressAbilities(character),
+    ...compressClassification(character),
+    kk: character.kitKey || null,
+    ...compressProficiencies(character),
+    ...compressEquipment(character),
+    ...compressSpells(character),
+    ...compressCharacterMetadata(character)
+  };
 }
 
 /**
@@ -130,6 +174,157 @@ export function encodeCharacter(character) {
     console.error('Failed to encode character:', error);
     return null;
   }
+}
+
+/**
+ * Decompress abilities from compressed format
+ */
+function decompressAbilities(compressed) {
+  const abilities = {
+    STR: compressed.a[0],
+    DEX: compressed.a[1],
+    CON: compressed.a[2],
+    INT: compressed.a[3],
+    WIS: compressed.a[4],
+    CHA: compressed.a[5]
+  };
+
+  if (compressed.e) abilities.exceptionalStr = compressed.e;
+
+  return abilities;
+}
+
+/**
+ * Decompress race and class classification
+ */
+function decompressClassification(compressed, races, classes, wizardSchools, applyRacialAdjustments, abilities) {
+  const race = races[compressed.r];
+  const adjustedAbilities = applyRacialAdjustments(abilities, race);
+  const cls = classes[compressed.c];
+
+  let wizardSchool = null;
+  if (compressed.w) {
+    wizardSchool = { key: compressed.w, ...wizardSchools[compressed.w] };
+  }
+
+  return {
+    race,
+    adjustedAbilities,
+    cls,
+    wizardSchool,
+    levelLimit: compressed.l || null,
+    xpBonus: compressed.x || 0
+  };
+}
+
+/**
+ * Decompress proficiencies from keys
+ */
+function decompressProficiencies(compressed, weapons, nonWeaponProficiencies, languages) {
+  if (!compressed.wp) return null;
+
+  return {
+    weapons: compressed.wp.map(key => ({ key, ...weapons[key] })),
+    nonWeapon: compressed.np.map(key => ({ key, ...nonWeaponProficiencies[key] })),
+    languages: compressed.lg ? compressed.lg.map(key => ({ key, ...languages[key] })) : []
+  };
+}
+
+/**
+ * Decompress equipment from compressed format
+ */
+function decompressEquipment(compressed, equipment) {
+  if (compressed.g === undefined) return null;
+
+  return {
+    remaining: compressed.g,
+    armor: compressed.ar ? equipment.armor.find(a => a.key === compressed.ar) : null,
+    shield: compressed.sh ? equipment.shields.find(s => s.key === compressed.sh) : null,
+    weapons: compressed.wk ? compressed.wk.map(key => equipment.weapons.find(w => w.key === key)).filter(Boolean) : [],
+    gear: compressed.gk ? compressed.gk.map(entry => {
+      // Object = custom item
+      if (typeof entry === 'object' && !Array.isArray(entry)) {
+        return { key: `custom_${Math.random().toString(36).slice(2, 6)}`, name: entry.n, price: { gp: entry.p || 0 }, weight: entry.w || 0, qty: entry.q || 1 };
+      }
+      // Array = catalog item with qty
+      const key = Array.isArray(entry) ? entry[0] : entry;
+      const qty = Array.isArray(entry) ? entry[1] : 1;
+      const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(g => g.key === key);
+      return found ? { ...found, qty } : null;
+    }).filter(Boolean) : []
+  };
+}
+
+/**
+ * Decompress kit data
+ */
+function decompressKit(compressed, kits) {
+  const kitKey = compressed.kk || null;
+  const kit = kitKey && kits[kitKey] ? { key: kitKey, ...kits[kitKey] } : null;
+  return { kitKey, kit };
+}
+
+/**
+ * Decompress spell data
+ */
+function decompressSpells(compressed, wizardSpells, priestSpells) {
+  if (!compressed.st) return null;
+
+  if (compressed.st === 'arcane' && compressed.sp) {
+    const spellbook = compressed.sp.map(key => wizardSpells.find(s => s.key === key)).filter(Boolean);
+    return {
+      type: 'arcane',
+      spellbook,
+      memorized: spellbook.slice(0, 1),
+      spellsPerDay: 1
+    };
+  } else if (compressed.st === 'divine' && compressed.sp) {
+    const prepared = compressed.sp.map(key => priestSpells.find(s => s.key === key)).filter(Boolean);
+    return {
+      type: 'divine',
+      available: priestSpells,
+      prepared,
+      spellsPerDay: prepared.length
+    };
+  } else if (compressed.st === 'dual') {
+    const prepared = compressed.sp ? compressed.sp.map(key => priestSpells.find(s => s.key === key)).filter(Boolean) : [];
+    const spellbook = compressed.sb ? compressed.sb.map(key => wizardSpells.find(s => s.key === key)).filter(Boolean) : [];
+    return {
+      type: 'dual',
+      prepared,
+      spellbook,
+      memorized: spellbook.slice(0, 1),
+      spellsPerDay: prepared.length + (spellbook.length > 0 ? 1 : 0)
+    };
+  }
+
+  return { type: 'none' };
+}
+
+/**
+ * Decompress character metadata
+ */
+function decompressMetadata(compressed, deities) {
+  return {
+    name: compressed.n || null,
+    sex: compressed.sx ?? compressed.s ?? 'Male', // Support both old 's' and new 'sx'
+    alignment: typeof compressed.al === 'number' ? compressed.al : (getAlignmentNumber(compressed.al) || 4), // Support both number and legacy string, default to True Neutral (4)
+    backstory: compressed.b || null,
+    age: compressed.ag || null,
+    heightInches: compressed.hi || null,
+    weightLbs: compressed.wl || null,
+    eyes: compressed.ey || null,
+    hair: compressed.hr || null,
+    deityKey: compressed.dk || null,
+    deity: compressed.dk ? (deities[compressed.dk]?.name || compressed.dy || null) : (compressed.dy || null),
+    level: compressed.lv || 1,
+    xp: compressed.xp || 0,
+    hpHistory: compressed.hh || [],
+    currentHP: compressed.hp ?? null,
+    thiefSkills: compressed.ts || null,
+    speciesEnemy: compressed.se || null,
+    notes: compressed.nt || '',
+  };
 }
 
 /**
@@ -164,135 +359,33 @@ async function decompressCharacter(compressed) {
   const { languages } = await import('../data/languages.js');
   const { kits } = await import('../data/kits.js');
 
-  // Reconstruct abilities
-  const abilities = {
-    STR: compressed.a[0],
-    DEX: compressed.a[1],
-    CON: compressed.a[2],
-    INT: compressed.a[3],
-    WIS: compressed.a[4],
-    CHA: compressed.a[5]
-  };
-  if (compressed.e) abilities.exceptionalStr = compressed.e;
-
-  // Reconstruct race
-  const race = races[compressed.r];
-  const adjustedAbilities = applyRacialAdjustments(abilities, race);
-
-  // Reconstruct class
-  const cls = classes[compressed.c];
-
-  // Wizard school (if specialist)
-  let wizardSchool = null;
-  if (compressed.w) {
-    wizardSchool = { key: compressed.w, ...wizardSchools[compressed.w] };
-  }
-
-  // Reconstruct proficiencies
-  let proficiencies = null;
-  if (compressed.wp) {
-    proficiencies = {
-      weapons: compressed.wp.map(key => ({ key, ...weapons[key] })),
-      nonWeapon: compressed.np.map(key => ({ key, ...nonWeaponProficiencies[key] })),
-      languages: compressed.lg ? compressed.lg.map(key => ({ key, ...languages[key] })) : []
-    };
-  }
-
-  // Reconstruct equipment
-  let equipmentData = null;
-  if (compressed.g !== undefined) {
-    equipmentData = {
-      remaining: compressed.g,
-      armor: compressed.ar ? equipment.armor.find(a => a.key === compressed.ar) : null,
-      shield: compressed.sh ? equipment.shields.find(s => s.key === compressed.sh) : null,
-      weapons: compressed.wk ? compressed.wk.map(key => equipment.weapons.find(w => w.key === key)).filter(Boolean) : [],
-      gear: compressed.gk ? compressed.gk.map(entry => {
-        // Object = custom item
-        if (typeof entry === 'object' && !Array.isArray(entry)) {
-          return { key: `custom_${Math.random().toString(36).slice(2, 6)}`, name: entry.n, price: { gp: entry.p || 0 }, weight: entry.w || 0, qty: entry.q || 1 };
-        }
-        // Array = catalog item with qty
-        const key = Array.isArray(entry) ? entry[0] : entry;
-        const qty = Array.isArray(entry) ? entry[1] : 1;
-        const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(g => g.key === key);
-        return found ? { ...found, qty } : null;
-      }).filter(Boolean) : []
-    };
-  }
-
-  // Reconstruct kit
-  let kitKey = compressed.kk || null;
-  let kit = kitKey && kits[kitKey] ? { key: kitKey, ...kits[kitKey] } : null;
-
-  // Reconstruct spells
-  let spells = null;
-  if (compressed.st) {
-    if (compressed.st === 'arcane' && compressed.sp) {
-      const spellbook = compressed.sp.map(key => wizardSpells.find(s => s.key === key)).filter(Boolean);
-      spells = {
-        type: 'arcane',
-        spellbook,
-        memorized: spellbook.slice(0, 1),
-        spellsPerDay: 1
-      };
-    } else if (compressed.st === 'divine' && compressed.sp) {
-      const prepared = compressed.sp.map(key => priestSpells.find(s => s.key === key)).filter(Boolean);
-      spells = {
-        type: 'divine',
-        available: priestSpells,
-        prepared,
-        spellsPerDay: prepared.length
-      };
-    } else if (compressed.st === 'dual') {
-      const prepared = compressed.sp ? compressed.sp.map(key => priestSpells.find(s => s.key === key)).filter(Boolean) : [];
-      const spellbook = compressed.sb ? compressed.sb.map(key => wizardSpells.find(s => s.key === key)).filter(Boolean) : [];
-      spells = {
-        type: 'dual',
-        prepared,
-        spellbook,
-        memorized: spellbook.slice(0, 1),
-        spellsPerDay: prepared.length + (spellbook.length > 0 ? 1 : 0)
-      };
-    } else {
-      spells = { type: 'none' };
-    }
-  }
+  // Decompress using transformer functions
+  const abilities = decompressAbilities(compressed);
+  const classification = decompressClassification(compressed, races, classes, wizardSchools, applyRacialAdjustments, abilities);
+  const proficiencies = decompressProficiencies(compressed, weapons, nonWeaponProficiencies, languages);
+  const equipmentData = decompressEquipment(compressed, equipment);
+  const { kitKey, kit } = decompressKit(compressed, kits);
+  const spells = decompressSpells(compressed, wizardSpells, priestSpells);
+  const metadata = decompressMetadata(compressed, deities);
 
   // Reconstruct full character
   return {
     abilities,
     rollData: null, // Can't restore roll data from compressed format
-    adjustedAbilities,
+    adjustedAbilities: classification.adjustedAbilities,
     raceKey: compressed.r,
-    race,
+    race: classification.race,
     classKey: compressed.c,
-    cls,
-    levelLimit: compressed.l || null,
-    xpBonus: compressed.x || 0,
-    wizardSchool,
+    cls: classification.cls,
+    levelLimit: classification.levelLimit,
+    xpBonus: classification.xpBonus,
+    wizardSchool: classification.wizardSchool,
     kitKey,
     kit,
     proficiencies,
     equipment: equipmentData,
     spells,
-    name: compressed.n || null,
-    sex: compressed.sx ?? compressed.s ?? 'Male', // Support both old 's' and new 'sx'
-    alignment: typeof compressed.al === 'number' ? compressed.al : (getAlignmentNumber(compressed.al) || 4), // Support both number and legacy string, default to True Neutral (4)
-    backstory: compressed.b || null,
-    age: compressed.ag || null,
-    heightInches: compressed.hi || null,
-    weightLbs: compressed.wl || null,
-    eyes: compressed.ey || null,
-    hair: compressed.hr || null,
-    deityKey: compressed.dk || null,
-    deity: compressed.dk ? (deities[compressed.dk]?.name || compressed.dy || null) : (compressed.dy || null),
-    level: compressed.lv || 1,
-    xp: compressed.xp || 0,
-    hpHistory: compressed.hh || [],
-    currentHP: compressed.hp ?? null,
-    thiefSkills: compressed.ts || null,
-    speciesEnemy: compressed.se || null,
-    notes: compressed.nt || '',
+    ...metadata
   };
 }
 

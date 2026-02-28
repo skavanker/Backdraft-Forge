@@ -26,7 +26,16 @@ export const races = {
       bard: null
     },
     description: 'Versatile and ambitious, humans can pursue any class without level limits.',
-    traits: ['No level limits', 'Can be any class', 'Can dual-class']
+    traits: ['No level limits', 'Can be any class', 'Can dual-class'],
+    multiClassCombos: [], // Humans cannot multi-class (PHB p.44)
+    canDualClass: true,
+    dualClassRules: [
+      'Must have 15+ in prime requisite of original class',
+      'Must have 17+ in prime requisite of new class',
+      'Abandon all abilities of original class until new class level exceeds old class level',
+      'Can never advance in original class again',
+      'When new class level exceeds old, can use abilities of both classes'
+    ]
   },
 
   dwarf: {
@@ -46,6 +55,13 @@ export const races = {
       '+1 to hit vs orcs/goblins',
       'Saving throw bonuses vs magic',
       'Detect stonework anomalies'
+    ],
+    multiClassCombos: [
+      {
+        classes: ['fighter', 'thief'],
+        levelLimits: { fighter: 15, thief: 12 },
+        description: 'Fighter/Thief combines martial prowess with stealth and cunning'
+      }
     ]
   },
 
@@ -68,6 +84,28 @@ export const races = {
       '90% resistance to sleep/charm',
       '+1 to hit with bows/swords',
       'Detect secret doors'
+    ],
+    multiClassCombos: [
+      {
+        classes: ['fighter', 'mage'],
+        levelLimits: { fighter: 12, mage: 15 },
+        description: 'Fighter/Mage: warrior-wizard combining martial skill with arcane magic'
+      },
+      {
+        classes: ['fighter', 'thief'],
+        levelLimits: { fighter: 12, thief: 12 },
+        description: 'Fighter/Thief: stealthy warrior blending combat and stealth'
+      },
+      {
+        classes: ['mage', 'thief'],
+        levelLimits: { mage: 15, thief: 12 },
+        description: 'Mage/Thief: arcane trickster combining magic with roguish skills'
+      },
+      {
+        classes: ['fighter', 'mage', 'thief'],
+        levelLimits: { fighter: 12, mage: 15, thief: 12 },
+        description: 'Triple-class: versatile adventurer (warrior, wizard, rogue)'
+      }
     ]
   },
 
@@ -88,6 +126,23 @@ export const races = {
       '+1 to hit vs kobolds/goblins',
       'Saving throw bonuses vs magic',
       '+1 attack bonus with illusions'
+    ],
+    multiClassCombos: [
+      {
+        classes: ['fighter', 'mage'],
+        levelLimits: { fighter: 11, mage: 12 },
+        description: 'Fighter/Illusionist: warrior with illusion magic'
+      },
+      {
+        classes: ['fighter', 'thief'],
+        levelLimits: { fighter: 11, thief: 13 },
+        description: 'Fighter/Thief: cunning combatant'
+      },
+      {
+        classes: ['mage', 'thief'],
+        levelLimits: { mage: 12, thief: 13 },
+        description: 'Illusionist/Thief: master of deception'
+      }
     ]
   },
 
@@ -110,6 +165,38 @@ export const races = {
       'Infravision 60\'',
       '30% resistance to sleep/charm',
       'Detect secret doors (1-in-6)'
+    ],
+    multiClassCombos: [
+      {
+        classes: ['fighter', 'cleric'],
+        levelLimits: { fighter: 14, cleric: 14 },
+        description: 'Fighter/Cleric: holy warrior'
+      },
+      {
+        classes: ['fighter', 'thief'],
+        levelLimits: { fighter: 14, thief: 12 },
+        description: 'Fighter/Thief: versatile adventurer'
+      },
+      {
+        classes: ['fighter', 'mage'],
+        levelLimits: { fighter: 14, mage: 12 },
+        description: 'Fighter/Mage: spellsword'
+      },
+      {
+        classes: ['cleric', 'mage'],
+        levelLimits: { cleric: 14, mage: 12 },
+        description: 'Cleric/Mage: divine and arcane caster'
+      },
+      {
+        classes: ['cleric', 'ranger'],
+        levelLimits: { cleric: 14, ranger: 16 },
+        description: 'Cleric/Ranger: nature priest-warrior'
+      },
+      {
+        classes: ['fighter', 'mage', 'cleric'],
+        levelLimits: { fighter: 14, mage: 12, cleric: 14 },
+        description: 'Triple-class: ultimate versatility'
+      }
     ]
   },
 
@@ -130,6 +217,13 @@ export const races = {
       '+1 to hit with slings/thrown',
       'Saving throw bonuses',
       '+1 AC vs large creatures'
+    ],
+    multiClassCombos: [
+      {
+        classes: ['fighter', 'thief'],
+        levelLimits: { fighter: 9, thief: 15 },
+        description: 'Fighter/Thief: nimble warrior-scout'
+      }
     ]
   }
 };
@@ -165,14 +259,24 @@ export function checkRaceRequirements(abilities, race, { lenient = false } = {})
 }
 
 /**
- * Apply racial adjustments to ability scores
+ * Apply racial adjustments to ability scores.
+ *
+ * AD&D 2E Rule: Racial modifiers apply to base scores, but the final adjusted
+ * ability score cannot exceed 19 (except for Strength, which can go up to 18/00).
+ * This is a hard cap in the core rules (PHB p.14-15).
+ *
+ * Example: A dwarf (+1 CON) with rolled CON 18 gets adjusted to 19 (not 19+).
+ * The minimum of 3 prevents modifiers from reducing scores below humanoid baseline.
+ *
  * @param {Object} abilities - Character's base ability scores
  * @param {Object} race - Race object
- * @returns {Object} Adjusted ability scores
+ * @returns {Object} Adjusted ability scores (clamped between 3 and 19)
  */
 export function applyRacialAdjustments(abilities, race) {
   const adjusted = { ...abilities };
   for (const [ability, mod] of Object.entries(race.adjustments)) {
+    // AD&D 2E: Ability scores capped at 19 after racial adjustments (PHB p.14-15)
+    // Min of 3 ensures no ability drops below humanoid baseline
     adjusted[ability] = Math.max(3, Math.min(19, adjusted[ability] + mod));
   }
   return adjusted;

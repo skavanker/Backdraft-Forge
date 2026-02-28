@@ -10,11 +10,12 @@
     rollStartingGoldWithKit
   } from '../data/equipment.js';
   import { getStrengthModifiers } from '../data/mechanics.js';
-  import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import { formatEncumbranceValue, formatWeightUnit } from './settings.svelte.js';
   import SelectableChip from './components/SelectableChip.svelte';
   import GearSection from './components/GearSection.svelte';
+  import GoldLedger from './components/GoldLedger.svelte';
+  import CustomItemForm from './components/CustomItemForm.svelte';
   import { useGoldLedger } from './utils/useGoldLedger.svelte.js';
 
   let { cls, kit = null, weaponProficiencies, existingEquipment = null, str = 10, exceptionalStr = null, onComplete } = $props();
@@ -79,27 +80,36 @@
     }
   }
 
-  function selectArmor(armor) {
-    if (selectedArmor?.key === armor.key) {
-      ledger.refundPrice(selectedArmor.price);
-      selectedArmor = null;
-    } else {
-      if (selectedArmor) ledger.refundPrice(selectedArmor.price);
-      ledger.deductPrice(armor.price);
-      selectedArmor = armor;
-    }
+  /**
+   * Create a single-select handler for exclusive items (armor, shield).
+   * Handles selection toggle with automatic refunds.
+   */
+  function createSingleSelectHandler(getCurrentItem, setCurrentItem) {
+    return (item) => {
+      const current = getCurrentItem();
+
+      if (current?.key === item.key) {
+        // Deselect
+        ledger.refundPrice(current.price);
+        setCurrentItem(null);
+      } else {
+        // Select new (refund old if exists)
+        if (current) ledger.refundPrice(current.price);
+        ledger.deductPrice(item.price);
+        setCurrentItem(item);
+      }
+    };
   }
 
-  function selectShield(shield) {
-    if (selectedShield?.key === shield.key) {
-      ledger.refundPrice(selectedShield.price);
-      selectedShield = null;
-    } else {
-      if (selectedShield) ledger.refundPrice(selectedShield.price);
-      ledger.deductPrice(shield.price);
-      selectedShield = shield;
-    }
-  }
+  const selectArmor = createSingleSelectHandler(
+    () => selectedArmor,
+    (v) => selectedArmor = v
+  );
+
+  const selectShield = createSingleSelectHandler(
+    () => selectedShield,
+    (v) => selectedShield = v
+  );
 
   function toggleWeapon(weapon) {
     if (selectedWeapons.find(w => w.key === weapon.key)) {
@@ -184,117 +194,69 @@
     });
   }
 
-  // Initialize from existing data
-  onMount(() => {
-    if (existingEquipment) {
-      ledger.restore(existingEquipment);
+  // Initialize from existing data (runs once on mount)
+  // Prevents race condition by using $effect with initialization guard
+  let equipmentInitialized = $state(false);
+  $effect(() => {
+    if (equipmentInitialized || !existingEquipment) return;
 
-      // Check if armor is still allowed, otherwise clear and refund
-      if (existingEquipment.armor) {
-        const armorAllowed = allowedArmor.some(a => a.key === existingEquipment.armor.key);
-        if (armorAllowed) {
-          selectedArmor = existingEquipment.armor;
-        } else {
-          ledger.refundPrice(existingEquipment.armor.price);
-          selectedArmor = null;
-        }
+    ledger.restore(existingEquipment);
+
+    // Check if armor is still allowed, otherwise clear and refund
+    if (existingEquipment.armor) {
+      const armorAllowed = allowedArmor.some(a => a.key === existingEquipment.armor.key);
+      if (armorAllowed) {
+        selectedArmor = existingEquipment.armor;
+      } else {
+        ledger.refundPrice(existingEquipment.armor.price);
+        selectedArmor = null;
       }
-
-      // Check if shield is still allowed, otherwise clear and refund
-      if (existingEquipment.shield) {
-        const shieldAllowed = allowedShields.some(s => s.key === existingEquipment.shield.key);
-        if (shieldAllowed) {
-          selectedShield = existingEquipment.shield;
-        } else {
-          ledger.refundPrice(existingEquipment.shield.price);
-          selectedShield = null;
-        }
-      }
-
-      // Filter weapons: only keep ones that are still available (proficient)
-      const existingWeapons = existingEquipment.weapons || [];
-      selectedWeapons = existingWeapons.filter(weapon =>
-        availableWeapons.some(aw => aw.key === weapon.key)
-      );
-
-      // Refund gold for removed weapons
-      const removedWeapons = existingWeapons.filter(weapon =>
-        !availableWeapons.some(aw => aw.key === weapon.key)
-      );
-      for (const weapon of removedWeapons) {
-        ledger.refundPrice(weapon.price);
-      }
-
-      selectedGear = (existingEquipment.gear || []).map(g => ({ ...g, qty: g.qty || 1 }));
-      const customKeys = selectedGear.filter(g => g.key.startsWith('custom_')).map(g => parseInt(g.key.split('_')[1]) + 1);
-      if (customKeys.length) customIdCounter = Math.max(...customKeys);
     }
+
+    // Check if shield is still allowed, otherwise clear and refund
+    if (existingEquipment.shield) {
+      const shieldAllowed = allowedShields.some(s => s.key === existingEquipment.shield.key);
+      if (shieldAllowed) {
+        selectedShield = existingEquipment.shield;
+      } else {
+        ledger.refundPrice(existingEquipment.shield.price);
+        selectedShield = null;
+      }
+    }
+
+    // Filter weapons: only keep ones that are still available (proficient)
+    const existingWeapons = existingEquipment.weapons || [];
+    selectedWeapons = existingWeapons.filter(weapon =>
+      availableWeapons.some(aw => aw.key === weapon.key)
+    );
+
+    // Refund gold for removed weapons
+    const removedWeapons = existingWeapons.filter(weapon =>
+      !availableWeapons.some(aw => aw.key === weapon.key)
+    );
+    for (const weapon of removedWeapons) {
+      ledger.refundPrice(weapon.price);
+    }
+
+    selectedGear = (existingEquipment.gear || []).map(g => ({ ...g, qty: g.qty || 1 }));
+    const customKeys = selectedGear.filter(g => g.key.startsWith('custom_')).map(g => parseInt(g.key.split('_')[1]) + 1);
+    if (customKeys.length) customIdCounter = Math.max(...customKeys);
+
+    equipmentInitialized = true;
   });
 </script>
 
 <div class="flex-column gap-lg">
-  <!-- Gold Section -->
-  <div class="gold-section">
-    {#if !ledger.goldRolled}
-      <div class="intro-with-info">
-        <p class="section-hint">Roll for starting gold or enter a custom amount.</p>
-        <Tooltip text="Starting gold per AD&D 2E: Warriors 5d4×10 (50-200 gp), Wizards 1d4+1×10 (20-50 gp), Priests 3d6×10 (30-180 gp), Rogues 2d6×10 (20-120 gp)" position="bottom">
-          <span class="info-icon">ⓘ</span>
-        </Tooltip>
-      </div>
-      <div class="gold-controls">
-        <button class="btn-primary" onclick={rollGold}>
-          Roll Starting Gold
-        </button>
-        <span class="or-divider">or</span>
-        <div class="manual-gold">
-          <input
-            type="number"
-            min="0"
-            placeholder="Enter gold"
-            aria-label="Starting gold amount"
-            bind:value={manualGoldInput}
-            onkeydown={(e) => e.key === 'Enter' && setManualGold()}
-          />
-          <span class="gp-label">gp</span>
-          <button class="btn-primary btn-sm" onclick={setManualGold} disabled={!manualGoldInput || parseInt(manualGoldInput) < 0}>
-            Set
-          </button>
-        </div>
-      </div>
-    {:else}
-      <div class="gold-display panel">
-        <button class="reroll-btn" onclick={resetGold} title="Reset gold" aria-label="Reset gold">×</button>
-        <div class="gold-stat">
-          <span class="gold-label">Gold</span>
-          <span class="gold-value" class:warning={ledger.gold < 0}>
-            {ledger.gold.toFixed(1)} gp
-          </span>
-          {#if ledger.goldDice.length > 0}
-            <div class="gold-dice">
-              <span class="dice-formula">{ledger.goldDiceFormula} × 10</span>
-              <div class="dice-rolls">
-                {#each ledger.goldDice as die}
-                  <span class="die">
-                    <img src="/dice/d{ledger.goldDieSize}-{die}.svg" alt="{die}" />
-                  </span>
-                {/each}
-              </div>
-            </div>
-          {/if}
-        </div>
-        <div class="gold-stat">
-          <span class="gold-label">Weight</span>
-          <span class="gold-value" class:warning={isEncumbered}>{formatEncumbranceValue(totalWeight())} / {formatEncumbranceValue(weightAllowance)} {formatWeightUnit()}</span>
-        </div>
-      </div>
-      {#if isEncumbered}
-        <div class="encumbrance-warning alert alert-danger">
-          ⚠ Encumbered! Carrying {formatEncumbranceValue(totalWeight() - weightAllowance)} {formatWeightUnit()} over your weight allowance. Movement and combat will be penalized.
-        </div>
-      {/if}
-    {/if}
-  </div>
+  <GoldLedger
+    {ledger}
+    totalWeight={totalWeight()}
+    {weightAllowance}
+    {isEncumbered}
+    {rollGold}
+    {setManualGold}
+    {resetGold}
+    bind:manualGoldInput
+  />
 
   {#if ledger.goldRolled}
     <div class="flex-column gap-lg">
@@ -447,40 +409,15 @@
         small={true}
       />
 
-      <!-- Custom Item -->
-      <div class="section">
-        <h3>Custom Item</h3>
-        <p class="section-hint">Add items not found in the equipment lists above</p>
-        <div class="custom-gear-form">
-          <input placeholder="Item name" aria-label="Custom item name" bind:value={customName} />
-          <input type="number" placeholder="Price (gp)" aria-label="Custom item price in gold" bind:value={customPrice} min="0" />
-          <input type="number" placeholder="Weight (lbs)" aria-label="Custom item weight" bind:value={customWeight} min="0" />
-          <button class="btn-add" onclick={addCustomItem} disabled={!customName.trim()}>Add</button>
-        </div>
-      </div>
-
-      <!-- Selected custom items -->
-      {#if selectedGear.some(g => g.key.startsWith('custom_'))}
-        <div class="section">
-          <h3>Custom Items</h3>
-          <div class="item-grid small">
-            {#each selectedGear.filter(g => g.key.startsWith('custom_')) as item}
-              <button
-                class="item-card small selected"
-                onclick={() => addGear(item)}
-                oncontextmenu={(e) => { e.preventDefault(); removeGear(item); }}
-                onkeydown={(e) => { if (e.key === 'Backspace') { e.preventDefault(); removeGear(item); } }}
-              >
-                <span class="item-name">{item.name}</span>
-                <span class="item-price">{item.price?.gp || 0} gp</span>
-                {#if item.qty > 1}
-                  <span class="qty-badge">&times;{item.qty}</span>
-                {/if}
-              </button>
-            {/each}
-          </div>
-        </div>
-      {/if}
+      <CustomItemForm
+        bind:customName
+        bind:customPrice
+        bind:customWeight
+        {selectedGear}
+        {addCustomItem}
+        {addGear}
+        {removeGear}
+      />
     </div>
 
     <button

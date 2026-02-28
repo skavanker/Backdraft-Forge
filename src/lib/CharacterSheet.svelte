@@ -7,13 +7,15 @@
   import EquipmentPanel from './components/EquipmentPanel.svelte';
   import { useToggle, useAbilityModifiers } from './utils/stateUtils.svelte.js';
   import { getSavingThrows, getBaseTHAC0 } from '../data/mechanics.js';
-  import { getSpellSlots, getXPForNextLevel, getAttacksPerRound, formatSpellSlots } from '../data/levelTables.js';
+  import { getSpellSlots, getAttacksPerRound, formatSpellSlots } from '../data/levelTables.js';
   import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS } from '../data/thiefSkills.js';
   import { getTurnUndeadRow, formatTurnResult } from '../data/turnUndead.js';
   import { groupByLevel } from '../data/priestSpells.js';
   import { formatSpeciesEnemy } from '../data/speciesEnemies.js';
   import { ordinal } from './utils/formatUtils.js';
   import { calcTotalHP, parseDieMax } from './utils/hpUtils.js';
+  import { getClassGroup, getClassKey, isWarrior, getCharacterLevel } from './utils/characterAccessors.js';
+  import { getXPForNextLevel, isAtLevelLimit, canLevelUp } from './utils/xpUtils.js';
 
   let { character, onCharacterUpdate, undoMessage = '', showUndoMessage = false } = $props();
 
@@ -27,18 +29,18 @@
   let chaMods = $derived(abilityMods.cha);
 
   // Calculate saving throws and combat stats (level-aware)
-  let charLevel = $derived(character.level || 1);
-  let savingThrows = $derived(getSavingThrows(character.cls.group, charLevel));
-  let baseTHAC0 = $derived(getBaseTHAC0(character.cls.group, charLevel));
-  let attacksPerRound = $derived(getAttacksPerRound(character.cls.group, charLevel));
+  let charLevel = $derived(getCharacterLevel(character));
+  let savingThrows = $derived(getSavingThrows(getClassGroup(character), charLevel));
+  let baseTHAC0 = $derived(getBaseTHAC0(getClassGroup(character), charLevel));
+  let attacksPerRound = $derived(getAttacksPerRound(getClassGroup(character), charLevel));
 
-  // XP progress
-  let xpForNext = $derived(getXPForNextLevel(character.classKey, charLevel));
-  let atLevelLimit = $derived(character.levelLimit !== null && charLevel >= character.levelLimit);
-  let canLevelUp = $derived(xpForNext !== null && (character.xp || 0) >= xpForNext && !atLevelLimit);
+  // XP progress (using centralized XP utils)
+  let xpForNext = $derived(getXPForNextLevel(character));
+  let atLevelLimit = $derived(isAtLevelLimit(character));
+  let canLevelUpNow = $derived(canLevelUp(character));
 
   // Spell slots from level tables
-  let spellSlots = $derived(getSpellSlots(character.classKey, charLevel));
+  let spellSlots = $derived(getSpellSlots(getClassKey(character), charLevel));
   let spellSlotDisplay = $derived(formatSpellSlots(spellSlots));
 
   // State management using composables
@@ -57,18 +59,18 @@
   );
 
   // Thief skills (for thieves and bards)
-  let isThiefClass = $derived(character.classKey === 'thief' || character.classKey === 'bard');
+  let isThiefClass = $derived(getClassKey(character) === 'thief' || getClassKey(character) === 'bard');
   let thiefSkills = $derived((() => {
     if (!isThiefClass) return null;
-    const base = getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, character.classKey, charLevel);
+    const base = getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, getClassKey(character), charLevel);
     return applyDistributedPoints(base, character.thiefSkills);
   })());
 
   // Turn undead (for clerics and paladins)
-  let canTurnUndead = $derived(character.classKey === 'cleric' || character.classKey === 'paladin');
+  let canTurnUndead = $derived(getClassKey(character) === 'cleric' || getClassKey(character) === 'paladin');
   let turnUndeadRow = $derived((() => {
     if (!canTurnUndead) return null;
-    return getTurnUndeadRow(character.classKey, charLevel);
+    return getTurnUndeadRow(getClassKey(character), charLevel);
   })());
 
   // Notes state
@@ -120,7 +122,8 @@
   let portraitFilename = $derived((() => {
     const race = character.raceKey.charAt(0).toUpperCase() + character.raceKey.slice(1);
     const gender = character.sex || 'Male';
-    const cls = character.wizardSchool ? 'SpecialistWizard' : (character.classKey.charAt(0).toUpperCase() + character.classKey.slice(1));
+    const classKey = getClassKey(character);
+    const cls = character.wizardSchool ? 'SpecialistWizard' : (classKey.charAt(0).toUpperCase() + classKey.slice(1));
     return `${race}${gender}${cls}.webp`;
   })());
 
@@ -150,7 +153,7 @@
     xp={character.xp || 0}
     xpBonus={character.xpBonus}
     {xpForNext}
-    {canLevelUp}
+    canLevelUp={canLevelUpNow}
     {atLevelLimit}
     onUpdateXP={(val) => onCharacterUpdate?.({ xp: val })}
     onLevelUp={showLevelUp.open}
@@ -195,11 +198,11 @@
     baseAC={baseAC}
     movement={character.race.movement || 12}
     {attacksPerRound}
-    isWarrior={character.cls.group === 'warrior'}
+    isWarrior={isWarrior(character)}
     {spellSlots}
     {spellSlotDisplay}
-    classGroup={character.cls.group}
-    classKey={character.classKey}
+    classGroup={getClassGroup(character)}
+    classKey={getClassKey(character)}
     {intMods}
     {wisMods}
   />

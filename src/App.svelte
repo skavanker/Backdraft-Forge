@@ -12,8 +12,18 @@
   import ReviewStep from './lib/ReviewStep.svelte';
   import { getCharacterFromUrl, encodeCharacter } from './lib/shareCharacter.js';
   import { isSpellcaster } from './data/spells.js';
-  import { isTyping } from './lib/utils/keyboard.js';
   import { settings, initSettings } from './lib/settings.svelte.js';
+  import { restoreCharacterObjects } from './lib/utils/characterRestore.svelte.js';
+  import { setupAppKeyboardShortcuts } from './lib/utils/appKeyboardHandlers.svelte.js';
+  import {
+    steps,
+    createStepFields,
+    createStepGates,
+    isStepLocked as _isStepLocked,
+    canNavigateToStep as _canNavigateToStep,
+    isStepIncomplete as _isStepIncomplete,
+    completeStep as _completeStep
+  } from './lib/utils/stepManager.svelte.js';
   import SettingsPanel from './lib/components/SettingsPanel.svelte';
   import { STEP_SHEET, TOAST_DURATION } from './data/constants.js';
   import { useToast } from './lib/utils/stateUtils.svelte.js';
@@ -26,18 +36,6 @@
     clearMidCreation,
     loadMidCreation
   } from './lib/persistence.svelte.js';
-
-  const steps = [
-    'Abilities',
-    'Race',
-    'Class',
-    'Review',
-    'Proficiencies',
-    'Equipment',
-    'Spells',
-    'Backstory',
-    'Sheet'
-  ];
 
   let currentStep = $state(0);
   let settingsOpen = $state(false);
@@ -123,139 +121,39 @@
       if (wip) wipPrompt = wip;
     })();
 
-    function handleKeydown(e) {
-      // Ctrl+S — save progress
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        saveMidCreation();
-        return;
-      }
-
-      // Ctrl+E — export character code (on sheet step)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
-        if (currentStep === STEP_SHEET) {
-          e.preventDefault();
-          exportCharacterCode();
-        }
-        return;
-      }
-
-      // Ctrl+Z — undo on character sheet
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        if (currentStep === STEP_SHEET && undoStack.length > 0) {
-          e.preventDefault();
-          undo();
-        }
-        return;
-      }
-
-      // Escape — close settings/reset popup or go back a step
-      if (e.key === 'Escape') {
-        if (settingsOpen) {
-          settingsOpen = false;
-        } else if (showResetConfirm) {
-          showResetConfirm = false;
-        } else if (currentStep > 0 && currentStep < STEP_SHEET) {
-          goToStep(currentStep - 1);
-        }
-        return;
-      }
-
-      // Arrow keys — move focus like Tab/Shift+Tab
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' ||
-          e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        if (isTyping()) return;
-        const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-        const focusable = [...document.querySelectorAll(
-          '.content button:not(:disabled), .content input:not(:disabled), .content select:not(:disabled), .content textarea:not(:disabled), .content [tabindex]:not([tabindex="-1"])'
-        )];
-        if (focusable.length === 0) return;
-        const idx = focusable.indexOf(document.activeElement);
-        const next = forward
-          ? (idx + 1) % focusable.length
-          : (idx - 1 + focusable.length) % focusable.length;
-        e.preventDefault();
-        focusable[next].focus();
-      }
-    }
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    return setupAppKeyboardShortcuts({
+      getCurrentStep: () => currentStep,
+      getSettingsOpen: () => settingsOpen,
+      getShowResetConfirm: () => showResetConfirm,
+      getUndoStack: () => undoStack,
+      STEP_SHEET,
+      saveMidCreation,
+      exportCharacterCode,
+      undo,
+      setSettingsOpen: (v) => settingsOpen = v,
+      setShowResetConfirm: (v) => showResetConfirm = v,
+      goToStep
+    });
   });
 
-  const stepFields = {
-    0: { fields: ['abilities', 'rollData'], next: 1 },
-    1: { fields: ['raceKey', 'race', 'adjustedAbilities'], next: 2 },
-    2: { fields: ['classKey', 'cls', 'levelLimit', 'xpBonus', 'wizardSchool', 'deityKey', 'kitKey', 'kit', 'speciesEnemy'], next: 3 },
-    4: { fields: ['proficiencies'], next: 5 },
-    5: { fields: ['equipment'], get next() { return isSpellcaster(character.classKey) ? 6 : 7; }, after() { if (!isSpellcaster(character.classKey)) character.spells = []; } },
-    6: { fields: ['spells'], next: 7 },
-    7: { fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'], next: STEP_SHEET, after() { saveToLocalStorage(); clearMidCreation(); } },
-  };
-
-  function clearForwardProgress(keepFields = []) {
-    const empty = makeEmptyCharacter();
-    for (const key of Object.keys(empty)) {
-      if (!keepFields.includes(key)) character[key] = empty[key];
-    }
-  }
+  // Step management using stepManager utility
+  const stepFields = $derived(createStepFields(character, saveToLocalStorage, clearMidCreation));
+  const stepGates = $derived(createStepGates(character));
 
   function completeStep(step, data) {
-    // Step 0 special case: if abilities changed, clear forward progress
-    if (step === 0 && character.abilities) {
-      const a = character.abilities, b = data.abilities;
-      const changed = a.STR !== b.STR || a.DEX !== b.DEX || a.CON !== b.CON ||
-        a.INT !== b.INT || a.WIS !== b.WIS || a.CHA !== b.CHA ||
-        a.exceptionalStr !== b.exceptionalStr;
-      if (changed) {
-        clearForwardProgress(['abilities', 'rollData']);
-      }
-    }
-
-    // Step 2 special case: handle exceptional strength from class selection
-    if (step === 2 && data.exceptionalStr !== undefined) {
-      if (!character.abilities) character.abilities = {};
-      character.abilities.exceptionalStr = data.exceptionalStr;
-    }
-
-    const config = stepFields[step];
-    for (const field of config.fields) {
-      character[field] = data[field] ?? null;
-    }
-    currentStep = config.next;
-    config.after?.();
+    currentStep = _completeStep(step, data, character, stepFields, makeEmptyCharacter);
   }
 
-  // Each gate returns true when the step's data is complete.
-  // canNavigateToStep: index reachable if <= currentStep OR gate(index) passes.
-  // isStepIncomplete: gate(index) hasn't been satisfied yet.
-  const stepGates = [
-    () => character.abilities !== null,   // 0 Roll Abilities
-    () => character.race !== null,         // 1 Choose Race
-    () => character.cls !== null,          // 2 Choose Class
-    () => true,                            // 3 Review (no completion needed)
-    () => character.proficiencies !== null, // 4 Proficiencies
-    () => character.equipment !== null,     // 5 Equipment
-    () => character.spells !== null,        // 6 Spells
-    () => character.name !== null,          // 7 Backstory
-    () => true,                            // 8 Character Sheet
-  ];
-
-  // Steps 0-2 (abilities, race, class) are locked once character is level 2+
   function isStepLocked(index) {
-    return index <= 2 && (character.level || 1) > 1;
+    return _isStepLocked(index, character);
   }
 
   function canNavigateToStep(index) {
-    if (isStepLocked(index)) return false;
-    if (index <= currentStep) return true;
-    // Can jump forward only if preceding gate satisfied
-    // For steps 3 and 4: both require cls (gate index 2)
-    const gateIndex = index === 3 || index === 4 ? 2 : index - 1;
-    return gateIndex >= 0 && stepGates[gateIndex]();
+    return _canNavigateToStep(index, currentStep, stepGates, character);
   }
 
   function isStepIncomplete(index) {
-    return !stepGates[index]();
+    return _isStepIncomplete(index, stepGates);
   }
 
   function handleImportCharacter(importedCharacter) {
@@ -280,67 +178,7 @@
     const prev = undoStack[undoStack.length - 1];
     undoStack = undoStack.slice(0, -1);
 
-    // Restore objects from keys
-    const { races } = await import('./data/races.js');
-    const { classes, wizardSchools } = await import('./data/classes.js');
-    const { kits } = await import('./data/kits.js');
-    const { deities } = await import('./data/deities.js');
-    const { weapons, nonWeaponProficiencies } = await import('./data/proficiencies.js');
-    const { languages } = await import('./data/languages.js');
-    const { equipment } = await import('./data/equipment.js');
-    const { wizardSpells, priestSpells } = await import('./data/spells.js');
-
-    const restored = {
-      ...prev,
-      race: prev.raceKey ? races[prev.raceKey] : null,
-      cls: prev.classKey ? classes[prev.classKey] : null,
-      wizardSchool: prev.wizardSchool?.key ? { key: prev.wizardSchool.key, ...wizardSchools[prev.wizardSchool.key] } : null,
-      kit: prev.kitKey && kits[prev.kitKey] ? { key: prev.kitKey, ...kits[prev.kitKey] } : null,
-      deity: prev.deityKey && deities[prev.deityKey] ? { key: prev.deityKey, ...deities[prev.deityKey] } : null
-    };
-
-    // Restore proficiencies
-    if (prev.proficiencies) {
-      restored.proficiencies = {
-        weapons: prev.proficiencies.weapons?.map(w => ({ key: w.key, ...weapons[w.key] })) || [],
-        nonWeapon: prev.proficiencies.nonWeapon?.map(p => ({ key: p.key, ...nonWeaponProficiencies[p.key] })) || [],
-        languages: prev.proficiencies.languages?.map(l => ({ key: l.key, ...languages[l.key] })) || []
-      };
-    }
-
-    // Restore equipment
-    if (prev.equipment) {
-      restored.equipment = {
-        remaining: prev.equipment.remaining,
-        armor: prev.equipment.armor ? equipment.armor.find(a => a.key === prev.equipment.armor.key) : null,
-        shield: prev.equipment.shield ? equipment.shields.find(s => s.key === prev.equipment.shield.key) : null,
-        weapons: prev.equipment.weapons?.map(w => equipment.weapons.find(wep => wep.key === w.key)).filter(Boolean) || [],
-        gear: prev.equipment.gear?.map(g => {
-          if (g.key?.startsWith('custom_')) return g; // Custom items
-          const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(item => item.key === g.key);
-          return found ? { ...found, qty: g.qty } : null;
-        }).filter(Boolean) || []
-      };
-    }
-
-    // Restore spells
-    if (prev.spells) {
-      if (prev.spells.type === 'arcane') {
-        restored.spells = {
-          type: 'arcane',
-          spellbook: prev.spells.spellbook?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
-          memorized: prev.spells.memorized?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
-          spellsPerDay: prev.spells.spellsPerDay
-        };
-      } else if (prev.spells.type === 'divine') {
-        restored.spells = {
-          type: 'divine',
-          prepared: prev.spells.prepared?.map(s => priestSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
-          spellsPerDay: prev.spells.spellsPerDay
-        };
-      }
-    }
-
+    const restored = await restoreCharacterObjects(prev);
     Object.assign(character, restored);
     saveToLocalStorage();
     undoToast.flash('Undone');
@@ -372,68 +210,7 @@
   async function resumeWip() {
     if (!wipPrompt) return;
 
-    // Restore objects from keys (same as undo)
-    const { races } = await import('./data/races.js');
-    const { classes, wizardSchools } = await import('./data/classes.js');
-    const { kits } = await import('./data/kits.js');
-    const { deities } = await import('./data/deities.js');
-    const { weapons, nonWeaponProficiencies } = await import('./data/proficiencies.js');
-    const { languages } = await import('./data/languages.js');
-    const { equipment } = await import('./data/equipment.js');
-    const { wizardSpells, priestSpells } = await import('./data/spells.js');
-
-    const wip = wipPrompt.character;
-    const restored = {
-      ...wip,
-      race: wip.raceKey ? races[wip.raceKey] : null,
-      cls: wip.classKey ? classes[wip.classKey] : null,
-      wizardSchool: wip.wizardSchool?.key ? { key: wip.wizardSchool.key, ...wizardSchools[wip.wizardSchool.key] } : null,
-      kit: wip.kitKey && kits[wip.kitKey] ? { key: wip.kitKey, ...kits[wip.kitKey] } : null,
-      deity: wip.deityKey && deities[wip.deityKey] ? { key: wip.deityKey, ...deities[wip.deityKey] } : null
-    };
-
-    // Restore proficiencies
-    if (wip.proficiencies) {
-      restored.proficiencies = {
-        weapons: wip.proficiencies.weapons?.map(w => ({ key: w.key, ...weapons[w.key] })) || [],
-        nonWeapon: wip.proficiencies.nonWeapon?.map(p => ({ key: p.key, ...nonWeaponProficiencies[p.key] })) || [],
-        languages: wip.proficiencies.languages?.map(l => ({ key: l.key, ...languages[l.key] })) || []
-      };
-    }
-
-    // Restore equipment
-    if (wip.equipment) {
-      restored.equipment = {
-        remaining: wip.equipment.remaining,
-        armor: wip.equipment.armor ? equipment.armor.find(a => a.key === wip.equipment.armor.key) : null,
-        shield: wip.equipment.shield ? equipment.shields.find(s => s.key === wip.equipment.shield.key) : null,
-        weapons: wip.equipment.weapons?.map(w => equipment.weapons.find(wep => wep.key === w.key)).filter(Boolean) || [],
-        gear: wip.equipment.gear?.map(g => {
-          if (g.key?.startsWith('custom_')) return g;
-          const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(item => item.key === g.key);
-          return found ? { ...found, qty: g.qty } : null;
-        }).filter(Boolean) || []
-      };
-    }
-
-    // Restore spells
-    if (wip.spells) {
-      if (wip.spells.type === 'arcane') {
-        restored.spells = {
-          type: 'arcane',
-          spellbook: wip.spells.spellbook?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
-          memorized: wip.spells.memorized?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
-          spellsPerDay: wip.spells.spellsPerDay
-        };
-      } else if (wip.spells.type === 'divine') {
-        restored.spells = {
-          type: 'divine',
-          prepared: wip.spells.prepared?.map(s => priestSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
-          spellsPerDay: wip.spells.spellsPerDay
-        };
-      }
-    }
-
+    const restored = await restoreCharacterObjects(wipPrompt.character);
     Object.assign(character, restored);
     currentStep = wipPrompt.currentStep;
     wipPrompt = null;

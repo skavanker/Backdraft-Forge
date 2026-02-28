@@ -8,13 +8,14 @@
   import { ABILITIES } from '../data/constants.js';
   import { getBaseThiefSkills, getThiefSkillBreakdown, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_INITIAL_POINTS } from '../data/thiefSkills.js';
   import { rollExceptionalStrength } from './dice.js';
+  import { getClassKey, getClassGroup, isWarrior } from './utils/characterAccessors.js';
 
   let { character, onContinue } = $props();
 
   // Thief skills setup
-  const isThiefClass = character.classKey === 'thief' || character.classKey === 'bard';
+  const isThiefClass = getClassKey(character) === 'thief' || getClassKey(character) === 'bard';
   let thiefBreakdown = isThiefClass
-    ? getThiefSkillBreakdown(character.raceKey, character.adjustedAbilities.DEX, character.classKey, 1)
+    ? getThiefSkillBreakdown(character.raceKey, character.adjustedAbilities.DEX, getClassKey(character), 1)
     : { base: {}, racial: {}, dex: {}, total: {} };
   let thiefBase = thiefBreakdown.total;
 
@@ -28,9 +29,9 @@
   let thiefDistributed = $state({ ...existingSkills });
 
   // Exceptional strength for warriors with 18 STR
-  const isWarrior = character.cls.group === 'warrior';
+  const isWarriorClass = isWarrior(character);
   const has18Str = character.abilities.STR === 18;
-  const needsExceptionalStr = isWarrior && has18Str;
+  const needsExceptionalStr = isWarriorClass && has18Str;
   let exceptionalStrRolled = $state(character.abilities.exceptionalStr || null);
   let showExceptionalStrRoll = $state(needsExceptionalStr && !exceptionalStrRolled);
 
@@ -81,7 +82,7 @@
     const hitDie = character.cls.hitDie;
     const match = hitDie.match(/d(\d+)/);
     const dieMax = match ? parseInt(match[1]) : 4;
-    const conMods = getConstitutionModifiers(character.adjustedAbilities.CON, character.cls.group);
+    const conMods = getConstitutionModifiers(character.adjustedAbilities.CON, getClassGroup(character));
     const total = Math.max(1, dieMax + conMods.hpAdj);
     character.hpHistory = [{ level: 1, roll: dieMax, conMod: conMods.hpAdj, total }];
   }

@@ -86,7 +86,9 @@
       speciesEnemy: selectedSpeciesEnemy || null
     };
 
-    // Auto-set paladin alignment (unless lenient mode)
+    // AD&D 2E Rule: Paladins must be Lawful Good (unless house rules enabled)
+    // PHB p.27: "Paladins must be lawful good"
+    // This enforces the alignment restriction after class selection
     if (selectedClassKey === 'paladin' && !settings.lenientMode) {
       result.alignment = ALIGNMENTS.LG;
     }

@@ -11,6 +11,7 @@ import {
   getWisdomModifiers,
   getCharismaModifiers
 } from '../../data/mechanics.js';
+import { getClassGroup, isWarrior } from './characterAccessors.js';
 
 /**
  * Toggle utility - manages boolean state with helper functions
@@ -196,10 +197,10 @@ export function useToast(defaultDuration = 1500) {
 export function useAbilityModifiers(character) {
   const str = $derived(getStrengthModifiers(
     character.adjustedAbilities.STR,
-    character.cls.group === 'warrior' ? character.abilities.exceptionalStr : null
+    isWarrior(character) ? character.abilities.exceptionalStr : null
   ));
   const dex = $derived(getDexterityModifiers(character.adjustedAbilities.DEX));
-  const con = $derived(getConstitutionModifiers(character.adjustedAbilities.CON, character.cls.group));
+  const con = $derived(getConstitutionModifiers(character.adjustedAbilities.CON, getClassGroup(character)));
   const int = $derived(getIntelligenceModifiers(character.adjustedAbilities.INT));
   const wis = $derived(getWisdomModifiers(character.adjustedAbilities.WIS));
   const cha = $derived(getCharismaModifiers(character.adjustedAbilities.CHA));

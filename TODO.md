@@ -61,54 +61,17 @@
 - [ ] Custom starting gold multiplier
 - Wait for settings feature to land before planning more — house rules stuff should live there
 
-### Prep for Multi/Dual-Class (don't implement, just reduce coupling)
-- [ ] Add character accessor helpers — `getClassGroup(char)`, `getClassKey(char)`, `isWarrior(char)` etc. instead of direct `character.cls.group` access everywhere
-- [ ] Wrap THAC0/Saves/HP functions to accept `character` instead of raw `classGroup` + `level` args
-- [ ] Centralize XP logic into a utility (currently split between CharacterSheet and LevelUpWizard)
-- [ ] Add multi-class combo data to races.js (just the data, no logic)
-
 ### Data Completeness
 - [ ] More detailed weapon combat stats (speed factor, range, etc.)
 
 ## Bugs
 
-### High Priority
-- [ ] **Equipment Mount Race Condition** (src/lib/EquipmentSelector.svelte:188-231) — Gold ledger modified during mount, could cause inconsistent state.
-
-### Medium Priority
-- [ ] **HP Auto-Set During Render** (src/lib/LevelUpWizard.svelte:119-124) — HP set in top-level code, could reset during re-render.
+_None currently tracked_
 
 ## Code Quality & Technical Debt
 
-### Component Refactoring (Over 500 Lines)
-- [ ] **Split App.svelte** (780 lines) — Extract step management, keyboard handlers, save/load logic
-- [ ] **Split LevelUpWizard.svelte** (507 lines) — Extract step components (HPRollStep, ThiefSkillsStep, SpellsStep)
-- [ ] **Split EquipmentSelector.svelte** (505 lines) — Extract gold ledger UI and custom item form
-
-### Code Quality Issues
-- [ ] **Large handleKeydown** (src/App.svelte:126-183, 57 lines) — Extract keyboard shortcuts to utility
-- [ ] **Large compressCharacter** (src/lib/shareCharacter.js:12-115, 103 lines) — Split by data category
-- [ ] **Large decompressCharacter** (src/lib/shareCharacter.js:139-297, 158 lines) — Split into transformer functions
-- [ ] **Duplicated Equipment Selection** (src/lib/EquipmentSelector.svelte:82-102) — Extract common pattern for selectArmor/selectShield
-- [ ] **Paladin Auto-Alignment Magic** (src/lib/ClassSelector.svelte:58-92) — Add comment explaining behavior
-
 ### Documentation Gaps
-- [ ] Add JSDoc to 15+ exported utility functions (see code-review-report.md for full list)
+- [ ] Add JSDoc to remaining exported utility functions (characterAccessors.js and xpUtils.js now documented)
 - [ ] Document error handling patterns project-wide
-- [ ] Add inline comments for complex logic blocks
-- [ ] Document the 19 ability cap in races.js
+- [ ] Add inline comments for complex logic blocks (stepManager.svelte.js now documented)
 
-### CSS/SCSS Issues
-
-#### High Priority
-- [ ] **Add Missing Design Tokens** — $text-xs, $text-xl, $text-xxl, $space-xs for consistency
-- [ ] **Consolidate Badge Styles** — Single source in _utilities.scss (removes 30-40 duplicate lines)
-- [ ] **Create Print Stylesheet** — _print.scss with white backgrounds, black text, page breaks
-- [ ] **Standardize Breakpoints** — Create mixin system for responsive design
-- [ ] **Increase Touch Targets** — 44px minimum for mobile buttons
-
-#### Medium Priority
-- [ ] Remove questionable !important from _levelup.scss:143
-- [ ] Unify .data-row and .info-row patterns
-- [ ] Add parchment texture/noise for enhanced aesthetic
-- [ ] Document magic numbers with inline comments

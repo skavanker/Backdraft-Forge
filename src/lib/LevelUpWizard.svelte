@@ -1,12 +1,15 @@
 <script>
-  import { getConstitutionModifiers } from '../data/mechanics.js';
-  import { isPastNameLevel, getPostNameHP, getSpellSlots, getXPForNextLevel, formatSpellSlots, getAttacksPerRound } from '../data/levelTables.js';
+  import { getSpellSlots, formatSpellSlots, getAttacksPerRound, isPastNameLevel, getPostNameHP } from '../data/levelTables.js';
   import { getNewFeaturesAtLevel, gainsWeaponProficiency, gainsNonWeaponProficiency } from '../data/classFeatures.js';
   import { isSpellcaster } from '../data/spells.js';
   import { getSavingThrows, getBaseTHAC0 } from '../data/mechanics.js';
-  import { getBaseThiefSkills, getThiefSkillBreakdown, applyDistributedPoints, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_POINTS_PER_LEVEL } from '../data/thiefSkills.js';
+  import { getThiefSkillBreakdown, THIEF_POINTS_PER_LEVEL } from '../data/thiefSkills.js';
   import { parseDieMax } from './utils/hpUtils.js';
-  import { ordinal } from './utils/formatUtils.js';
+  import { getClassKey, getClassGroup, getHitDie } from './utils/characterAccessors.js';
+  import HPRollStep from './components/HPRollStep.svelte';
+  import ThiefSkillsStep from './components/ThiefSkillsStep.svelte';
+  import SpellSlotsStep from './components/SpellSlotsStep.svelte';
+  import FeaturesStep from './components/FeaturesStep.svelte';
 
   let { character, onComplete, onCancel } = $props();
 
@@ -29,19 +32,11 @@
   let hpRoll = $state(0);
   let hpConMod = $state(0);
   let hpTotal = $state(0);
-  let isPostName = $state(false);
-  let diceAnimating = $state(false);
-  let animDieFace = $state(1);
-
-  // Dice animation constants
-  const ANIM_TOTAL_FRAMES = 16;
-  const ANIM_BASE_DELAY = 80;
-  const ANIM_MAX_EXTRA_DELAY = 420;
 
   // Derived data
-  let classKey = character.classKey;
-  let classGroup = character.cls.group;
-  let hitDie = character.cls.hitDie;
+  let classKey = getClassKey(character);
+  let classGroup = getClassGroup(character);
+  let hitDie = getHitDie(character);
   let dieMax = parseDieMax(hitDie);
 
   // Map hit die to SVG die type: d4→d4, d6→d6, d8/d10/d12→d20
@@ -85,28 +80,6 @@
     Object.keys(thiefBase).filter(skill => newLevel >= 4 || skill !== 'readLanguages')
   );
 
-  function addThiefPoints(skill, amount) {
-    const existingDistributed = (thiefDistributed[skill] || 0);
-    const baseVal = thiefBase[skill] || 0;
-    const currentTotal = baseVal + existingDistributed;
-    // Can't exceed 95%
-    const maxAdd = Math.min(amount, THIEF_SKILL_CAP - currentTotal, thiefPointsRemaining);
-    if (maxAdd <= 0) return;
-
-    thiefDistributed = { ...thiefDistributed, [skill]: existingDistributed + maxAdd };
-    thiefNewPoints = { ...thiefNewPoints, [skill]: (thiefNewPoints[skill] || 0) + maxAdd };
-    thiefPointsRemaining -= maxAdd;
-  }
-
-  function removeThiefPoints(skill, amount) {
-    const newPts = thiefNewPoints[skill] || 0;
-    const remove = Math.min(amount, newPts);
-    if (remove <= 0) return;
-
-    thiefDistributed = { ...thiefDistributed, [skill]: (thiefDistributed[skill] || 0) - remove };
-    thiefNewPoints = { ...thiefNewPoints, [skill]: newPts - remove };
-    thiefPointsRemaining += remove;
-  }
 
   // Figure out which steps to show
   let steps = $derived.by(() => {
@@ -121,13 +94,17 @@
 
   let stepIndex = $state(0);
 
-  // Auto-set fixed HP for post-name levels
-  if (isPastNameLevel(classKey, newLevel)) {
-    hpRoll = getPostNameHP(classKey);
-    hpConMod = 0;
-    hpTotal = hpRoll;
-    hpRolled = true;
-  }
+  // Auto-set fixed HP for post-name levels (using $effect to prevent re-initialization)
+  let hpInitialized = $state(false);
+  $effect(() => {
+    if (!hpInitialized && isPastNameLevel(classKey, newLevel)) {
+      hpRoll = getPostNameHP(classKey);
+      hpConMod = 0;
+      hpTotal = hpRoll;
+      hpRolled = true;
+      hpInitialized = true;
+    }
+  });
 
   function nextStep() {
     if (stepIndex < steps.length - 1) {
@@ -143,46 +120,6 @@
     }
   }
 
-  function rollHP() {
-    isPostName = isPastNameLevel(classKey, newLevel);
-    const conMods = getConstitutionModifiers(character.adjustedAbilities.CON, classGroup);
-
-    if (isPostName) {
-      // Post name level: fixed HP, no CON bonus
-      hpRoll = getPostNameHP(classKey);
-      hpConMod = 0;
-      hpTotal = hpRoll;
-    } else {
-      // Normal: roll hit die + CON mod
-      hpConMod = conMods.hpAdj;
-      diceAnimating = true;
-
-      let frame = 0;
-
-      function tick() {
-        animDieFace = Math.floor(Math.random() * dieSvgMax) + 1;
-        hpRoll = Math.floor(Math.random() * dieMax) + 1;
-        frame++;
-
-        if (frame >= ANIM_TOTAL_FRAMES) {
-          hpRoll = Math.floor(Math.random() * dieMax) + 1;
-          hpTotal = Math.max(1, hpRoll + hpConMod);
-          hpRolled = true;
-          diceAnimating = false;
-          return;
-        }
-
-        const progress = frame / ANIM_TOTAL_FRAMES;
-        const delay = ANIM_BASE_DELAY + Math.pow(progress, 1.8) * ANIM_MAX_EXTRA_DELAY;
-        setTimeout(tick, delay);
-      }
-
-      setTimeout(tick, ANIM_BASE_DELAY);
-      return;
-    }
-
-    hpRolled = true;
-  }
 
   function confirmLevelUp() {
     const newHpEntry = {
@@ -281,151 +218,44 @@
       </div>
 
     {:else if step === STEP_HP}
-      <div class="levelup-step">
-        {#if isPastNameLevel(classKey, newLevel)}
-          <h3>Hit Points</h3>
-          <p class="meta-text">Past name level — you gain a fixed +{getPostNameHP(classKey)} HP (no CON bonus).</p>
-          <div class="hp-roll-area">
-            <div class="hp-fixed-result">+{getPostNameHP(classKey)} HP</div>
-          </div>
-        {:else}
-          <h3>Roll Hit Points</h3>
-          <p class="meta-text">Roll {hitDie} + CON modifier ({getConstitutionModifiers(character.adjustedAbilities.CON, classGroup).hpAdj >= 0 ? '+' : ''}{getConstitutionModifiers(character.adjustedAbilities.CON, classGroup).hpAdj})</p>
-
-          <div class="hp-roll-area">
-            {#if !hpRolled && !diceAnimating}
-              <button class="btn-roll" onclick={rollHP}>
-                <img class="btn-roll-die" src="/dice/{dieSvgType}-{Math.floor(Math.random() * dieSvgMax) + 1}.svg" alt="die" />
-                Roll {hitDie}
-              </button>
-            {:else}
-              <div class="dice-result" class:animating={diceAnimating}>
-                {#if diceAnimating}
-                  <div class="die-graphic">
-                    <img src="/dice/{dieSvgType}-{animDieFace}.svg" alt="rolling..." />
-                  </div>
-                  <div class="die-value-preview">{hpRoll}</div>
-                {:else}
-                  <div class="die-graphic landed">
-                    <img src="/dice/{dieSvgType}-{Math.min(hpRoll, dieSvgMax)}.svg" alt="{hpRoll}" />
-                  </div>
-                  <div class="die-value-final">{hpRoll}</div>
-                {/if}
-              </div>
-              {#if hpRolled}
-                <div class="hp-breakdown panel">
-                  <span class="hp-part"><span class="hp-label">Roll</span> {hpRoll}</span>
-                  {#if hpConMod !== 0}
-                    <span class="hp-part"><span class="hp-label">CON</span> {hpConMod >= 0 ? '+' : ''}{hpConMod}</span>
-                  {/if}
-                  <span class="hp-total">+{hpTotal} HP</span>
-                </div>
-              {/if}
-            {/if}
-          </div>
-        {/if}
-
-        <div class="step-nav">
-          <button class="btn-ghost" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={nextStep} disabled={!isPastNameLevel(classKey, newLevel) && !hpRolled}>Continue</button>
-        </div>
-      </div>
+      <HPRollStep
+        {character}
+        {newLevel}
+        {classKey}
+        {classGroup}
+        {hitDie}
+        {dieMax}
+        {dieSvgType}
+        {dieSvgMax}
+        bind:hpRolled
+        bind:hpRoll
+        bind:hpConMod
+        bind:hpTotal
+        onNext={nextStep}
+        onPrev={prevStep}
+      />
 
     {:else if step === STEP_THIEF_SKILLS}
-      <div class="levelup-step">
-        <h3>Distribute Thief Skill Points</h3>
-        <p class="meta-text">You have <strong>{thiefPointsRemaining}</strong> of {THIEF_POINTS_PER_LEVEL} points to distribute.</p>
-
-        <div class="flex-column gap-sm">
-          {#each availableThiefSkills as skill}
-            {@const baseVal = thiefBase[skill]}
-            {@const distributed = thiefDistributed[skill] || 0}
-            {@const total = baseVal + distributed}
-            {@const newPts = thiefNewPoints[skill] || 0}
-            {@const atCap = total >= THIEF_SKILL_CAP}
-            {@const canAdd = thiefPointsRemaining > 0 && !atCap}
-            {@const canRemove = newPts > 0}
-            {@const rawBase = thiefBreakdown.base[skill] || 0}
-            {@const racialAdj = thiefBreakdown.racial[skill] || 0}
-            {@const dexAdj = thiefBreakdown.dex[skill] || 0}
-            {@const oldDist = distributed - newPts}
-            <button
-              class="thief-skill-row panel"
-              class:at-cap={atCap}
-              class:has-new-points={newPts > 0}
-              onclick={() => canAdd && addThiefPoints(skill, 5)}
-              oncontextmenu={(e) => { e.preventDefault(); canRemove && removeThiefPoints(skill, 5); }}
-              onkeydown={(e) => { if (e.key === 'Backspace' && canRemove) { e.preventDefault(); removeThiefPoints(skill, 5); } }}
-              disabled={!canAdd && !canRemove}
-            >
-              <span class="skill-name">{SKILL_LABELS[skill]}</span>
-              <div class="skill-breakdown">
-                <span class="breakdown-item">Base: {rawBase}%</span>
-                {#if racialAdj !== 0}
-                  <span class="breakdown-item race">Race: {racialAdj >= 0 ? '+' : ''}{racialAdj}%</span>
-                {/if}
-                {#if dexAdj !== 0}
-                  <span class="breakdown-item dex">DEX: {dexAdj >= 0 ? '+' : ''}{dexAdj}%</span>
-                {/if}
-                {#if oldDist > 0}
-                  <span class="breakdown-item prev">Prev: +{oldDist}%</span>
-                {/if}
-                {#if newPts > 0}
-                  <span class="breakdown-item new-pts">New: +{newPts}%</span>
-                {/if}
-              </div>
-              <span class="skill-total" class:at-cap={atCap}>{total}%</span>
-            </button>
-          {/each}
-        </div>
-        <p class="meta-text" style="text-align: center;">
-          Left-click to add 5 points • Right-click to remove 5 points
-        </p>
-
-        <div class="step-nav">
-          <button class="btn-ghost" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={nextStep} disabled={thiefPointsRemaining > 0}>Continue</button>
-        </div>
-      </div>
+      <ThiefSkillsStep
+        thiefBase={thiefBase}
+        {thiefBreakdown}
+        {availableThiefSkills}
+        bind:thiefPointsRemaining
+        bind:thiefDistributed
+        bind:thiefNewPoints
+        onNext={nextStep}
+        onPrev={prevStep}
+      />
 
     {:else if step === STEP_SPELLS}
-      <div class="levelup-step">
-        <h3>{becomesCaster ? 'Spellcasting Gained!' : 'New Spell Slots'}</h3>
-        {#if becomesCaster}
-          <p class="meta-text">
-            {classKey === 'bard' ? 'You can now cast wizard spells!' :
-             classKey === 'paladin' ? 'You can now cast priest spells!' :
-             classKey === 'ranger' ? 'You can now cast druid spells!' :
-             'You gain spellcasting ability!'}
-          </p>
-        {/if}
-
-        <div class="spell-slot-comparison">
-          <div class="slot-row header">
-            <span>Spell Level</span>
-            <span>Old</span>
-            <span>New</span>
-          </div>
-          {#each (newSpellSlots || []) as slots, i}
-            {#if slots > 0 || (oldSpellSlots?.[i] || 0) > 0}
-              <div class="slot-row" class:improved={slots > (oldSpellSlots?.[i] || 0)}>
-                <span>{ordinal(i + 1)}</span>
-                <span>{oldSpellSlots?.[i] || 0}</span>
-                <span>{slots}</span>
-              </div>
-            {/if}
-          {/each}
-        </div>
-
-        <p class="meta-text" style="margin-top: 1rem;">
-          Go to the Spells tab after leveling up to pick your new spells.
-        </p>
-
-        <div class="step-nav">
-          <button class="btn-ghost" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={nextStep}>Continue</button>
-        </div>
-      </div>
+      <SpellSlotsStep
+        {classKey}
+        {becomesCaster}
+        {newSpellSlots}
+        {oldSpellSlots}
+        onNext={nextStep}
+        onPrev={prevStep}
+      />
 
     {:else if step === STEP_PROFICIENCIES}
       <div class="levelup-step">
@@ -447,49 +277,18 @@
       </div>
 
     {:else if step === STEP_FEATURES}
-      <div class="levelup-step">
-        <h3>Updated Stats & Features</h3>
-
-        <div class="features-list">
-          {#if newTHAC0 < oldTHAC0}
-            <div class="feature-item">
-              <span class="feature-label">THAC0</span>
-              <span class="feature-change">{oldTHAC0} → {newTHAC0}</span>
-            </div>
-          {/if}
-
-          {#if savesImproved}
-            <div class="feature-item">
-              <span class="feature-label">Saving Throws</span>
-              <div class="save-details">
-                {#each Object.entries(newSaves) as [key, val]}
-                  {#if val < oldSaves[key]}
-                    <span class="save-improved">{key}: {oldSaves[key]} → {val}</span>
-                  {/if}
-                {/each}
-              </div>
-            </div>
-          {/if}
-
-          {#if newAttacks !== oldAttacks}
-            <div class="feature-item">
-              <span class="feature-label">Attacks/Round</span>
-              <span class="feature-change">{oldAttacks} → {newAttacks}</span>
-            </div>
-          {/if}
-
-          {#each newFeatures as feature}
-            <div class="feature-item new-ability">
-              <span>◆ {feature}</span>
-            </div>
-          {/each}
-        </div>
-
-        <div class="step-nav">
-          <button class="btn-ghost" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={nextStep}>Continue</button>
-        </div>
-      </div>
+      <FeaturesStep
+        {newTHAC0}
+        {oldTHAC0}
+        {newAttacks}
+        {oldAttacks}
+        {savesImproved}
+        {newSaves}
+        {oldSaves}
+        {newFeatures}
+        onNext={nextStep}
+        onPrev={prevStep}
+      />
 
     {:else if step === STEP_CONFIRM}
       <div class="levelup-step">
