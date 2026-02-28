@@ -133,7 +133,7 @@
   });
 
   // Group classes by type
-  let groupedClasses = $derived(() => {
+  let groupedClasses = $derived.by(() => {
     const groups = {
       warrior: { name: 'Warriors', classes: [] },
       wizard: { name: 'Wizards', classes: [] },
@@ -152,7 +152,7 @@
     As a <strong>{race.name}</strong>, you qualify for <strong>{qualifiedCount}</strong> of {classOptions.length} classes.
   </p>
 
-  {#each Object.entries(groupedClasses()) as [groupKey, group]}
+  {#each Object.entries(groupedClasses) as [groupKey, group]}
     {#if group.classes.length > 0}
       <div class="class-group">
         <h3 class="section-title">{group.name}</h3>

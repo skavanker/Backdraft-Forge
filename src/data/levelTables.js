@@ -27,7 +27,7 @@ export const xpTables = {
 export const nameLevels = {
   fighter: 9,   // +3 HP/level after 9
   paladin: 9,   // +3 HP/level after 9
-  ranger: 9,    // +3 HP/level after 9 (d10 -> +2)
+  ranger: 9,    // +3 HP/level after 9
   mage: 10,     // +1 HP/level after 10
   specialist: 10,
   cleric: 9,    // +2 HP/level after 9
@@ -42,7 +42,7 @@ export const nameLevels = {
 export const postNameHP = {
   fighter: 3,
   paladin: 3,
-  ranger: 2,
+  ranger: 3,
   mage: 1,
   specialist: 1,
   cleric: 2,

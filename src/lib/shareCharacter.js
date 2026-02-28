@@ -205,7 +205,7 @@ async function decompressCharacter(compressed) {
       remaining: compressed.g,
       armor: compressed.ar ? equipment.armor.find(a => a.key === compressed.ar) : null,
       shield: compressed.sh ? equipment.shields.find(s => s.key === compressed.sh) : null,
-      weapons: compressed.wk ? compressed.wk.map(key => equipment.weapons.find(w => w.key === key)) : [],
+      weapons: compressed.wk ? compressed.wk.map(key => equipment.weapons.find(w => w.key === key)).filter(Boolean) : [],
       gear: compressed.gk ? compressed.gk.map(entry => {
         // Object = custom item
         if (typeof entry === 'object' && !Array.isArray(entry)) {
@@ -276,7 +276,7 @@ async function decompressCharacter(compressed) {
     equipment: equipmentData,
     spells,
     name: compressed.n || null,
-    sex: compressed.sx || compressed.s || 'Male', // Support both old 's' and new 'sx'
+    sex: compressed.sx ?? compressed.s ?? 'Male', // Support both old 's' and new 'sx'
     alignment: typeof compressed.al === 'number' ? compressed.al : (getAlignmentNumber(compressed.al) || 4), // Support both number and legacy string, default to True Neutral (4)
     backstory: compressed.b || null,
     age: compressed.ag || null,

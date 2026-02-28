@@ -44,9 +44,13 @@
   // State management using composables
   const showLevelUp = useToggle(false);
 
-  // Current HP derived
-  let currentHP = $derived(character.currentHP ?? hitPoints);
-  let hpRatio = $derived(hitPoints > 0 ? currentHP / hitPoints : 1);
+  // Current HP derived - explicit null check to handle NaN and other invalid values
+  let currentHP = $derived(
+    character.currentHP != null && !isNaN(character.currentHP)
+      ? character.currentHP
+      : hitPoints
+  );
+  let hpRatio = $derived(hitPoints > 0 ? currentHP / hitPoints : 0);
   let hpColor = $derived(
     hpRatio > 0.5 ? 'hp-green' :
     hpRatio > 0.25 ? 'hp-yellow' : 'hp-red'

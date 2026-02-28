@@ -4,6 +4,11 @@
 
 ### Share/Export
 - [ ] PDF export of character sheet
+- [ ] Full JSON export/import option
+  - Share URL (current) only stores keys, loses items if data changes
+  - JSON export should store complete item data (name, stats, etc.) for robustness
+  - Allows characters to survive equipment/spell data changes between versions
+  - User can choose: Quick URL share (compact, potentially lossy) vs JSON file (complete, bulletproof)
 
 ### Visuals
 - [ ] Remaining portraits (16 Half-Elf and Halfling combinations)
@@ -54,25 +59,12 @@
 
 ## Bugs
 
-### Critical
-- [ ] **Character Import Crash** (src/lib/shareCharacter.js:217-218) — Gear decompression returns null for missing items, causes crash. Filter nulls before adding to array.
-- [ ] **Current HP Display Bug** (src/lib/CharacterSheet.svelte:48) — Unsafe fallback with `??` could show wrong HP at 0 HP. Use explicit null check.
-- [ ] **Missing __APP_VERSION__** (src/lib/persistence.svelte.js:46) — Build variable undefined, causes save crash. Already defined in vite.config.js, verify build.
-
 ### High Priority
-- [ ] **Ranger Post-Name-Level HP** (src/data/levelTables.js:30) — Rangers get +2 HP/level after 9th, should be +3 per PHB.
-- [ ] **Undo Deep Clone Corruption** (src/App.svelte:268) — JSON.parse/stringify will fail on non-serializable values. Use structuredClone() instead.
 - [ ] **Equipment Mount Race Condition** (src/lib/EquipmentSelector.svelte:188-231) — Gold ledger modified during mount, could cause inconsistent state.
+- [ ] **Thief Starting Skills** — No UI for distributing initial 60 discretionary points during character creation. Thieves currently start with only base skills. Needs new step or integration into Review/Proficiency step.
 
 ### Medium Priority
-- [ ] **Thief Starting Skills** — Verify 1st level gets 60 discretionary points (not 30). Check src/data/thiefSkills.js.
-- [ ] **Sex Field Fallback** (src/lib/shareCharacter.js:279) — Uses `||` instead of `??`, empty string defaults to 'Male'.
 - [ ] **HP Auto-Set During Render** (src/lib/LevelUpWizard.svelte:119-124) — HP set in top-level code, could reset during re-render.
-- [ ] **Ability Comparison Float** (src/App.svelte:204-212) — Strict equality on floats could fail with fractional values.
-
-### Low Priority
-- [ ] **HP Color at 0 Max** (src/lib/CharacterSheet.svelte:55) — Division by zero when maxHP is 0.
-- [ ] **groupedClasses Derived** (src/lib/ClassSelector.svelte:103) — Wrapped in function unnecessarily.
 
 ## Code Quality & Technical Debt
 
@@ -95,10 +87,6 @@
 - [ ] Document the 19 ability cap in races.js
 
 ### CSS/SCSS Issues
-
-#### Critical
-- [ ] **Extract App.svelte CSS** (247 lines) — Move to _app.scss partial per CLAUDE.md rules
-- [ ] **Fix Contrast Ratios** — Darken --text-muted to #4a3821 and --text-faint for WCAG AA compliance
 
 #### High Priority
 - [ ] **Add Missing Design Tokens** — $text-xs, $text-xl, $text-xxl, $space-xs for consistency
