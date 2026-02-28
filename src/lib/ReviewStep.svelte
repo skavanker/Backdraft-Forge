@@ -6,8 +6,69 @@
   import AbilityBadge from './components/AbilityBadge.svelte';
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
+  import { getBaseThiefSkills, getThiefSkillBreakdown, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_INITIAL_POINTS } from '../data/thiefSkills.js';
+  import { rollExceptionalStrength } from './dice.js';
 
   let { character, onContinue } = $props();
+
+  // Thief skills setup
+  const isThiefClass = character.classKey === 'thief' || character.classKey === 'bard';
+  let thiefBreakdown = isThiefClass
+    ? getThiefSkillBreakdown(character.raceKey, character.adjustedAbilities.DEX, character.classKey, 1)
+    : { base: {}, racial: {}, dex: {}, total: {} };
+  let thiefBase = thiefBreakdown.total;
+
+  // Filter available skills - Read Languages not available until level 4
+  const availableSkills = Object.keys(thiefBase).filter(skill => skill !== 'readLanguages');
+
+  const existingSkills = character.thiefSkills || {};
+  const existingTotal = Object.values(existingSkills).reduce((sum, val) => sum + val, 0);
+
+  let thiefPointsRemaining = $state(THIEF_INITIAL_POINTS - existingTotal);
+  let thiefDistributed = $state({ ...existingSkills });
+
+  // Exceptional strength for warriors with 18 STR
+  const isWarrior = character.cls.group === 'warrior';
+  const has18Str = character.abilities.STR === 18;
+  const needsExceptionalStr = isWarrior && has18Str;
+  let exceptionalStrRolled = $state(character.abilities.exceptionalStr || null);
+  let showExceptionalStrRoll = $state(needsExceptionalStr && !exceptionalStrRolled);
+
+  function rollExceptionalStr() {
+    exceptionalStrRolled = rollExceptionalStrength();
+    showExceptionalStrRoll = false;
+  }
+
+  function skipExceptionalStr() {
+    exceptionalStrRolled = null;
+    showExceptionalStrRoll = false;
+  }
+
+  function addThiefPoints(skill, amount) {
+    const currentDistributed = thiefDistributed[skill] || 0;
+    const baseVal = thiefBase[skill] || 0;
+    const currentTotal = baseVal + currentDistributed;
+
+    const maxAdd = Math.min(amount, THIEF_SKILL_CAP - currentTotal, thiefPointsRemaining);
+    if (maxAdd <= 0) return;
+
+    thiefDistributed = { ...thiefDistributed, [skill]: currentDistributed + maxAdd };
+    thiefPointsRemaining -= maxAdd;
+  }
+
+  function removeThiefPoints(skill, amount) {
+    const currentDistributed = thiefDistributed[skill] || 0;
+    const remove = Math.min(amount, currentDistributed);
+    if (remove <= 0) return;
+
+    thiefDistributed = { ...thiefDistributed, [skill]: currentDistributed - remove };
+    thiefPointsRemaining += remove;
+  }
+
+  let canContinue = $derived(
+    (!isThiefClass || thiefPointsRemaining === 0) &&
+    (!needsExceptionalStr || exceptionalStrRolled !== null)
+  );
 
   // Initialize hpHistory with max HP at level 1 (standard 2E: max die at first level)
   function initHPHistory() {
@@ -44,11 +105,21 @@
   // Run on mount
   initHPHistory();
 
+  function handleContinue() {
+    if (isThiefClass) {
+      character.thiefSkills = thiefDistributed;
+    }
+    if (needsExceptionalStr) {
+      character.abilities.exceptionalStr = exceptionalStrRolled;
+    }
+    onContinue();
+  }
+
   useGlobalKeydown((e) => {
     if (isTyping() || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && canContinue) {
       e.preventDefault();
-      onContinue();
+      handleContinue();
     }
   });
 </script>
@@ -186,9 +257,91 @@
     {/if}
   {/if}
 
+  {#if needsExceptionalStr}
+    <div class="exceptional-str-section">
+      <h4>⚔️ Exceptional Strength</h4>
+      <p class="alert alert-info">
+        Your {character.cls.name} has 18 Strength! Roll d100 for exceptional strength (18/XX).
+      </p>
+
+      {#if showExceptionalStrRoll}
+        <div class="exceptional-roll-area">
+          <button class="btn-primary" onclick={rollExceptionalStr}>
+            🎲 Roll for 18/XX
+          </button>
+          <button class="btn-ghost" onclick={skipExceptionalStr}>
+            Skip
+          </button>
+        </div>
+      {:else if exceptionalStrRolled !== null}
+        <div class="exceptional-result panel">
+          <p>You rolled: <strong>18/{exceptionalStrRolled.toString().padStart(2, '0')}</strong></p>
+        </div>
+      {:else}
+        <div class="exceptional-result panel">
+          <p>Exceptional strength skipped — your STR is 18.</p>
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  {#if isThiefClass}
+    <div class="thief-skills-section">
+      <h4>Distribute Thief Skills</h4>
+      <p class="alert alert-info">
+        You have <strong>{thiefPointsRemaining}</strong> of {THIEF_INITIAL_POINTS} discretionary points to distribute.
+        {#if thiefPointsRemaining > 0}
+          <span style="color: var(--color-warning);">You must distribute all points before continuing.</span>
+        {/if}
+      </p>
+
+      <div class="thief-skills-grid">
+        {#each availableSkills as skill}
+          {@const baseVal = thiefBase[skill]}
+          {@const dist = thiefDistributed[skill] || 0}
+          {@const total = baseVal + dist}
+          {@const atCap = total >= THIEF_SKILL_CAP}
+          {@const canAdd = thiefPointsRemaining > 0 && !atCap}
+          {@const canRemove = dist > 0}
+          {@const rawBase = thiefBreakdown.base[skill] || 0}
+          {@const racialAdj = thiefBreakdown.racial[skill] || 0}
+          {@const dexAdj = thiefBreakdown.dex[skill] || 0}
+          <button
+            class="thief-skill-row panel"
+            class:at-cap={atCap}
+            class:has-points={dist > 0}
+            onclick={() => canAdd && addThiefPoints(skill, 5)}
+            oncontextmenu={(e) => { e.preventDefault(); canRemove && removeThiefPoints(skill, 5); }}
+            onkeydown={(e) => { if (e.key === 'Backspace' && canRemove) { e.preventDefault(); removeThiefPoints(skill, 5); } }}
+            disabled={!canAdd && !canRemove}
+          >
+            <span class="skill-name">{SKILL_LABELS[skill]}</span>
+            <div class="skill-breakdown">
+              <span class="breakdown-item">Base: {rawBase}%</span>
+              {#if racialAdj !== 0}
+                <span class="breakdown-item race">Race: {racialAdj >= 0 ? '+' : ''}{racialAdj}%</span>
+              {/if}
+              {#if dexAdj !== 0}
+                <span class="breakdown-item dex">DEX: {dexAdj >= 0 ? '+' : ''}{dexAdj}%</span>
+              {/if}
+              {#if dist > 0}
+                <span class="breakdown-item distributed">Points: +{dist}%</span>
+              {/if}
+            </div>
+            <span class="skill-total" class:at-cap={atCap}>{total}%</span>
+          </button>
+        {/each}
+      </div>
+      <p class="meta-text" style="text-align: center;">
+        Left-click to add 5 points • Right-click to remove 5 points
+      </p>
+    </div>
+  {/if}
+
   <button
     class="btn-primary"
-    onclick={onContinue}
+    onclick={handleContinue}
+    disabled={!canContinue}
   >
     Continue to Proficiencies
   </button>
@@ -198,4 +351,127 @@
 <style lang="scss">
   @import './styles/shared';
   @import './styles/review';
+
+  .exceptional-str-section {
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 2rem;
+
+    h4 {
+      margin-bottom: 1rem;
+    }
+
+    .alert {
+      margin-bottom: 1rem;
+    }
+
+    .exceptional-roll-area {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .exceptional-result {
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.125rem;
+
+      strong {
+        font-size: 1.5rem;
+        color: var(--color-primary);
+      }
+    }
+  }
+
+  .thief-skills-section {
+    width: 100%;
+    max-width: 700px;
+
+    h4 {
+      margin-bottom: 1rem;
+    }
+
+    .alert {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .thief-skills-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .thief-skill-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: var(--color-bg-secondary);
+      border-color: var(--color-primary);
+    }
+
+    &.has-points {
+      border-color: var(--color-success);
+      background: color-mix(in srgb, var(--color-success) 5%, transparent);
+    }
+
+    &.at-cap {
+      opacity: 0.7;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .skill-name {
+      min-width: 140px;
+      font-weight: 600;
+    }
+
+    .skill-breakdown {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      font-size: 0.875rem;
+
+      .breakdown-item {
+        color: var(--color-text-secondary);
+        white-space: nowrap;
+
+        &.race {
+          color: var(--color-info);
+        }
+
+        &.dex {
+          color: var(--color-primary);
+        }
+
+        &.distributed {
+          color: var(--color-success);
+          font-weight: 600;
+        }
+      }
+    }
+
+    .skill-total {
+      font-weight: 700;
+      font-size: 1.25rem;
+      min-width: 60px;
+      text-align: right;
+
+      &.at-cap {
+        color: var(--color-warning);
+      }
+    }
+  }
 </style>

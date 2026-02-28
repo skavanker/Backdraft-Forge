@@ -99,30 +99,80 @@
   &.improved { color: var(--gold); font-weight: 600; }
 }
 .thief-skill-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: $space-sm;
-}
-.skill-name { font-weight: 600; font-size: $text-sm; }
-.skill-total { font-weight: 700; min-width: 3em; text-align: right; &.at-cap { color: var(--gold); } }
-.skill-controls { display: flex; align-items: center; gap: $space-sm; }
-.skill-btn {
-  width: 2rem;
-  height: 2rem;
-  @include rounded;
-  @include border-default;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  font-weight: 700;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  &:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-overlay); }
-  &:disabled { opacity: 0.3; cursor: default; }
+  gap: $space-md;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0.75rem 1rem;
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+    border-color: var(--gold);
+  }
+
+  &.has-new-points {
+    border-color: var(--gold);
+    background: var(--gold-overlay);
+  }
+
+  &.at-cap {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .skill-name {
+    min-width: 140px;
+    font-weight: 600;
+  }
+
+  .skill-breakdown {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    font-size: $text-sm;
+
+    .breakdown-item {
+      color: var(--text-secondary);
+      white-space: nowrap;
+
+      &.race {
+        color: var(--color-info);
+      }
+
+      &.dex {
+        color: var(--color-primary);
+      }
+
+      &.prev {
+        color: var(--text-secondary);
+      }
+
+      &.new-pts {
+        color: var(--gold);
+        font-weight: 600;
+      }
+    }
+  }
+
+  .skill-total {
+    font-weight: 700;
+    font-size: 1.25rem;
+    min-width: 60px;
+    text-align: right;
+
+    &.at-cap {
+      color: var(--gold);
+    }
+  }
 }
-.skill-new { min-width: 2.5em; text-align: center; font-size: $text-sm; color: var(--gold); font-weight: 600; }
 .prof-gain { padding: $space-md; background: var(--gold-overlay); border: 1px solid var(--gold); @include rounded; text-align: center; font-weight: 600; }
 .feature-item {
   display: flex;

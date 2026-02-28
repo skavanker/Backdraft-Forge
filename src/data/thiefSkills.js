@@ -53,6 +53,7 @@ const DEX_ADJUSTMENTS = {
 
 // Skill caps and points per level
 export const THIEF_SKILL_CAP = 95;
+export const THIEF_INITIAL_POINTS = 60;
 export const THIEF_POINTS_PER_LEVEL = 30;
 
 // Skill display labels
@@ -68,6 +69,39 @@ export const SKILL_LABELS = {
 };
 
 /**
+ * Get breakdown of thief skill adjustments.
+ * @param {string} raceKey - e.g. 'elf', 'human'
+ * @param {number} dex - adjusted DEX score
+ * @param {string} classKey - 'thief', 'bard', etc.
+ * @param {number} [level=1] - character level (affects Read Languages)
+ * @returns {Object} { base, racial, dex, total } - each is an object of skill → percentage
+ */
+export function getThiefSkillBreakdown(raceKey, dex, classKey, level = 1) {
+  const baseSkills = classKey === 'bard' ? { ...BASE_BARD_SKILLS } : { ...BASE_THIEF_SKILLS };
+  const racial = RACIAL_ADJUSTMENTS[raceKey] || RACIAL_ADJUSTMENTS.human;
+  const dexAdj = DEX_ADJUSTMENTS[Math.min(19, Math.max(9, dex))] || {};
+
+  const total = { ...baseSkills };
+  for (const skill of Object.keys(total)) {
+    total[skill] += racial[skill] || 0;
+    if (dexAdj[skill]) total[skill] += dexAdj[skill];
+    total[skill] = Math.max(0, total[skill]);
+  }
+
+  // Read Languages is only available at level 4+ for thieves (PHB p. 39)
+  if (level < 4) {
+    total.readLanguages = 0;
+  }
+
+  return {
+    base: baseSkills,
+    racial,
+    dex: dexAdj,
+    total
+  };
+}
+
+/**
  * Get base thief skills adjusted for race, DEX, and level.
  * @param {string} raceKey - e.g. 'elf', 'human'
  * @param {number} dex - adjusted DEX score
@@ -76,22 +110,7 @@ export const SKILL_LABELS = {
  * @returns {Object} skill key → percentage
  */
 export function getBaseThiefSkills(raceKey, dex, classKey, level = 1) {
-  const base = classKey === 'bard' ? { ...BASE_BARD_SKILLS } : { ...BASE_THIEF_SKILLS };
-  const racial = RACIAL_ADJUSTMENTS[raceKey] || RACIAL_ADJUSTMENTS.human;
-  const dexAdj = DEX_ADJUSTMENTS[Math.min(19, Math.max(9, dex))] || {};
-
-  for (const skill of Object.keys(base)) {
-    base[skill] += racial[skill] || 0;
-    if (dexAdj[skill]) base[skill] += dexAdj[skill];
-    base[skill] = Math.max(0, base[skill]);
-  }
-
-  // Read Languages is only available at level 4+ for thieves (PHB p. 39)
-  if (level < 4) {
-    base.readLanguages = 0;
-  }
-
-  return base;
+  return getThiefSkillBreakdown(raceKey, dex, classKey, level).total;
 }
 
 /**

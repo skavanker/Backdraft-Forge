@@ -2,6 +2,19 @@
 
 ## Features to Add
 
+### UI/UX Improvements
+- [ ] **Character Management Modal** — Replace inline editing with modal-based adjustments
+  - Create reusable `StepModal.svelte` and `ModalStep.svelte` base components
+  - Build `ManageCharacterModal.svelte` with panels for:
+    - XP adjustment (add/remove with quick buttons)
+    - Gold adjustment (gp/sp/cp)
+    - HP adjustment (heal/damage/rest)
+    - Spell slot management (restore/mark used)
+    - Quick rest & recovery
+  - Refactor `LevelUpWizard.svelte` to use `StepModal` base
+  - Fixes Safari EditableInput issues
+  - More intuitive than click-to-edit pattern
+
 ### Share/Export
 - [ ] PDF export of character sheet
 - [ ] Full JSON export/import option
@@ -61,7 +74,8 @@
 
 ### High Priority
 - [ ] **Equipment Mount Race Condition** (src/lib/EquipmentSelector.svelte:188-231) — Gold ledger modified during mount, could cause inconsistent state.
-- [ ] **Thief Starting Skills** — No UI for distributing initial 60 discretionary points during character creation. Thieves currently start with only base skills. Needs new step or integration into Review/Proficiency step.
+- [x] **Thief Starting Skills** — FIXED: Added to Review step with 60 discretionary points UI
+- [ ] **EditableInput Safari Issue** — Enter key doesn't work reliably in Safari for XP input
 
 ### Medium Priority
 - [ ] **HP Auto-Set During Render** (src/lib/LevelUpWizard.svelte:119-124) — HP set in top-level code, could reset during re-render.
@@ -105,6 +119,16 @@
 - [ ] **Bard Spell Slots** — Verify against PHB Table 23
 - [ ] **Ranger Spell Slots** — Verify both priest and wizard slots
 - [ ] **Weapon Damage** — Document that simplified (single value vs. S-M/L split) or expand
+
+## Recent Changes
+
+### 2026-02-28 - Thief Skills & Review Improvements
+- **Fixed**: Thief starting skills - added 60 discretionary point distribution in Review step
+- **Fixed**: Exceptional strength roll moved from Class selection to Review step (more logical)
+- **Improved**: Thief skills UI now uses click pattern (left-click add, right-click remove) matching other selections
+- **Improved**: Thief skills show inline breakdown (Base + Race + DEX + Distributed = Total)
+- **Fixed**: Read Languages hidden until level 4 (both creation and level-up)
+- **Improved**: Enter key handling in EditableInput (partial - Safari still has issues)
 
 ## Notes
 

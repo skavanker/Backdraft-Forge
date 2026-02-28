@@ -4,7 +4,7 @@
   import { getNewFeaturesAtLevel, gainsWeaponProficiency, gainsNonWeaponProficiency } from '../data/classFeatures.js';
   import { isSpellcaster } from '../data/spells.js';
   import { getSavingThrows, getBaseTHAC0 } from '../data/mechanics.js';
-  import { getBaseThiefSkills, applyDistributedPoints, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_POINTS_PER_LEVEL } from '../data/thiefSkills.js';
+  import { getBaseThiefSkills, getThiefSkillBreakdown, applyDistributedPoints, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_POINTS_PER_LEVEL } from '../data/thiefSkills.js';
   import { parseDieMax } from './utils/hpUtils.js';
   import { ordinal } from './utils/formatUtils.js';
 
@@ -75,9 +75,15 @@
   let thiefPointsRemaining = $state(THIEF_POINTS_PER_LEVEL);
   let thiefDistributed = $state(isThiefClass ? { ...(character.thiefSkills || {}) } : {});
   let thiefNewPoints = $state({});
-  let thiefBase = isThiefClass
-    ? getBaseThiefSkills(character.raceKey, character.adjustedAbilities.DEX, classKey, newLevel)
-    : {};
+  let thiefBreakdown = isThiefClass
+    ? getThiefSkillBreakdown(character.raceKey, character.adjustedAbilities.DEX, classKey, newLevel)
+    : { base: {}, racial: {}, dex: {}, total: {} };
+  let thiefBase = thiefBreakdown.total;
+
+  // Filter available skills - Read Languages only available at level 4+
+  let availableThiefSkills = $derived(
+    Object.keys(thiefBase).filter(skill => newLevel >= 4 || skill !== 'readLanguages')
+  );
 
   function addThiefPoints(skill, amount) {
     const existingDistributed = (thiefDistributed[skill] || 0);
@@ -331,31 +337,50 @@
         <p class="meta-text">You have <strong>{thiefPointsRemaining}</strong> of {THIEF_POINTS_PER_LEVEL} points to distribute.</p>
 
         <div class="flex-column gap-sm">
-          {#each Object.keys(thiefBase) as skill}
+          {#each availableThiefSkills as skill}
             {@const baseVal = thiefBase[skill]}
             {@const distributed = thiefDistributed[skill] || 0}
             {@const total = baseVal + distributed}
             {@const newPts = thiefNewPoints[skill] || 0}
             {@const atCap = total >= THIEF_SKILL_CAP}
-            <div class="thief-skill-row panel">
+            {@const canAdd = thiefPointsRemaining > 0 && !atCap}
+            {@const canRemove = newPts > 0}
+            {@const rawBase = thiefBreakdown.base[skill] || 0}
+            {@const racialAdj = thiefBreakdown.racial[skill] || 0}
+            {@const dexAdj = thiefBreakdown.dex[skill] || 0}
+            {@const oldDist = distributed - newPts}
+            <button
+              class="thief-skill-row panel"
+              class:at-cap={atCap}
+              class:has-new-points={newPts > 0}
+              onclick={() => canAdd && addThiefPoints(skill, 5)}
+              oncontextmenu={(e) => { e.preventDefault(); canRemove && removeThiefPoints(skill, 5); }}
+              onkeydown={(e) => { if (e.key === 'Backspace' && canRemove) { e.preventDefault(); removeThiefPoints(skill, 5); } }}
+              disabled={!canAdd && !canRemove}
+            >
               <span class="skill-name">{SKILL_LABELS[skill]}</span>
-              <span class="skill-total" class:at-cap={atCap}>{total}%</span>
-              <div class="skill-controls">
-                <button
-                  class="skill-btn"
-                  onclick={() => removeThiefPoints(skill, 5)}
-                  disabled={newPts === 0}
-                >-5</button>
-                <span class="skill-new">{newPts > 0 ? `+${newPts}` : '—'}</span>
-                <button
-                  class="skill-btn"
-                  onclick={() => addThiefPoints(skill, 5)}
-                  disabled={thiefPointsRemaining === 0 || atCap}
-                >+5</button>
+              <div class="skill-breakdown">
+                <span class="breakdown-item">Base: {rawBase}%</span>
+                {#if racialAdj !== 0}
+                  <span class="breakdown-item race">Race: {racialAdj >= 0 ? '+' : ''}{racialAdj}%</span>
+                {/if}
+                {#if dexAdj !== 0}
+                  <span class="breakdown-item dex">DEX: {dexAdj >= 0 ? '+' : ''}{dexAdj}%</span>
+                {/if}
+                {#if oldDist > 0}
+                  <span class="breakdown-item prev">Prev: +{oldDist}%</span>
+                {/if}
+                {#if newPts > 0}
+                  <span class="breakdown-item new-pts">New: +{newPts}%</span>
+                {/if}
               </div>
-            </div>
+              <span class="skill-total" class:at-cap={atCap}>{total}%</span>
+            </button>
           {/each}
         </div>
+        <p class="meta-text" style="text-align: center;">
+          Left-click to add 5 points • Right-click to remove 5 points
+        </p>
 
         <div class="step-nav">
           <button class="btn-ghost" onclick={prevStep}>Back</button>

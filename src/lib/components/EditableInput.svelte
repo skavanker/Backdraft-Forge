@@ -36,8 +36,11 @@
   function startEdit() {
     inputValue = String(value);
     editing = true;
-    // Focus input after DOM update
-    setTimeout(() => inputElement?.focus(), 0);
+    // Focus and select input after DOM update
+    setTimeout(() => {
+      inputElement?.focus();
+      inputElement?.select();
+    }, 0);
   }
 
   function handleSave() {
@@ -64,8 +67,11 @@
 
   function handleKeydown(e) {
     if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
       handleSave();
     } else if (e.key === 'Escape') {
+      e.preventDefault();
       editing = false;
     }
   }
