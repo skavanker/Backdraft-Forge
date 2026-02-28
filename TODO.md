@@ -4,7 +4,6 @@
 
 ### UI/UX Improvements
 - [ ] **Character Management Modal** — Replace inline editing with modal-based adjustments
-  - **PRIORITY**: EditableInput (XP/Gold/HP) has bug - Enter key doesn't save changes
   - Create reusable `StepModal.svelte` and `ModalStep.svelte` base components
   - Build `ManageCharacterModal.svelte` with panels for:
     - XP adjustment (add/remove with quick buttons +100, +500, +1000, custom)
@@ -13,7 +12,6 @@
     - Spell slot management (restore/mark used)
     - Quick rest & recovery
   - Refactor `LevelUpWizard.svelte` to use `StepModal` base (DRY - don't repeat modal logic)
-  - Fixes cross-browser EditableInput issues
   - More intuitive than click-to-edit pattern
   - Similar UX to level-up wizard (menu → select panel → back to menu)
 
@@ -76,8 +74,6 @@
 
 ### High Priority
 - [ ] **Equipment Mount Race Condition** (src/lib/EquipmentSelector.svelte:188-231) — Gold ledger modified during mount, could cause inconsistent state.
-- [x] **Thief Starting Skills** — FIXED: Added to Review step with 60 discretionary points UI
-- [ ] **EditableInput Enter Key Bug** — Enter key doesn't save changes for XP/HP editing (our bug, not browser issue). Workaround: click away from input to save. Better fix: Character Management Modal (see Features to Add)
 
 ### Medium Priority
 - [ ] **HP Auto-Set During Render** (src/lib/LevelUpWizard.svelte:119-124) — HP set in top-level code, could reset during re-render.
@@ -116,24 +112,3 @@
 - [ ] Unify .data-row and .info-row patterns
 - [ ] Add parchment texture/noise for enhanced aesthetic
 - [ ] Document magic numbers with inline comments
-
-### AD&D Rules Verification Needed
-- [ ] **Bard Spell Slots** — Verify against PHB Table 23
-- [ ] **Ranger Spell Slots** — Verify both priest and wizard slots
-- [ ] **Weapon Damage** — Document that simplified (single value vs. S-M/L split) or expand
-
-## Recent Changes
-
-### 2026-02-28 - Thief Skills & Review Improvements
-- **Fixed**: Thief starting skills - added 60 discretionary point distribution in Review step
-- **Fixed**: Exceptional strength roll moved from Class selection to Review step (more logical)
-- **Improved**: Thief skills UI now uses click pattern (left-click add, right-click remove) matching other selections
-- **Improved**: Thief skills show inline breakdown (Base + Race + DEX + Distributed = Total)
-- **Fixed**: Read Languages hidden until level 4 (both creation and level-up)
-- **Improved**: Enter key handling in EditableInput (partial - Safari still has issues)
-
-## Notes
-
-- **Agent Reports Generated**: 2026-02-27
-  - See: code-review-report.md, rules-validation-report.md, css-design-review.md
-  - **Security Note**: Future agent prompts should use relative paths, not absolute user paths

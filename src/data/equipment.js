@@ -50,6 +50,10 @@ export const equipment = {
     { key: 'largeShield', name: 'Large Shield', acBonus: 1, price: { gp: 10 }, weight: 15 }
   ],
 
+  // NOTE: Weapon damage is simplified (single value) rather than S-M/L split.
+  // PHB lists separate damage vs Small-Medium and Large creatures, but for
+  // simplicity we use a single damage value (typically the S-M value or average).
+  // Example: Long Sword is 1d8 here (vs PHB's 1d8/1d12)
   weapons: [
     // Simple
     { key: 'club', name: 'Club', damage: '1d6', price: { gp: 0 }, weight: 3, category: 'simple' },

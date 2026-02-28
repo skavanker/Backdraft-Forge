@@ -19,7 +19,7 @@
   let isWizard = $derived(['mage', 'specialist'].includes(classKey));
   let isBard = $derived(classKey === 'bard');
   let isDivine = $derived(['cleric', 'druid', 'paladin', 'ranger'].includes(classKey));
-  let usesArcane = $derived(isWizard || isBard || classKey === 'ranger');
+  let usesArcane = $derived(isWizard || isBard);
   let usesDivine = $derived(['cleric', 'druid', 'paladin', 'ranger'].includes(classKey));
 </script>
 

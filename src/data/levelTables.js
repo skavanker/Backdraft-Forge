@@ -108,6 +108,7 @@ export const priestSpellSlots = [
 /**
  * Bard spell slots (wizard progression, delayed to level 2)
  * Bards cast as wizards but don't gain spells until level 2
+ * PHB Table 32
  */
 export const bardSpellSlots = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0], // Level 1 (no spells)
@@ -153,9 +154,10 @@ export const paladinSpellSlots = [
 ];
 
 /**
- * Ranger spell slots (gained at level 8+)
- * Rangers get both priest and wizard spells
- * PHB Ranger table
+ * Ranger priest spell slots (gained at level 8+)
+ * Rangers cast priest spells from Plant and Animal spheres only
+ * PHB Table 19 (Ranger)
+ * Note: AD&D 2E rangers do NOT get wizard spells (that was 1st edition)
  */
 export const rangerPriestSlots = [
   null, null, null, null, null, null, null, // Levels 1-7: no spells
@@ -168,23 +170,6 @@ export const rangerPriestSlots = [
   [3, 2, 2],           // Level 14
   [3, 3, 2],           // Level 15
   [3, 3, 3],           // Level 16
-  [3, 3, 3],           // Level 17
-  [3, 3, 3],           // Level 18
-  [3, 3, 3],           // Level 19
-  [3, 3, 3],           // Level 20
-];
-
-export const rangerWizardSlots = [
-  null, null, null, null, null, null, null, // Levels 1-7: no spells
-  [0, 0, 0],           // Level 8 (priest only)
-  [1, 0, 0],           // Level 9
-  [2, 0, 0],           // Level 10
-  [2, 1, 0],           // Level 11
-  [2, 2, 0],           // Level 12
-  [2, 2, 1],           // Level 13
-  [3, 2, 1],           // Level 14
-  [3, 2, 2],           // Level 15
-  [3, 3, 2],           // Level 16
   [3, 3, 3],           // Level 17
   [3, 3, 3],           // Level 18
   [3, 3, 3],           // Level 19
@@ -241,19 +226,11 @@ export function getSpellSlots(classKey, level) {
     case 'paladin':
       return paladinSpellSlots[idx] || null;
     case 'ranger':
-      // Rangers get both; return priest slots (wizard handled separately)
+      // Rangers only get priest spells in AD&D 2E
       return rangerPriestSlots[idx] || null;
     default:
       return null;
   }
-}
-
-/**
- * Get ranger wizard spell slots separately
- */
-export function getRangerWizardSlots(level) {
-  const idx = Math.min(level, 20) - 1;
-  return rangerWizardSlots[idx] || null;
 }
 
 /**

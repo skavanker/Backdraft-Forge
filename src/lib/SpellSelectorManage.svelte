@@ -5,7 +5,7 @@
   } from '../data/spells.js';
   import { getPriestSpellsForClass, groupByLevel } from '../data/priestSpells.js';
   import { deities } from '../data/deities.js';
-  import { getSpellSlots, getRangerWizardSlots } from '../data/levelTables.js';
+  import { getSpellSlots } from '../data/levelTables.js';
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
@@ -31,7 +31,6 @@
 
   // Spell slots
   let spellSlots = $derived(getSpellSlots(classKey, characterLevel));
-  let rangerWizardSlots = $derived(classKey === 'ranger' ? getRangerWizardSlots(characterLevel) : null);
 
   let readMagic = $derived(
     isWizard ? (getAvailableWizardSpells(wizardSchool?.key).find(s => s.key === 'readMagic')) : null
@@ -78,11 +77,6 @@
   function getSlotsForLevel(level) {
     if (!spellSlots) return 0;
     return spellSlots[level - 1] || 0;
-  }
-
-  function getRangerWizSlotsForLevel(level) {
-    if (!rangerWizardSlots) return 0;
-    return rangerWizardSlots[level - 1] || 0;
   }
 
   // Toggle functions
@@ -153,8 +147,7 @@
         prepared,
         spellbook,
         memorized,
-        spellsPerDay: (spellSlots ? spellSlots.reduce((a, b) => a + b, 0) : 0) +
-                       (rangerWizardSlots ? rangerWizardSlots.reduce((a, b) => a + b, 0) : 0)
+        spellsPerDay: spellSlots ? spellSlots.reduce((a, b) => a + b, 0) : 0
       });
     }
   }
