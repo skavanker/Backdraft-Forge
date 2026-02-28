@@ -78,7 +78,7 @@
 .item-name { flex: 1; }
 .item-meta { display: flex; gap: $space-sm; margin-top: $space-sm; }
 .item-price { color: var(--gold-dark); }
-.qty-badge { background: var(--gold); color: var(--bg-card); @include rounded; padding: 0 0.35rem; margin-left: auto; line-height: 1.4; }
+// Badge styles moved to _utilities.scss
 .custom-gear-form {
   display: flex;
   align-items: center;

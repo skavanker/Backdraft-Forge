@@ -102,6 +102,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
+    // Subtle noise texture for parchment feel
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E"),
     linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%),
     linear-gradient(to bottom, var(--parchment) 0%, var(--parchment-dark) 100%);
   color: var(--text-body);
@@ -207,27 +209,7 @@ p {
   color: var(--text-muted);
 }
 
-// Badges for statuses, counts, etc
-.badge {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  font-size: $text-sm;
-  font-weight: 600;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badge-primary {
-  background: var(--gold-dark);
-  color: white;
-}
-
-.badge-muted {
-  background: var(--bg-panel);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-}
+// Badge styles moved to _utilities.scss
 
 // =============================================================================
 // BUTTONS
@@ -246,6 +228,7 @@ button {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 2px 4px var(--shadow-color);
+  @include touch-target(44px);
 
   &:hover:not(:disabled) {
     background: var(--btn-bg-hover);
@@ -319,7 +302,7 @@ input, select {
   &:focus {
     outline: none;
     border-color: var(--gold);
-    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
+    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2); // 2px gold ring for keyboard focus indicator
   }
 }
 
@@ -520,17 +503,4 @@ hr {
 // PRINT
 // =============================================================================
 
-@media print {
-  .top-buttons {
-    display: none !important;
-  }
-
-  body {
-    background: white !important;
-  }
-
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-}
+@import './styles/print';

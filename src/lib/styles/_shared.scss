@@ -42,23 +42,11 @@
   width: 100%;
   margin-bottom: $space-sm;
 }
-.level-limit { @extend .badge-small; background: var(--gold-overlay); color: var(--gold-dark); }
+// Badge styles moved to _utilities.scss
 .unavailable-badge {
-  @extend .badge-small;
   margin-top: $space-md;
-  background: var(--red-overlay);
-  border: 1px solid var(--red-overlay-border);
-  color: var(--red);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 .card-desc { flex: 1; font-size: $text-sm; color: var(--text-muted); line-height: 1.4; }
-.req-badge {
-  @extend .badge-small;
-  background: var(--red-overlay);
-  border: 1px solid var(--red-overlay-border);
-  color: var(--red);
-}
 .card-meta { display: flex; gap: $space-sm; margin-top: $space-md; flex-wrap: wrap; }
 .adjustment {
   @extend .badge-small;

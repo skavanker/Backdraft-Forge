@@ -60,8 +60,7 @@
   0%, 100% { box-shadow: 0 0 4px rgba(201, 162, 39, 0.4); }
   50% { box-shadow: 0 0 12px rgba(201, 162, 39, 0.8); }
 }
-.xp-bonus { color: var(--green); font-size: $text-sm; }
-.level-cap { color: var(--text-muted); font-style: italic; font-size: $text-sm; }
+// Badge styles moved to _utilities.scss
 
 // ════════════ LAYOUT ════════════
 .top-section {

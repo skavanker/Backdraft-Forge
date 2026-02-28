@@ -125,12 +125,101 @@
   font-weight: 600;
 }
 
+// ─── Badge Variants ─────────────────────────────────────────────────────────
+
+// Base badge (for statuses, counts, etc)
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: $text-sm;
+  font-weight: 600;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-primary {
+  background: var(--gold-dark);
+  color: white;
+}
+
+.badge-muted {
+  background: var(--bg-panel);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
 // Small badge/chip pattern (used for hit-die, level-limit, etc)
 .badge-small {
   padding: $space-sm $space-sm;
   background: var(--bg-panel);
   border-radius: $radius;
   font-size: $text-sm;
+}
+
+// Specific badge variants (consolidated from component styles)
+.level-limit {
+  @extend .badge-small;
+  background: var(--gold-overlay);
+  color: var(--gold-dark);
+}
+
+.xp-bonus {
+  color: var(--green);
+  font-size: $text-sm;
+}
+
+.level-cap {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: $text-sm;
+}
+
+.level-badge {
+  display: inline-block;
+  background: var(--gold-overlay);
+  border: 1px solid var(--gold);
+  @include rounded;
+  padding: $space-sm $space-md;
+  font-weight: 700;
+  margin-top: $space-sm;
+}
+
+.qty-badge {
+  background: var(--gold);
+  color: var(--bg-card);
+  @include rounded;
+  padding: 0 0.35rem;
+  margin-left: auto;
+  line-height: 1.4;
+}
+
+.unavailable-badge {
+  @extend .badge-small;
+  background: var(--red-overlay);
+  border: 1px solid var(--red-overlay-border);
+  color: var(--red);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.req-badge {
+  @extend .badge-small;
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid var(--gold-overlay-border);
+  font-weight: 700;
+}
+
+.house-rules-badge {
+  font-size: $text-xs;
+  font-weight: 700;
+  color: var(--gold-dark);
+  background: var(--gold-overlay);
+  padding: 0.15rem 0.3rem;
+  border-radius: 2px;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 // ─── Panel Variants ─────────────────────────────────────────────────────────

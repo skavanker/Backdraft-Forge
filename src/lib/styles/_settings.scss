@@ -211,17 +211,8 @@
   color: var(--text-muted);
 }
 
-// Lenient mode badge
+// Badge styles moved to _utilities.scss
 .house-rules-badge {
-  display: inline-block;
-  padding: 0.15rem 0.4rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--gold-overlay);
-  border: 1px solid var(--gold-overlay-border);
-  @include rounded;
-  color: var(--gold-dark);
-  text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 

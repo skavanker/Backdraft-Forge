@@ -1,0 +1,133 @@
+// ============================================================================
+// PRINT STYLESHEET
+// Optimized styles for printing character sheets
+// ============================================================================
+
+@media print {
+  // ─── Page Setup ───────────────────────────────────────────────────────────
+
+  @page {
+    margin: 0.5in;
+    size: letter portrait;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  // ─── Hide Non-Printable Elements ──────────────────────────────────────────
+
+  .no-print,
+  button:not(.no-hide-print),
+  .settings-toggle,
+  .reset-toggle,
+  .logo,
+  .btn-levelup,
+  .settings-panel,
+  nav,
+  .step-nav,
+  .save-load,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  // ─── Page Breaks ──────────────────────────────────────────────────────────
+
+  .character-sheet {
+    page-break-after: avoid;
+  }
+
+  .top-section,
+  .abilities-panel,
+  .combat-panel,
+  .proficiency-panel,
+  .equipment-panel,
+  .spells-panel {
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  // ─── Color Adjustments ────────────────────────────────────────────────────
+
+  .panel,
+  .panel-subtle,
+  .card,
+  .selectable-card {
+    background: white !important;
+    border: 1px solid #333 !important;
+  }
+
+  .badge,
+  .badge-small,
+  .level-badge,
+  .xp-bonus,
+  .level-cap {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #666 !important;
+  }
+
+  // ─── Text Contrast ────────────────────────────────────────────────────────
+
+  * {
+    color: black !important;
+    background: transparent !important;
+  }
+
+  .text-muted,
+  .section-hint {
+    color: #666 !important;
+  }
+
+  // ─── Border & Spacing ─────────────────────────────────────────────────────
+
+  .border-default,
+  .border-strong {
+    border-color: #333 !important;
+  }
+
+  // Remove shadows for print
+  .shadow,
+  *[class*="shadow"] {
+    box-shadow: none !important;
+  }
+
+  // ─── Special Elements ─────────────────────────────────────────────────────
+
+  // Make gold text dark for readability
+  .text-gold,
+  .gold,
+  *[style*="color: var(--gold)"] {
+    color: #855D00 !important;
+  }
+
+  // Ensure stat values are bold and visible
+  .stat-value,
+  .data-row .val {
+    font-weight: 700 !important;
+    color: black !important;
+  }
+
+  // ─── Links ────────────────────────────────────────────────────────────────
+
+  a {
+    text-decoration: underline !important;
+    color: black !important;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}

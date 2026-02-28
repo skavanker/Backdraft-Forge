@@ -1,15 +1,24 @@
 @import '../../styles/mixins.scss';
 
 // ════════════ LEVEL UP WIZARD ════════════
-.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 500; padding: $space-lg; }
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7); // 70% opacity dark overlay for modal backdrop
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500; // High z-index to appear above all other content
+  padding: $space-lg;
+}
 .wizard-modal {
   background: var(--bg-card);
-  border: 3px solid var(--gold);
+  border: 3px solid var(--gold); // Prominent border to draw attention
   @include rounded;
   padding: $space-lg;
-  max-width: 520px;
+  max-width: 520px; // Readable width for multi-step wizard content
   width: 100%;
-  max-height: 90vh;
+  max-height: 90vh; // 90% viewport height to ensure scroll on small screens
   overflow-y: auto;
   position: relative;
   box-shadow: 0 0 40px var(--gold-overlay-border);
@@ -28,7 +37,7 @@
   &:hover { color: var(--text-primary); }
 }
 .wizard-header { text-align: center; margin-bottom: $space-lg; h2 { color: var(--gold); margin: 0; } }
-.level-badge { display: inline-block; background: var(--gold-overlay); border: 1px solid var(--gold); @include rounded; padding: $space-sm $space-md; font-weight: 700; margin-top: $space-sm; }
+// Badge styles moved to _utilities.scss
 .levelup-step { @extend .flex-column; align-items: center; gap: $space-md; h3 { text-align: center; margin: 0; } }
 .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: $space-sm; width: 100%; }
 .summary-item {
@@ -52,7 +61,11 @@
   gap: $space-sm;
   &:hover { transform: scale(1.05); }
 }
-.btn-roll-die { width: 28px; height: 28px; filter: brightness(0) invert(0.2); }
+.btn-roll-die {
+  width: 28px; // Icon button size
+  height: 28px;
+  filter: brightness(0) invert(0.2); // Convert to dark gray icon
+}
 .dice-result {
   @extend .flex-column;
   align-items: center;
@@ -60,9 +73,13 @@
   &.animating .die-graphic img { animation: dice-tumble 0.3s ease-in-out infinite; }
 }
 .die-graphic {
-  width: 80px;
+  width: 80px; // Large enough to be visually prominent for HP roll
   height: 80px;
-  img { width: 100%; height: 100%; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3)); }
+  img {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3)); // Subtle shadow for depth
+  }
   &.landed img { animation: dice-land 0.3s ease-out; }
 }
 @keyframes dice-tumble {
@@ -190,7 +207,11 @@
 .confirm-summary { width: 100%; max-width: 300px; }
 .confirm-row { display: flex; justify-content: space-between; padding: $space-sm 0; border-bottom: 1px dotted var(--border-color); font-weight: 600; }
 .step-nav { display: flex; gap: $space-md; margin-top: $space-md; }
-.btn-confirm { background: linear-gradient(135deg, var(--gold-dark), var(--gold)) !important; }
+.btn-confirm {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: var(--text-primary);
+  font-weight: 600;
+}
 .step-dots { display: flex; justify-content: center; gap: $space-sm; margin-top: $space-lg; }
 .dot {
   width: 8px;
