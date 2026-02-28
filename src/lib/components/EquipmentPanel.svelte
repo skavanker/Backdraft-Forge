@@ -1,6 +1,7 @@
 <script>
   import EditableInput from './EditableInput.svelte';
   import { formatModifier } from '../../data/mechanics.js';
+  import { getDamageTypeName } from '../../data/weapons.js';
 
   let {
     equipment,
@@ -27,7 +28,12 @@
         <span>{weapon.name}</span>
         <span class="val">
           THAC0 {weapon.ranged ? missileTHAC0 : meleeTHAC0}
-          · {weapon.damage}{#if !weapon.ranged && strMods.dmgAdj !== 0}{formatModifier(strMods.dmgAdj)} dmg{:else} dmg{/if}
+          · {weapon.damage}{#if !weapon.ranged && strMods.dmgAdj !== 0}{formatModifier(strMods.dmgAdj)}{/if} {weapon.type ? getDamageTypeName(weapon.type) : 'dmg'}
+          {#if weapon.ranged && weapon.range}
+            · Range {weapon.range.short}/{weapon.range.medium}/{weapon.range.long}
+          {:else if weapon.speed !== undefined}
+            · Spd {weapon.speed}
+          {/if}
         </span>
         <button class="remove-btn" onclick={() => onRemoveWeapon(i)} title="Remove {weapon.name}" aria-label="Remove {weapon.name}">&times;</button>
       </div>

@@ -4,6 +4,8 @@
  * 1 gp = 10 sp = 100 cp
  */
 
+import { weaponDefinitions } from './weapons.js';
+
 // Starting gold by class group (roll multiplied by 10)
 export const startingGold = {
   warrior: { dice: '5d4', multiplier: 10 },  // 50-200 gp
@@ -54,50 +56,8 @@ export const equipment = {
   // PHB lists separate damage vs Small-Medium and Large creatures, but for
   // simplicity we use a single damage value (typically the S-M value or average).
   // Example: Long Sword is 1d8 here (vs PHB's 1d8/1d12)
-  weapons: [
-    // Simple
-    { key: 'club', name: 'Club', damage: '1d6', price: { gp: 0 }, weight: 3, category: 'simple' },
-    { key: 'dagger', name: 'Dagger', damage: '1d4', price: { gp: 2 }, weight: 1, category: 'simple' },
-    { key: 'dart', name: 'Dart (5)', damage: '1d3', price: { sp: 5 }, weight: 1, category: 'simple', ranged: true },
-    { key: 'sling', name: 'Sling', damage: '1d4', price: { sp: 5 }, weight: 0, category: 'simple', ranged: true },
-    { key: 'staff', name: 'Quarterstaff', damage: '1d6', price: { gp: 0 }, weight: 4, category: 'simple' },
-
-    // Swords
-    { key: 'shortSword', name: 'Short Sword', damage: '1d6', price: { gp: 10 }, weight: 3, category: 'sword' },
-    { key: 'longSword', name: 'Long Sword', damage: '1d8', price: { gp: 15 }, weight: 4, category: 'sword' },
-    { key: 'broadsword', name: 'Broadsword', damage: '2d4', price: { gp: 10 }, weight: 4, category: 'sword' },
-    { key: 'bastardSword', name: 'Bastard Sword', damage: '1d8/1d10', price: { gp: 25 }, weight: 6, category: 'sword' },
-    { key: 'twoHandedSword', name: 'Two-Handed Sword', damage: '1d10', price: { gp: 50 }, weight: 10, category: 'sword' },
-    { key: 'scimitar', name: 'Scimitar', damage: '1d8', price: { gp: 15 }, weight: 4, category: 'sword' },
-
-    // Axes
-    { key: 'handAxe', name: 'Hand Axe', damage: '1d6', price: { gp: 1 }, weight: 5, category: 'axe' },
-    { key: 'battleAxe', name: 'Battle Axe', damage: '1d8', price: { gp: 5 }, weight: 7, category: 'axe' },
-
-    // Blunt
-    { key: 'mace', name: 'Mace', damage: '1d6+1', price: { gp: 8 }, weight: 8, category: 'blunt' },
-    { key: 'morningstar', name: 'Morning Star', damage: '2d4', price: { gp: 10 }, weight: 12, category: 'blunt' },
-    { key: 'flail', name: 'Flail', damage: '1d6+1', price: { gp: 15 }, weight: 15, category: 'blunt' },
-    { key: 'warhammer', name: 'Warhammer', damage: '1d4+1', price: { gp: 2 }, weight: 6, category: 'blunt' },
-
-    // Polearms
-    { key: 'spear', name: 'Spear', damage: '1d6', price: { gp: 1 }, weight: 5, category: 'polearm' },
-    { key: 'javelin', name: 'Javelin', damage: '1d6', price: { gp: 1 }, weight: 2, category: 'polearm', ranged: true },
-    { key: 'halberd', name: 'Halberd', damage: '1d10', price: { gp: 10 }, weight: 15, category: 'polearm' },
-    { key: 'pike', name: 'Pike', damage: '1d6', price: { gp: 5 }, weight: 8, category: 'polearm' },
-    { key: 'trident', name: 'Trident', damage: '1d6+1', price: { gp: 15 }, weight: 5, category: 'polearm' },
-
-    // Exotic
-    { key: 'whip', name: 'Whip', damage: '1d2', price: { gp: 1 }, weight: 2, category: 'exotic' },
-    { key: 'net', name: 'Net', damage: '—', price: { gp: 5 }, weight: 10, category: 'exotic', ranged: true },
-
-    // Ranged
-    { key: 'shortBow', name: 'Short Bow', damage: '1d6', price: { gp: 30 }, weight: 2, category: 'bow', ranged: true },
-    { key: 'longBow', name: 'Long Bow', damage: '1d8', price: { gp: 75 }, weight: 3, category: 'bow', ranged: true },
-    { key: 'compositeBow', name: 'Composite Bow', damage: '1d6', price: { gp: 100 }, weight: 2, category: 'bow', ranged: true },
-    { key: 'lightCrossbow', name: 'Light Crossbow', damage: '1d4', price: { gp: 35 }, weight: 7, category: 'crossbow', ranged: true },
-    { key: 'heavyCrossbow', name: 'Heavy Crossbow', damage: '1d4+1', price: { gp: 50 }, weight: 14, category: 'crossbow', ranged: true }
-  ],
+  // Weapons now imported from unified weapon definitions (weapons.js)
+  weapons: Object.values(weaponDefinitions),
 
   ammunition: [
     { key: 'arrows', name: 'Arrow', price: { cp: 5 }, weight: 0.1 },

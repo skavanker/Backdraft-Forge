@@ -1,0 +1,300 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ SPLASH PAGE ════════════
+
+.splash-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg * 1.5;
+}
+
+// WIP Prompt (resume in-progress character)
+.wip-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+}
+
+.wip-actions {
+  display: flex;
+  gap: $space-sm;
+}
+
+.btn-sm {
+  font-size: $text-sm;
+  padding: calc($space-sm * 0.6) $space-md;
+}
+
+// Hero Section
+.splash-hero {
+  text-align: center;
+  padding: $space-lg 0;
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: $space-sm;
+
+    @include mobile {
+      font-size: 2rem;
+    }
+  }
+
+  .tagline {
+    font-size: $text-lg;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-top: -$space-sm;
+
+    @include mobile {
+      font-size: $text-base;
+    }
+  }
+}
+
+// Main Actions
+.splash-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $space-md;
+  flex-wrap: wrap;
+
+  .btn-lg {
+    font-size: $text-lg;
+    padding: $space-md $space-lg * 1.5;
+  }
+}
+
+// Tool Grid
+.tool-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-lg;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tool-card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: $space-lg * 1.5;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+
+  &.available {
+    border-color: var(--border-color);
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px var(--shadow-color);
+      border-color: var(--gold);
+
+      .tool-icon {
+        transform: scale(1.1);
+      }
+
+      h2 {
+        color: var(--gold-dark);
+      }
+    }
+  }
+
+  &.coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--bg-subtle);
+
+    .tool-status {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  }
+
+  .tool-icon {
+    font-size: 3rem;
+    margin-bottom: $space-md;
+    transition: transform 0.2s ease;
+
+    @include mobile {
+      font-size: 2.5rem;
+    }
+  }
+
+  h2 {
+    font-size: $text-xl;
+    margin: 0 0 $space-sm 0;
+    transition: color 0.2s ease;
+
+    @include mobile {
+      font-size: $text-lg;
+    }
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: $text-sm;
+    line-height: 1.4;
+    margin: 0 0 $space-md 0;
+    flex: 1;
+  }
+
+  .tool-status {
+    font-size: $text-xs;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: $space-xs $space-sm;
+    border-radius: $radius;
+    background: var(--gold-overlay);
+    color: var(--gold-dark);
+  }
+}
+
+// Saved Characters
+.saved-data {
+  @include panel;
+  padding: $space-lg;
+
+  h3 {
+    margin: 0 0 $space-md 0;
+    font-size: $text-lg;
+    text-align: center;
+  }
+
+  .save-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+  }
+
+  .save-entry {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+
+  .save-load {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-sm $space-md;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: $radius;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-align: left;
+
+    &:hover {
+      border-color: var(--gold);
+      background: var(--bg-panel);
+    }
+
+    .save-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: $space-xs;
+    }
+
+    .save-meta {
+      color: var(--text-muted);
+      font-size: $text-sm;
+      display: block;
+    }
+  }
+
+  .save-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    font-size: $text-lg;
+    cursor: pointer;
+    padding: $space-xs $space-sm;
+    line-height: 1;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
+      color: var(--red);
+    }
+  }
+
+  .view-all-btn {
+    width: 100%;
+    margin-top: $space-md;
+    padding: $space-sm $space-md;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: $radius;
+    cursor: pointer;
+    font-size: $text-sm;
+    color: var(--text-secondary);
+    transition: border-color 0.2s, color 0.2s;
+
+    &:hover {
+      border-color: var(--gold);
+      color: var(--text-primary);
+    }
+  }
+}
+
+// Footer
+.splash-footer {
+  text-align: center;
+  padding-top: $space-lg;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: $text-sm;
+  margin-top: auto;
+
+  p {
+    margin: $space-xs 0;
+  }
+
+  .legal {
+    font-size: $text-xs;
+    color: var(--text-faint);
+  }
+}
+
+// Mobile Specific
+@include mobile {
+  .splash-container {
+    padding: $space-md;
+    gap: $space-lg;
+  }
+
+  .splash-actions {
+    flex-direction: column;
+    width: 100%;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// Print Styles - Hide splash page when printing
+@media print {
+  .splash-container {
+    display: none !important;
+  }
+}

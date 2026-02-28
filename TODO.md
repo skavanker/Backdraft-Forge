@@ -22,6 +22,7 @@
   - JSON export should store complete item data (name, stats, etc.) for robustness
   - Allows characters to survive equipment/spell data changes between versions
   - User can choose: Quick URL share (compact, potentially lossy) vs JSON file (complete, bulletproof)
+- [ ] Do research if another like char fil excist other places and maybe use same format.
 
 ### Visuals
 - [ ] Remaining portraits (16 Half-Elf and Halfling combinations)
@@ -60,9 +61,6 @@
 ### Settings Panel Enhancements
 - [ ] Custom starting gold multiplier
 - Wait for settings feature to land before planning more — house rules stuff should live there
-
-### Data Completeness
-- [ ] More detailed weapon combat stats (speed factor, range, etc.)
 
 ## Bugs
 

@@ -13,6 +13,7 @@
     getKitFreeNonWeapon,
     isWeaponRestrictedByKit
   } from '../data/proficiencies.js';
+  import { formatWeaponTooltip } from '../data/weapons.js';
   import {
     languages,
     getBonusLanguageSlots,
@@ -262,7 +263,7 @@
                   {@const isLocked = lockedWeapons.includes(weapon.key)}
                   {@const selected = selectedWeapons.includes(weapon.key)}
                   {@const disabled = !selected && weaponSlotsRemaining === 0}
-                  <Tooltip text="{weapon.damage} damage, Speed {weapon.speed}" position="bottom">
+                  <Tooltip text={formatWeaponTooltip(weapon)} position="bottom">
                     <SelectableChip
                       label={weapon.name}
                       metadata={weapon.damage}

@@ -9,6 +9,7 @@
     getAllowedShieldsWithKit,
     rollStartingGoldWithKit
   } from '../data/equipment.js';
+  import { formatWeaponTooltip } from '../data/weapons.js';
   import { getStrengthModifiers } from '../data/mechanics.js';
   import Tooltip from './Tooltip.svelte';
   import { formatEncumbranceValue, formatWeightUnit } from './settings.svelte.js';
@@ -327,7 +328,7 @@
           {#each availableWeapons as weapon}
             {@const selected = selectedWeapons.find(w => w.key === weapon.key)}
             {@const affordable = canAfford(weapon.price) || selected}
-            <Tooltip text="{weapon.damage} damage, {weapon.weight} lbs" position="bottom">
+            <Tooltip text={formatWeaponTooltip(weapon)} position="bottom">
               <SelectableChip
                 selected={!!selected}
                 disabled={!affordable}

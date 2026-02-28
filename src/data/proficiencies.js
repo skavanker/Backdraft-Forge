@@ -5,6 +5,8 @@
  * Non-weapon proficiencies: Skills with ability checks
  */
 
+import { weaponDefinitions } from './weapons.js';
+
 // Weapon proficiency slots by class group
 export const weaponProficiencySlots = {
   warrior: { initial: 4, perLevel: 3 },  // +1 every 3 levels
@@ -21,53 +23,14 @@ export const nonWeaponProficiencySlots = {
   rogue: { initial: 3, perLevel: 4 }
 };
 
-// Weapons available - grouped by type
-export const weapons = {
-  // Simple weapons
-  club: { name: 'Club', damage: '1d6', type: 'B', speed: 4, group: 'simple' },
-  dagger: { name: 'Dagger', damage: '1d4', type: 'P', speed: 2, group: 'simple' },
-  dart: { name: 'Dart', damage: '1d3', type: 'P', speed: 2, group: 'simple', ranged: true },
-  sling: { name: 'Sling', damage: '1d4', type: 'B', speed: 6, group: 'simple', ranged: true },
-  staff: { name: 'Staff/Quarterstaff', damage: '1d6', type: 'B', speed: 4, group: 'simple' },
-
-  // Swords
-  shortSword: { name: 'Short Sword', damage: '1d6', type: 'P', speed: 3, group: 'sword' },
-  longSword: { name: 'Long Sword', damage: '1d8', type: 'S', speed: 5, group: 'sword' },
-  broadsword: { name: 'Broadsword', damage: '2d4', type: 'S', speed: 5, group: 'sword' },
-  bastardSword: { name: 'Bastard Sword', damage: '1d8/1d10', type: 'S', speed: 6, group: 'sword' },
-  twoHandedSword: { name: 'Two-Handed Sword', damage: '1d10', type: 'S', speed: 10, group: 'sword' },
-  scimitar: { name: 'Scimitar', damage: '1d8', type: 'S', speed: 5, group: 'sword' },
-
-  // Axes
-  handAxe: { name: 'Hand Axe', damage: '1d6', type: 'S', speed: 4, group: 'axe' },
-  battleAxe: { name: 'Battle Axe', damage: '1d8', type: 'S', speed: 7, group: 'axe' },
-  greatAxe: { name: 'Great Axe', damage: '1d10', type: 'S', speed: 9, group: 'axe' },
-
-  // Blunt
-  mace: { name: 'Mace', damage: '1d6+1', type: 'B', speed: 7, group: 'blunt' },
-  morningstar: { name: 'Morning Star', damage: '2d4', type: 'B/P', speed: 7, group: 'blunt' },
-  flail: { name: 'Flail', damage: '1d6+1', type: 'B', speed: 7, group: 'blunt' },
-  warhammer: { name: 'Warhammer', damage: '1d4+1', type: 'B', speed: 4, group: 'blunt' },
-
-  // Polearms
-  spear: { name: 'Spear', damage: '1d6', type: 'P', speed: 6, group: 'polearm' },
-  halberd: { name: 'Halberd', damage: '1d10', type: 'P/S', speed: 9, group: 'polearm' },
-  pike: { name: 'Pike', damage: '1d6', type: 'P', speed: 13, group: 'polearm' },
-  trident: { name: 'Trident', damage: '1d6+1', type: 'P', speed: 7, group: 'polearm' },
-
-  // Ranged
-  shortBow: { name: 'Short Bow', damage: '1d6', type: 'P', speed: 7, group: 'bow', ranged: true },
-  longBow: { name: 'Long Bow', damage: '1d8', type: 'P', speed: 8, group: 'bow', ranged: true },
-  compositeBow: { name: 'Composite Bow', damage: '1d8', type: 'P', speed: 7, group: 'bow', ranged: true },
-  lightCrossbow: { name: 'Light Crossbow', damage: '1d4', type: 'P', speed: 7, group: 'crossbow', ranged: true },
-  heavyCrossbow: { name: 'Heavy Crossbow', damage: '1d4+1', type: 'P', speed: 10, group: 'crossbow', ranged: true }
-};
+// Weapons now imported from unified weapon definitions (weapons.js)
+export const weapons = weaponDefinitions;
 
 // Priest allowed weapons (blunt only, plus some exceptions)
 export const priestWeapons = ['club', 'mace', 'morningstar', 'flail', 'warhammer', 'staff', 'sling'];
 
 // Druid allowed weapons
-export const druidWeapons = ['club', 'dagger', 'dart', 'sling', 'staff', 'spear', 'scimitar'];
+export const druidWeapons = ['club', 'dagger', 'dart', 'sling', 'staff', 'spear', 'javelin', 'scimitar'];
 
 // Wizard allowed weapons
 export const wizardWeapons = ['dagger', 'dart', 'staff', 'sling'];

@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import SplashPage from './lib/SplashPage.svelte';
   import AbilityRoller from './lib/AbilityRoller.svelte';
   import RaceSelector from './lib/RaceSelector.svelte';
   import ClassSelector from './lib/ClassSelector.svelte';
@@ -37,6 +38,7 @@
     loadMidCreation
   } from './lib/persistence.svelte.js';
 
+  let currentView = $state('splash'); // 'splash' | 'character-creator'
   let currentStep = $state(0);
   let settingsOpen = $state(false);
 
@@ -90,6 +92,7 @@
     const restored = await loadSaved(entry);
     if (restored) {
       character = restored;
+      currentView = 'character-creator';
       currentStep = STEP_SHEET;
     } else {
       savedCharacters = deleteSave(entry.id, savedCharacters);
@@ -103,14 +106,41 @@
   onMount(() => {
     initSettings();
 
+    // Handle browser back/forward navigation
+    function handleHashChange() {
+      const hash = window.location.hash;
+      if (!hash || hash === '#' || hash === '#splash') {
+        if (currentView !== 'splash') {
+          currentView = 'splash';
+        }
+      } else if (hash.startsWith('#step-')) {
+        const stepNum = parseInt(hash.replace('#step-', ''));
+        if (!isNaN(stepNum) && stepNum >= 0 && stepNum < steps.length) {
+          if (currentView !== 'character-creator') {
+            currentView = 'character-creator';
+          }
+          if (canNavigateToStep(stepNum)) {
+            currentStep = stepNum;
+          }
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Check initial hash
+    handleHashChange();
+
     // Async init (shared links, migration)
     (async () => {
       // Check if character data is in URL (shared link)
       const sharedCharacter = await getCharacterFromUrl();
       if (sharedCharacter) {
         character = sharedCharacter;
+        currentView = 'character-creator';
         currentStep = STEP_SHEET;
-        window.history.replaceState(null, '', window.location.pathname);
+        window.location.hash = `#step-${STEP_SHEET}`;
+        window.history.replaceState(null, '', window.location.pathname + window.location.hash);
         return;
       }
 
@@ -118,10 +148,13 @@
       savedCharacters = loadSaves();
 
       const wip = loadMidCreation();
-      if (wip) wipPrompt = wip;
+      if (wip) {
+        wipPrompt = wip;
+        // If there's a WIP, stay on splash but user can resume
+      }
     })();
 
-    return setupAppKeyboardShortcuts({
+    const cleanupKeyboard = setupAppKeyboardShortcuts({
       getCurrentStep: () => currentStep,
       getSettingsOpen: () => settingsOpen,
       getShowResetConfirm: () => showResetConfirm,
@@ -134,6 +167,25 @@
       setShowResetConfirm: (v) => showResetConfirm = v,
       goToStep
     });
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      cleanupKeyboard?.();
+    };
+  });
+
+  // Update URL hash when view/step changes
+  $effect(() => {
+    if (currentView === 'splash') {
+      if (window.location.hash !== '' && window.location.hash !== '#splash') {
+        window.location.hash = '#splash';
+      }
+    } else if (currentView === 'character-creator') {
+      const expectedHash = `#step-${currentStep}`;
+      if (window.location.hash !== expectedHash) {
+        window.location.hash = expectedHash;
+      }
+    }
   });
 
   // Step management using stepManager utility
@@ -158,8 +210,10 @@
 
   function handleImportCharacter(importedCharacter) {
     character = importedCharacter;
+    currentView = 'character-creator';
     currentStep = STEP_SHEET;
     saveToLocalStorage();
+    showImportDialog = false;
   }
 
   // Undo stack for character sheet edits (Ctrl+Z)
@@ -212,6 +266,7 @@
 
     const restored = await restoreCharacterObjects(wipPrompt.character);
     Object.assign(character, restored);
+    currentView = 'character-creator';
     currentStep = wipPrompt.currentStep;
     wipPrompt = null;
     clearMidCreation();
@@ -232,6 +287,7 @@
 
   function resetAll() {
     character = makeEmptyCharacter();
+    currentView = 'splash';
     currentStep = 0;
     showResetConfirm = false;
     clearMidCreation();
@@ -242,6 +298,28 @@
     if (canNavigateToStep(index)) {
       currentStep = index;
     }
+  }
+
+  function launchCharacterCreator() {
+    currentView = 'character-creator';
+    currentStep = 0;
+  }
+
+  function returnToSplash() {
+    // Check if there are unsaved changes (character has data but not saved)
+    const hasUnsavedChanges = currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
+
+    if (hasUnsavedChanges) {
+      const confirmed = confirm('You have unsaved progress. Return to splash page?');
+      if (!confirmed) return;
+    }
+
+    currentView = 'splash';
+    // Don't reset character or currentStep - allows resume
+  }
+
+  function openImportDialog() {
+    settingsOpen = true;
   }
 
 </script>
@@ -290,31 +368,32 @@
 />
 
 <main>
-  <header class="header">
-    <h1><button class="logo" type="button" onclick={() => isStepLocked(0) ? showResetConfirm = true : goToStep(0)}>Backdraft Forge</button></h1>
-    <p class="tagline">AD&D 2nd Edition Character Creator</p>
-  </header>
+  {#if currentView === 'character-creator'}
+    <header class="header">
+      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <p class="tagline">AD&D 2nd Edition Character Creator</p>
+    </header>
 
-  <nav class="step-nav">
-    {#each steps as step, i}
-      <button
-        class="step-item"
-        class:active={i === currentStep}
-        class:completed={i < currentStep || canNavigateToStep(i)}
-        class:incomplete={i <= currentStep && isStepIncomplete(i)}
-        class:future={i > currentStep && !canNavigateToStep(i)}
-        class:locked={isStepLocked(i)}
-        onclick={() => goToStep(i)}
-        disabled={!canNavigateToStep(i)}
-        title={isStepLocked(i) ? 'Locked — cannot change after leveling up' : ''}
-      >
-        <span class="step-number">{#if isStepLocked(i)}<span aria-hidden="true">🔒</span>{:else}{i + 1}{/if}</span>
-        <span class="step-label">{step}</span>
-      </button>
-    {/each}
-  </nav>
+    <nav class="step-nav">
+      {#each steps as step, i}
+        <button
+          class="step-item"
+          class:active={i === currentStep}
+          class:completed={i < currentStep || canNavigateToStep(i)}
+          class:incomplete={i <= currentStep && isStepIncomplete(i)}
+          class:future={i > currentStep && !canNavigateToStep(i)}
+          class:locked={isStepLocked(i)}
+          onclick={() => goToStep(i)}
+          disabled={!canNavigateToStep(i)}
+          title={isStepLocked(i) ? 'Locked — cannot change after leveling up' : ''}
+        >
+          <span class="step-number">{#if isStepLocked(i)}<span aria-hidden="true">🔒</span>{:else}{i + 1}{/if}</span>
+          <span class="step-label">{step}</span>
+        </button>
+      {/each}
+    </nav>
 
-  <section class="content card">
+    <section class="content card">
     {#if wipPrompt && currentStep === 0}
       <div class="wip-prompt alert alert-info">
         <span>Unfinished character found — {wipPrompt.character.race?.name || '?'} {wipPrompt.character.kit?.name || wipPrompt.character.wizardSchool?.name || wipPrompt.character.cls?.name || '?'} (Step {wipPrompt.currentStep + 1}: {steps[wipPrompt.currentStep]})</span>
@@ -433,7 +512,19 @@
     {:else if currentStep === STEP_SHEET}
       <CharacterSheet {character} onCharacterUpdate={handleCharacterUpdate} undoMessage={undoToast.message} showUndoMessage={undoToast.visible} />
     {/if}
-  </section>
+    </section>
+  {:else if currentView === 'splash'}
+    <SplashPage
+      {savedCharacters}
+      {wipPrompt}
+      onLaunchCharacterCreator={launchCharacterCreator}
+      onLoadCharacter={loadSavedCharacter}
+      onDeleteCharacter={deleteSavedCharacter}
+      onImportCharacter={openImportDialog}
+      onResumeWip={resumeWip}
+      onDiscardWip={discardWip}
+    />
+  {/if}
 </main>
 
 {#if saveToast.visible}
