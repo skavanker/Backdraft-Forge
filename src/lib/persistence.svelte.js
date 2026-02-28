@@ -92,6 +92,7 @@ export function deleteSavedCharacter(id, savedCharacters) {
  */
 export function saveMidCreation(character, currentStep) {
   try {
+    // Use JSON serialization to handle non-serializable objects
     const payload = { character: JSON.parse(JSON.stringify(character)), currentStep };
     localStorage.setItem(WIP_KEY, JSON.stringify(payload));
   } catch { /* silently fail */ }

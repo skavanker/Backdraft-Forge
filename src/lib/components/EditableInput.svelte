@@ -36,11 +36,8 @@
   function startEdit() {
     inputValue = String(value);
     editing = true;
-    // Focus and select input after DOM update
-    setTimeout(() => {
-      inputElement?.focus();
-      inputElement?.select();
-    }, 0);
+    // Focus input after DOM update
+    setTimeout(() => inputElement?.focus(), 0);
   }
 
   function handleSave() {

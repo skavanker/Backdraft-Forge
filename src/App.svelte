@@ -271,14 +271,77 @@
   const saveToast = useToast(TOAST_DURATION);
 
   function pushUndo() {
-    undoStack = [...undoStack.slice(-(MAX_UNDO - 1)), structuredClone(character)];
+    // Use JSON serialization to handle non-serializable objects (functions in data objects)
+    undoStack = [...undoStack.slice(-(MAX_UNDO - 1)), JSON.parse(JSON.stringify(character))];
   }
 
-  function undo() {
+  async function undo() {
     if (undoStack.length === 0 || currentStep !== STEP_SHEET) return;
     const prev = undoStack[undoStack.length - 1];
     undoStack = undoStack.slice(0, -1);
-    Object.assign(character, prev);
+
+    // Restore objects from keys
+    const { races } = await import('./data/races.js');
+    const { classes, wizardSchools } = await import('./data/classes.js');
+    const { kits } = await import('./data/kits.js');
+    const { deities } = await import('./data/deities.js');
+    const { weapons, nonWeaponProficiencies } = await import('./data/proficiencies.js');
+    const { languages } = await import('./data/languages.js');
+    const { equipment } = await import('./data/equipment.js');
+    const { wizardSpells, priestSpells } = await import('./data/spells.js');
+
+    const restored = {
+      ...prev,
+      race: prev.raceKey ? races[prev.raceKey] : null,
+      cls: prev.classKey ? classes[prev.classKey] : null,
+      wizardSchool: prev.wizardSchool?.key ? { key: prev.wizardSchool.key, ...wizardSchools[prev.wizardSchool.key] } : null,
+      kit: prev.kitKey && kits[prev.kitKey] ? { key: prev.kitKey, ...kits[prev.kitKey] } : null,
+      deity: prev.deityKey && deities[prev.deityKey] ? { key: prev.deityKey, ...deities[prev.deityKey] } : null
+    };
+
+    // Restore proficiencies
+    if (prev.proficiencies) {
+      restored.proficiencies = {
+        weapons: prev.proficiencies.weapons?.map(w => ({ key: w.key, ...weapons[w.key] })) || [],
+        nonWeapon: prev.proficiencies.nonWeapon?.map(p => ({ key: p.key, ...nonWeaponProficiencies[p.key] })) || [],
+        languages: prev.proficiencies.languages?.map(l => ({ key: l.key, ...languages[l.key] })) || []
+      };
+    }
+
+    // Restore equipment
+    if (prev.equipment) {
+      restored.equipment = {
+        remaining: prev.equipment.remaining,
+        armor: prev.equipment.armor ? equipment.armor.find(a => a.key === prev.equipment.armor.key) : null,
+        shield: prev.equipment.shield ? equipment.shields.find(s => s.key === prev.equipment.shield.key) : null,
+        weapons: prev.equipment.weapons?.map(w => equipment.weapons.find(wep => wep.key === w.key)).filter(Boolean) || [],
+        gear: prev.equipment.gear?.map(g => {
+          if (g.key?.startsWith('custom_')) return g; // Custom items
+          const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(item => item.key === g.key);
+          return found ? { ...found, qty: g.qty } : null;
+        }).filter(Boolean) || []
+      };
+    }
+
+    // Restore spells
+    if (prev.spells) {
+      if (prev.spells.type === 'arcane') {
+        restored.spells = {
+          type: 'arcane',
+          spellbook: prev.spells.spellbook?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
+          memorized: prev.spells.memorized?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
+          spellsPerDay: prev.spells.spellsPerDay
+        };
+      } else if (prev.spells.type === 'divine') {
+        restored.spells = {
+          type: 'divine',
+          prepared: prev.spells.prepared?.map(s => priestSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
+          spellsPerDay: prev.spells.spellsPerDay
+        };
+      }
+    }
+
+    Object.assign(character, restored);
     saveToLocalStorage();
     undoToast.flash('Undone');
   }
@@ -306,9 +369,72 @@
     flashSave();
   }
 
-  function resumeWip() {
+  async function resumeWip() {
     if (!wipPrompt) return;
-    Object.assign(character, wipPrompt.character);
+
+    // Restore objects from keys (same as undo)
+    const { races } = await import('./data/races.js');
+    const { classes, wizardSchools } = await import('./data/classes.js');
+    const { kits } = await import('./data/kits.js');
+    const { deities } = await import('./data/deities.js');
+    const { weapons, nonWeaponProficiencies } = await import('./data/proficiencies.js');
+    const { languages } = await import('./data/languages.js');
+    const { equipment } = await import('./data/equipment.js');
+    const { wizardSpells, priestSpells } = await import('./data/spells.js');
+
+    const wip = wipPrompt.character;
+    const restored = {
+      ...wip,
+      race: wip.raceKey ? races[wip.raceKey] : null,
+      cls: wip.classKey ? classes[wip.classKey] : null,
+      wizardSchool: wip.wizardSchool?.key ? { key: wip.wizardSchool.key, ...wizardSchools[wip.wizardSchool.key] } : null,
+      kit: wip.kitKey && kits[wip.kitKey] ? { key: wip.kitKey, ...kits[wip.kitKey] } : null,
+      deity: wip.deityKey && deities[wip.deityKey] ? { key: wip.deityKey, ...deities[wip.deityKey] } : null
+    };
+
+    // Restore proficiencies
+    if (wip.proficiencies) {
+      restored.proficiencies = {
+        weapons: wip.proficiencies.weapons?.map(w => ({ key: w.key, ...weapons[w.key] })) || [],
+        nonWeapon: wip.proficiencies.nonWeapon?.map(p => ({ key: p.key, ...nonWeaponProficiencies[p.key] })) || [],
+        languages: wip.proficiencies.languages?.map(l => ({ key: l.key, ...languages[l.key] })) || []
+      };
+    }
+
+    // Restore equipment
+    if (wip.equipment) {
+      restored.equipment = {
+        remaining: wip.equipment.remaining,
+        armor: wip.equipment.armor ? equipment.armor.find(a => a.key === wip.equipment.armor.key) : null,
+        shield: wip.equipment.shield ? equipment.shields.find(s => s.key === wip.equipment.shield.key) : null,
+        weapons: wip.equipment.weapons?.map(w => equipment.weapons.find(wep => wep.key === w.key)).filter(Boolean) || [],
+        gear: wip.equipment.gear?.map(g => {
+          if (g.key?.startsWith('custom_')) return g;
+          const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing].find(item => item.key === g.key);
+          return found ? { ...found, qty: g.qty } : null;
+        }).filter(Boolean) || []
+      };
+    }
+
+    // Restore spells
+    if (wip.spells) {
+      if (wip.spells.type === 'arcane') {
+        restored.spells = {
+          type: 'arcane',
+          spellbook: wip.spells.spellbook?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
+          memorized: wip.spells.memorized?.map(s => wizardSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
+          spellsPerDay: wip.spells.spellsPerDay
+        };
+      } else if (wip.spells.type === 'divine') {
+        restored.spells = {
+          type: 'divine',
+          prepared: wip.spells.prepared?.map(s => priestSpells.find(spell => spell.key === s.key)).filter(Boolean) || [],
+          spellsPerDay: wip.spells.spellsPerDay
+        };
+      }
+    }
+
+    Object.assign(character, restored);
     currentStep = wipPrompt.currentStep;
     wipPrompt = null;
     clearMidCreation();
