@@ -1,0 +1,35 @@
+<script>
+  /**
+   * MonsterList - Grid wrapper for displaying multiple monsters
+   * Handles the grid layout and empty states
+   */
+  import MonsterStatBlock from './MonsterStatBlock.svelte';
+
+  let {
+    monsters = [],
+    onSave = null,
+    onDelete = null,
+    saved = false
+  } = $props();
+</script>
+
+{#if monsters.length === 0}
+  <div class="empty-state">
+    <p>No monsters found.</p>
+  </div>
+{:else}
+  <div class="monster-grid">
+    {#each monsters as monster (monster.key)}
+      <MonsterStatBlock
+        {monster}
+        {onSave}
+        {onDelete}
+        {saved}
+      />
+    {/each}
+  </div>
+{/if}
+
+<style lang="scss">
+  @import '../styles/monster-bestiary';
+</style>

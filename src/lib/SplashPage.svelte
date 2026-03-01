@@ -6,6 +6,7 @@
     onLaunchNPCGenerator,
     onLaunchTreasureGenerator,
     onLaunchNameGenerator,
+    onLaunchMonsterBestiary,
     onLoadCharacter,
     onDeleteCharacter,
     onImportCharacter,
@@ -54,35 +55,30 @@
       <div class="tool-icon">⚔️</div>
       <h2>Character Creator</h2>
       <p>Create player characters with full AD&D 2E rules</p>
-      <span class="tool-status">Available</span>
     </button>
 
     <button class="tool-card available" onclick={onLaunchNPCGenerator}>
       <div class="tool-icon">👥</div>
       <h2>NPC Generator</h2>
       <p>Quickly generate NPCs with random or custom stats</p>
-      <span class="tool-status">Available</span>
     </button>
 
-    <div class="tool-card coming-soon">
+    <button class="tool-card available" onclick={onLaunchMonsterBestiary}>
       <div class="tool-icon">🐉</div>
       <h2>Monster Bestiary</h2>
-      <p>Browse monsters, generate encounters, stat blocks</p>
-      <span class="tool-status">Coming Soon</span>
-    </div>
+      <p>Browse and search AD&D 2E monsters with complete stat blocks</p>
+    </button>
 
     <button class="tool-card available" onclick={onLaunchTreasureGenerator}>
       <div class="tool-icon">💰</div>
       <h2>Treasure Generator</h2>
       <p>Generate treasure hoards by type or monster</p>
-      <span class="tool-status">Available</span>
     </button>
 
     <button class="tool-card available" onclick={onLaunchNameGenerator}>
       <div class="tool-icon">📜</div>
       <h2>Name Generator</h2>
       <p>Generate names for characters, NPCs, and more</p>
-      <span class="tool-status">Available</span>
     </button>
   </section>
 

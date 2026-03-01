@@ -4,6 +4,7 @@
   import NPCGenerator from './lib/NPCGenerator.svelte';
   import TreasureGenerator from './lib/TreasureGenerator.svelte';
   import NameGenerator from './lib/NameGenerator.svelte';
+  import MonsterBestiary from './lib/MonsterBestiary.svelte';
   import AbilityRoller from './lib/AbilityRoller.svelte';
   import RaceSelector from './lib/RaceSelector.svelte';
   import ClassSelector from './lib/ClassSelector.svelte';
@@ -41,7 +42,7 @@
     loadMidCreation
   } from './lib/persistence.svelte.js';
 
-  let currentView = $state('splash'); // 'splash' | 'character-creator' | 'npc-generator' | 'treasure-generator'
+  let currentView = $state('splash'); // 'splash' | 'character-creator' | 'npc-generator' | 'treasure-generator' | 'name-generator' | 'monster-bestiary'
   let currentStep = $state(0);
   let settingsOpen = $state(false);
 
@@ -320,6 +321,10 @@
     currentView = 'name-generator';
   }
 
+  function launchMonsterBestiary() {
+    currentView = 'monster-bestiary';
+  }
+
   function returnToSplash() {
     // Check if there are unsaved changes (character has data but not saved)
     const hasUnsavedChanges = currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
@@ -552,6 +557,14 @@
     <section class="content card">
       <NameGenerator />
     </section>
+  {:else if currentView === 'monster-bestiary'}
+    <header class="header">
+      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <p class="tagline">AD&D 2nd Edition Monster Bestiary</p>
+    </header>
+    <section class="content card">
+      <MonsterBestiary />
+    </section>
   {:else if currentView === 'splash'}
     <SplashPage
       {savedCharacters}
@@ -560,6 +573,7 @@
       onLaunchNPCGenerator={launchNPCGenerator}
       onLaunchTreasureGenerator={launchTreasureGenerator}
       onLaunchNameGenerator={launchNameGenerator}
+      onLaunchMonsterBestiary={launchMonsterBestiary}
       onLoadCharacter={loadSavedCharacter}
       onDeleteCharacter={deleteSavedCharacter}
       onImportCharacter={openImportDialog}

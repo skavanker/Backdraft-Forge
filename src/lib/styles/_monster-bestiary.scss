@@ -1,0 +1,329 @@
+@import '../../styles/mixins.scss';
+
+// ════════ MONSTER BESTIARY ════════
+.monster-bestiary {
+  .generator-header {
+    text-align: center;
+    margin-bottom: $space-lg;
+
+    h2 {
+      margin: 0 0 $space-sm;
+      color: var(--text-primary);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  }
+
+  .generator-section {
+    margin-bottom: $space-lg * 1.5;
+
+    h3 {
+      margin: 0 0 $space-md;
+      color: var(--text-primary);
+    }
+  }
+}
+
+// ════════ BROWSER FORM ════════
+.monster-browser-form {
+  @extend .panel;
+
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+
+    &:not(:last-child) {
+      margin-bottom: $space-md;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: $text-sm;
+    }
+  }
+
+  input[type="text"] {
+    padding: $space-md;
+    @include border-default;
+    @include rounded;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: $text-base;
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+    }
+  }
+
+  .type-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-sm;
+  }
+
+  .chip-button {
+    padding: $space-sm $space-md;
+    background: var(--bg-subtle);
+    @include border-default;
+    @include rounded;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: $text-sm;
+    font-weight: 500;
+    color: var(--text-body);
+
+    &:hover {
+      background: var(--bg-input);
+      border-color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    &.selected {
+      background: var(--gold-overlay);
+      border-color: var(--gold);
+      color: var(--gold-dark);
+      font-weight: 600;
+    }
+  }
+}
+
+// ════════ MONSTER GRID ════════
+.monster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: $space-md;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ════════ MONSTER STAT BLOCK ════════
+.monster-stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .monster-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: $space-sm;
+    border-bottom: 1px solid var(--border-color);
+
+    h4 {
+      margin: 0 0 $space-xs;
+      color: var(--text-primary);
+      font-size: $text-lg;
+    }
+
+    .monster-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $space-xs;
+      margin-top: $space-xs;
+    }
+  }
+
+  .type-badge,
+  .size-badge {
+    font-size: $text-xs;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: $space-xs $space-sm;
+    @include rounded;
+    white-space: nowrap;
+  }
+
+  .type-badge {
+    background: var(--gold-overlay);
+    color: var(--gold-dark);
+  }
+
+  .size-badge {
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+  }
+
+  .monster-combat-row {
+    display: flex;
+    justify-content: space-around;
+    padding: $space-sm;
+    background: var(--bg-subtle);
+    @include rounded;
+    gap: $space-xs;
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $space-xs;
+
+      .label {
+        font-size: $text-xs;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .value {
+        font-size: $text-base;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .monster-attacks,
+  .monster-stats-row,
+  .monster-treasure {
+    font-size: $text-sm;
+    color: var(--text-body);
+    line-height: 1.6;
+
+    strong {
+      color: var(--text-primary);
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+      margin-left: $space-xs;
+    }
+  }
+
+  .monster-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-md;
+    justify-content: space-between;
+  }
+
+  .monster-treasure {
+    .monster-alignment {
+      float: right;
+    }
+  }
+
+  .monster-specials {
+    font-size: $text-sm;
+
+    strong {
+      color: var(--text-primary);
+    }
+
+    .special-list {
+      margin: $space-xs 0 0;
+      padding-left: $space-lg;
+      font-size: $text-sm;
+
+      li {
+        margin-bottom: $space-xs;
+        color: var(--text-body);
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .monster-description {
+    font-size: $text-sm;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .monster-habitat {
+    font-size: $text-sm;
+    color: var(--text-body);
+    margin: 0;
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  .monster-actions {
+    display: flex;
+    gap: $space-sm;
+    justify-content: flex-end;
+    padding-top: $space-sm;
+    border-top: 1px solid var(--border-color);
+
+    .btn-sm {
+      font-size: $text-sm;
+      padding: $space-xs $space-md;
+    }
+  }
+}
+
+// ════════ EMPTY STATE ════════
+.empty-state {
+  text-align: center;
+  padding: $space-lg * 2;
+  color: var(--text-muted);
+  font-style: italic;
+
+  p {
+    margin: 0;
+    font-size: $text-base;
+  }
+}
+
+// ════════ RESPONSIVE ════════
+@include mobile {
+  .monster-bestiary {
+    .generator-header {
+      h2 {
+        font-size: $text-lg * 1.2;
+      }
+    }
+  }
+
+  .monster-stat-block {
+    .monster-combat-row {
+      flex-wrap: wrap;
+
+      .stat {
+        flex: 1 1 auto;
+        min-width: 60px;
+      }
+    }
+
+    .monster-stats-row {
+      flex-direction: column;
+      gap: $space-sm;
+    }
+
+    .monster-treasure {
+      .monster-alignment {
+        float: none;
+        display: block;
+        margin-top: $space-xs;
+      }
+    }
+  }
+}
