@@ -1,43 +1,8 @@
 @import '../../styles/mixins.scss';
+@import './modal';
 
 // ════════════ LEVEL UP WIZARD ════════════
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7); // 70% opacity dark overlay for modal backdrop
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 500; // High z-index to appear above all other content
-  padding: $space-lg;
-}
-.wizard-modal {
-  background: var(--bg-card);
-  border: 3px solid var(--gold); // Prominent border to draw attention
-  @include rounded;
-  padding: $space-lg;
-  max-width: 520px; // Readable width for multi-step wizard content
-  width: 100%;
-  max-height: 90vh; // 90% viewport height to ensure scroll on small screens
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 0 40px var(--gold-overlay-border);
-}
-.close-btn {
-  position: absolute;
-  top: $space-sm;
-  right: $space-md;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-muted);
-  cursor: pointer;
-  line-height: 1;
-  padding: $space-sm;
-  &:hover { color: var(--text-primary); }
-}
-.wizard-header { text-align: center; margin-bottom: $space-lg; h2 { color: var(--gold); margin: 0; } }
-// Badge styles moved to _utilities.scss
+// Modal styles now in _modal.scss
 .levelup-step { @extend .flex-column; align-items: center; gap: $space-md; h3 { text-align: center; margin: 0; } }
 .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: $space-sm; width: 100%; }
 .summary-item {
@@ -191,14 +156,4 @@
 .save-improved { color: var(--gold); font-size: $text-sm; }
 .confirm-summary { width: 100%; max-width: 300px; }
 .confirm-row { display: flex; justify-content: space-between; padding: $space-sm 0; border-bottom: 1px dotted var(--border-color); font-weight: 600; }
-.step-nav { display: flex; gap: $space-md; margin-top: $space-md; }
-.step-dots { display: flex; justify-content: center; gap: $space-sm; margin-top: $space-lg; }
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border-color);
-  @include transition;
-  &.active { background: var(--gold); transform: scale(1.3); }
-  &.completed { background: var(--gold-dark); }
-}
+// step-nav and step-dots now in _modal.scss

@@ -78,20 +78,35 @@
         </div>
       {/each}
     {/if}
-    {#if equipment?.remaining !== undefined}
+    {#if equipment?.gp !== undefined || equipment?.sp !== undefined || equipment?.cp !== undefined || equipment?.remaining !== undefined}
+      {@const gp = equipment.gp ?? 0}
+      {@const sp = equipment.sp ?? 0}
+      {@const cp = equipment.cp ?? 0}
+      {@const hasOldFormat = equipment.remaining !== undefined && equipment.gp === undefined}
       <div class="data-row">
         <span>Gold</span>
-        <EditableInput
-          value={equipment.remaining}
-          displayFormat={(v) => `${v.toFixed(1)} gp`}
-          parseValue={(v) => parseFloat(v)}
-          min={0}
-          step={0.1}
-          onUpdate={onUpdateGold}
-          title="Click to edit gold"
-          buttonClass="gold-display-btn"
-          inputClass="gold-input-field"
-        />
+        {#if hasOldFormat}
+          <!-- Old format: editable decimal gold -->
+          <EditableInput
+            value={equipment.remaining}
+            displayFormat={(v) => `${v.toFixed(1)} gp`}
+            parseValue={(v) => parseFloat(v)}
+            min={0}
+            step={0.1}
+            onUpdate={onUpdateGold}
+            title="Click to edit gold"
+            buttonClass="gold-display-btn"
+            inputClass="gold-input-field"
+          />
+        {:else}
+          <!-- New format: display gp/sp/cp breakdown -->
+          <span class="val">
+            {#if gp > 0}{gp} gp{/if}{#if gp > 0 && (sp > 0 || cp > 0)}, {/if}
+            {#if sp > 0}{sp} sp{/if}{#if sp > 0 && cp > 0}, {/if}
+            {#if cp > 0}{cp} cp{/if}
+            {#if gp === 0 && sp === 0 && cp === 0}0 gp{/if}
+          </span>
+        {/if}
       </div>
     {/if}
   </div>

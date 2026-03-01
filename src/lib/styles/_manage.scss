@@ -1,0 +1,428 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ CHARACTER MANAGEMENT PANEL STYLES ════════════
+
+// Panel wrapper
+.manage-panel {
+  @extend .flex-column;
+  align-items: stretch;
+  gap: $space-md;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+
+  h3 {
+    text-align: center;
+    color: var(--gold);
+    margin: 0 0 $space-md 0;
+  }
+}
+
+// Quick action buttons
+.quick-buttons {
+  @extend .flex-column;
+  gap: $space-md;
+}
+
+.button-group {
+  display: grid;
+  grid-template-columns: auto repeat(4, 1fr);
+  gap: $space-sm;
+  align-items: center;
+
+  .group-label {
+    font-weight: 600;
+    font-size: $text-sm;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// XP Panel
+.xp-display {
+  @extend .flex-column;
+  gap: $space-sm;
+  padding: $space-md;
+  background: var(--bg-panel);
+  @include rounded;
+  border: 1px solid var(--border-color);
+
+  .xp-current,
+  .xp-next,
+  .xp-needed,
+  .xp-max {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    .label {
+      color: var(--text-secondary);
+      font-size: $text-sm;
+      font-weight: 600;
+    }
+
+    .value {
+      font-family: $font-display;
+      font-size: $text-lg;
+      font-weight: 700;
+      color: var(--gold);
+    }
+  }
+
+  .xp-needed .value {
+    color: var(--text-primary);
+  }
+}
+
+// Currency Panel
+.currency-display {
+  padding: $space-md;
+  background: var(--bg-panel);
+  @include rounded;
+  border: 1px solid var(--border-color);
+
+  .currency-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    .label {
+      color: var(--text-secondary);
+      font-size: $text-sm;
+      font-weight: 600;
+    }
+
+    .value {
+      font-family: $font-display;
+      font-size: $text-lg;
+      font-weight: 700;
+      color: var(--gold);
+    }
+  }
+}
+
+.currency-breakdown {
+  @extend .flex-column;
+  gap: $space-sm;
+
+  .currency-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $space-md;
+
+    label {
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 150px;
+    }
+
+    .currency-input {
+      width: 100px;
+      padding: $space-sm;
+      border: 1px solid var(--border-color);
+      @include rounded;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: $font-display;
+      font-weight: 600;
+      text-align: right;
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+    }
+  }
+}
+
+.convert-section {
+  @extend .flex-column;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-md 0;
+  border-top: 1px dotted var(--border-color);
+  border-bottom: 1px dotted var(--border-color);
+}
+
+// HP Panel
+.hp-display {
+  @extend .flex-column;
+  gap: $space-md;
+  padding: $space-lg;
+  background: var(--bg-panel);
+  @include rounded;
+  border: 1px solid var(--border-color);
+  align-items: center;
+
+  .hp-numbers {
+    display: flex;
+    align-items: baseline;
+    gap: $space-sm;
+    font-family: $font-display;
+
+    .hp-current {
+      font-size: 2.5rem;
+      font-weight: 700;
+
+      &.healthy {
+        color: var(--color-success);
+      }
+
+      &.wounded {
+        color: var(--color-warning);
+      }
+
+      &.critical {
+        color: var(--color-danger);
+      }
+    }
+
+    .hp-separator {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .hp-max {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    .hp-temp {
+      font-size: $text-sm;
+      color: var(--color-info);
+      font-weight: 600;
+    }
+  }
+}
+
+.hp-bar {
+  width: 100%;
+  height: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  @include rounded;
+  overflow: hidden;
+  position: relative;
+
+  .hp-bar-fill {
+    height: 100%;
+    @include transition;
+
+    &.healthy {
+      background: var(--color-success);
+    }
+
+    &.wounded {
+      background: var(--color-warning);
+    }
+
+    &.critical {
+      background: var(--color-danger);
+    }
+  }
+}
+
+// Spell Slot Panel
+.spell-slot-list {
+  @extend .flex-column;
+  gap: $space-sm;
+}
+
+.spell-slot-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: $space-md;
+  align-items: center;
+  padding: $space-md;
+  background: var(--bg-panel);
+  @include rounded;
+  border: 1px solid var(--border-color);
+
+  .slot-level {
+    font-weight: 600;
+    color: var(--text-primary);
+    min-width: 80px;
+  }
+
+  .slot-dots {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+
+    .slot-dot {
+      font-size: 1.25rem;
+
+      &.used {
+        color: var(--text-muted);
+      }
+
+      &.available {
+        color: var(--gold);
+      }
+    }
+  }
+
+  .slot-count {
+    font-size: $text-sm;
+    color: var(--text-secondary);
+    font-weight: 600;
+    min-width: 100px;
+  }
+
+  .slot-actions {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+  }
+}
+
+.quick-actions {
+  display: flex;
+  gap: $space-md;
+  justify-content: center;
+  padding-top: $space-md;
+  border-top: 1px dotted var(--border-color);
+}
+
+// Rest Panel
+.rest-options {
+  @extend .flex-column;
+  gap: $space-md;
+}
+
+.rest-option {
+  @extend .flex-column;
+  gap: $space-md;
+  padding: $space-lg;
+
+  .rest-header {
+    h4 {
+      margin: 0;
+      color: var(--gold);
+    }
+  }
+
+  .rest-description {
+    @extend .flex-column;
+    gap: $space-sm;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .rest-result {
+    font-weight: 700;
+    color: var(--color-success);
+    padding: $space-sm;
+    background: var(--gold-overlay);
+    @include rounded;
+    text-align: center;
+  }
+
+  .custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: $space-sm;
+      font-weight: 600;
+    }
+
+    .custom-input-sm {
+      width: 60px;
+      padding: $space-sm;
+      border: 1px solid var(--border-color);
+      @include rounded;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-weight: 600;
+      text-align: center;
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+    }
+  }
+}
+
+// Custom adjustment inputs
+.custom-adjust {
+  @extend .flex-column;
+  gap: $space-sm;
+  padding: $space-md;
+  background: var(--bg-panel);
+  @include rounded;
+  border: 1px solid var(--border-color);
+
+  .label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: $text-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .custom-inputs {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+
+    .custom-input {
+      flex: 1;
+      padding: $space-sm;
+      border: 1px solid var(--border-color);
+      @include rounded;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: $font-display;
+      font-weight: 600;
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+    }
+
+    .custom-select {
+      padding: $space-sm;
+      border: 1px solid var(--border-color);
+      @include rounded;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-weight: 600;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+    }
+  }
+}
+
+// Panel actions (Save/Cancel)
+.panel-actions {
+  display: flex;
+  gap: $space-md;
+  justify-content: flex-end;
+  padding-top: $space-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.panel-note {
+  padding: $space-md;
+  background: var(--bg-hover);
+  @include rounded;
+  border-left: 3px solid var(--color-info);
+
+  p {
+    margin: 0;
+  }
+}

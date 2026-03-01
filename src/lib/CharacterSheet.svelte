@@ -5,6 +5,7 @@
   import AbilitiesPanel from './components/AbilitiesPanel.svelte';
   import CombatStatsPanel from './components/CombatStatsPanel.svelte';
   import EquipmentPanel from './components/EquipmentPanel.svelte';
+  import ManageCharacterModal from './components/ManageCharacterModal.svelte';
   import { useToggle, useAbilityModifiers } from './utils/stateUtils.svelte.js';
   import { getSavingThrows, getBaseTHAC0 } from '../data/mechanics.js';
   import { getSpellSlots, getAttacksPerRound, formatSpellSlots } from '../data/levelTables.js';
@@ -45,6 +46,18 @@
 
   // State management using composables
   const showLevelUp = useToggle(false);
+  const showManageModal = useToggle(false);
+  let managePanelToOpen = $state('menu');
+
+  // Reset panel selection when modal closes
+  $effect(() => {
+    if (!showManageModal.value) {
+      managePanelToOpen = 'menu';
+    }
+  });
+
+  // Check if character has spells
+  let hasSpells = $derived(spellSlots && spellSlots.length > 0 && spellSlots.some(s => s > 0));
 
   // Current HP derived - explicit null check to handle NaN and other invalid values
   let currentHP = $derived(
@@ -155,8 +168,13 @@
     {xpForNext}
     canLevelUp={canLevelUpNow}
     {atLevelLimit}
+    {hasSpells}
     onUpdateXP={(val) => onCharacterUpdate?.({ xp: val })}
     onLevelUp={showLevelUp.open}
+    onOpenManagePanel={(panelId) => {
+      managePanelToOpen = panelId;
+      showManageModal.open();
+    }}
   />
 
   <hr class="divider">
@@ -401,6 +419,15 @@
     />
   {/await}
 {/if}
+
+<ManageCharacterModal
+  bind:isOpen={showManageModal.value}
+  {character}
+  initialPanel={managePanelToOpen}
+  onComplete={(updates) => {
+    onCharacterUpdate?.(updates);
+  }}
+/>
 
 
 <style lang="scss">

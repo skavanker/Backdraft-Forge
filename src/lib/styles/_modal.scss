@@ -1,0 +1,195 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ SHARED MODAL STYLES ════════════
+
+// Modal overlay - full screen dark backdrop
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: $space-lg;
+}
+
+// Modal container - gold-bordered modal box
+.modal-container {
+  background: var(--bg-card);
+  border: 3px solid var(--gold);
+  @include rounded;
+  padding: $space-lg;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 0 40px var(--gold-overlay-border);
+
+  // Linear wizard variant
+  &.modal-linear {
+    max-width: 520px;
+  }
+
+  // Menu panel variant
+  &.modal-menu {
+    max-width: 640px;
+  }
+}
+
+// Close button - × in top-right corner
+.modal-close-btn {
+  position: absolute;
+  top: $space-sm;
+  right: $space-md;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: $space-sm;
+  z-index: 10;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+// Modal header - centered title area
+.modal-header {
+  text-align: center;
+  margin-bottom: $space-lg;
+
+  h2 {
+    color: var(--gold);
+    margin: 0;
+  }
+
+  .modal-subtitle {
+    color: var(--text-secondary);
+    font-size: $text-sm;
+    margin-top: $space-sm;
+  }
+}
+
+// Modal step content wrapper
+.modal-step {
+  @extend .flex-column;
+  align-items: center;
+  gap: $space-md;
+
+  h3 {
+    text-align: center;
+    margin: 0;
+  }
+}
+
+// Step navigation buttons (Back/Continue)
+.step-nav {
+  display: flex;
+  gap: $space-md;
+  margin-top: $space-md;
+}
+
+// Step indicators - dots for linear mode
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: $space-sm;
+  margin-top: $space-lg;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-color);
+    @include transition;
+
+    &.active {
+      background: var(--gold);
+      transform: scale(1.3);
+    }
+
+    &.completed {
+      background: var(--gold-dark);
+    }
+  }
+}
+
+// Breadcrumb for menu mode
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $space-lg;
+  padding-top: $space-md;
+  border-top: 1px solid var(--border-color);
+
+  .breadcrumb-back {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: $text-sm;
+    padding: $space-sm;
+
+    &:hover {
+      color: var(--gold);
+    }
+  }
+
+  .breadcrumb-current {
+    color: var(--text-muted);
+    font-size: $text-sm;
+    font-weight: 600;
+  }
+}
+
+// Panel menu grid (for menu mode home screen)
+.panel-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $space-md;
+  width: 100%;
+}
+
+// Panel card - clickable card for menu selection
+.panel-card {
+  @extend .panel;
+  cursor: pointer;
+  text-align: center;
+  @include transition;
+  position: relative;
+  padding: $space-lg;
+
+  &:hover {
+    border-color: var(--gold);
+    background: var(--gold-overlay);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .panel-icon {
+    font-size: 2rem;
+    margin-bottom: $space-sm;
+    display: block;
+  }
+
+  .panel-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: $space-sm;
+    display: block;
+  }
+
+  .panel-description {
+    font-size: $text-sm;
+    color: var(--text-secondary);
+    display: block;
+  }
+}

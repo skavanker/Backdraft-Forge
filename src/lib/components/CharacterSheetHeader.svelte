@@ -12,16 +12,78 @@
     canLevelUp = false,
     atLevelLimit = false,
     onUpdateXP,
-    onLevelUp
+    onLevelUp,
+    onOpenManagePanel,
+    hasSpells = false
   } = $props();
 
   let xpProgress = $derived(xpForNext ? Math.min(100, (xp / xpForNext) * 100) : 0);
+  let showDropdown = $state(false);
+
+  function toggleDropdown() {
+    showDropdown = !showDropdown;
+  }
+
+  function closeDropdown() {
+    showDropdown = false;
+  }
+
+  function openPanel(panelId) {
+    onOpenManagePanel?.(panelId);
+    closeDropdown();
+  }
+
+  // Close dropdown when clicking outside
+  function handleClickOutside(e) {
+    if (showDropdown && !e.target.closest('.hamburger-container')) {
+      closeDropdown();
+    }
+  }
 </script>
 
 <style lang="scss">@import '../styles/sheet';</style>
 
-<h1>{name}</h1>
-<div class="subtitle">{raceName} {className} · Level {level}</div>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div onclick={handleClickOutside}>
+  <div class="header-row">
+    <h1>{name}</h1>
+    {#if onOpenManagePanel}
+      <div class="hamburger-container">
+        <button class="hamburger-menu" onclick={toggleDropdown} aria-label="Character management menu" title="Character management">
+          ☰
+        </button>
+        {#if showDropdown}
+          <div class="hamburger-dropdown">
+            <button class="dropdown-item" onclick={() => openPanel('xp')}>
+              <span class="item-icon">⭐</span>
+              <span class="item-label">Adjust XP</span>
+            </button>
+            <button class="dropdown-item" onclick={() => openPanel('gold')}>
+              <span class="item-icon">💰</span>
+              <span class="item-label">Manage Gold</span>
+            </button>
+            <button class="dropdown-item" onclick={() => openPanel('hp')}>
+              <span class="item-icon">❤️</span>
+              <span class="item-label">Adjust HP</span>
+            </button>
+            {#if hasSpells}
+              <button class="dropdown-item" onclick={() => openPanel('spells')}>
+                <span class="item-icon">✨</span>
+                <span class="item-label">Spell Slots</span>
+              </button>
+            {/if}
+            <button class="dropdown-item" onclick={() => openPanel('rest')}>
+              <span class="item-icon">🛡️</span>
+              <span class="item-label">Rest & Recover</span>
+            </button>
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+  <div class="subtitle">{raceName} {className} · Level {level}</div>
+</div>
 
 <!-- XP Bar -->
 <div class="xp-section">

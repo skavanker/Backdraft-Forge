@@ -6,6 +6,10 @@
   import { getThiefSkillBreakdown, THIEF_POINTS_PER_LEVEL } from '../data/thiefSkills.js';
   import { parseDieMax } from './utils/hpUtils.js';
   import { getClassKey, getClassGroup, getHitDie } from './utils/characterAccessors.js';
+  import StepModal from './components/StepModal.svelte';
+  import SummaryStep from './components/steps/SummaryStep.svelte';
+  import ConfirmStep from './components/steps/ConfirmStep.svelte';
+  import ProficienciesStep from './components/steps/ProficienciesStep.svelte';
   import HPRollStep from './components/HPRollStep.svelte';
   import ThiefSkillsStep from './components/ThiefSkillsStep.svelte';
   import SpellSlotsStep from './components/SpellSlotsStep.svelte';
@@ -16,16 +20,9 @@
   let currentLevel = character.level || 1;
   let newLevel = currentLevel + 1;
 
-  // Steps
-  const STEP_SUMMARY = 0;
-  const STEP_HP = 1;
-  const STEP_THIEF_SKILLS = 2;
-  const STEP_SPELLS = 3;
-  const STEP_PROFICIENCIES = 4;
-  const STEP_FEATURES = 5;
-  const STEP_CONFIRM = 6;
-
-  let step = $state(STEP_SUMMARY);
+  // Modal state
+  let isOpen = $state(true);
+  let currentStepIndex = $state(0);
 
   // HP roll state
   let hpRolled = $state(false);
@@ -80,20 +77,6 @@
     Object.keys(thiefBase).filter(skill => newLevel >= 4 || skill !== 'readLanguages')
   );
 
-
-  // Figure out which steps to show
-  let steps = $derived.by(() => {
-    const s = [STEP_SUMMARY, STEP_HP];
-    if (isThiefClass) s.push(STEP_THIEF_SKILLS);
-    if (hasNewSpellSlots || becomesCaster) s.push(STEP_SPELLS);
-    if (gainsWeaponProf || gainsNonWeaponProf) s.push(STEP_PROFICIENCIES);
-    if (newFeatures.length > 0 || savesImproved || newTHAC0 < oldTHAC0) s.push(STEP_FEATURES);
-    s.push(STEP_CONFIRM);
-    return s;
-  });
-
-  let stepIndex = $state(0);
-
   // Auto-set fixed HP for post-name levels (using $effect to prevent re-initialization)
   let hpInitialized = $state(false);
   $effect(() => {
@@ -106,20 +89,142 @@
     }
   });
 
-  function nextStep() {
-    if (stepIndex < steps.length - 1) {
-      stepIndex++;
-      step = steps[stepIndex];
-    }
-  }
+  // Build steps array dynamically based on what this level grants
+  let wizardSteps = $derived.by(() => {
+    const steps = [
+      {
+        id: 'summary',
+        label: 'Summary',
+        component: SummaryStep,
+        props: {
+          character,
+          currentLevel,
+          newLevel,
+          classKey,
+          hitDie,
+          oldTHAC0,
+          newTHAC0,
+          oldAttacks,
+          newAttacks,
+          savesImproved,
+          hasNewSpellSlots,
+          becomesCaster,
+          isThiefClass,
+          gainsWeaponProf,
+          gainsNonWeaponProf,
+          newFeatures,
+        },
+        condition: true,
+      },
+      {
+        id: 'hp',
+        label: 'HP Roll',
+        component: HPRollStep,
+        props: {
+          character,
+          newLevel,
+          classKey,
+          classGroup,
+          hitDie,
+          dieMax,
+          dieSvgType,
+          dieSvgMax,
+          get hpRolled() { return hpRolled; },
+          set hpRolled(val) { hpRolled = val; },
+          get hpRoll() { return hpRoll; },
+          set hpRoll(val) { hpRoll = val; },
+          get hpConMod() { return hpConMod; },
+          set hpConMod(val) { hpConMod = val; },
+          get hpTotal() { return hpTotal; },
+          set hpTotal(val) { hpTotal = val; },
+        },
+        condition: true,
+      },
+      {
+        id: 'thief-skills',
+        label: 'Thief Skills',
+        component: ThiefSkillsStep,
+        props: {
+          thiefBase: thiefBase,
+          thiefBreakdown,
+          availableThiefSkills,
+          get thiefPointsRemaining() { return thiefPointsRemaining; },
+          set thiefPointsRemaining(val) { thiefPointsRemaining = val; },
+          get thiefDistributed() { return thiefDistributed; },
+          set thiefDistributed(val) { thiefDistributed = val; },
+          get thiefNewPoints() { return thiefNewPoints; },
+          set thiefNewPoints(val) { thiefNewPoints = val; },
+        },
+        condition: isThiefClass,
+      },
+      {
+        id: 'spells',
+        label: 'Spell Slots',
+        component: SpellSlotsStep,
+        props: {
+          classKey,
+          becomesCaster,
+          newSpellSlots,
+          oldSpellSlots,
+        },
+        condition: hasNewSpellSlots || becomesCaster,
+      },
+    ];
 
-  function prevStep() {
-    if (stepIndex > 0) {
-      stepIndex--;
-      step = steps[stepIndex];
+    // Add proficiencies step if applicable
+    if (gainsWeaponProf || gainsNonWeaponProf) {
+      steps.push({
+        id: 'proficiencies',
+        label: 'Proficiencies',
+        component: ProficienciesStep,
+        props: {
+          gainsWeaponProf,
+          gainsNonWeaponProf,
+        },
+        condition: true,
+      });
     }
-  }
 
+    // Add features step if applicable
+    if (newFeatures.length > 0 || savesImproved || newTHAC0 < oldTHAC0) {
+      steps.push({
+        id: 'features',
+        label: 'Features',
+        component: FeaturesStep,
+        props: {
+          newTHAC0,
+          oldTHAC0,
+          newAttacks,
+          oldAttacks,
+          savesImproved,
+          newSaves,
+          oldSaves,
+          newFeatures,
+        },
+        condition: true,
+      });
+    }
+
+    // Always add confirm step
+    steps.push({
+      id: 'confirm',
+      label: 'Confirm',
+      component: ConfirmStep,
+      props: {
+        newLevel,
+        get hpTotal() { return hpTotal; },
+        oldTHAC0,
+        newTHAC0,
+        hasNewSpellSlots,
+        newSpellSlots,
+        isThiefClass,
+        onConfirm: confirmLevelUp,
+      },
+      condition: true,
+    });
+
+    return steps;
+  });
 
   function confirmLevelUp() {
     const newHpEntry = {
@@ -141,191 +246,27 @@
 
     onComplete(updates);
   }
+
+  function handleClose() {
+    isOpen = false;
+    onCancel();
+  }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="overlay" onkeydown={(e) => e.key === 'Escape' && onCancel()}>
-  <div class="wizard-modal" role="dialog" aria-label="Level Up">
-    <button class="close-btn" onclick={onCancel} aria-label="Close level up">&times;</button>
-
-    <div class="wizard-header">
-      <h2>Level Up!</h2>
-      <div class="level-badge">{currentLevel} → {newLevel}</div>
-    </div>
-
-    {#if step === STEP_SUMMARY}
-      <div class="levelup-step">
-        <h3>{character.name} has reached Level {newLevel}!</h3>
-        <div class="summary-grid">
-          <div class="summary-item panel">
-            <span class="label">Class</span>
-            <span>{character.wizardSchool?.name || character.cls.name}</span>
-          </div>
-          <div class="summary-item panel">
-            <span class="label">HP</span>
-            <span>{isPastNameLevel(classKey, newLevel) ? `+${getPostNameHP(classKey)} (fixed)` : `Roll ${hitDie}`}</span>
-          </div>
-          {#if newTHAC0 < oldTHAC0}
-            <div class="summary-item improved">
-              <span class="label">THAC0</span>
-              <span>{oldTHAC0} → {newTHAC0}</span>
-            </div>
-          {/if}
-          {#if savesImproved}
-            <div class="summary-item improved">
-              <span class="label">Saving Throws</span>
-              <span>Improved!</span>
-            </div>
-          {/if}
-          {#if hasNewSpellSlots || becomesCaster}
-            <div class="summary-item improved">
-              <span class="label">Spell Slots</span>
-              <span>{becomesCaster ? 'Gained!' : 'Expanded!'}</span>
-            </div>
-          {/if}
-          {#if isThiefClass}
-            <div class="summary-item improved">
-              <span class="label">Thief Skills</span>
-              <span>+{THIEF_POINTS_PER_LEVEL} points</span>
-            </div>
-          {/if}
-          {#if gainsWeaponProf}
-            <div class="summary-item improved">
-              <span class="label">Weapon Prof.</span>
-              <span>+1 slot</span>
-            </div>
-          {/if}
-          {#if gainsNonWeaponProf}
-            <div class="summary-item improved">
-              <span class="label">Non-Weapon Prof.</span>
-              <span>+1 slot</span>
-            </div>
-          {/if}
-          {#if newAttacks !== oldAttacks}
-            <div class="summary-item improved">
-              <span class="label">Attacks/Round</span>
-              <span>{oldAttacks} → {newAttacks}</span>
-            </div>
-          {/if}
-          {#each newFeatures as feature}
-            <div class="summary-item improved">
-              <span class="label">New Ability</span>
-              <span>{feature}</span>
-            </div>
-          {/each}
-        </div>
-        <button class="btn-primary" onclick={nextStep}>Continue</button>
-      </div>
-
-    {:else if step === STEP_HP}
-      <HPRollStep
-        {character}
-        {newLevel}
-        {classKey}
-        {classGroup}
-        {hitDie}
-        {dieMax}
-        {dieSvgType}
-        {dieSvgMax}
-        bind:hpRolled
-        bind:hpRoll
-        bind:hpConMod
-        bind:hpTotal
-        onNext={nextStep}
-        onPrev={prevStep}
-      />
-
-    {:else if step === STEP_THIEF_SKILLS}
-      <ThiefSkillsStep
-        thiefBase={thiefBase}
-        {thiefBreakdown}
-        {availableThiefSkills}
-        bind:thiefPointsRemaining
-        bind:thiefDistributed
-        bind:thiefNewPoints
-        onNext={nextStep}
-        onPrev={prevStep}
-      />
-
-    {:else if step === STEP_SPELLS}
-      <SpellSlotsStep
-        {classKey}
-        {becomesCaster}
-        {newSpellSlots}
-        {oldSpellSlots}
-        onNext={nextStep}
-        onPrev={prevStep}
-      />
-
-    {:else if step === STEP_PROFICIENCIES}
-      <div class="levelup-step">
-        <h3>New Proficiency Slots</h3>
-        <div class="flex-column gap-sm">
-          {#if gainsWeaponProf}
-            <div class="prof-gain">+1 Weapon Proficiency Slot</div>
-          {/if}
-          {#if gainsNonWeaponProf}
-            <div class="prof-gain">+1 Non-Weapon Proficiency Slot</div>
-          {/if}
-        </div>
-        <p class="meta-text">Go to the Proficiencies tab after leveling up to pick your new proficiencies.</p>
-
-        <div class="step-nav">
-          <button class="btn-secondary" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={nextStep}>Continue</button>
-        </div>
-      </div>
-
-    {:else if step === STEP_FEATURES}
-      <FeaturesStep
-        {newTHAC0}
-        {oldTHAC0}
-        {newAttacks}
-        {oldAttacks}
-        {savesImproved}
-        {newSaves}
-        {oldSaves}
-        {newFeatures}
-        onNext={nextStep}
-        onPrev={prevStep}
-      />
-
-    {:else if step === STEP_CONFIRM}
-      <div class="levelup-step">
-        <h3>Confirm Level Up</h3>
-        <div class="confirm-summary">
-          <div class="confirm-row"><span>New Level</span> <span>{newLevel}</span></div>
-          <div class="confirm-row"><span>HP Gained</span> <span>+{hpTotal}</span></div>
-          {#if newTHAC0 < oldTHAC0}
-            <div class="confirm-row"><span>THAC0</span> <span>{newTHAC0}</span></div>
-          {/if}
-          {#if hasNewSpellSlots}
-            <div class="confirm-row"><span>Spell Slots</span> <span>{formatSpellSlots(newSpellSlots)}</span></div>
-          {/if}
-          {#if isThiefClass}
-            <div class="confirm-row"><span>Skill Points</span> <span>{THIEF_POINTS_PER_LEVEL} distributed</span></div>
-          {/if}
-        </div>
-
-        <div class="step-nav">
-          <button class="btn-secondary" onclick={prevStep}>Back</button>
-          <button class="btn-primary" onclick={confirmLevelUp}>Confirm Level Up!</button>
-        </div>
-      </div>
-    {/if}
-
-    <!-- Step indicators -->
-    <div class="step-dots">
-      {#each steps as s, i}
-        <div class="dot" class:active={i === stepIndex} class:completed={i < stepIndex}></div>
-      {/each}
-    </div>
-  </div>
-</div>
-
+<StepModal
+  bind:isOpen
+  bind:currentStepIndex
+  title="Level Up!"
+  subtitle="{currentLevel} → {newLevel}"
+  mode="linear"
+  steps={wizardSteps}
+  onClose={handleClose}
+  onComplete={confirmLevelUp}
+  maxWidth="520px"
+  showProgress={true}
+/>
 
 <style lang="scss">
   @import './styles/shared';
   @import './styles/levelup';
 </style>
-

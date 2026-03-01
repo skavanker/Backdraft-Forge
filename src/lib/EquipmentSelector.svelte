@@ -182,8 +182,11 @@
   }
 
   function confirm() {
+    const coins = ledger.toCoins();
     onComplete({
-      remaining: Math.round(ledger.gold * 100) / 100,
+      gp: coins.gp,
+      sp: coins.sp,
+      cp: coins.cp,
       armor: selectedArmor,
       shield: selectedShield,
       weapons: selectedWeapons,

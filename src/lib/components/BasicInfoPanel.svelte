@@ -50,7 +50,6 @@
           value={currentHP}
           displayFormat={(v) => `${v} / ${maxHP}`}
           min={0}
-          max={maxHP}
           onUpdate={onUpdateHP}
           title="Click to edit current HP"
           buttonClass="hp-display {hpColor}"

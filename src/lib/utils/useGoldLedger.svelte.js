@@ -88,11 +88,33 @@ export function useGoldLedger() {
 
     /** Restore from saved equipment data */
     restore(existingEquipment) {
-      gold = existingEquipment.remaining ?? existingEquipment.gold ?? 0;
+      // Support new gp/sp/cp schema or fallback to old decimal remaining
+      if (existingEquipment.gp !== undefined || existingEquipment.sp !== undefined || existingEquipment.cp !== undefined) {
+        const gp = existingEquipment.gp || 0;
+        const sp = existingEquipment.sp || 0;
+        const cp = existingEquipment.cp || 0;
+        gold = gp + (sp / 10) + (cp / 100);
+      } else {
+        gold = existingEquipment.remaining ?? existingEquipment.gold ?? 0;
+      }
       goldRolled = true;
       goldDice = existingEquipment.goldDice || [];
       goldDiceFormula = existingEquipment.goldDiceFormula || '';
       goldDieSize = existingEquipment.goldDieSize || 6;
+    },
+
+    /** Convert current gold to gp/sp/cp breakdown */
+    toCoins() {
+      if (gold === null) return { gp: 0, sp: 0, cp: 0 };
+
+      // Convert decimal gold to coins
+      const totalCp = Math.round(gold * 100);
+
+      let gp = Math.floor(totalCp / 100);
+      let sp = Math.floor((totalCp % 100) / 10);
+      let cp = totalCp % 10;
+
+      return { gp, sp, cp };
     }
   };
 }
