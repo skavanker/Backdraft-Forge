@@ -36,22 +36,45 @@
 - [ ] Dual-classing for humans (switch class, start over at level 1)
 
 ### DM Tools
-- [ ] Random NPC generator (reuse existing race/class/mechanics logic)
-  - Auto-roll abilities, pick qualifying race/class, calculate HP/THAC0/saves
-  - Auto-select proficiencies, equipment (within gold budget), spells if caster
-  - Options: level range, class/race constraints, quick vs detailed mode
-  - Bulk generation (e.g., "6 town guards")
-  - Stat block display format (simpler than full character sheet)
-- [ ] Monster/Bestiary tool (could be a separate "app" sharing core logic)
-  - Monster stat block data (HD, AC, THAC0, #Att, Dmg, Special, Morale, XP, etc.)
-  - Start with ~50-100 common monsters, expand over time (main effort is data entry)
-  - Bestiary browser with search/filter (by HD, type, terrain)
-  - Random encounter generator (by terrain/dungeon level)
-  - Reuse: dice roller, THAC0/save tables, PDF/print export, parchment styling
-- [ ] Treasure/loot generator (Treasure Types A-Z from Monstrous Manual)
-  - Ties into bestiary (each monster has a Treasure Type)
-  - Reuse existing equipment/gold data for mundane loot
-  - Magic item tables (random rolls per DMG)
+
+#### NPC Generator (Implemented - Needs Polish)
+- [x] Basic NPC generation with weighted equipment packages
+- [x] 12 pre-configured archetypes
+- [x] Bulk generation (1-20 NPCs)
+- [x] Quick/detailed modes
+- [ ] **UI/UX improvements** - Current layout needs significant work
+- [ ] **Better stat block formatting** - Make more compact and readable
+- [ ] **Export/print functionality** - PDF or printer-friendly format
+- [ ] **Edit generated NPCs** - Allow tweaking after generation
+- [ ] **More archetypes** - Add additional common NPC types
+- [ ] **Equipment package refinement** - Better variety and realism
+- [ ] **Spell selection for casters** - Currently auto-generated, needs review
+
+#### Treasure Generator (Implemented - Needs Polish)
+- [x] AD&D 2E treasure types (A-O)
+- [x] Gem, art, magic item generation
+- [x] Individual item weights
+- [x] Selectable items with copy-to-clipboard
+- [x] Single item generation
+- [x] Value-based generation
+- [ ] **UI/UX improvements** - Current layout needs significant work
+- [ ] **Better treasure display** - More organized, easier to read
+- [ ] **Magic item details** - Expand beyond just names (descriptions, stats)
+- [ ] **Mundane treasure improvements** - Better variety and context
+- [ ] **Coin conversion helper** - Quick gp/sp/cp conversions
+- [ ] **Export/print functionality** - PDF or printer-friendly format
+- [ ] **Treasure hoard templates** - Pre-made hoards for common scenarios
+- [ ] **Integration with character sheet** - Direct import to character equipment
+
+#### Monster/Bestiary Tool
+- [ ] Monster stat block data (HD, AC, THAC0, #Att, Dmg, Special, Morale, XP, etc.)
+- [ ] Start with ~50-100 common monsters, expand over time (main effort is data entry)
+- [ ] Bestiary browser with search/filter (by HD, type, terrain)
+- [ ] Random encounter generator (by terrain/dungeon level)
+- [ ] Reuse: dice roller, THAC0/save tables, PDF/print export, parchment styling
+- [ ] Tie to treasure generator (each monster has a Treasure Type)
+
+#### Other DM Tools
 - [ ] Expanded name generator (NPCs, taverns, towns, shops)
   - Build on existing names.js data
 

@@ -1,0 +1,39 @@
+/**
+ * NPC Generator Styles
+ */
+
+// NPC Generator specific variables
+:root {
+  --npc-bg-primary: var(--color-bg-primary);
+  --npc-bg-secondary: var(--color-bg-secondary);
+  --npc-text-primary: var(--color-text-primary);
+  --npc-text-secondary: var(--color-text-secondary);
+  --npc-border: var(--color-border);
+}
+
+// Utility classes for NPC components
+.npc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.npc-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.npc-divider {
+  height: 1px;
+  background: var(--npc-border);
+  margin: 1rem 0;
+}

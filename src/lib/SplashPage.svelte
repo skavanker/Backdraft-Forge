@@ -3,6 +3,8 @@
     savedCharacters = [],
     wipPrompt = null,
     onLaunchCharacterCreator,
+    onLaunchNPCGenerator,
+    onLaunchTreasureGenerator,
     onLoadCharacter,
     onDeleteCharacter,
     onImportCharacter,
@@ -54,12 +56,12 @@
       <span class="tool-status">Available</span>
     </button>
 
-    <div class="tool-card coming-soon">
+    <button class="tool-card available" onclick={onLaunchNPCGenerator}>
       <div class="tool-icon">👥</div>
       <h2>NPC Generator</h2>
       <p>Quickly generate NPCs with random or custom stats</p>
-      <span class="tool-status">Coming Soon</span>
-    </div>
+      <span class="tool-status">Available</span>
+    </button>
 
     <div class="tool-card coming-soon">
       <div class="tool-icon">🐉</div>
@@ -68,12 +70,12 @@
       <span class="tool-status">Coming Soon</span>
     </div>
 
-    <div class="tool-card coming-soon">
+    <button class="tool-card available" onclick={onLaunchTreasureGenerator}>
       <div class="tool-icon">💰</div>
       <h2>Treasure Generator</h2>
       <p>Generate treasure hoards by type or monster</p>
-      <span class="tool-status">Coming Soon</span>
-    </div>
+      <span class="tool-status">Available</span>
+    </button>
 
     <div class="tool-card coming-soon">
       <div class="tool-icon">📜</div>

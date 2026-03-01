@@ -1,6 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import SplashPage from './lib/SplashPage.svelte';
+  import NPCGenerator from './lib/NPCGenerator.svelte';
+  import TreasureGenerator from './lib/TreasureGenerator.svelte';
   import AbilityRoller from './lib/AbilityRoller.svelte';
   import RaceSelector from './lib/RaceSelector.svelte';
   import ClassSelector from './lib/ClassSelector.svelte';
@@ -38,7 +40,7 @@
     loadMidCreation
   } from './lib/persistence.svelte.js';
 
-  let currentView = $state('splash'); // 'splash' | 'character-creator'
+  let currentView = $state('splash'); // 'splash' | 'character-creator' | 'npc-generator' | 'treasure-generator'
   let currentStep = $state(0);
   let settingsOpen = $state(false);
 
@@ -305,6 +307,14 @@
     currentStep = 0;
   }
 
+  function launchNPCGenerator() {
+    currentView = 'npc-generator';
+  }
+
+  function launchTreasureGenerator() {
+    currentView = 'treasure-generator';
+  }
+
   function returnToSplash() {
     // Check if there are unsaved changes (character has data but not saved)
     const hasUnsavedChanges = currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
@@ -513,11 +523,29 @@
       <CharacterSheet {character} onCharacterUpdate={handleCharacterUpdate} undoMessage={undoToast.message} showUndoMessage={undoToast.visible} />
     {/if}
     </section>
+  {:else if currentView === 'npc-generator'}
+    <header class="header">
+      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <p class="tagline">AD&D 2nd Edition NPC Generator</p>
+    </header>
+    <section class="content card">
+      <NPCGenerator />
+    </section>
+  {:else if currentView === 'treasure-generator'}
+    <header class="header">
+      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <p class="tagline">AD&D 2nd Edition Treasure Generator</p>
+    </header>
+    <section class="content card">
+      <TreasureGenerator />
+    </section>
   {:else if currentView === 'splash'}
     <SplashPage
       {savedCharacters}
       {wipPrompt}
       onLaunchCharacterCreator={launchCharacterCreator}
+      onLaunchNPCGenerator={launchNPCGenerator}
+      onLaunchTreasureGenerator={launchTreasureGenerator}
       onLoadCharacter={loadSavedCharacter}
       onDeleteCharacter={deleteSavedCharacter}
       onImportCharacter={openImportDialog}
