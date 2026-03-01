@@ -23,19 +23,6 @@
 
 .alignment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $space-sm; }
 .name-row { display: flex; gap: $space-sm; align-items: stretch; input[type="text"] { flex: 1; } }
-.btn-random {
-  padding: $space-sm $space-md;
-  border: 2px solid var(--gold);
-  @include rounded;
-  background: var(--gold-overlay);
-  color: var(--gold);
-  cursor: pointer;
-  white-space: nowrap;
-  @include transition;
-  &:hover { background: var(--gold-overlay); color: var(--text-primary); }
-  &:active { background: rgba(201, 162, 39, 0.35); }
-  &.small { padding: $space-sm $space-md; }
-}
 .details-header { display: flex; justify-content: space-between; align-items: center; }
 .details-grid {
   display: grid;
@@ -67,6 +54,13 @@ textarea {
   line-height: 1.6;
   resize: vertical;
   min-height: 200px;
+
+  // Mobile improvements
+  @include mobile {
+    font-size: 16px; // Prevents iOS zoom on focus
+    min-height: 150px; // Slightly shorter on mobile to save screen space
+  }
+
   &:focus { outline: none; border-color: var(--gold); }
   &::placeholder { color: var(--text-faint); }
 }

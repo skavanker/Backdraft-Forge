@@ -11,7 +11,11 @@ export function useGlobalKeydown(handler) {
   });
 }
 
-/** Returns true if the focused element is a text input, textarea, or contenteditable. */
+/**
+ * Check if user is currently typing in an input field.
+ * Returns true if the focused element is a text input, textarea, or contenteditable.
+ * @returns {boolean} True if user is typing in a text field
+ */
 export function isTyping() {
   const el = document.activeElement;
   if (!el) return false;

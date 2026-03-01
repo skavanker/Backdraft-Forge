@@ -304,20 +304,24 @@ export function generateNPC(options = {}) {
     archetypeKey = null      // null = none
   } = options;
 
-  // Apply archetype overrides if specified
+  // ARCHETYPE SYSTEM: Archetypes provide quick NPC templates (merchant, guard, noble, etc.)
+  // They override base options to create thematic NPCs without manual configuration.
+  // Example: "merchant" archetype → sets class to rogue, level 3-7, wealth 2.0x
+  // This allows "generate a merchant" instead of configuring race/class/level/wealth separately.
   let effectiveLevelMin = levelMin;
   let effectiveLevelMax = levelMax;
   let effectiveClassKey = classKey;
   let effectiveRaceKey = raceKey;
-  let wealthModifier = 1.0;
+  let wealthModifier = 1.0; // 1.0 = normal starting gold, 2.0 = double, 0.5 = half
 
   if (archetypeKey) {
     const archetype = getArchetype(archetypeKey);
     if (archetype) {
-      effectiveClassKey = archetype.classKey;
-      effectiveLevelMin = archetype.levelRange[0];
-      effectiveLevelMax = archetype.levelRange[1];
-      wealthModifier = archetype.wealthModifier || 1.0;
+      // Override class, level range, and wealth from archetype template
+      effectiveClassKey = archetype.classKey; // e.g., 'rogue' for merchant
+      effectiveLevelMin = archetype.levelRange[0]; // e.g., 3 for experienced merchant
+      effectiveLevelMax = archetype.levelRange[1]; // e.g., 7 for veteran merchant
+      wealthModifier = archetype.wealthModifier || 1.0; // e.g., 2.0 for wealthy merchant
     }
   }
 

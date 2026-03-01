@@ -87,17 +87,6 @@
   input { padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); }
   input:not([type="number"]) { flex: 1; min-width: 120px; }
   input[type="number"] { width: 90px; }
-  .btn-add {
-    padding: $space-sm $space-md;
-    @include border-default;
-    @include rounded;
-    background: var(--bg-panel);
-    color: var(--text-primary);
-    cursor: pointer;
-    @include transition;
-    &:hover:not(:disabled) { background: var(--gold); color: var(--bg-card); }
-    &:disabled { opacity: 0.4; cursor: not-allowed; }
-  }
 }
 .btn-primary { align-self: center; &:disabled { background: var(--red); opacity: 0.8; } }
 

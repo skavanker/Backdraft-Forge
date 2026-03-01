@@ -270,7 +270,7 @@
           <button class="btn-primary" onclick={rollExceptionalStr}>
             🎲 Roll for 18/XX
           </button>
-          <button class="btn-ghost" onclick={skipExceptionalStr}>
+          <button class="btn-secondary" onclick={skipExceptionalStr}>
             Skip
           </button>
         </div>

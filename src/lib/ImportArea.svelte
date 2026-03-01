@@ -24,7 +24,7 @@
   }
 </script>
 
-<button class="btn-ghost btn-sm" onclick={() => showImportArea = !showImportArea}>
+<button class="btn-secondary btn-sm" onclick={() => showImportArea = !showImportArea}>
   📥 Import character code
 </button>
 {#if showImportArea}

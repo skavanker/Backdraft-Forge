@@ -136,13 +136,20 @@ export function isStepIncomplete(index, stepGates) {
  * @returns {number} Next step index
  */
 export function completeStep(step, data, character, stepFields, makeEmptyCharacter) {
-  // Step 0 special case: if abilities changed, clear forward progress
+  // STEP 0 SPECIAL CASE: Ability score changes invalidate everything downstream
+  // Why: Race/class availability depends on ability scores. If scores change,
+  // the user's previous race/class choices might now be invalid.
+  // Example: If STR drops from 18 to 12, Paladin (requires STR 12+, WIS 13+, CHA 17+)
+  // might become unavailable, so we need to clear race/class selections.
   if (step === 0 && character.abilities) {
     const a = character.abilities, b = data.abilities;
+    // Check if ANY ability score changed (including exceptional strength for warriors)
     const changed = a.STR !== b.STR || a.DEX !== b.DEX || a.CON !== b.CON ||
       a.INT !== b.INT || a.WIS !== b.WIS || a.CHA !== b.CHA ||
       a.exceptionalStr !== b.exceptionalStr;
+
     if (changed) {
+      // Reset character to fresh state, but preserve the new abilities and roll data
       const empty = makeEmptyCharacter();
       const keepFields = ['abilities', 'rollData'];
       for (const key of Object.keys(empty)) {
@@ -151,7 +158,10 @@ export function completeStep(step, data, character, stepFields, makeEmptyCharact
     }
   }
 
-  // Step 2 special case: handle exceptional strength from class selection
+  // STEP 2 SPECIAL CASE: Exceptional strength from class selection
+  // Why: Warriors with 18 STR roll d100 for exceptional strength (18/01 to 18/00).
+  // The ClassSelector component determines if exceptional STR applies and what it is.
+  // We store it in abilities so it's available throughout the app.
   if (step === 2 && data.exceptionalStr !== undefined) {
     if (!character.abilities) character.abilities = {};
     character.abilities.exceptionalStr = data.exceptionalStr;

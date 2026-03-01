@@ -128,12 +128,12 @@
     <button class="btn-primary" onclick={rollScores}>
       🎲 Roll Ability Scores
     </button>
-    <button class="btn-ghost btn-sm" onclick={onManualMode}>
+    <button class="btn-secondary btn-sm" onclick={onManualMode}>
       ✏️ Enter scores manually
     </button>
     <ImportArea {onImport} />
   {:else if canReroll}
-    <button class="btn-ghost btn-sm" onclick={rollScores}>
+    <button class="btn-secondary btn-sm" onclick={rollScores}>
       ⟳ Reroll ({MAX_REROLLS - rerollsUsed} left)
     </button>
   {:else}

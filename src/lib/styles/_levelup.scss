@@ -46,22 +46,7 @@
   &.improved { border-color: var(--gold); background: var(--gold-overlay); }
 }
 .hp-roll-area { @extend .flex-column; align-items: center; gap: $space-md; padding: $space-lg; }
-.btn-roll {
-  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-  color: var(--text-primary);
-  border: 2px solid var(--gold);
-  @include rounded;
-  padding: $space-md $space-lg;
-  font-size: $text-lg;
-  font-weight: 700;
-  cursor: pointer;
-  @include transition;
-  display: flex;
-  align-items: center;
-  gap: $space-sm;
-  &:hover { transform: scale(1.05); }
-}
-.btn-roll-die {
+.roll-die-icon {
   width: 28px; // Icon button size
   height: 28px;
   filter: brightness(0) invert(0.2); // Convert to dark gray icon
@@ -207,11 +192,6 @@
 .confirm-summary { width: 100%; max-width: 300px; }
 .confirm-row { display: flex; justify-content: space-between; padding: $space-sm 0; border-bottom: 1px dotted var(--border-color); font-weight: 600; }
 .step-nav { display: flex; gap: $space-md; margin-top: $space-md; }
-.btn-confirm {
-  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-  color: var(--text-primary);
-  font-weight: 600;
-}
 .step-dots { display: flex; justify-content: center; gap: $space-sm; margin-top: $space-lg; }
 .dot {
   width: 8px;

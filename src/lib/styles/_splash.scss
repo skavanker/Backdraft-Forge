@@ -25,11 +25,6 @@
   gap: $space-sm;
 }
 
-.btn-sm {
-  font-size: $text-sm;
-  padding: calc($space-sm * 0.6) $space-md;
-}
-
 // Hero Section
 .splash-hero {
   text-align: center;
@@ -63,11 +58,6 @@
   align-items: center;
   gap: $space-md;
   flex-wrap: wrap;
-
-  .btn-lg {
-    font-size: $text-lg;
-    padding: $space-md $space-lg * 1.5;
-  }
 }
 
 // Tool Grid

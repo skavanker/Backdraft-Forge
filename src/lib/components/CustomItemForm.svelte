@@ -18,7 +18,7 @@
     <input placeholder="Item name" aria-label="Custom item name" bind:value={customName} />
     <input type="number" placeholder="Price (gp)" aria-label="Custom item price in gold" bind:value={customPrice} min="0" />
     <input type="number" placeholder="Weight (lbs)" aria-label="Custom item weight" bind:value={customWeight} min="0" />
-    <button class="btn-add" onclick={addCustomItem} disabled={!customName.trim()}>Add</button>
+    <button class="btn-secondary" onclick={addCustomItem} disabled={!customName.trim()}>Add</button>
   </div>
 </div>
 

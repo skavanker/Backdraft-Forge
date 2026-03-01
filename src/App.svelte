@@ -344,7 +344,7 @@
     <div class="reset-confirm-popup">
       <span>Start over?</span>
       <button class="btn-danger btn-sm" onclick={resetAll}>Yes</button>
-      <button class="btn-ghost btn-sm" onclick={() => showResetConfirm = false}>No</button>
+      <button class="btn-secondary btn-sm" onclick={() => showResetConfirm = false}>No</button>
     </div>
   {:else}
     <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over" aria-label="Start over">
@@ -414,7 +414,7 @@
         <span>Unfinished character found — {wipPrompt.character.race?.name || '?'} {wipPrompt.character.kit?.name || wipPrompt.character.wizardSchool?.name || wipPrompt.character.cls?.name || '?'} (Step {wipPrompt.currentStep + 1}: {steps[wipPrompt.currentStep]})</span>
         <div class="wip-actions">
           <button class="btn-primary btn-sm" onclick={resumeWip}>Resume</button>
-          <button class="btn-ghost btn-sm" onclick={discardWip}>Discard</button>
+          <button class="btn-secondary btn-sm" onclick={discardWip}>Discard</button>
         </div>
       </div>
     {/if}

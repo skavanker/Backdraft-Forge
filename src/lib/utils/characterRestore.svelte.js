@@ -35,7 +35,10 @@ export async function restoreCharacterObjects(character) {
       : null
   };
 
-  // Restore proficiencies
+  // RESTORE PROFICIENCIES:
+  // Saved data only has keys (e.g., 'longsword'), we need to hydrate back to full objects.
+  // Why: JSON.parse loses object methods and data. We store minimal keys to save space,
+  // then restore full objects from game data on load.
   if (character.proficiencies) {
     restored.proficiencies = {
       weapons: character.proficiencies.weapons?.map(w => ({ key: w.key, ...weapons[w.key] })) || [],
@@ -44,25 +47,33 @@ export async function restoreCharacterObjects(character) {
     };
   }
 
-  // Restore equipment (complex mapping for custom items)
+  // RESTORE EQUIPMENT:
+  // Complex because we handle both standard items (by key lookup) and custom items (stored in full).
+  // Custom items (user-created) have keys like 'custom_123' and are preserved as-is since they
+  // don't exist in the game data. Standard items are looked up from equipment data.
   if (character.equipment) {
     restored.equipment = {
       remaining: character.equipment.remaining,
+      // Armor/Shield: Simple lookup by key
       armor: character.equipment.armor
         ? equipment.armor.find(a => a.key === character.equipment.armor.key)
         : null,
       shield: character.equipment.shield
         ? equipment.shields.find(s => s.key === character.equipment.shield.key)
         : null,
+      // Weapons: Array of items, filter out any that no longer exist
       weapons: character.equipment.weapons?.map(w =>
         equipment.weapons.find(wep => wep.key === w.key)
       ).filter(Boolean) || [],
+      // Gear: Most complex - handles custom items AND preserves quantity
       gear: character.equipment.gear?.map(g => {
-        if (g.key?.startsWith('custom_')) return g; // Custom items preserved as-is
+        // Custom items (e.g., "Magic Ring") are stored with full data, preserve them
+        if (g.key?.startsWith('custom_')) return g;
+        // Standard items: look up from game data, preserve qty from save
         const found = [...equipment.ammunition, ...equipment.adventuringGear, ...equipment.clothing]
           .find(item => item.key === g.key);
         return found ? { ...found, qty: g.qty } : null;
-      }).filter(Boolean) || []
+      }).filter(Boolean) || [] // Remove any items that no longer exist
     };
   }
 

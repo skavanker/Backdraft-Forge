@@ -346,7 +346,7 @@
   <div class="manage-actions">
     <button class="btn-primary" onclick={confirmManage}>Save Spells</button>
     {#if onCancel}
-      <button class="btn-ghost" onclick={onCancel}>Cancel</button>
+      <button class="btn-secondary" onclick={onCancel}>Cancel</button>
     {/if}
   </div>
 </div>

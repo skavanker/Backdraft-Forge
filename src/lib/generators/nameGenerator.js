@@ -96,64 +96,70 @@ function getOriginCategory(settlement) {
  * @returns {string} Selected syllable
  */
 function selectWeightedSyllable(syllables, context = {}) {
-  // Handle legacy format (array of strings)
+  // Handle legacy format (array of strings) - simple random selection
   if (typeof syllables[0] === 'string') {
     return syllables[Math.floor(Math.random() * syllables.length)];
   }
 
   const { class: cls, origin, geography, social } = context;
 
-  // Calculate weight for each syllable
+  // WEIGHTING SYSTEM:
+  // Each syllable starts with a base weight (10) and gets bonuses for matching context.
+  // Exact matches get high bonuses (50-70), neutral fallbacks get smaller bonuses (20).
+  // This creates context-aware name generation while still allowing variety.
   const scored = syllables.map(s => {
-    let weight = s.weight || 10; // Base weight
+    let weight = s.weight || 10; // Base weight - all syllables have minimum chance
 
-    // Class match bonus
+    // Class match: Highest priority bonus (warriors get 'bold' syllables, mages get 'arcane' ones)
     if (s.class) {
       if (s.class.includes(cls)) {
-        weight += 70;
+        weight += 70; // Strong class match - e.g., warrior gets 'grim', 'iron'
       }
       if (s.class.includes('neutral')) {
-        weight += 20;
+        weight += 20; // Neutral syllables work for any class
       }
     }
 
-    // Origin match bonus (for first names)
+    // Origin match: For first names (e.g., city dwellers get refined syllables)
     if (s.origin) {
       if (s.origin.includes(origin)) {
-        weight += 50;
+        weight += 50; // Origin match - e.g., urban vs rural naming patterns
       }
       if (s.origin.includes('neutral')) {
-        weight += 20;
+        weight += 20; // Universal syllables
       }
     }
 
-    // Geography match bonus (for surnames)
+    // Geography match: For surnames (e.g., coastal = 'storm', 'wave')
     if (s.geo) {
       if (s.geo.includes(geography)) {
-        weight += 50;
+        weight += 50; // Geography match - e.g., mountain names vs coastal names
       }
       if (s.geo.includes('neutral')) {
-        weight += 20;
+        weight += 20; // Works anywhere
       }
     }
 
-    // Social class match bonus
+    // Social class match: High priority for surnames (noble vs common names)
     if (s.social) {
       if (s.social.includes(social)) {
-        weight += 70;
+        weight += 70; // Social match - e.g., noble 'von', 'de' vs common 'smith'
       }
       if (s.social.includes('neutral')) {
-        weight += 20;
+        weight += 20; // Classless syllables
       }
     }
 
     return { ...s, finalWeight: weight };
   });
 
-  // Weighted random selection
+  // WEIGHTED RANDOM SELECTION:
+  // Think of this as a roulette wheel where each syllable gets a slice
+  // proportional to its weight. Higher weights = bigger slice = more likely to be picked.
   const totalWeight = scored.reduce((sum, s) => sum + s.finalWeight, 0);
-  let random = Math.random() * totalWeight;
+  let random = Math.random() * totalWeight; // Pick a random point on the wheel
 
+  // Spin the wheel: subtract each weight until we hit zero
   for (const item of scored) {
     random -= item.finalWeight;
     if (random <= 0) {

@@ -117,6 +117,11 @@ body {
   margin: 0 auto;
   padding: $space-lg;
   min-height: 100vh;
+
+  // Reduce padding on mobile to maximize screen space
+  @include mobile {
+    padding: $space-md;
+  }
 }
 
 // =============================================================================
@@ -141,6 +146,10 @@ h1 {
   text-align: center;
   letter-spacing: 0.05em;
 
+  @include mobile {
+    font-size: 1.75rem; // Reduce from 2.5rem to 1.75rem on mobile
+  }
+
   &::after {
     content: '';
     display: block;
@@ -148,6 +157,10 @@ h1 {
     height: 3px;
     margin: $space-sm auto 0;
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
+
+    @include mobile {
+      width: 120px; // Shorter decorative line on mobile
+    }
   }
 }
 
@@ -276,7 +289,7 @@ button {
   }
 }
 
-.btn-ghost {
+.btn-secondary {
   background: transparent;
   color: var(--text-body);
   box-shadow: none;
@@ -295,6 +308,11 @@ button {
   font-size: $text-sm;
 }
 
+.btn-lg {
+  padding: $space-md calc($space-lg * 1.5);
+  font-size: $text-lg;
+}
+
 // =============================================================================
 // FORM ELEMENTS
 // =============================================================================
@@ -308,6 +326,12 @@ input, select {
   background: var(--bg-input);
   color: var(--text-body);
   transition: all 0.2s ease;
+
+  // Larger touch targets on mobile
+  @include mobile {
+    padding: $space-md;
+    font-size: 16px; // Prevents iOS zoom on focus
+  }
 
   &:focus {
     outline: none;

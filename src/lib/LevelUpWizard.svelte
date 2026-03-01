@@ -271,7 +271,7 @@
         <p class="meta-text">Go to the Proficiencies tab after leveling up to pick your new proficiencies.</p>
 
         <div class="step-nav">
-          <button class="btn-ghost" onclick={prevStep}>Back</button>
+          <button class="btn-secondary" onclick={prevStep}>Back</button>
           <button class="btn-primary" onclick={nextStep}>Continue</button>
         </div>
       </div>
@@ -308,8 +308,8 @@
         </div>
 
         <div class="step-nav">
-          <button class="btn-ghost" onclick={prevStep}>Back</button>
-          <button class="btn-primary btn-confirm" onclick={confirmLevelUp}>Confirm Level Up!</button>
+          <button class="btn-secondary" onclick={prevStep}>Back</button>
+          <button class="btn-primary" onclick={confirmLevelUp}>Confirm Level Up!</button>
         </div>
       </div>
     {/if}

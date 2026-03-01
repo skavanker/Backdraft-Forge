@@ -89,6 +89,11 @@
 
 .grid-chips {
   @include grid-responsive(7.5rem); // ~120px
+
+  // On mobile, ensure at least 2 columns for better touch targets
+  @include mobile {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
 }
 
 // ─── Spacing Utilities ──────────────────────────────────────────────────────

@@ -43,7 +43,7 @@
       <span class="xp-bonus">(+{xpBonus}%)</span>
     {/if}
     {#if canLevelUp}
-      <button class="btn-levelup" onclick={onLevelUp}>Level Up!</button>
+      <button class="btn-primary" onclick={onLevelUp}>Level Up!</button>
     {:else if atLevelLimit}
       <span class="level-cap">Level limit reached</span>
     {/if}

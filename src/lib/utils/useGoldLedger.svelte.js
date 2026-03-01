@@ -5,7 +5,23 @@
 import { priceToGp } from '../../data/equipment.js';
 
 /**
- * @returns Gold ledger with reactive state and helpers
+ * Create a gold ledger composable for managing character gold.
+ * Provides reactive state and operations for buy/sell/afford checks.
+ *
+ * @returns {Object} Gold ledger object
+ * @returns {number|null} return.gold - Current gold amount in gp
+ * @returns {boolean} return.goldRolled - Whether starting gold has been rolled
+ * @returns {number[]} return.goldDice - Individual dice rolled for starting gold
+ * @returns {string} return.goldDiceFormula - Dice formula used (e.g., "3d6×10")
+ * @returns {number} return.goldDieSize - Size of dice used for gold roll
+ * @returns {Function} return.canAfford - Check if price is affordable
+ * @returns {Function} return.deduct - Deduct gold amount
+ * @returns {Function} return.refund - Refund gold amount
+ * @returns {Function} return.deductPrice - Deduct using price object
+ * @returns {Function} return.refundPrice - Refund using price object
+ * @returns {Function} return.setFromRoll - Set gold from roll result
+ * @returns {Function} return.reset - Reset all gold state
+ * @returns {Function} return.restore - Restore from saved equipment data
  */
 export function useGoldLedger() {
   let gold = $state(null);

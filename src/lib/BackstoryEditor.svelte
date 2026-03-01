@@ -168,7 +168,7 @@
         placeholder="Enter your character's name"
         maxlength="50"
       />
-      <button class="btn-random" onclick={randomizeName} title="Generate random name">
+      <button class="btn-primary" onclick={randomizeName} title="Generate random name">
         Random Name
       </button>
     </div>
@@ -294,7 +294,7 @@
   <div class="flex-column gap-sm">
     <div class="details-header">
       <label>Physical Details</label>
-      <button class="btn-random small" onclick={randomizeDetails} title="Randomize all details">
+      <button class="btn-primary btn-sm" onclick={randomizeDetails} title="Randomize all details">
         Randomize
       </button>
     </div>

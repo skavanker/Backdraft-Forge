@@ -33,7 +33,7 @@
       <span>Unfinished character found — {wipPrompt.character.race?.name || '?'} {wipPrompt.character.kit?.name || wipPrompt.character.wizardSchool?.name || wipPrompt.character.cls?.name || '?'}</span>
       <div class="wip-actions">
         <button class="btn-primary btn-sm" onclick={onResumeWip}>Resume</button>
-        <button class="btn-ghost btn-sm" onclick={onDiscardWip}>Discard</button>
+        <button class="btn-secondary btn-sm" onclick={onDiscardWip}>Discard</button>
       </div>
     </div>
   {/if}
@@ -43,7 +43,7 @@
     <button class="btn-primary btn-lg" onclick={onLaunchCharacterCreator}>
       Create New Character
     </button>
-    <button class="btn-ghost" onclick={onImportCharacter}>
+    <button class="btn-secondary" onclick={onImportCharacter}>
       📥 Import Character Code
     </button>
   </div>

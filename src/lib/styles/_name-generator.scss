@@ -99,28 +99,6 @@
   gap: $space-sm;
 }
 
-.btn-action {
-  padding: $space-sm $space-md;
-  font-size: $text-sm;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: $radius;
-  cursor: pointer;
-  @include transition;
-  @include touch-target;
-
-  &:hover {
-    background: var(--bg-panel);
-    border-color: var(--border-strong);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent-primary);
-    outline-offset: 2px;
-  }
-}
-
 .names-list {
   display: flex;
   flex-direction: column;
@@ -224,7 +202,6 @@
   .form-label,
   .grid-chips,
   .results-actions,
-  .btn-action,
   .copy-indicator,
   .name-meta,
   .btn-clear,

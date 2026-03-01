@@ -87,7 +87,7 @@
   </p>
 
   <div class="step-nav">
-    <button class="btn-ghost" onclick={onPrev}>Back</button>
+    <button class="btn-secondary" onclick={onPrev}>Back</button>
     <button class="btn-primary" onclick={onNext} disabled={thiefPointsRemaining > 0}>Continue</button>
   </div>
 </div>

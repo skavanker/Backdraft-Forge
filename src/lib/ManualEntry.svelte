@@ -57,7 +57,7 @@
 
 <div class="section">
   {#if onBack}
-    <button class="btn-ghost back-btn" onclick={onBack}>
+    <button class="btn-secondary back-btn" onclick={onBack}>
       ← Back to digital rolling
     </button>
   {/if}

@@ -112,7 +112,7 @@
                 <div class="settings-confirm-row">
                   <span>Reset to level 1?</span>
                   <button class="btn-danger btn-sm" onclick={() => { onResetLevel?.(); confirmResetLevel = false; onClose?.(); }}>Yes</button>
-                  <button class="btn-ghost btn-sm" onclick={() => confirmResetLevel = false}>No</button>
+                  <button class="btn-secondary btn-sm" onclick={() => confirmResetLevel = false}>No</button>
                 </div>
               {:else}
                 <button class="settings-action-btn danger" onclick={() => confirmResetLevel = true}>Reset Level</button>
