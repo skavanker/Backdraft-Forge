@@ -8,7 +8,8 @@
 import { rollDie, rollDice, rollAbilityDice, calculate4d6DropLowest, calculate3d6, rollExceptionalStrength } from '../dice.js';
 import { races, getAvailableRaces, applyRacialAdjustments } from '../../data/races.js';
 import { classes, getAvailableClasses } from '../../data/classes.js';
-import { getRandomName } from '../../data/names.js';
+import { generateCharacterName } from './nameGenerator.js';
+import { names } from '../../data/names.js';
 import { ALIGNMENT_NAMES } from '../../data/alignment.js';
 import { getStrengthModifiers, getConstitutionModifiers, getDexterityModifiers, getBaseTHAC0, getSavingThrows } from '../../data/mechanics.js';
 import { weaponProficiencySlots, nonWeaponProficiencySlots, weapons } from '../../data/proficiencies.js';
@@ -364,7 +365,16 @@ export function generateNPC(options = {}) {
 
   // 12. Generate name, sex, alignment
   const sex = generateRandomSex();
-  const name = getRandomName(selectedRaceKey, sex);
+  const nameResult = generateCharacterName(names, {
+    race: selectedRaceKey,
+    gender: sex,
+    class: selectedClassKey,
+    settlement: 'random',
+    geography: 'random',
+    socialClass: 'random',
+    style: 'random'
+  });
+  const name = nameResult.name;
   const alignment = generateRandomAlignment();
 
   // 13. Return NPC object

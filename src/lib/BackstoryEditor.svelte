@@ -1,9 +1,13 @@
 <script>
   import { onMount } from 'svelte';
-  import { getRandomName } from '../data/names.js';
+  import { generateCharacterName } from './generators/nameGenerator.js';
+  import { names } from '../data/names.js';
+  import { getAvailableNamingStyles } from '../data/races.js';
   import { ALIGNMENTS, getAlignmentName, getAlignmentGrid, getAllowedAlignmentsForClass } from '../data/alignment.js';
   import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
+  import Collapsible from './components/Collapsible.svelte';
+  import SelectableChip from './components/SelectableChip.svelte';
   import { settings, formatHeight as fmtHeight, formatWeight as fmtWeight } from './settings.svelte.js';
 
   let { character, onComplete } = $props();
@@ -18,6 +22,30 @@
   let weightLbs = $state(character.weightLbs || 0);
   let eyes = $state(character.eyes || '');
   let hair = $state(character.hair || '');
+
+  // Name generation settings
+  let nameSettings = $state({
+    settlement: 'random',
+    geography: 'random',
+    socialClass: 'random',
+    style: 'random'
+  });
+
+  // Available options for name settings
+  const settlements = ['city', 'town', 'village', 'nomadic'];
+  const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert'];
+  const socialClasses = ['noble', 'wealthy', 'common', 'poor'];
+  const namingStyles = [
+    { value: 'standard', label: 'Standard' },
+    { value: 'patronymic', label: 'Patronymic' },
+    { value: 'clan', label: 'Clan' },
+    { value: 'house', label: 'House' }
+  ];
+
+  // Derived: available naming styles for current race
+  let availableNamingStyles = $derived(() => {
+    return getAvailableNamingStyles(character.raceKey);
+  });
 
   // Reactive formatted display
   let heightDisplay = $derived(heightInches > 0 ? fmtHeight(heightInches) : '');
@@ -105,7 +133,19 @@
   }
 
   function randomizeName() {
-    name = getRandomName(character.raceKey, sex);
+    const raceKey = character.raceKey === 'halfElf' ? 'halfElf' : character.raceKey;
+
+    const result = generateCharacterName(names, {
+      race: raceKey,
+      gender: sex,
+      class: character.classKey || 'random',
+      settlement: nameSettings.settlement,
+      geography: nameSettings.geography,
+      socialClass: nameSettings.socialClass,
+      style: nameSettings.style
+    });
+
+    name = result.name;
   }
 
   function generatePlaceholder() {
@@ -134,25 +174,102 @@
     </div>
   </div>
 
+  <!-- Name Options (Advanced) -->
+  <Collapsible title="Name Options (Advanced)" defaultOpen={false}>
+    <!-- Settlement Type -->
+    <div class="form-section">
+      <h4 class="form-label">Settlement Type</h4>
+      <div class="grid-chips gap-sm">
+        <SelectableChip
+          label="Random"
+          selected={nameSettings.settlement === 'random'}
+          onclick={() => nameSettings.settlement = 'random'}
+        />
+        {#each settlements as settlement}
+          <SelectableChip
+            label={settlement.charAt(0).toUpperCase() + settlement.slice(1)}
+            selected={nameSettings.settlement === settlement}
+            onclick={() => nameSettings.settlement = settlement}
+          />
+        {/each}
+      </div>
+    </div>
+
+    <!-- Geography -->
+    <div class="form-section">
+      <h4 class="form-label">Geography</h4>
+      <div class="grid-chips gap-sm">
+        <SelectableChip
+          label="Random"
+          selected={nameSettings.geography === 'random'}
+          onclick={() => nameSettings.geography = 'random'}
+        />
+        {#each geographies as geography}
+          <SelectableChip
+            label={geography.charAt(0).toUpperCase() + geography.slice(1)}
+            selected={nameSettings.geography === geography}
+            onclick={() => nameSettings.geography = geography}
+          />
+        {/each}
+      </div>
+    </div>
+
+    <!-- Social Class -->
+    <div class="form-section">
+      <h4 class="form-label">Social Class</h4>
+      <div class="grid-chips gap-sm">
+        <SelectableChip
+          label="Random"
+          selected={nameSettings.socialClass === 'random'}
+          onclick={() => nameSettings.socialClass = 'random'}
+        />
+        {#each socialClasses as social}
+          <SelectableChip
+            label={social.charAt(0).toUpperCase() + social.slice(1)}
+            selected={nameSettings.socialClass === social}
+            onclick={() => nameSettings.socialClass = social}
+          />
+        {/each}
+      </div>
+    </div>
+
+    <!-- Naming Style -->
+    <div class="form-section">
+      <h4 class="form-label">Naming Style</h4>
+      <div class="grid-chips gap-sm">
+        <SelectableChip
+          label="Random"
+          selected={nameSettings.style === 'random'}
+          onclick={() => nameSettings.style = 'random'}
+        />
+        {#each namingStyles as style}
+          <SelectableChip
+            label={style.label}
+            selected={nameSettings.style === style.value}
+            disabled={!availableNamingStyles().includes(style.value)}
+            onclick={() => nameSettings.style = style.value}
+          />
+        {/each}
+      </div>
+      <p class="section-hint">
+        Standard: Traditional surname • Patronymic: Son/Daughter of • Clan: Dwarves • House: Elves/Humans
+      </p>
+    </div>
+  </Collapsible>
+
   <div class="flex-column gap-sm">
     <label>Sex</label>
     <div class="flex-row gap-sm">
-      <button
-        class="toggle-btn sex-btn"
-        class:selected={sex === 'Male'}
-        aria-pressed={sex === 'Male'}
+      <SelectableChip
+        label="Male"
+        selected={sex === 'Male'}
         onclick={() => sex = 'Male'}
-      >
-        Male
-      </button>
-      <button
-        class="toggle-btn sex-btn"
-        class:selected={sex === 'Female'}
-        aria-pressed={sex === 'Female'}
+      />
+      <SelectableChip
+        label="Female"
+        selected={sex === 'Female'}
         onclick={() => sex = 'Female'}
-      >
-        Female
-      </button>
+      />
     </div>
   </div>
 
@@ -162,16 +279,12 @@
       {#each alignmentGrid as row}
         {#each row as alignNum}
           {@const isAllowed = allowedAlignments().includes(alignNum)}
-          <button
-            class="toggle-btn"
-            class:selected={alignment === alignNum}
-            class:disabled={!isAllowed}
-            aria-pressed={alignment === alignNum}
+          <SelectableChip
+            label={getAlignmentName(alignNum)}
+            selected={alignment === alignNum}
             disabled={!isAllowed}
             onclick={() => isAllowed && (alignment = alignNum)}
-          >
-            {getAlignmentName(alignNum)}
-          </button>
+          />
         {/each}
       {/each}
     </div>

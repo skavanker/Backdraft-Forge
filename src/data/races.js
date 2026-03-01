@@ -6,8 +6,21 @@
  * - maximums: Maximum ability scores (racial caps)
  * - adjustments: Ability score modifiers applied after assignment
  * - classes: Allowed classes and their level limits (null = unlimited)
+ * - namingStyles: Available naming styles for name generation
  * - description: Flavor text
  */
+
+/**
+ * Naming style availability by race
+ */
+export const namingStyles = {
+  human: ['standard', 'patronymic', 'house'],
+  elf: ['standard', 'patronymic', 'house'],
+  dwarf: ['standard', 'patronymic', 'clan'],
+  gnome: ['standard', 'patronymic'],
+  halfling: ['standard', 'patronymic'],
+  halfElf: ['standard', 'patronymic', 'house']
+};
 
 export const races = {
   human: {
@@ -296,4 +309,19 @@ export function getAvailableRaces(abilities, { lenient = false } = {}) {
       ...check
     };
   });
+}
+
+/**
+ * Get available naming styles for a race
+ * @param {string} raceKey - Race key (human, elf, dwarf, etc.)
+ * @returns {string[]} Array of available naming style keys
+ */
+export function getAvailableNamingStyles(raceKey) {
+  // Random race has all styles available
+  if (raceKey === 'random') {
+    return ['random', 'standard', 'patronymic', 'clan', 'house'];
+  }
+
+  // Return race-specific styles, with 'random' always available
+  return ['random', ...(namingStyles[raceKey] || ['standard', 'patronymic'])];
 }

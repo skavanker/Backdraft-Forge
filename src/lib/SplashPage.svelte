@@ -5,6 +5,7 @@
     onLaunchCharacterCreator,
     onLaunchNPCGenerator,
     onLaunchTreasureGenerator,
+    onLaunchNameGenerator,
     onLoadCharacter,
     onDeleteCharacter,
     onImportCharacter,
@@ -77,12 +78,12 @@
       <span class="tool-status">Available</span>
     </button>
 
-    <div class="tool-card coming-soon">
+    <button class="tool-card available" onclick={onLaunchNameGenerator}>
       <div class="tool-icon">📜</div>
       <h2>Name Generator</h2>
-      <p>Generate names for NPCs, taverns, towns, and more</p>
-      <span class="tool-status">Coming Soon</span>
-    </div>
+      <p>Generate names for characters, NPCs, and more</p>
+      <span class="tool-status">Available</span>
+    </button>
   </section>
 
   <!-- Saved Characters Sidebar -->

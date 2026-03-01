@@ -1,7 +1,7 @@
 @import '../../styles/mixins.scss';
 
 // ════════════ EQUIPMENT ════════════
-.item-grid { @include grid-responsive(200px); &.small { @include grid-responsive(180px); } }
+.item-grid { @include grid-responsive(12.5rem); &.small { @include grid-responsive(11.25rem); } }
 
 .gold-section {
   text-align: center;

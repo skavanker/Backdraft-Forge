@@ -1,0 +1,273 @@
+/**
+ * Name Generator Component Styles
+ * Styles for NameGenerator.svelte, NameGeneratorForm.svelte,
+ * PlaceGeneratorForm.svelte, and NameResults.svelte
+ */
+
+// ===================================================
+// Generator Header
+// ===================================================
+
+.generator-header {
+  h2 {
+    font-family: $font-display;
+    font-size: $text-xxl;
+    letter-spacing: 0.02em;
+  }
+
+  .subtitle {
+    font-family: $font-body;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+}
+
+// ===================================================
+// Mode Selector
+// ===================================================
+
+.mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-lg;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius;
+}
+
+// ===================================================
+// Form Shared Styles
+// ===================================================
+
+// Form container (used by both character and place forms)
+.name-generator-form,
+.place-generator-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+  padding: $space-lg;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius;
+}
+
+// Form section (groups of related inputs)
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+// Form label (section headers)
+.form-label {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: $space-xs;
+}
+
+// ===================================================
+// Place Generator Specific
+// ===================================================
+
+.type-category {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin-bottom: $space-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.category-label {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+// ===================================================
+// Name Results Display
+// ===================================================
+
+.name-results {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.results-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-sm;
+}
+
+.btn-action {
+  padding: $space-sm $space-md;
+  font-size: $text-sm;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius;
+  cursor: pointer;
+  @include transition;
+  @include touch-target;
+
+  &:hover {
+    background: var(--bg-panel);
+    border-color: var(--border-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+}
+
+.names-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.name-item {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  width: 100%;
+  padding: $space-md;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  cursor: pointer;
+  text-align: left;
+  @include transition;
+  @include touch-target;
+
+  &:hover {
+    background: var(--bg-panel);
+    border-color: var(--border-strong);
+
+    .copy-indicator {
+      opacity: 1;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+  }
+}
+
+.name-text {
+  font-size: $text-base;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 180px;
+}
+
+.name-meta {
+  font-size: $text-xs;
+  color: var(--text-muted);
+  text-transform: capitalize;
+  flex: 1;
+}
+
+.copy-indicator {
+  font-size: $text-sm;
+  color: var(--text-muted);
+  opacity: 0.5;
+  flex-shrink: 0;
+  margin-left: auto;
+  @include transition;
+}
+
+// ===================================================
+// Mobile Responsiveness
+// ===================================================
+
+@include mobile {
+  .form-label {
+    font-size: $text-xs;
+  }
+
+  .category-label {
+    font-size: $text-xs;
+  }
+
+  .name-item {
+    padding: $space-sm;
+    flex-wrap: wrap;
+  }
+
+  .name-text {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .name-meta {
+    width: 100%;
+    order: 2;
+  }
+
+  .copy-indicator {
+    order: 1;
+  }
+}
+
+// ===================================================
+// Print Styles
+// ===================================================
+
+@media print {
+  // Hide interactive UI elements
+  .mode-selector,
+  .generator-header .subtitle,
+  .form-label,
+  .grid-chips,
+  .results-actions,
+  .btn-action,
+  .copy-indicator,
+  .name-meta,
+  .btn-clear,
+  .empty-state,
+  .name-generator-form,
+  .place-generator-form {
+    display: none !important;
+  }
+
+  // Print only the generated names
+  .name-results {
+    .names-list {
+      display: block;
+    }
+
+    .name-item {
+      background: white !important;
+      border: none !important;
+      padding: $space-xs 0 !important;
+      page-break-inside: avoid;
+    }
+
+    .name-text {
+      color: black !important;
+      font-size: 12pt;
+    }
+  }
+
+  // Simplify header for print
+  .generator-header h2 {
+    font-size: 16pt;
+    margin-bottom: $space-sm;
+  }
+}

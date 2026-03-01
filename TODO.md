@@ -74,9 +74,31 @@
 - [ ] Reuse: dice roller, THAC0/save tables, PDF/print export, parchment styling
 - [ ] Tie to treasure generator (each monster has a Treasure Type)
 
-#### Other DM Tools
-- [ ] Expanded name generator (NPCs, taverns, towns, shops)
-  - Build on existing names.js data
+#### Name Generator (✅ All 4 Phases Complete)
+- [x] Phase 1: Surname refactoring & structure cleanup
+- [x] Phase 2: Social class tags for all races (noble, wealthy, common, poor)
+- [x] Phase 3: Place name generation (settlements, landmarks, buildings)
+- [x] Phase 4: UI mode switcher, blacklist, polish
+
+**Future Enhancements (Post-MVP):**
+- [ ] **Integration with existing systems**
+  - [ ] Update Character Creator to use weighted names (BackstoryEditor.svelte)
+  - [ ] Update NPC Generator to use weighted names with archetype context
+  - [ ] Update Treasure Generator owner names (if applicable)
+- [ ] **Additional races** - Half-Orc, Drow, etc.
+- [ ] **Bulk generation** - 100+ names at once
+- [ ] **Custom syllable pools** - User-defined syllables
+- [ ] **Item naming** - Magic Items, Weapons, Armor, Artifacts
+- [ ] **Additional name types**:
+  - [ ] Dragon names
+  - [ ] Demon/Devil names
+  - [ ] Deity names
+  - [ ] Guild/Organization names
+  - [ ] Ship names
+  - [ ] Spell names
+  - [ ] Magic item names
+- [ ] **Persistence** - Save favorite names to localStorage
+- [ ] **Export names** - Export as list/CSV
 
 ### UI/UX
 - [ ] Mobile responsiveness improvements
@@ -90,6 +112,15 @@
 _None currently tracked_
 
 ## Code Quality & Technical Debt
+
+### Standardization
+- [ ] **Standardize button usage across codebase**
+  - Use `.btn-primary` for primary actions (e.g., "Generate", "Continue", "Save")
+  - Use `.btn-ghost` for secondary actions (e.g., "Cancel", "Back")
+  - Use `.btn-clear` for destructive/clear actions (e.g., "Clear All")
+  - Use `.btn-sm` modifier for compact buttons
+  - Only use custom button classes for special cases (delete buttons, icon-only buttons, etc.)
+  - Audit all components and replace custom button CSS with standard classes
 
 ### Documentation Gaps
 - [ ] Add JSDoc to remaining exported utility functions (characterAccessors.js and xpUtils.js now documented)

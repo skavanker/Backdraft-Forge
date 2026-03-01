@@ -76,15 +76,19 @@
 
 // Grid utility classes (for common sizes)
 .grid-cards {
-  @include grid-responsive(220px);
+  @include grid-responsive(13.75rem); // ~220px at 16px base
 }
 
 .grid-items {
-  @include grid-responsive(200px);
+  @include grid-responsive(12.5rem); // ~200px
 }
 
 .grid-compact {
-  @include grid-responsive(180px);
+  @include grid-responsive(11.25rem); // ~180px
+}
+
+.grid-chips {
+  @include grid-responsive(7.5rem); // ~120px
 }
 
 // ─── Spacing Utilities ──────────────────────────────────────────────────────

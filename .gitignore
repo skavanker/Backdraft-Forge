@@ -16,11 +16,7 @@ dist-ssr
 public/portraits/originals_backup/
 
 # Local utility scripts and reference files
-rename_portraits.py
-check_missing_portraits.py
-compress_portraits.py
-zoranius_mironimus_character_sheet.html
-pip_burrows_character_sheet.html
+assets/
 
 # Editor directories and files
 .vscode/*
@@ -33,10 +29,5 @@ pip_burrows_character_sheet.html
 *.sln
 *.sw?
 .claude/
-REFACTORING.md
 nul
 
-# Agent-generated reports
-code-review-report.md
-rules-validation-report.md
-css-design-review.md

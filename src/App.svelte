@@ -3,6 +3,7 @@
   import SplashPage from './lib/SplashPage.svelte';
   import NPCGenerator from './lib/NPCGenerator.svelte';
   import TreasureGenerator from './lib/TreasureGenerator.svelte';
+  import NameGenerator from './lib/NameGenerator.svelte';
   import AbilityRoller from './lib/AbilityRoller.svelte';
   import RaceSelector from './lib/RaceSelector.svelte';
   import ClassSelector from './lib/ClassSelector.svelte';
@@ -315,6 +316,10 @@
     currentView = 'treasure-generator';
   }
 
+  function launchNameGenerator() {
+    currentView = 'name-generator';
+  }
+
   function returnToSplash() {
     // Check if there are unsaved changes (character has data but not saved)
     const hasUnsavedChanges = currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
@@ -539,6 +544,14 @@
     <section class="content card">
       <TreasureGenerator />
     </section>
+  {:else if currentView === 'name-generator'}
+    <header class="header">
+      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <p class="tagline">AD&D 2nd Edition Name Generator</p>
+    </header>
+    <section class="content card">
+      <NameGenerator />
+    </section>
   {:else if currentView === 'splash'}
     <SplashPage
       {savedCharacters}
@@ -546,6 +559,7 @@
       onLaunchCharacterCreator={launchCharacterCreator}
       onLaunchNPCGenerator={launchNPCGenerator}
       onLaunchTreasureGenerator={launchTreasureGenerator}
+      onLaunchNameGenerator={launchNameGenerator}
       onLoadCharacter={loadSavedCharacter}
       onDeleteCharacter={deleteSavedCharacter}
       onImportCharacter={openImportDialog}
