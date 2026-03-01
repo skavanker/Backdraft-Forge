@@ -36,6 +36,17 @@
   border-radius: $radius;
 }
 
+.mode-buttons {
+  display: flex;
+  gap: $space-md;
+  flex-wrap: wrap;
+
+  button {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
 // ===================================================
 // Form Shared Styles
 // ===================================================
@@ -71,29 +82,6 @@
   padding-bottom: $space-xs;
 }
 
-// ===================================================
-// Place Generator Specific
-// ===================================================
-
-.type-category {
-  display: flex;
-  flex-direction: column;
-  gap: $space-sm;
-  margin-bottom: $space-sm;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.category-label {
-  margin: 0;
-  font-size: $text-sm;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: none;
-  letter-spacing: normal;
-}
 
 // ===================================================
 // Name Results Display

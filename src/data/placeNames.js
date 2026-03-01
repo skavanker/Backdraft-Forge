@@ -37,7 +37,7 @@ export const settlementSyllables = {
       ],
       suffix: [
         'wood', 'vale', 'haven', 'grove', 'glade', 'leaf', 'deep',
-        'rest', 'shade', 'green', 'bourne', 'hollow', 'reach', 'song'
+        'rest', 'shade', 'green', 'bourne', 'hollow', 'reach', 'song', 'forest'
       ]
     },
     plains: {
@@ -53,7 +53,7 @@ export const settlementSyllables = {
     swamp: {
       prefix: [
         'Bog', 'Marsh', 'Mist', 'Mire', 'Reed', 'Dark', 'Rot',
-        'Moss', 'Fen', 'Murk', 'Dreg', 'Dank', 'Gloom', 'Shadow'
+        'Moss', 'Fen', 'Murk', 'Dreg', 'Gloom', 'Shadow'
       ],
       suffix: [
         'marsh', 'mere', 'mire', 'gate', 'hold', 'haven', 'deep',
@@ -115,7 +115,7 @@ export const settlementSyllables = {
     },
     swamp: {
       prefix: [
-        'Mire', 'Bog', 'Moss', 'Reed', 'Murk', 'Dank', 'Wet',
+        'Mire', 'Bog', 'Moss', 'Reed', 'Murk', 'Wet',
         'Mud', 'Slough', 'Fen', 'Marsh', 'Pond', 'Rot', 'Dreg'
       ],
       suffix: [
@@ -222,7 +222,7 @@ export const landmarkSyllables = {
   ],
   swamp: [
     'Mist', 'Bog', 'Marsh', 'Dark', 'Rot', 'Murk', 'Reed', 'Fen',
-    'Gloom', 'Shadow', 'Dank', 'Dreg', 'Slime', 'Mire'
+    'Gloom', 'Shadow', 'Dreg', 'Slime', 'Mire'
   ],
   desert: [
     'Sun', 'Sand', 'Dust', 'Scorch', 'Flame', 'Gold', 'Amber',
@@ -238,12 +238,12 @@ export const landmarkSyllables = {
  * Landmark types by category
  */
 export const landmarkTypes = {
-  bridge: 'Bridge',
+  bridge: ['Bridge', 'Crossing', 'Span', 'Pass', 'Causeway', 'Archway'],
   cave: ['Cave', 'Caverns', 'Grotto'],
   forest: ['Wood', 'Forest', 'Grove'],
-  river: 'River',
+  river: ['River', 'Stream', 'Brook', 'Creek'],
   lake: ['Lake', 'Mere', 'Pool'],
-  mountain: ['Mountain', 'Peak', 'Mount'],
+  mountain: ['Mountain', 'Peak', 'Mount', 'Summit', 'Crag', 'Ridge', 'Cliff', 'Spire', 'Tor'],
   road: ['Road', 'Path', 'Way'],
   graveyard: ['Graveyard', 'Cemetery', 'Burial Ground'],
   ruins: ['Ruins', 'Wreck', 'Remnants']

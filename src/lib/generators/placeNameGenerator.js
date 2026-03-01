@@ -4,31 +4,7 @@
  * Generates context-aware names for settlements, landmarks, buildings, and dungeons.
  */
 
-/**
- * Blacklist of inappropriate place name combinations
- */
-const PLACE_BLACKLIST = [
-  // Pop culture references
-  'baywatch', 'starwars', 'ironman', 'batman', 'superman',
-  'gotham', 'metropolis', 'wakanda', 'narnia', 'hogwarts',
-  'mordor', 'rivendell', 'gondor', 'rohan',
-
-  // Modern/inappropriate terms
-  'butthead', 'asshat', 'shithead',
-
-  // Add more as needed
-];
-
-/**
- * Check if a place name contains blacklisted terms
- *
- * @param {string} name - Name to check
- * @returns {boolean} True if blacklisted
- */
-function isBlacklisted(name) {
-  const normalized = name.toLowerCase().replace(/\s+/g, '').replace(/'/g, '').replace(/the/g, '');
-  return PLACE_BLACKLIST.some(banned => normalized.includes(banned));
-}
+import { PLACE_BLACKLIST, isBlacklisted } from '../../data/blacklist.js';
 
 import { settlementSyllables, landmarkSyllables, landmarkTypes } from '../../data/placeNames.js';
 import {
@@ -39,6 +15,7 @@ import {
   buildingPatterns,
   roadPatterns
 } from '../../data/placePatterns.js';
+import { getAdjectivesForLandmark } from '../../data/landmarkAdjectives.js';
 import { generateCharacterName } from './nameGenerator.js';
 
 /**
@@ -86,38 +63,41 @@ export function generateSettlementName(options = {}) {
  */
 export function generateLandmarkName(options = {}) {
   const {
-    type = 'mountain', // bridge, cave, forest, river, lake, mountain, road, graveyard, ruins
-    geography = 'random'
+    type = 'mountain' // bridge, cave, forest, river, lake, mountain, road, graveyard, ruins
   } = options;
 
-  // Handle random geography
-  let geo = geography;
-  if (geo === 'random') {
-    // Pick geography based on landmark type
-    const typeGeoMap = {
-      bridge: ['coastal', 'forest', 'plains'],
-      cave: ['mountain', 'underground'],
-      forest: ['forest'],
-      river: ['forest', 'plains'],
-      lake: ['forest', 'plains'],
-      mountain: ['mountain'],
-      road: ['plains', 'forest'],
-      graveyard: ['plains', 'swamp'],
-      ruins: ['mountain', 'forest', 'desert']
-    };
-    const validGeos = typeGeoMap[type] || ['mountain', 'forest', 'plains'];
-    geo = pick(validGeos);
-  }
-
-  // Get prefix from landmark syllables
-  const prefixList = landmarkSyllables[geo] || landmarkSyllables['mountain'];
-  const prefix = pick(prefixList);
+  // Get available adjectives for this landmark type
+  const availableAdjectives = getAdjectivesForLandmark(type);
 
   // Get type suffix
   const typeSuffix = landmarkTypes[type];
   const suffix = Array.isArray(typeSuffix) ? pick(typeSuffix) : typeSuffix;
 
-  return `${prefix} ${suffix}`;
+  // Pick naming pattern
+  const patternRoll = Math.random();
+
+  if (patternRoll < 0.6) {
+    // 60% - Single adjective: "Lonely Mountain"
+    const adjObj = pick(availableAdjectives);
+    return `${adjObj.adj} ${suffix}`;
+  } else {
+    // 40% - Two adjectives from different categories: "Dark Misty Peak"
+    const adjObj1 = pick(availableAdjectives);
+
+    // Filter to different category
+    const differentCategory = availableAdjectives.filter(a => a.category !== adjObj1.category);
+
+    // If we have adjectives from other categories, use one. Otherwise just use any different adjective
+    let adjObj2;
+    if (differentCategory.length > 0) {
+      adjObj2 = pick(differentCategory);
+    } else {
+      // Fallback: just pick a different adjective
+      adjObj2 = pick(availableAdjectives.filter(a => a.adj !== adjObj1.adj));
+    }
+
+    return `${adjObj1.adj} ${adjObj2.adj} ${suffix}`;
+  }
 }
 
 /**
@@ -130,42 +110,61 @@ export function generateLandmarkName(options = {}) {
 export function generateTavernName(names, options = {}) {
   const {
     geography = 'random',
-    style = 'random' // 'pattern' or 'owner'
+    style = 'random' // 'pattern', 'adjective', or 'owner'
   } = options;
 
-  // Determine style (70% pattern, 30% owner)
+  // Determine style (40% pattern, 30% adjective, 30% owner)
   let nameStyle = style;
   if (nameStyle === 'random') {
-    nameStyle = Math.random() < 0.7 ? 'pattern' : 'owner';
+    const roll = Math.random();
+    if (roll < 0.4) {
+      nameStyle = 'pattern';
+    } else if (roll < 0.7) {
+      nameStyle = 'adjective';
+    } else {
+      nameStyle = 'owner';
+    }
+  }
+
+  // Handle random geography
+  let geo = geography;
+  if (geo === 'random') {
+    const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert', 'neutral'];
+    geo = pick(geographies);
   }
 
   if (nameStyle === 'owner') {
     // Generate owner surname
     const race = pick(['human', 'dwarf', 'elf', 'halfling']);
-    const ownerName = generateCharacterName(names, {
+    const ownerNameObj = generateCharacterName(names, {
       race,
       gender: 'Male',
-      geography: geography === 'random' ? 'random' : geography
+      geography: geo
     });
-    const surname = ownerName.split(' ')[1];
+    const surname = ownerNameObj.name.split(' ')[1];
     const suffix = pick(tavernPatterns.suffixes);
 
     return `The ${surname} ${suffix}`;
+  } else if (nameStyle === 'adjective') {
+    // Adjective-based: "The [Adjective] Inn/Tavern"
+    const availableAdjectives = getAdjectivesForLandmark('tavern', geo);
+    const adjObj = pick(availableAdjectives);
+    const suffix = pick(tavernPatterns.suffixes);
+
+    // 90% "The", 10% "Ye"
+    const article = Math.random() < 0.9 ? 'The' : 'Ye';
+
+    return `${article} ${adjObj.adj} ${suffix}`;
   } else {
     // Pattern-based: "The [Adjective] [Noun]"
     const adjective = pick(tavernPatterns.adjectives);
-
-    // Pick nouns based on geography
-    let geo = geography;
-    if (geo === 'random') {
-      const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert', 'neutral'];
-      geo = pick(geographies);
-    }
-
     const nounList = tavernPatterns.nouns[geo] || tavernPatterns.nouns.neutral;
     const noun = pick(nounList);
 
-    return `The ${adjective} ${noun}`;
+    // 90% "The", 10% "Ye"
+    const article = Math.random() < 0.9 ? 'The' : 'Ye';
+
+    return `${article} ${adjective} ${noun}`;
   }
 }
 
@@ -179,36 +178,65 @@ export function generateTavernName(names, options = {}) {
 export function generateShopName(names, options = {}) {
   const {
     geography = 'random',
-    style = 'random' // 'pattern' or 'owner'
+    style = 'random' // 'pattern', 'adjective', or 'owner'
   } = options;
 
-  // Determine style (50% pattern, 50% owner)
+  // Handle random geography
+  let geo = geography;
+  if (geo === 'random') {
+    const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert', 'neutral'];
+    geo = pick(geographies);
+  }
+
+  // Determine style (30% pattern, 30% adjective, 40% owner)
   let nameStyle = style;
   if (nameStyle === 'random') {
-    nameStyle = Math.random() < 0.5 ? 'pattern' : 'owner';
+    const roll = Math.random();
+    if (roll < 0.3) {
+      nameStyle = 'pattern';
+    } else if (roll < 0.6) {
+      nameStyle = 'adjective';
+    } else {
+      nameStyle = 'owner';
+    }
   }
 
   if (nameStyle === 'owner') {
     // Generate owner name
     const race = pick(['human', 'dwarf', 'elf', 'gnome', 'halfling']);
-    const ownerName = generateCharacterName(names, {
+    const ownerNameObj = generateCharacterName(names, {
       race,
       gender: Math.random() < 0.5 ? 'Male' : 'Female',
-      geography: geography === 'random' ? 'random' : geography
+      geography: geo
     });
 
+    const firstName = ownerNameObj.name.split(' ')[0];
     const shopType = pick(shopPatterns.types);
 
-    return `${ownerName}'s ${shopType}`;
+    return `${firstName}'s ${shopType}`;
+  } else if (nameStyle === 'adjective') {
+    // Adjective-based: "The [Adjective] Shop/Emporium"
+    const availableAdjectives = getAdjectivesForLandmark('shop', geo);
+    const adjObj = pick(availableAdjectives);
+    const shopType = pick(shopPatterns.types);
+
+    // 90% "The", 10% "Ye"
+    const article = Math.random() < 0.9 ? 'The' : 'Ye';
+
+    return `${article} ${adjObj.adj} ${shopType}`;
   } else {
     // Pattern-based
     const roll = Math.random();
 
     if (roll < 0.5) {
-      // "The [Adjective] [Noun]"
+      // "The [Adjective] [Noun]" or "Ye [Adjective] [Noun]"
       const adjective = pick(shopPatterns.adjectives);
       const noun = pick(shopPatterns.nouns);
-      return `The ${adjective} ${noun}`;
+
+      // 90% "The", 10% "Ye"
+      const article = Math.random() < 0.9 ? 'The' : 'Ye';
+
+      return `${article} ${adjective} ${noun}`;
     } else {
       // "[Noun] & [Noun]"
       const noun1 = pick(shopPatterns.nouns);
@@ -253,8 +281,7 @@ export function generateTempleName(options = {}) {
  */
 export function generateDungeonName(options = {}) {
   const {
-    geography = 'random',
-    style = 'random' // 'descriptive' or 'named'
+    geography = 'random'
   } = options;
 
   // Handle random geography
@@ -264,35 +291,12 @@ export function generateDungeonName(options = {}) {
     geo = pick(geographies);
   }
 
-  // Determine style (80% descriptive, 20% named)
-  let nameStyle = style;
-  if (nameStyle === 'random') {
-    nameStyle = Math.random() < 0.8 ? 'descriptive' : 'named';
-  }
-
+  // Get available adjectives for dungeon with geography filter
+  const availableAdjectives = getAdjectivesForLandmark('dungeon', geo);
+  const adjObj = pick(availableAdjectives);
   const dungeonType = pick(dungeonPatterns.types);
 
-  if (nameStyle === 'descriptive') {
-    // "The [Descriptor] [Type]"
-    const descriptorList = dungeonPatterns.descriptors[geo] || dungeonPatterns.descriptors.neutral;
-    const descriptor = pick(descriptorList);
-
-    return `The ${descriptor} ${dungeonType}`;
-  } else {
-    // "[Name] [Type]" - use settlement prefix for name
-    let nameGeo = geo === 'underground' ? 'mountain' : geo;
-
-    // If neutral, randomly select a geography for variety
-    if (nameGeo === 'neutral' || nameGeo === 'random') {
-      const geographies = ['mountain', 'forest', 'swamp', 'desert', 'coastal', 'plains'];
-      nameGeo = pick(geographies);
-    }
-
-    const prefixList = settlementSyllables.city?.[nameGeo]?.prefix || ['Dark'];
-    const name = pick(prefixList);
-
-    return `${name}${dungeonType === 'Halls' || dungeonType === 'Depths' ? '' : ' '}${dungeonType}`;
-  }
+  return `The ${adjObj.adj} ${dungeonType}`;
 }
 
 /**
@@ -301,9 +305,12 @@ export function generateDungeonName(options = {}) {
  * @param {Object} options - Generation options
  * @returns {string} Generated tower name
  */
-export function generateTowerName(options = {}) {
-  const adjective = pick(buildingPatterns.tower.adjectives);
-  return `The ${adjective} ${buildingPatterns.tower.type}`;
+export function generateTowerName() {
+  // Get available adjectives for tower (treat like a landmark)
+  const availableAdjectives = getAdjectivesForLandmark('tower');
+  const adjObj = pick(availableAdjectives);
+  const type = pick(buildingPatterns.tower.types);
+  return `The ${adjObj.adj} ${type}`;
 }
 
 /**
@@ -312,9 +319,12 @@ export function generateTowerName(options = {}) {
  * @param {Object} options - Generation options
  * @returns {string} Generated castle name
  */
-export function generateCastleName(options = {}) {
-  const adjective = pick(buildingPatterns.castle.adjectives);
-  return `The ${adjective} ${buildingPatterns.castle.type}`;
+export function generateCastleName() {
+  // Get available adjectives for castle (treat like a landmark)
+  const availableAdjectives = getAdjectivesForLandmark('castle');
+  const adjObj = pick(availableAdjectives);
+  const type = pick(buildingPatterns.castle.types);
+  return `The ${adjObj.adj} ${type}`;
 }
 
 /**
@@ -323,9 +333,12 @@ export function generateCastleName(options = {}) {
  * @param {Object} options - Generation options
  * @returns {string} Generated library name
  */
-export function generateLibraryName(options = {}) {
-  const adjective = pick(buildingPatterns.library.adjectives);
-  return `The ${adjective} ${buildingPatterns.library.type}`;
+export function generateLibraryName() {
+  // Get available adjectives for library (treat like a landmark)
+  const availableAdjectives = getAdjectivesForLandmark('library');
+  const adjObj = pick(availableAdjectives);
+  const type = pick(buildingPatterns.library.types);
+  return `The ${adjObj.adj} ${type}`;
 }
 
 /**
@@ -355,17 +368,29 @@ export function generateRoadName(options = {}) {
  *
  * @param {Object} names - Character names data
  * @param {Object} options - Generation options
- * @returns {string} Generated place name
+ * @returns {Object} Object with name and resolved placeType
  */
 export function generatePlaceName(names, options = {}) {
-  const { placeType = 'city', ...restOptions } = options;
+  let { placeType = 'city', ...restOptions } = options;
+
+  // Handle random-category selections
+  if (placeType === 'random-settlements') {
+    placeType = pick(['city', 'town', 'village']);
+  } else if (placeType === 'random-landmarks') {
+    placeType = pick(['bridge', 'cave', 'forest', 'river', 'lake', 'mountain', 'road', 'graveyard', 'ruins']);
+  } else if (placeType === 'random-buildings') {
+    placeType = pick(['tavern', 'shop', 'temple', 'tower', 'castle', 'library', 'dungeon']);
+  }
+
+  let name;
 
   switch (placeType) {
     // Settlements
     case 'city':
     case 'town':
     case 'village':
-      return generateSettlementName({ type: placeType, ...restOptions });
+      name = generateSettlementName({ type: placeType, ...restOptions });
+      break;
 
     // Landmarks
     case 'bridge':
@@ -376,29 +401,40 @@ export function generatePlaceName(names, options = {}) {
     case 'mountain':
     case 'graveyard':
     case 'ruins':
-      return generateLandmarkName({ type: placeType, ...restOptions });
+      name = generateLandmarkName({ type: placeType, ...restOptions });
+      break;
 
     // Buildings
     case 'tavern':
-      return generateTavernName(names, restOptions);
+      name = generateTavernName(names, restOptions);
+      break;
     case 'shop':
-      return generateShopName(names, restOptions);
+      name = generateShopName(names, restOptions);
+      break;
     case 'temple':
-      return generateTempleName(restOptions);
+      name = generateTempleName(restOptions);
+      break;
     case 'tower':
-      return generateTowerName(restOptions);
+      name = generateTowerName(restOptions);
+      break;
     case 'castle':
-      return generateCastleName(restOptions);
+      name = generateCastleName(restOptions);
+      break;
     case 'library':
-      return generateLibraryName(restOptions);
+      name = generateLibraryName(restOptions);
+      break;
     case 'dungeon':
-      return generateDungeonName(restOptions);
+      name = generateDungeonName(restOptions);
+      break;
     case 'road':
-      return generateRoadName(restOptions);
+      name = generateRoadName(restOptions);
+      break;
 
     default:
-      return 'Unknown Place';
+      name = 'Unknown Place';
   }
+
+  return { name, resolvedType: placeType };
 }
 
 /**
@@ -406,19 +442,25 @@ export function generatePlaceName(names, options = {}) {
  *
  * @param {Object} names - Character names data
  * @param {Object} options - Generation options
- * @returns {string} Generated safe place name
+ * @returns {Object} Generated safe place name with metadata
  */
 function generateSafePlaceName(names, options = {}) {
   let attempts = 0;
-  let name;
+  let result;
 
   do {
-    name = generatePlaceName(names, options);
+    result = generatePlaceName(names, options);
     attempts++;
-  } while (isBlacklisted(name) && attempts < 10);
+  } while (isBlacklisted(result.name, PLACE_BLACKLIST) && attempts < 10);
 
-  // If still blacklisted after 10 attempts, return anyway
-  return name;
+  // Return object with name and metadata for display
+  return {
+    name: result.name,
+    meta: {
+      placeType: result.resolvedType,
+      geography: options.geography || 'random'
+    }
+  };
 }
 
 /**
@@ -427,7 +469,7 @@ function generateSafePlaceName(names, options = {}) {
  * @param {Object} names - Character names data
  * @param {Object} options - Generation options
  * @param {number} count - Number of names to generate
- * @returns {string[]} Array of generated place names
+ * @returns {Object[]} Array of generated place name objects with metadata
  */
 export function generatePlaceNames(names, options = {}, count = 1) {
   const result = [];

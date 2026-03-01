@@ -48,7 +48,7 @@
   <!-- Race Selection -->
   <div class="form-section">
     <h4 class="form-label">Race</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.race === 'random'}
@@ -67,7 +67,7 @@
   <!-- Gender Selection -->
   <div class="form-section">
     <h4 class="form-label">Gender</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.gender === 'random'}
@@ -86,7 +86,7 @@
   <!-- Class Selection -->
   <div class="form-section">
     <h4 class="form-label">Class</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.class === 'random'}
@@ -105,7 +105,7 @@
   <!-- Settlement Type -->
   <div class="form-section">
     <h4 class="form-label">Settlement Type</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.settlement === 'random'}
@@ -123,8 +123,8 @@
 
   <!-- Geography -->
   <div class="form-section">
-    <h4 class="form-label">Geography</h4>
-    <div class="grid-chips gap-sm">
+    <h4 class="form-label">Location</h4>
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.geography === 'random'}
@@ -143,7 +143,7 @@
   <!-- Social Class -->
   <div class="form-section">
     <h4 class="form-label">Social Class</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.socialClass === 'random'}
@@ -162,7 +162,7 @@
   <!-- Quantity -->
   <div class="form-section">
     <h4 class="form-label">Quantity</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       {#each quantities as qty}
         <SelectableChip
           label={qty.toString()}
@@ -176,7 +176,7 @@
   <!-- Naming Style -->
   <div class="form-section">
     <h4 class="form-label">Naming Style</h4>
-    <div class="grid-chips gap-sm">
+    <div class="grid-compact gap-sm">
       <SelectableChip
         label="Random"
         selected={options.style === 'random'}

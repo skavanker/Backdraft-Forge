@@ -6,7 +6,6 @@
   import NameGeneratorForm from './components/NameGeneratorForm.svelte';
   import PlaceGeneratorForm from './components/PlaceGeneratorForm.svelte';
   import NameResults from './components/NameResults.svelte';
-  import SelectableChip from './components/SelectableChip.svelte';
 
   // Mode: 'character' or 'place'
   let mode = $state('character');
@@ -25,7 +24,7 @@
 
   // Place generation options
   let placeOptions = $state({
-    placeType: 'city',
+    placeType: 'random-settlements',
     geography: 'random',
     style: 'random',
     quantity: 5
@@ -98,17 +97,21 @@
   <!-- Mode Selector -->
   <div class="mode-selector">
     <h4 class="form-label">What to Generate</h4>
-    <div class="grid-chips gap-sm">
-      <SelectableChip
-        label="Character/NPC"
-        selected={mode === 'character'}
+    <div class="mode-buttons">
+      <button
+        class="btn-primary"
+        class:selected={mode === 'character'}
         onclick={() => handleModeChange('character')}
-      />
-      <SelectableChip
-        label="Place"
-        selected={mode === 'place'}
+      >
+        Character/NPC
+      </button>
+      <button
+        class="btn-primary"
+        class:selected={mode === 'place'}
         onclick={() => handleModeChange('place')}
-      />
+      >
+        Place
+      </button>
     </div>
   </div>
 

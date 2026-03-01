@@ -41,7 +41,11 @@
         <span class="name-text">{name}</span>
         {#if meta}
           <span class="name-meta">
-            {meta.race} • {meta.gender} • {meta.class} • {meta.socialClass} • {meta.style}
+            {#if meta.race}
+              {meta.race} • {meta.gender} • {meta.class} • {meta.socialClass} • {meta.style}
+            {:else if meta.placeType}
+              {meta.placeType} • {meta.geography}
+            {/if}
           </span>
         {/if}
         <span class="copy-indicator">

@@ -9,30 +9,7 @@
  * - Naming style (standard, patronymic, clan, house)
  */
 
-/**
- * Blacklist of inappropriate name combinations
- * Prevents accidental pop culture references and problematic names from syllable combinations.
- */
-const NAME_BLACKLIST = [
-  // WoW / gaming references (verified possible with current syllables)
-  'ironforge',     // WoW city - Dwarf capital (Iron + forge)
-  'ironhammer',    // WoW dwarven clan (Iron + hammer)
-  'thunderaxe',    // WoW dwarven clan (Thunder + axe)
-  'stormhammer',   // WoW dwarven clan (Storm + hammer)
-
-  // Add more as problematic combinations are discovered
-];
-
-/**
- * Check if a name contains blacklisted terms
- *
- * @param {string} name - Name to check
- * @returns {boolean} True if blacklisted
- */
-function isBlacklisted(name) {
-  const normalized = name.toLowerCase().replace(/\s+/g, '').replace(/'/g, '');
-  return NAME_BLACKLIST.some(banned => normalized.includes(banned));
-}
+import { NAME_BLACKLIST, isBlacklisted } from '../../data/blacklist.js';
 
 /**
  * Class categories for weighting
@@ -458,7 +435,7 @@ function generateSafeCharacterName(names, options = {}) {
   do {
     nameObj = generateCharacterName(names, options);
     attempts++;
-  } while (isBlacklisted(nameObj.name) && attempts < 10);
+  } while (isBlacklisted(nameObj.name, NAME_BLACKLIST) && attempts < 10);
 
   // If still blacklisted after 10 attempts, return anyway
   // (extremely unlikely with our syllable pool)

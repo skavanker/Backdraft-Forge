@@ -112,37 +112,9 @@ export const templePatterns = {
 };
 
 /**
- * Dungeon/Ruins descriptors
- * Pattern: "The [Descriptor] [Type]" or "[Name] [Type]"
+ * Dungeon/Ruins types
  */
 export const dungeonPatterns = {
-  descriptors: {
-    mountain: [
-      'Dark', 'Deep', 'Lost', 'Forgotten', 'Ancient', 'Sunless',
-      'Abandoned', 'Cursed', 'Haunted', 'Sealed', 'Hidden', 'Secret'
-    ],
-    forest: [
-      'Overgrown', 'Hidden', 'Lost', 'Forgotten', 'Ancient', 'Verdant',
-      'Tangled', 'Thorny', 'Shadowed', 'Abandoned', 'Cursed', 'Haunted'
-    ],
-    swamp: [
-      'Rotting', 'Drowned', 'Sunken', 'Fetid', 'Cursed', 'Abandoned',
-      'Decaying', 'Murky', 'Flooded', 'Soggy', 'Dank', 'Reeking'
-    ],
-    desert: [
-      'Buried', 'Sand-covered', 'Lost', 'Forgotten', 'Ancient', 'Scorched',
-      'Windswept', 'Abandoned', 'Hidden', 'Sun-bleached', 'Dry', 'Dusty'
-    ],
-    underground: [
-      'Sunless', 'Black', 'Endless', 'Forgotten', 'Sealed', 'Deep',
-      'Hidden', 'Secret', 'Ancient', 'Lost', 'Dark', 'Abyssal'
-    ],
-    neutral: [
-      'Forgotten', 'Lost', 'Ancient', 'Cursed', 'Haunted', 'Abandoned',
-      'Ruined', 'Broken', 'Fallen', 'Shattered', 'Doomed', 'Damned'
-    ]
-  },
-
   types: [
     'Halls', 'Citadel', 'Catacombs', 'Crypts', 'Ruins', 'Vault',
     'Depths', 'Dungeon', 'Keep', 'Tower', 'Fortress', 'Stronghold',
@@ -152,34 +124,19 @@ export const dungeonPatterns = {
 };
 
 /**
- * Building/Landmark descriptors
- * Pattern: "The [Descriptor] [Type]"
+ * Building types
  */
 export const buildingPatterns = {
   tower: {
-    adjectives: [
-      'High', 'Tall', 'Ancient', 'Crumbling', 'Black', 'White',
-      'Crystal', 'Iron', 'Stone', 'Ivory', 'Obsidian', 'Bone',
-      'Wizard\'s', 'Mage\'s', 'Sorcerer\'s', 'Witch\'s', 'Warlock\'s'
-    ],
-    type: 'Tower'
+    types: ['Tower', 'Spire', 'Citadel', 'Keep', 'Pillar', 'Obelisk', 'Minaret']
   },
 
   castle: {
-    adjectives: [
-      'Grand', 'Ancient', 'Ruined', 'Abandoned', 'Haunted', 'Cursed',
-      'Royal', 'Noble', 'Dark', 'White', 'Black', 'Red',
-      'Stone', 'Iron', 'Silver', 'Golden', 'Crystal', 'Shadow'
-    ],
-    type: 'Castle'
+    types: ['Castle', 'Fortress', 'Citadel', 'Keep', 'Stronghold', 'Bastion']
   },
 
   library: {
-    adjectives: [
-      'Great', 'Ancient', 'Dusty', 'Forgotten', 'Lost', 'Hidden',
-      'Royal', 'Arcane', 'Forbidden', 'Sacred', 'Grand', 'Old'
-    ],
-    type: 'Library'
+    types: ['Library', 'Archive', 'Repository', 'Athenaeum', 'Scriptorium']
   }
 };
 

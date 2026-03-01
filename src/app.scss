@@ -259,10 +259,20 @@ button {
   font-family: $font-display;
   letter-spacing: 0.03em;
   padding: $space-md $space-lg;
+  transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
     background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
-    filter: brightness(1.1);
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
+  }
+
+  &.selected {
+    background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
   }
 }
 

@@ -144,7 +144,7 @@ $breakpoint-xl: 1280px;  // Large desktop
 @mixin selectable-chip {
   @include selectable-card($border-width: 1px, $lift: 0);
   transition: all 0.15s ease-out 0.05s;
-  font-size: $text-sm;
+  font-size: $text-base;
   padding: calc($space-sm * 0.7) calc($space-md * 0.65);
 }
 

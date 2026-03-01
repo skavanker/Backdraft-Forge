@@ -37,11 +37,7 @@
 
 ### DM Tools
 
-#### NPC Generator (Implemented - Needs Polish)
-- [x] Basic NPC generation with weighted equipment packages
-- [x] 12 pre-configured archetypes
-- [x] Bulk generation (1-20 NPCs)
-- [x] Quick/detailed modes
+#### NPC Generator
 - [ ] **UI/UX improvements** - Current layout needs significant work
 - [ ] **Better stat block formatting** - Make more compact and readable
 - [ ] **Export/print functionality** - PDF or printer-friendly format
@@ -50,13 +46,7 @@
 - [ ] **Equipment package refinement** - Better variety and realism
 - [ ] **Spell selection for casters** - Currently auto-generated, needs review
 
-#### Treasure Generator (Implemented - Needs Polish)
-- [x] AD&D 2E treasure types (A-O)
-- [x] Gem, art, magic item generation
-- [x] Individual item weights
-- [x] Selectable items with copy-to-clipboard
-- [x] Single item generation
-- [x] Value-based generation
+#### Treasure Generator
 - [ ] **UI/UX improvements** - Current layout needs significant work
 - [ ] **Better treasure display** - More organized, easier to read
 - [ ] **Magic item details** - Expand beyond just names (descriptions, stats)
@@ -74,13 +64,7 @@
 - [ ] Reuse: dice roller, THAC0/save tables, PDF/print export, parchment styling
 - [ ] Tie to treasure generator (each monster has a Treasure Type)
 
-#### Name Generator (✅ All 4 Phases Complete)
-- [x] Phase 1: Surname refactoring & structure cleanup
-- [x] Phase 2: Social class tags for all races (noble, wealthy, common, poor)
-- [x] Phase 3: Place name generation (settlements, landmarks, buildings)
-- [x] Phase 4: UI mode switcher, blacklist, polish
-
-**Future Enhancements (Post-MVP):**
+#### Name Generator - Future Enhancements
 - [ ] **Integration with existing systems**
   - [ ] Update Character Creator to use weighted names (BackstoryEditor.svelte)
   - [ ] Update NPC Generator to use weighted names with archetype context
@@ -119,11 +103,12 @@ _None currently tracked_
   - Use `.btn-ghost` for secondary actions (e.g., "Cancel", "Back")
   - Use `.btn-clear` for destructive/clear actions (e.g., "Clear All")
   - Use `.btn-sm` modifier for compact buttons
+  - Use `.selected` class on `.btn-primary` for active state (mode/category buttons)
   - Only use custom button classes for special cases (delete buttons, icon-only buttons, etc.)
   - Audit all components and replace custom button CSS with standard classes
 
 ### Documentation Gaps
-- [ ] Add JSDoc to remaining exported utility functions (characterAccessors.js and xpUtils.js now documented)
+- [ ] Add JSDoc to remaining exported utility functions
 - [ ] Document error handling patterns project-wide
-- [ ] Add inline comments for complex logic blocks (stepManager.svelte.js now documented)
+- [ ] Add inline comments for complex logic blocks
 
