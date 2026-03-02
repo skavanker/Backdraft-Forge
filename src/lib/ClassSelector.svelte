@@ -134,13 +134,14 @@
             {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
             <Tooltip text={tooltipText} position="bottom">
               <button
-                class="selection-card"
+                class="selection-card class-card"
                 class:selected={selectedClassKey === key}
                 class:disabled={!qualified}
                 class:lenient-warning={hasWarnings}
                 onclick={() => qualified && selectClass(key)}
                 disabled={!qualified}
               >
+                <img src="/icons/{key}.svg" alt="" class="class-icon" />
                 <div class="card-header">
                   <h4 class="card-name">{cls.name}</h4>
                   <span class="badge-small">{cls.hitDie}</span>

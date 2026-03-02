@@ -26,6 +26,35 @@ function pick(arr) {
 }
 
 /**
+ * Pick an adjective with weighted probability based on geography.
+ * Geography-matching adjectives get a bonus, same roulette wheel approach
+ * as selectWeightedSyllable in nameGenerator.js.
+ *
+ * @param {Object[]} adjectives - Array of adjective objects from getAdjectivesForLandmark
+ * @param {string} geography - The geography to boost (e.g. 'forest', 'mountain')
+ * @returns {Object} Selected adjective object
+ */
+function pickWeightedAdjective(adjectives, geography) {
+  const scored = adjectives.map(a => {
+    let weight = 10; // Base weight - all adjectives have minimum chance
+    if (a.location.length > 0 && a.location.includes(geography)) {
+      weight += 50; // Geography match bonus
+    }
+    return { ...a, finalWeight: weight };
+  });
+
+  const totalWeight = scored.reduce((sum, a) => sum + a.finalWeight, 0);
+  let random = Math.random() * totalWeight;
+
+  for (const item of scored) {
+    random -= item.finalWeight;
+    if (random <= 0) return item;
+  }
+
+  return scored[scored.length - 1];
+}
+
+/**
  * Generate a settlement name (city, town, village)
  *
  * @param {Object} options - Generation options
@@ -280,23 +309,47 @@ export function generateTempleName(options = {}) {
  * @returns {string} Generated dungeon name
  */
 export function generateDungeonName(options = {}) {
-  const {
-    geography = 'random'
-  } = options;
+  return generateBuildingName('dungeon', options);
+}
 
-  // Handle random geography
+/**
+ * Generate a building/dungeon name with geography-weighted adjectives.
+ * 60% single adjective, 40% two adjectives from different categories.
+ *
+ * @param {string} buildingType - Building type (tower, castle, library, dungeon)
+ * @param {Object} options - Generation options
+ * @returns {string} Generated building name
+ */
+function generateBuildingName(buildingType, options = {}) {
+  const { geography = 'random' } = options;
   let geo = geography;
   if (geo === 'random') {
     const geographies = ['mountain', 'forest', 'swamp', 'desert', 'underground', 'neutral'];
     geo = pick(geographies);
   }
 
-  // Get available adjectives for dungeon with geography filter
-  const availableAdjectives = getAdjectivesForLandmark('dungeon', geo);
-  const adjObj = pick(availableAdjectives);
-  const dungeonType = pick(dungeonPatterns.types);
+  const availableAdjectives = getAdjectivesForLandmark(buildingType, geo);
+  const types = buildingType === 'dungeon' ? dungeonPatterns.types : buildingPatterns[buildingType].types;
+  const type = pick(types);
 
-  return `The ${adjObj.adj} ${dungeonType}`;
+  const patternRoll = Math.random();
+
+  if (patternRoll < 0.6) {
+    // 60% - Single adjective: "The Overgrown Tower"
+    const adjObj = pickWeightedAdjective(availableAdjectives, geo);
+    return `The ${adjObj.adj} ${type}`;
+  } else {
+    // 40% - Two adjectives: location-specific + generic from different category
+    const locationAdjs = availableAdjectives.filter(a => a.location.length > 0 && a.location.includes(geo));
+    // First adjective: force location-specific if available, otherwise weighted pick
+    const adjObj1 = locationAdjs.length > 0 ? pick(locationAdjs) : pickWeightedAdjective(availableAdjectives, geo);
+    // Second adjective: different category, generic
+    const differentCategory = availableAdjectives.filter(a => a.category !== adjObj1.category && a.adj !== adjObj1.adj);
+    const adjObj2 = differentCategory.length > 0
+      ? pickWeightedAdjective(differentCategory, geo)
+      : pickWeightedAdjective(availableAdjectives.filter(a => a.adj !== adjObj1.adj), geo);
+    return `The ${adjObj1.adj} ${adjObj2.adj} ${type}`;
+  }
 }
 
 /**
@@ -305,12 +358,8 @@ export function generateDungeonName(options = {}) {
  * @param {Object} options - Generation options
  * @returns {string} Generated tower name
  */
-export function generateTowerName() {
-  // Get available adjectives for tower (treat like a landmark)
-  const availableAdjectives = getAdjectivesForLandmark('tower');
-  const adjObj = pick(availableAdjectives);
-  const type = pick(buildingPatterns.tower.types);
-  return `The ${adjObj.adj} ${type}`;
+export function generateTowerName(options = {}) {
+  return generateBuildingName('tower', options);
 }
 
 /**
@@ -319,12 +368,8 @@ export function generateTowerName() {
  * @param {Object} options - Generation options
  * @returns {string} Generated castle name
  */
-export function generateCastleName() {
-  // Get available adjectives for castle (treat like a landmark)
-  const availableAdjectives = getAdjectivesForLandmark('castle');
-  const adjObj = pick(availableAdjectives);
-  const type = pick(buildingPatterns.castle.types);
-  return `The ${adjObj.adj} ${type}`;
+export function generateCastleName(options = {}) {
+  return generateBuildingName('castle', options);
 }
 
 /**
@@ -333,12 +378,8 @@ export function generateCastleName() {
  * @param {Object} options - Generation options
  * @returns {string} Generated library name
  */
-export function generateLibraryName() {
-  // Get available adjectives for library (treat like a landmark)
-  const availableAdjectives = getAdjectivesForLandmark('library');
-  const adjObj = pick(availableAdjectives);
-  const type = pick(buildingPatterns.library.types);
-  return `The ${adjObj.adj} ${type}`;
+export function generateLibraryName(options = {}) {
+  return generateBuildingName('library', options);
 }
 
 /**

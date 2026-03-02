@@ -34,7 +34,7 @@
 
   const geographies = ['Coastal', 'Mountain', 'Forest', 'Plains', 'Swamp', 'Desert'];
 
-  const quantities = [1, 3, 5, 10];
+  const quantities = [1, 3, 5, 10, 100];
 
   // Track which category is currently selected
   let selectedCategory = $state('settlements');

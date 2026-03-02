@@ -80,6 +80,10 @@
       <h2>Name Generator</h2>
       <p>Generate names for characters, NPCs, and more</p>
     </button>
+
+    <div class="tool-card about-card">
+      <p>A free, open-source toolkit for Advanced Dungeons & Dragons 2nd Edition. Create characters with ability requirements, racial restrictions, and class minimums handled for you. Generate NPCs, roll treasure hoards, browse the monster compendium, and create fantasy names. Everything runs in your browser with nothing to install. Built by fans, for fans.</p>
+    </div>
   </section>
 
   <!-- Saved Characters Sidebar -->
@@ -107,7 +111,7 @@
 
   <!-- Footer -->
   <footer class="splash-footer">
-    <p>Backdraft Forge v1.0 • Open Source AD&D 2E Tools</p>
+    <p>Backdraft Forge v{__APP_VERSION__} • Open Source AD&D 2E Tools</p>
     <p class="legal">AD&D is a trademark of Wizards of the Coast. Not affiliated.</p>
   </footer>
 </div>

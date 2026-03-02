@@ -1,5 +1,20 @@
 @import '../../styles/mixins.scss';
 
+// ════════════ CLASS ICONS ════════════
+.class-card {
+  position: relative;
+}
+.class-icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 // ════════════ SELECTION SECTIONS (schools, deities, kits) ════════════
 .selection-grid.deity-grid {
   display: grid;

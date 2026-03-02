@@ -60,11 +60,11 @@ export const landmarkAdjectives = [
   { adj: 'Shattered', category: 'condition', exclude: ['mountain', 'forest', 'river', 'lake'], location: [] },
 
   // Nature/Quality
-  { adj: 'Wild', category: 'nature', exclude: ['bridge', 'road', 'graveyard', 'tower', 'castle', 'library'], location: [] },
-  { adj: 'Swift', category: 'nature', exclude: ['mountain', 'cave', 'graveyard', 'tower', 'castle', 'library'], location: [] },
-  { adj: 'Verdant', category: 'nature', exclude: ['mountain', 'cave', 'bridge', 'road', 'graveyard', 'ruins', 'tower', 'castle', 'library'], location: ['forest', 'plains'] },
-  { adj: 'Barren', category: 'nature', exclude: ['forest', 'river', 'lake', 'tower', 'castle', 'library'], location: ['desert', 'mountain'] },
-  { adj: 'Withered', category: 'nature', exclude: ['mountain', 'river', 'lake', 'bridge', 'road', 'tower', 'castle', 'library'], location: ['swamp', 'desert'] },
+  { adj: 'Wild', category: 'nature', exclude: ['graveyard'], location: [] },
+  { adj: 'Swift', category: 'nature', exclude: ['mountain', 'cave', 'graveyard'], location: [] },
+  { adj: 'Verdant', category: 'nature', exclude: ['mountain', 'cave'], location: ['forest', 'plains'] },
+  { adj: 'Barren', category: 'nature', exclude: ['forest', 'river', 'lake'], location: ['desert', 'mountain'] },
+  { adj: 'Withered', category: 'nature', exclude: ['river', 'lake'], location: ['swamp', 'desert'] },
   { adj: 'Whispering', category: 'nature', exclude: ['mountain', 'bridge', 'road'], location: [] },
 
   // Mystical
@@ -84,12 +84,12 @@ export const landmarkAdjectives = [
   { adj: 'Hallowed', category: 'mood', exclude: [], location: [] },
 
   // Additional Condition
-  { adj: 'Fallen', category: 'condition', exclude: ['mountain', 'forest', 'river', 'lake', 'tower', 'castle', 'library'], location: [] },
+  { adj: 'Fallen', category: 'condition', exclude: ['river', 'lake'], location: [] },
   { adj: 'Ruined', category: 'condition', exclude: ['mountain', 'forest', 'river', 'lake'], location: [] },
 
   // Additional Nature
-  { adj: 'Raging', category: 'nature', exclude: ['mountain', 'cave', 'bridge', 'graveyard', 'ruins', 'tower', 'castle', 'library'], location: [] },
-  { adj: 'Serpent', category: 'nature', exclude: ['mountain', 'cave', 'bridge', 'graveyard', 'ruins', 'tower', 'castle', 'library'], location: [] },
+  { adj: 'Raging', category: 'nature', exclude: ['graveyard'], location: [] },
+  { adj: 'Serpent', category: 'nature', exclude: ['graveyard'], location: [] },
 
   // From Dungeon Descriptors - Depth/Darkness
   { adj: 'Deep', category: 'size', exclude: [], location: [] },
@@ -119,11 +119,28 @@ export const landmarkAdjectives = [
   { adj: 'Murky', category: 'nature', exclude: ['mountain'], location: ['swamp'] },
   { adj: 'Reeking', category: 'nature', exclude: ['mountain', 'river', 'lake', 'bridge', 'road'], location: ['swamp'] },
 
+  // Coastal
+  { adj: 'Salty', category: 'weather', exclude: ['mountain', 'forest'], location: ['coastal'] },
+  { adj: 'Salt-stained', category: 'condition', exclude: ['mountain', 'forest', 'tower', 'castle', 'library', 'graveyard', 'road'], location: ['coastal'] },
+  { adj: 'Windblown', category: 'weather', exclude: ['cave'], location: ['coastal'] },
+  { adj: 'Barnacled', category: 'condition', exclude: ['mountain', 'forest', 'tower', 'castle', 'library', 'graveyard', 'road'], location: ['coastal'] },
+  { adj: 'Exposed', category: 'condition', exclude: [], location: ['coastal', 'mountain'] },
+  { adj: 'Tranquil', category: 'mood', exclude: [], location: ['coastal'] },
+  { adj: 'Forlorn', category: 'mood', exclude: [], location: ['coastal', 'swamp'] },
+  { adj: 'Kelp-stained', category: 'condition', exclude: ['mountain', 'forest', 'tower', 'castle', 'library', 'graveyard', 'road'], location: ['coastal'] },
+  { adj: "Leviathan's", category: 'ownership', exclude: [], location: ['coastal'] },
+
+  // Plains
+  { adj: 'Arid', category: 'weather', exclude: ['river', 'lake'], location: ['plains', 'desert'] },
+  { adj: 'Serene', category: 'mood', exclude: [], location: ['plains'] },
+  { adj: 'Lush', category: 'nature', exclude: [], location: ['plains', 'forest'] },
+  { adj: 'Flowering', category: 'nature', exclude: [], location: ['plains', 'forest'] },
+
   // From Dungeon Descriptors - Weather/Environment
   { adj: 'Scorched', category: 'weather', exclude: ['river', 'lake'], location: ['desert'] },
   { adj: 'Windswept', category: 'weather', exclude: [], location: ['coastal', 'mountain', 'plains', 'desert'] },
   { adj: 'Sun-bleached', category: 'weather', exclude: ['river', 'lake', 'forest'], location: ['desert'] },
-  { adj: 'Dry', category: 'weather', exclude: ['river', 'lake'], location: ['desert'] },
+  { adj: 'Dry', category: 'weather', exclude: ['river', 'lake'], location: ['desert', 'plains'] },
   { adj: 'Dusty', category: 'weather', exclude: ['river', 'lake'], location: ['desert', 'plains'] },
 
   // From Dungeon Descriptors - Mood

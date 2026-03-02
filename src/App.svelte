@@ -307,22 +307,27 @@
   function launchCharacterCreator() {
     currentView = 'character-creator';
     currentStep = 0;
+    window.scrollTo(0, 0);
   }
 
   function launchNPCGenerator() {
     currentView = 'npc-generator';
+    window.scrollTo(0, 0);
   }
 
   function launchTreasureGenerator() {
     currentView = 'treasure-generator';
+    window.scrollTo(0, 0);
   }
 
   function launchNameGenerator() {
     currentView = 'name-generator';
+    window.scrollTo(0, 0);
   }
 
   function launchMonsterBestiary() {
     currentView = 'monster-bestiary';
+    window.scrollTo(0, 0);
   }
 
   function returnToSplash() {
@@ -336,6 +341,7 @@
 
     currentView = 'splash';
     // Don't reset character or currentStep - allows resume
+    window.scrollTo(0, 0);
   }
 
   function openImportDialog() {

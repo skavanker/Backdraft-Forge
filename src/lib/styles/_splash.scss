@@ -104,6 +104,20 @@
     }
   }
 
+  &.about-card {
+    cursor: default;
+    border-style: dashed;
+    opacity: 0.85;
+    justify-content: center;
+
+    p {
+      font-size: $text-sm;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+
   &.coming-soon {
     opacity: 0.6;
     cursor: not-allowed;

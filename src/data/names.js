@@ -10,38 +10,54 @@ const names = {
     // Shared surnames for all genders
     surname: {
       prefix: [
-        { syl: 'Black', class: ['rogue'], geo: ['neutral'], social: ['noble'], weight: 1 },
+        { syl: 'Black', class: ['rogue'], geo: ['plains'], social: ['noble'], weight: 1 },
         { syl: 'Ash', class: ['neutral'], geo: ['forest'], social: ['common'], weight: 1 },
         { syl: 'Iron', class: ['warrior'], geo: ['mountain'], social: ['poor'], weight: 1 },
         { syl: 'Stone', class: ['warrior'], geo: ['mountain'], social: ['common'], weight: 1 },
         { syl: 'Hawk', class: ['warrior'], geo: ['plains'], social: ['wealthy'], weight: 1 },
-        { syl: 'Red', class: ['warrior'], geo: ['neutral'], social: ['neutral'], weight: 1 },
-        { syl: 'North', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'Red', class: ['warrior'], geo: ['plains'], social: ['neutral'], weight: 1 },
+        { syl: 'North', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'Storm', class: ['warrior'], geo: ['coastal'], social: ['noble'], weight: 1 },
-        { syl: 'Grey', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
+        { syl: 'Grey', class: ['scholar'], geo: ['mountain'], social: ['wealthy'], weight: 1 },
         { syl: 'Thorn', class: ['neutral'], geo: ['forest'], social: ['common'], weight: 1 },
         { syl: 'Oak', class: ['neutral'], geo: ['forest'], social: ['common'], weight: 1 },
-        { syl: 'Bright', class: ['scholar'], geo: ['neutral'], social: ['noble'], weight: 1 },
+        { syl: 'Bright', class: ['scholar'], geo: ['desert'], social: ['noble'], weight: 1 },
         { syl: 'Cold', class: ['neutral'], geo: ['mountain'], social: ['poor'], weight: 1 },
         { syl: 'High', class: ['neutral'], geo: ['mountain'], social: ['noble'], weight: 1 },
-        { syl: 'Swift', class: ['rogue'], geo: ['neutral'], social: ['wealthy'], weight: 1 }
+        { syl: 'Swift', class: ['rogue'], geo: ['forest'], social: ['wealthy'], weight: 1 },
+        { syl: 'Mar', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Sel', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Cor', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Pel', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Aer', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Brin', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Tyd', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'Cal', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 }
       ],
       suffix: [
         { syl: 'wood', class: ['neutral'], geo: ['forest'], social: ['poor'], weight: 1 },
-        { syl: 'ford', class: ['neutral'], geo: ['neutral'], social: ['common'], weight: 1 },
-        { syl: 'bridge', class: ['neutral'], geo: ['neutral'], social: ['common'], weight: 1 },
+        { syl: 'ford', class: ['neutral'], geo: ['coastal', 'swamp'], social: ['common'], weight: 1 },
+        { syl: 'bridge', class: ['neutral'], geo: ['coastal', 'swamp'], social: ['common'], weight: 1 },
         { syl: 'field', class: ['neutral'], geo: ['plains'], social: ['common'], weight: 1 },
         { syl: 'well', class: ['neutral'], geo: ['neutral'], social: ['common'], weight: 1 },
-        { syl: 'vale', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
+        { syl: 'vale', class: ['neutral'], geo: ['plains'], social: ['poor'], weight: 1 },
         { syl: 'borne', class: ['warrior'], geo: ['neutral'], social: ['noble'], weight: 1 },
         { syl: 'crest', class: ['neutral'], geo: ['mountain'], social: ['noble'], weight: 1 },
-        { syl: 'hill', class: ['neutral'], geo: ['neutral'], social: ['common'], weight: 1 },
+        { syl: 'hill', class: ['neutral'], geo: ['mountain'], social: ['common'], weight: 1 },
         { syl: 'ton', class: ['neutral'], geo: ['neutral'], social: ['common'], weight: 1 },
         { syl: 'moor', class: ['neutral'], geo: ['swamp'], social: ['poor'], weight: 1 },
         { syl: 'haven', class: ['neutral'], geo: ['coastal'], social: ['wealthy'], weight: 1 },
         { syl: 'gate', class: ['warrior'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
-        { syl: 'water', class: ['neutral'], geo: ['coastal'], social: ['poor'], weight: 1 },
-        { syl: 'shield', class: ['warrior'], geo: ['neutral'], social: ['noble'], weight: 1 }
+        { syl: 'water', class: ['neutral'], geo: ['coastal', 'swamp'], social: ['poor'], weight: 1 },
+        { syl: 'shield', class: ['warrior'], geo: ['neutral'], social: ['noble'], weight: 1 },
+        { syl: 'har', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'mere', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'shore', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'lin', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'mar', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'dell', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'wyn', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
+        { syl: 'port', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 }
       ]
     },
 
@@ -77,7 +93,7 @@ const names = {
           { syl: 'gar', class: ['warrior'], origin: ['rural'], social: ['common'], weight: 1 },
           { syl: 'dan', class: ['rogue'], origin: ['urban'], social: ['wealthy'], weight: 1 },
           { syl: 'ald', class: ['neutral'], origin: ['neutral'], social: ['poor'], weight: 1 },
-          { syl: 'mar', class: ['scholar'], origin: ['urban'], social: ['wealthy'], weight: 1 },
+          { syl: 'mar', class: ['scholar'], origin: ['urban'], geo: ['coastal'], social: ['wealthy'], weight: 1 },
           { syl: 'ton', class: ['neutral'], origin: ['rural'], social: ['poor'], weight: 1 },
           { syl: 'helm', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 }
         ]
@@ -104,7 +120,7 @@ const names = {
           { syl: 'Cyn', class: ['warrior'], origin: ['neutral'], social: ['wealthy'], weight: 1 }
         ],
         suffix: [
-          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], social: ['common'], weight: 1 },
+          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['common'], weight: 1 },
           { syl: 'da', class: ['neutral'], origin: ['rural'], social: ['poor'], weight: 1 },
           { syl: 'dith', class: ['scholar'], origin: ['urban'], social: ['noble'], weight: 1 },
           { syl: 'ild', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
@@ -130,8 +146,8 @@ const names = {
       prefix: [
         { syl: 'Elen', class: ['scholar'], geo: ['neutral'], social: ['noble'], weight: 1 }, // star
         { syl: 'Ithil', class: ['scholar'], geo: ['neutral'], social: ['noble'], weight: 1 }, // moon
-        { syl: 'Mith', class: ['neutral'], geo: ['neutral'], social: ['wealthy'], weight: 1 }, // grey/silver
-        { syl: 'Gwaer', class: ['rogue'], geo: ['neutral'], social: ['neutral'], weight: 1 }, // wind
+        { syl: 'Mith', class: ['neutral'], geo: ['mountain'], social: ['wealthy'], weight: 1 }, // grey/silver
+        { syl: 'Gwaer', class: ['rogue'], geo: ['plains'], social: ['neutral'], weight: 1 }, // wind
         { syl: 'Anor', class: ['warrior'], geo: ['neutral'], social: ['noble'], weight: 1 }, // sun
         { syl: 'Mor', class: ['rogue'], geo: ['forest'], social: ['neutral'], weight: 1 }, // shadow
         { syl: 'Olor', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 }, // dream
@@ -140,16 +156,16 @@ const names = {
         { syl: 'Galadh', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 }, // tree
         { syl: 'Dû', class: ['rogue'], geo: ['neutral'], social: ['neutral'], weight: 1 }, // night
         { syl: 'Menel', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 }, // sky/heaven
-        { syl: 'Calen', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 }, // green
-        { syl: 'Hîth', class: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 }, // mist
+        { syl: 'Calen', class: ['scholar'], geo: ['forest', 'plains'], social: ['wealthy'], weight: 1 }, // green
+        { syl: 'Hîth', class: ['neutral'], geo: ['coastal', 'swamp'], social: ['neutral'], weight: 1 }, // mist
         { syl: 'Laure', class: ['warrior'], geo: ['neutral'], social: ['wealthy'], weight: 1 } // gold
       ],
       suffix: [
         { syl: 'ion', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 }, // son of
         { syl: 'wen', class: ['rogue'], geo: ['neutral'], social: ['neutral'], weight: 1 }, // maiden
         { syl: 'dor', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 }, // land
-        { syl: 'las', class: ['rogue'], geo: ['neutral'], social: ['neutral'], weight: 1 }, // leaf
-        { syl: 'orn', class: ['warrior'], geo: ['neutral'], social: ['neutral'], weight: 1 }, // tree
+        { syl: 'las', class: ['rogue'], geo: ['forest'], social: ['neutral'], weight: 1 }, // leaf
+        { syl: 'orn', class: ['warrior'], geo: ['forest'], social: ['neutral'], weight: 1 }, // tree
         { syl: 'iel', class: ['rogue'], geo: ['neutral'], social: ['neutral'], weight: 1 }, // daughter
         { syl: 'rim', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 }, // host/people
         { syl: 'nen', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 }, // water
@@ -203,7 +219,7 @@ const names = {
           { syl: 'ond', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'oth', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'uin', class: ['rogue'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'aran', class: ['warrior'], origin: ['neutral'], social: ['noble'], weight: 1 },
           { syl: 'endil', class: ['scholar'], origin: ['neutral'], social: ['noble'], weight: 1 }
         ]
@@ -219,7 +235,7 @@ const names = {
           { syl: 'Syl', class: ['scholar'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Thal', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Gal', class: ['warrior'], origin: ['neutral'], social: ['wealthy'], weight: 1 },
-          { syl: 'Aer', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'Aer', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'Eil', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Fae', class: ['rogue'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Lor', class: ['scholar'], origin: ['neutral'], social: ['wealthy'], weight: 1 },
@@ -246,7 +262,7 @@ const names = {
           { syl: 'ael', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ora', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ira', class: ['rogue'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'essa', class: ['rogue'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ath', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'aris', class: ['scholar'], origin: ['neutral'], social: ['wealthy'], weight: 1 },
@@ -297,7 +313,7 @@ const names = {
         { syl: 'delve', class: ['neutral'], geo: ['mountain'], social: ['wealthy'], weight: 1 },
         { syl: 'breaker', class: ['warrior'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'beard', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
-        { syl: 'helm', class: ['warrior'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'helm', class: ['warrior'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'born', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'brand', class: ['warrior'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'heart', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
@@ -311,9 +327,9 @@ const names = {
         { syl: 'hold', class: ['neutral'], geo: ['mountain'], social: ['noble'], weight: 1 },
         { syl: 'shard', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
         { syl: 'chip', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
-        { syl: 'dust', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
+        { syl: 'dust', class: ['neutral'], geo: ['desert'], social: ['poor'], weight: 1 },
         { syl: 'scrap', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
-        { syl: 'ruin', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 }
+        { syl: 'ruin', class: ['neutral'], geo: ['swamp'], social: ['poor'], weight: 1 }
       ]
     },
     Male: {
@@ -385,7 +401,7 @@ const names = {
           { syl: 'na', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'li', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'da', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'bel', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'dra', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ma', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 }
@@ -404,7 +420,7 @@ const names = {
         { syl: 'Wrench', class: ['scholar'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'Bobble', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
         { syl: 'Gizmo', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
-        { syl: 'Spring', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
+        { syl: 'Spring', class: ['scholar'], geo: ['plains'], social: ['wealthy'], weight: 1 },
         { syl: 'Copper', class: ['scholar'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'Nimble', class: ['rogue'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
         { syl: 'Rattle', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
@@ -417,7 +433,7 @@ const names = {
         { syl: 'gear', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
         { syl: 'sprocket', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
         { syl: 'widget', class: ['scholar'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
-        { syl: 'top', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'top', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'fuse', class: ['scholar'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'spring', class: ['scholar'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'bottom', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
@@ -467,7 +483,7 @@ const names = {
           { syl: 'wick', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ton', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'pen', class: ['scholar'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'lin', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'lin', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'kin', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'gle', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'dak', class: ['warrior'], origin: ['neutral'], social: ['neutral'], weight: 1 },
@@ -508,7 +524,7 @@ const names = {
           { syl: 'na', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ble', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'iss', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'ora', class: ['scholar'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ette', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'kin', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
@@ -529,21 +545,21 @@ const names = {
     surname: {
       prefix: [
         { syl: 'Good', class: ['neutral'], geo: ['plains'], social: ['wealthy'], weight: 1 },
-        { syl: 'Under', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'Under', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 },
         { syl: 'Thorn', class: ['neutral'], geo: ['forest'], social: ['poor'], weight: 1 },
         { syl: 'Green', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
-        { syl: 'High', class: ['neutral'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
+        { syl: 'High', class: ['neutral'], geo: ['mountain'], social: ['wealthy'], weight: 1 },
         { syl: 'Bramble', class: ['neutral'], geo: ['forest'], social: ['poor'], weight: 1 },
-        { syl: 'Copper', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'Copper', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'Old', class: ['neutral'], geo: ['neutral'], social: ['wealthy'], weight: 1 },
         { syl: 'Stout', class: ['warrior'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'Brown', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
         { syl: 'Meadow', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
-        { syl: 'Hill', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'Hill', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'Honey', class: ['neutral'], geo: ['plains'], social: ['wealthy'], weight: 1 },
         { syl: 'Kettle', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'Plough', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
-        { syl: 'Dusty', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
+        { syl: 'Dusty', class: ['neutral'], geo: ['desert'], social: ['poor'], weight: 1 },
         { syl: 'Worn', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
         { syl: 'Tattered', class: ['neutral'], geo: ['neutral'], social: ['poor'], weight: 1 },
         { syl: 'Bare', class: ['neutral'], geo: ['plains'], social: ['poor'], weight: 1 },
@@ -552,7 +568,7 @@ const names = {
       ],
       suffix: [
         { syl: 'barrel', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
-        { syl: 'hill', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'hill', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'bush', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 },
         { syl: 'bottle', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'field', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
@@ -562,7 +578,7 @@ const names = {
         { syl: 'bridge', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'brook', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
         { syl: 'leaf', class: ['neutral'], geo: ['forest'], social: ['neutral'], weight: 1 },
-        { syl: 'top', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
+        { syl: 'top', class: ['neutral'], geo: ['mountain'], social: ['neutral'], weight: 1 },
         { syl: 'dale', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
         { syl: 'worth', class: ['neutral'], geo: ['neutral'], social: ['neutral'], weight: 1 },
         { syl: 'bee', class: ['neutral'], geo: ['plains'], social: ['neutral'], weight: 1 },
@@ -574,7 +590,7 @@ const names = {
     Male: {
       first: {
         prefix: [
-          { syl: 'Cor', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'Cor', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'Mer', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Per', class: ['rogue'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Bil', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
@@ -613,7 +629,7 @@ const names = {
       first: {
         prefix: [
           { syl: 'Rose', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'Mar', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'Mar', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'Prim', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Lav', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'Daisy', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
@@ -640,7 +656,7 @@ const names = {
           { syl: 'py', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ine', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'ia', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
-          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
+          { syl: 'wyn', class: ['neutral'], origin: ['neutral'], geo: ['coastal'], social: ['neutral'], weight: 1 },
           { syl: 'ette', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'lee', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 },
           { syl: 'low', class: ['neutral'], origin: ['neutral'], social: ['neutral'], weight: 1 }
