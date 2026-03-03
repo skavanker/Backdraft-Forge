@@ -1,39 +1,118 @@
+@import '../../styles/mixins.scss';
+
 /**
  * NPC Generator Styles
  */
-
-// NPC Generator specific variables
-:root {
-  --npc-bg-primary: var(--color-bg-primary);
-  --npc-bg-secondary: var(--color-bg-secondary);
-  --npc-text-primary: var(--color-text-primary);
-  --npc-text-secondary: var(--color-text-secondary);
-  --npc-border: var(--color-border);
-}
 
 // Utility classes for NPC components
 .npc-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1rem;
+  gap: $space-md;
 
-  @media (max-width: 768px) {
+  @include mobile {
     grid-template-columns: 1fr;
   }
 }
 
 .npc-badge {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
+  padding: $space-xs $space-sm;
   background: var(--color-primary);
   color: white;
-  font-size: 0.75rem;
-  border-radius: 4px;
+  font-size: $text-xs;
+  border-radius: $radius;
   font-weight: 600;
 }
 
 .npc-divider {
   height: 1px;
-  background: var(--npc-border);
-  margin: 1rem 0;
+  background: var(--color-border);
+  margin: $space-md 0;
 }
+
+// ===================================================
+// NPC Form
+// ===================================================
+
+.npc-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+  padding: $space-lg;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius;
+
+  .selectable-chip:has(.chip-meta) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chip-meta {
+    flex-shrink: 1;
+    white-space: normal;
+    font-size: $text-xs;
+    color: var(--text-muted);
+    background: none;
+    padding: 0;
+  }
+}
+
+.npc-form .method-buttons {
+  display: flex;
+  gap: $space-sm;
+  flex-wrap: wrap;
+
+  button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+.npc-form .form-section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.npc-form .form-label {
+  margin: 0;
+  font-size: $text-sm;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: $space-xs;
+}
+
+.level-inputs {
+  display: flex;
+  gap: $space-md;
+  align-items: center;
+}
+
+.npc-form input[type="number"] {
+  width: 5rem;
+  padding: $space-sm;
+  border: 1px solid var(--border-color);
+  border-radius: $radius;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: $text-sm;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+  }
+}
+
+.npc-form .input-label {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $text-sm;
+  color: var(--text-secondary);
+}
+

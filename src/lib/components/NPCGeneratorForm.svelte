@@ -2,6 +2,7 @@
   import { getAllArchetypes } from '../generators/npcArchetypes.js';
   import { races } from '../../data/races.js';
   import { classes } from '../../data/classes.js';
+  import SelectableChip from './SelectableChip.svelte';
 
   let { onGenerate } = $props();
 
@@ -25,11 +26,9 @@
     onGenerate(options);
   }
 
-  function handleArchetypeChange(e) {
-    options.archetypeKey = e.target.value || null;
-
-    // Clear race/class when archetype is selected
-    if (options.archetypeKey) {
+  function selectArchetype(key) {
+    options.archetypeKey = key;
+    if (key) {
       options.raceKey = null;
       options.classKey = null;
     }
@@ -39,62 +38,79 @@
 <form class="npc-form" onsubmit={handleSubmit}>
   <!-- Mode Selection -->
   <div class="form-section">
-    <h3>Generation Mode</h3>
-    <div class="radio-group">
-      <label>
-        <input type="radio" bind:group={options.mode} value="quick" />
-        Quick (Auto-select proficiencies)
-      </label>
-      <label>
-        <input type="radio" bind:group={options.mode} value="detailed" />
-        Detailed (Full proficiencies)
-      </label>
+    <h4 class="form-label">Generation Mode</h4>
+    <div class="method-buttons">
+      <button
+        type="button"
+        class="btn-primary"
+        class:selected={options.mode === 'quick'}
+        onclick={() => options.mode = 'quick'}
+      >Quick</button>
+      <button
+        type="button"
+        class="btn-primary"
+        class:selected={options.mode === 'detailed'}
+        onclick={() => options.mode = 'detailed'}
+      >Detailed</button>
     </div>
   </div>
 
   <!-- Ability Score Method -->
   <div class="form-section">
-    <h3>Ability Score Method</h3>
-    <div class="radio-group">
-      <label>
-        <input type="radio" bind:group={options.method} value="4d6" />
-        4d6 Drop Lowest
-      </label>
-      <label>
-        <input type="radio" bind:group={options.method} value="3d6" />
-        3d6
-      </label>
-      <label>
-        <input type="radio" bind:group={options.method} value="average" />
-        Average (10-11)
-      </label>
+    <h4 class="form-label">Ability Score Method</h4>
+    <div class="grid-compact gap-sm">
+      <SelectableChip
+        label="4d6 Drop Lowest"
+        selected={options.method === '4d6'}
+        onclick={() => options.method = '4d6'}
+      />
+      <SelectableChip
+        label="3d6"
+        selected={options.method === '3d6'}
+        onclick={() => options.method = '3d6'}
+      />
+      <SelectableChip
+        label="Average (10-11)"
+        selected={options.method === 'average'}
+        onclick={() => options.method = 'average'}
+      />
     </div>
   </div>
 
   <!-- Archetype Selection -->
   <div class="form-section">
-    <h3>Archetype (Optional)</h3>
-    <select bind:value={options.archetypeKey} onchange={handleArchetypeChange}>
-      <option value={null}>Random/Custom</option>
+    <h4 class="form-label">Archetype</h4>
+    <div class="grid-compact gap-sm">
+      <SelectableChip
+        label="None"
+        metadata="Custom settings"
+        selected={options.archetypeKey === null}
+        onclick={() => selectArchetype(null)}
+      />
       {#each archetypes as archetype}
-        <option value={archetype.key}>{archetype.name} - {archetype.description}</option>
+        <SelectableChip
+          label={archetype.name}
+          metadata={archetype.description}
+          selected={options.archetypeKey === archetype.key}
+          onclick={() => selectArchetype(archetype.key)}
+        />
       {/each}
-    </select>
+    </div>
     {#if options.archetypeKey}
-      <p class="help-text">Archetype will override level range and class selection</p>
+      <p class="section-hint">Archetype will override level range and class selection</p>
     {/if}
   </div>
 
   {#if !options.archetypeKey}
     <!-- Level Range -->
     <div class="form-section">
-      <h3>Level Range</h3>
+      <h4 class="form-label">Level Range</h4>
       <div class="level-inputs">
-        <label>
+        <label class="input-label">
           Min:
           <input type="number" bind:value={options.levelMin} min="1" max="20" />
         </label>
-        <label>
+        <label class="input-label">
           Max:
           <input type="number" bind:value={options.levelMax} min="1" max="20" />
         </label>
@@ -103,38 +119,53 @@
 
     <!-- Race Constraint -->
     <div class="form-section">
-      <h3>Race (Optional)</h3>
-      <select bind:value={options.raceKey}>
-        <option value={null}>Random</option>
+      <h4 class="form-label">Race</h4>
+      <div class="grid-compact gap-sm">
+        <SelectableChip
+          label="Random"
+          selected={options.raceKey === null}
+          onclick={() => options.raceKey = null}
+        />
         {#each raceList as race}
-          <option value={race.key}>{race.name}</option>
+          <SelectableChip
+            label={race.name}
+            selected={options.raceKey === race.key}
+            onclick={() => options.raceKey = race.key}
+          />
         {/each}
-      </select>
+      </div>
     </div>
 
     <!-- Class Constraint -->
     <div class="form-section">
-      <h3>Class (Optional)</h3>
-      <select bind:value={options.classKey}>
-        <option value={null}>Random</option>
+      <h4 class="form-label">Class</h4>
+      <div class="grid-compact gap-sm">
+        <SelectableChip
+          label="Random"
+          selected={options.classKey === null}
+          onclick={() => options.classKey = null}
+        />
         {#each classList as cls}
-          <option value={cls.key}>{cls.name}</option>
+          <SelectableChip
+            label={cls.name}
+            selected={options.classKey === cls.key}
+            onclick={() => options.classKey = cls.key}
+          />
         {/each}
-      </select>
+      </div>
     </div>
   {/if}
 
   <!-- Bulk Count -->
   <div class="form-section">
-    <h3>Quantity</h3>
+    <h4 class="form-label">Quantity</h4>
     <input
       type="number"
       bind:value={options.count}
       min="1"
       max="20"
-      class="count-input"
     />
-    <p class="help-text">Generate 1-20 NPCs at once</p>
+    <p class="section-hint">Generate 1-20 NPCs at once</p>
   </div>
 
   <!-- Generate Button -->
@@ -144,126 +175,6 @@
 </form>
 
 <style lang="scss">
-  @import '../styles/shared';
-
-  .npc-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding: 1rem;
-  }
-
-  .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-      color: var(--color-text-primary);
-    }
-  }
-
-  .radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      font-size: 0.875rem;
-
-      input[type="radio"] {
-        cursor: pointer;
-      }
-    }
-  }
-
-  select {
-    padding: 0.5rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    font-size: 0.875rem;
-    cursor: pointer;
-
-    &:focus {
-      outline: none;
-      border-color: var(--color-primary);
-    }
-  }
-
-  .level-inputs {
-    display: flex;
-    gap: 1rem;
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-
-      input {
-        width: 4rem;
-        padding: 0.5rem;
-        border: 1px solid var(--color-border);
-        border-radius: 4px;
-        background: var(--color-bg-primary);
-        color: var(--color-text-primary);
-        font-size: 0.875rem;
-
-        &:focus {
-          outline: none;
-          border-color: var(--color-primary);
-        }
-      }
-    }
-  }
-
-  .count-input {
-    width: 6rem;
-    padding: 0.5rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    font-size: 0.875rem;
-
-    &:focus {
-      outline: none;
-      border-color: var(--color-primary);
-    }
-  }
-
-  .help-text {
-    font-size: 0.75rem;
-    color: var(--color-text-secondary);
-    margin: 0;
-  }
-
-  .btn-primary {
-    padding: 0.75rem 1.5rem;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-      background: var(--color-primary-dark);
-    }
-
-    &:active {
-      transform: translateY(1px);
-    }
-  }
+  @import '../styles/npc';
+  @import '../styles/widgets';
 </style>

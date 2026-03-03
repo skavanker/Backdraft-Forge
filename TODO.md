@@ -2,21 +2,6 @@
 
 ## Features to Add
 
-### UI/UX Improvements
-- [x] **Character Management Modal** — Replace inline editing with modal-based adjustments
-  - Created reusable `StepModal.svelte` base component supporting both linear wizard and menu-based modes
-  - Built `ManageCharacterModal.svelte` with panels for:
-    - XP adjustment (add/remove with quick buttons +100, +500, +1000, +5000, custom)
-    - Gold adjustment (full gp/sp/cp breakdown with auto-convert)
-    - HP adjustment (heal/damage buttons, no max constraint for temp HP)
-    - Spell slot management (per-level restore/use tracking)
-    - Rest & recovery (short rest with hit die roll, long rest, custom recovery)
-  - Refactored `LevelUpWizard.svelte` to use `StepModal` base (DRY - don't repeat modal logic)
-  - Added hamburger menu (☰) to CharacterSheet header
-  - Currency schema updated: `equipment.remaining` → `equipment.{gp, sp, cp}`
-  - Removed HP max constraint to allow temp HP from Aid spell, potions, etc.
-  - Standardized all management panel buttons to use `.btn-secondary` and `.btn-primary` for consistency with app-wide parchment aesthetic
-
 ### Share/Export
 - [ ] PDF export of character sheet
 - [ ] Full JSON export/import option
@@ -27,11 +12,13 @@
 - [ ] Do research if another like char fil excist other places and maybe use same format.
 
 ### Visuals
-- [ ] Remaining portraits (16 Half-Elf and Halfling combinations)
+- [ ] Remaining portraits: ElfCleric (M/F), HalfElfMaleDruid, HalfElfSpecialistWizard (M/F)
+- [ ] Class icons for more places (character sheet header, NPC generator)
+- [ ] Race icons (Dwarf, Elf, Gnome, Half-Elf, Halfling, Human)
+- [ ] Logo cleanup (remove off-artboard paths)
 
 ### AI Integration
 - [ ] AI-generated backstory (provider-agnostic)
-- [ ] AI portrait generation (optional alternative to manual portraits)
 
 ### Gameplay Additions
 - [ ] Multi-classing support (demi-humans advance in 2+ classes simultaneously)
@@ -59,7 +46,6 @@
 - [ ] **Integration with character sheet** - Direct import to character equipment
 
 #### Monster Bestiary
-- [ ] Add more monsters (currently has 10 iconic ones: Goblin, Orc, Skeleton, Zombie, Giant Rat, Kobold, Ogre, Wyvern, Lich, Red Dragon)
 - [ ] Random encounter generator (by terrain/dungeon level)
 - [ ] Export/print functionality for stat blocks
 - [ ] Tie to treasure generator (each monster has a Treasure Type)
@@ -82,5 +68,3 @@
 ### Settings Panel Enhancements
 - [ ] Custom starting gold multiplier
 - Wait for settings feature to land before planning more — house rules stuff should live there
-
-

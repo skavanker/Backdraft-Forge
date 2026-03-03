@@ -83,6 +83,12 @@ main {
   padding: 0;
   font: inherit;
   color: inherit;
+  box-shadow: none;
+  &:hover, &:active { box-shadow: none; transform: none; }
+}
+.logo-img {
+  width: 250px;
+  height: auto;
 }
 
 .tagline {

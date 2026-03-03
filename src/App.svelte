@@ -396,7 +396,7 @@
 <main>
   {#if currentView === 'character-creator'}
     <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
       <p class="tagline">AD&D 2nd Edition Character Creator</p>
     </header>
 
@@ -541,7 +541,7 @@
     </section>
   {:else if currentView === 'npc-generator'}
     <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
       <p class="tagline">AD&D 2nd Edition NPC Generator</p>
     </header>
     <section class="content card">
@@ -549,7 +549,7 @@
     </section>
   {:else if currentView === 'treasure-generator'}
     <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
       <p class="tagline">AD&D 2nd Edition Treasure Generator</p>
     </header>
     <section class="content card">
@@ -557,7 +557,7 @@
     </section>
   {:else if currentView === 'name-generator'}
     <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
       <p class="tagline">AD&D 2nd Edition Name Generator</p>
     </header>
     <section class="content card">
@@ -565,7 +565,7 @@
     </section>
   {:else if currentView === 'monster-bestiary'}
     <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}>Backdraft Forge</button></h1>
+      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
       <p class="tagline">AD&D 2nd Edition Monster Bestiary</p>
     </header>
     <section class="content card">

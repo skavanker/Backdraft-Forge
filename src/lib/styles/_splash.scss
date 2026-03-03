@@ -26,6 +26,14 @@
 }
 
 // Hero Section
+.splash-logo {
+  width: 500px;
+  height: auto;
+
+  @include mobile {
+    width: 300px;
+  }
+}
 .splash-hero {
   text-align: center;
   padding: $space-lg 0;

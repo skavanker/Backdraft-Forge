@@ -24,7 +24,7 @@
 <div class="splash-container">
   <!-- Hero Section -->
   <header class="splash-hero">
-    <h1>Backdraft Forge</h1>
+    <img src="/logo.svg" alt="Backdraft Forge" class="splash-logo" />
     <p class="tagline">Advanced Dungeons & Dragons 2nd Edition Tools</p>
   </header>
 
