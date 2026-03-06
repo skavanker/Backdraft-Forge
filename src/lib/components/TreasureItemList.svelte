@@ -13,10 +13,10 @@
   }
 </script>
 
-<div class="item-list panel">
+<div class="item-list panel-secondary flex-column gap-md">
   <header class="item-list-header">
     <h4>{typeLabels[itemType]}</h4>
-    <span class="item-count">{items.length} {items.length === 1 ? 'Item' : 'Items'}</span>
+    <span class="badge badge-primary">{items.length} {items.length === 1 ? 'Item' : 'Items'}</span>
   </header>
 
   <div class="items">
@@ -50,7 +50,7 @@
   </div>
 
   {#if onSave || onDelete}
-    <div class="item-actions">
+    <div class="action-bar">
       {#if onSave}
         <button class="btn-sm btn-primary" onclick={onSave}>
           Save Items
@@ -65,102 +65,4 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import '../styles/shared';
-
-  .item-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background: var(--color-bg-secondary);
-  }
-
-  .item-list-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
-
-    h4 {
-      margin: 0;
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--color-text-primary);
-    }
-
-    .item-count {
-      padding: 0.25rem 0.5rem;
-      background: var(--color-primary);
-      color: white;
-      font-size: 0.75rem;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-  }
-
-  .items {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .item-entry {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    background: var(--color-bg-primary);
-    border-radius: 4px;
-    font-size: 0.875rem;
-
-    .item-description {
-      flex: 1;
-      color: var(--color-text-primary);
-    }
-
-    .item-value {
-      font-weight: 600;
-      color: #d4af37;
-      white-space: nowrap;
-      margin-left: 1rem;
-    }
-  }
-
-  .item-actions {
-    display: flex;
-    gap: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--color-border);
-
-    .btn-sm {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &.btn-primary {
-        background: var(--color-primary);
-        color: white;
-
-        &:hover {
-          background: var(--color-primary-dark);
-        }
-      }
-
-      &.btn-danger {
-        background: var(--color-danger);
-        color: white;
-
-        &:hover {
-          background: var(--color-danger-dark);
-        }
-      }
-    }
-  }
-</style>
+<style lang="scss">@import '../styles/dm-tools';</style>

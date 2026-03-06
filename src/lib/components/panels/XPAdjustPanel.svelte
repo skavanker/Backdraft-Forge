@@ -33,7 +33,7 @@
 <div class="manage-panel">
   <h3>Experience Points</h3>
 
-  <div class="xp-display">
+  <div class="xp-display panel flex-column gap-sm">
     <div class="xp-current">
       <span class="label">Current XP</span>
       <span class="value">{xpWorking.toLocaleString()}</span>
@@ -79,7 +79,7 @@
     </div>
   </div>
 
-  <div class="custom-adjust">
+  <div class="custom-adjust panel flex-column gap-sm">
     <span class="label">Custom Amount</span>
     <div class="custom-inputs">
       <input
@@ -94,7 +94,7 @@
     </div>
   </div>
 
-  <div class="panel-actions">
+  <div class="action-bar end gap-md">
     <button class="btn-secondary" onclick={cancel}>Cancel</button>
     <button class="btn-primary" onclick={save}>Save Changes</button>
   </div>

@@ -73,9 +73,17 @@ npm run preview  # preview production build
   - Font sizes: `$text-sm` (0.875rem), `$text-base` (1rem), `$text-lg` (1.25rem)
   - Border radius: `$radius` (4px) — single value
 - Generic reusable classes in `src/styles/_utilities.scss`:
-  - Panels: `.panel`, `.panel-subtle`, `.panel-lg` (bg + border + rounded + padding)
-  - Alerts: `.alert` + `.alert-info`, `.alert-success`, `.alert-warning`, `.alert-danger`
+  - **Buttons**: `button` base, `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-sm`, `.btn-lg`
+  - **Action bars**: `.action-bar` + `.end`, `.center`, `.wrap`, `.dotted`, `.plain`, `.gap-md`
+  - **Button rows**: `.button-row` for toggle groups (flex, gap, min-width buttons)
+  - **Panels**: `.panel`, `.panel-subtle`, `.panel-secondary`, `.panel-lg`, `.panel-dashed`
+  - **Grids**: `.grid-chips` (120px), `.grid-compact` (180px), `.grid-items` (200px), `.grid-cards` (220px), `.grid-md` (300px), `.grid-lg` (350px), `.grid-xl` (400px)
+  - **Data rows**: `.data-row` + `.padded`, `.panel-row`, `.solid`, `.no-border`
+  - **Badges**: `.badge` + `.badge-primary`, `.badge-warning`, `.badge-muted`
+  - **Alerts**: `.alert` + `.alert-info`, `.alert-success`, `.alert-warning`, `.alert-danger`
+- Headers in `src/lib/styles/_shared.scss`: `.section-title`, `.section-header`, `.form-label`, `.generator-header`
 - Shared utilities and mixins live in `src/styles/_utilities.scss` and `src/styles/mixins.scss`
+- **Rule**: Component style blocks = imports only. One-off styles get a justification comment. 3+ repeats = new standard.
 - **Simplification over design variation**: Use existing generic classes/tokens rather than creating slight variations
 
 ### Component Extraction

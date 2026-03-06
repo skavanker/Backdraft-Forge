@@ -190,6 +190,28 @@ export function useToast(defaultDuration = 1500) {
 }
 
 /**
+ * Copy feedback utility - manages per-item copy indicator with auto-reset
+ * @param {number} duration - Auto-reset duration in ms
+ * @returns {{ activeIndex: number, isError: boolean, flash: Function }}
+ */
+export function useCopyFeedback(duration = 2000) {
+  let activeIndex = $state(-1);
+  let isError = $state(false);
+  let timer;
+
+  return {
+    get activeIndex() { return activeIndex; },
+    get isError() { return isError; },
+    flash(index, error = false) {
+      activeIndex = index;
+      isError = error;
+      clearTimeout(timer);
+      timer = setTimeout(() => { activeIndex = -1; isError = false; }, duration);
+    }
+  };
+}
+
+/**
  * Ability modifiers utility - calculates all ability score modifiers
  * @param {object} character - Character object with abilities and class info
  * @returns {{ str: object, dex: object, con: object, int: object, wis: object, cha: object }}

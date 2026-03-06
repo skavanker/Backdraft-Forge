@@ -9,6 +9,7 @@
   import Collapsible from './components/Collapsible.svelte';
   import SelectableChip from './components/SelectableChip.svelte';
   import { settings, formatHeight as fmtHeight, formatWeight as fmtWeight } from './settings.svelte.js';
+  import { pick, randomInt } from './utils/randomUtils.js';
 
   let { character, onComplete } = $props();
 
@@ -91,20 +92,12 @@
   const elfEyeColors = ['Green', 'Blue', 'Violet', 'Gold', 'Silver', 'Amber'];
   const elfHairColors = ['Silver', 'Gold', 'Blonde', 'Black', 'Copper', 'White'];
 
-  function rand(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  function pick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
   function randomizeDetails() {
     const r = raceDetails[character.raceKey] || raceDetails.human;
     const isFemale = sex === 'Female';
-    age = String(rand(r.age[0], r.age[1]));
-    heightInches = rand(isFemale ? r.heightF[0] : r.heightM[0], isFemale ? r.heightF[1] : r.heightM[1]);
-    weightLbs = rand(isFemale ? r.weightF[0] : r.weightM[0], isFemale ? r.weightF[1] : r.weightM[1]);
+    age = String(randomInt(r.age[0], r.age[1]));
+    heightInches = randomInt(isFemale ? r.heightF[0] : r.heightM[0], isFemale ? r.heightF[1] : r.heightM[1]);
+    weightLbs = randomInt(isFemale ? r.weightF[0] : r.weightM[0], isFemale ? r.weightF[1] : r.weightM[1]);
     const isElven = character.raceKey === 'elf' || character.raceKey === 'halfElf';
     eyes = pick(isElven ? elfEyeColors : eyeColors);
     hair = pick(isElven ? elfHairColors : hairColors);

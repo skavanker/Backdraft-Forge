@@ -99,16 +99,7 @@
   }
 }
 
-// ════════ MONSTER GRID ════════
-.monster-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: $space-md;
-
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
-}
+// .monster-grid → replaced by .grid-lg (see _utilities.scss)
 
 // ════════ MONSTER STAT BLOCK ════════
 .monster-stat-block {
@@ -143,27 +134,8 @@
     }
   }
 
-  .type-badge,
-  .size-badge {
-    font-size: $text-xs;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: $space-xs $space-sm;
-    @include rounded;
-    white-space: nowrap;
-  }
-
-  .type-badge {
-    background: var(--gold-overlay);
-    color: var(--gold-dark);
-  }
-
-  .size-badge {
-    background: var(--bg-subtle);
-    color: var(--text-muted);
-    border: 1px solid var(--border-color);
-  }
+  // .type-badge → replaced by .badge.badge-warning on element
+  // .size-badge → replaced by .badge.badge-muted on element
 
   .monster-combat-row {
     display: flex;
@@ -266,32 +238,10 @@
     }
   }
 
-  .monster-actions {
-    display: flex;
-    gap: $space-sm;
-    justify-content: flex-end;
-    padding-top: $space-sm;
-    border-top: 1px solid var(--border-color);
-
-    .btn-sm {
-      font-size: $text-sm;
-      padding: $space-xs $space-md;
-    }
-  }
+  // .monster-actions → replaced by .action-bar.end (see _utilities.scss)
 }
 
-// ════════ EMPTY STATE ════════
-.empty-state {
-  text-align: center;
-  padding: $space-lg * 2;
-  color: var(--text-muted);
-  font-style: italic;
-
-  p {
-    margin: 0;
-    font-size: $text-base;
-  }
-}
+// .empty-state → replaced by .panel-dashed (see _utilities.scss)
 
 // ════════ RESPONSIVE ════════
 @include mobile {

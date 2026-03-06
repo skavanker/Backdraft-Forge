@@ -3,23 +3,7 @@
 // ════════════ BACKSTORY & NAME ENTRY ════════════
 .backstory-editor { max-width: 600px; margin: 0 auto; }
 
-// Form sections for name options
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: $space-md;
-}
-
-.form-label {
-  margin: 0;
-  font-size: $text-sm;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: $space-xs;
-}
+// .form-section and .form-label are in _shared.scss
 
 .alignment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: $space-sm; }
 .name-row { display: flex; gap: $space-sm; align-items: stretch; input[type="text"] { flex: 1; } }

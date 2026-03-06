@@ -8,7 +8,9 @@
   import MonsterList from './components/MonsterList.svelte';
   import { monsters } from '../data/monsters.js';
   import { loadMonsters, saveMonster, deleteMonster } from './monsterPersistence.svelte.js';
+  import { useToast } from './utils/stateUtils.svelte.js';
 
+  const toast = useToast();
   let allMonsters = $state([...monsters]);
   let filteredMonsters = $state([...monsters]);
   let savedMonsters = $state([]);
@@ -42,7 +44,7 @@
 
   function handleSave(monster) {
     savedMonsters = saveMonster(monster, savedMonsters);
-    alert(`${monster.name} saved to favorites!`);
+    toast.flash(`${monster.name} saved to favorites!`);
   }
 
   function handleDelete(key) {
@@ -61,6 +63,9 @@
 </script>
 
 <div class="monster-bestiary">
+  {#if toast.visible}
+    <div class="save-toast alert alert-info">{toast.message}</div>
+  {/if}
   <header class="generator-header">
     <h2>Monster Bestiary</h2>
     <p class="subtitle">Browse and search AD&D 2E monsters</p>

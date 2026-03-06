@@ -24,5 +24,5 @@
 }
 .level-header { display: flex; justify-content: space-between; align-items: center; h4 { margin: 0; } }
 .spell-subsection h5 { margin: $space-sm 0; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.manage-actions { display: flex; gap: $space-md; justify-content: center; margin-top: $space-lg; }
+// .manage-actions → replaced by .action-bar.center.plain.gap-md (see _utilities.scss)
 .manage-mode { max-height: 80vh; overflow-y: auto; }

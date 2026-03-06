@@ -97,7 +97,7 @@
   <!-- Mode Selector -->
   <div class="mode-selector">
     <h4 class="form-label">What to Generate</h4>
-    <div class="mode-buttons">
+    <div class="button-row">
       <button
         class="btn-primary"
         class:selected={mode === 'character'}
@@ -169,7 +169,7 @@
   {#if generatedNames.length > 0}
     <div class="section-header">
       <h3>Generated Names</h3>
-      <button class="btn-clear" onclick={handleClearGenerated}>
+      <button class="btn-danger btn-sm" onclick={handleClearGenerated}>
         Clear All
       </button>
     </div>
@@ -178,7 +178,7 @@
 
   <!-- Empty State -->
   {#if generatedNames.length === 0}
-    <div class="empty-state">
+    <div class="panel-dashed">
       <p>No names generated yet. Click "Generate Names" to begin!</p>
     </div>
   {/if}

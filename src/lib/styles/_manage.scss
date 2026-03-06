@@ -39,15 +39,8 @@
   }
 }
 
-// XP Panel
+// XP Panel — container is now .panel.flex-column.gap-sm on element
 .xp-display {
-  @extend .flex-column;
-  gap: $space-sm;
-  padding: $space-md;
-  background: var(--bg-panel);
-  @include rounded;
-  border: 1px solid var(--border-color);
-
   .xp-current,
   .xp-next,
   .xp-needed,
@@ -75,30 +68,20 @@
   }
 }
 
-// Currency Panel
+// Currency Panel — container is now .panel on element
+// .currency-row → replaced by .data-row.no-border on element
 .currency-display {
-  padding: $space-md;
-  background: var(--bg-panel);
-  @include rounded;
-  border: 1px solid var(--border-color);
+  .label {
+    color: var(--text-secondary);
+    font-size: $text-sm;
+    font-weight: 600;
+  }
 
-  .currency-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-
-    .label {
-      color: var(--text-secondary);
-      font-size: $text-sm;
-      font-weight: 600;
-    }
-
-    .value {
-      font-family: $font-display;
-      font-size: $text-lg;
-      font-weight: 700;
-      color: var(--gold);
-    }
+  .value {
+    font-family: $font-display;
+    font-size: $text-lg;
+    font-weight: 700;
+    color: var(--gold);
   }
 }
 
@@ -119,20 +102,11 @@
     }
 
     .currency-input {
+      @include form-input;
       width: 100px;
-      padding: $space-sm;
-      border: 1px solid var(--border-color);
-      @include rounded;
-      background: var(--bg-card);
-      color: var(--text-primary);
       font-family: $font-display;
       font-weight: 600;
       text-align: right;
-
-      &:focus {
-        outline: none;
-        border-color: var(--gold);
-      }
     }
   }
 }
@@ -146,14 +120,8 @@
   border-bottom: 1px dotted var(--border-color);
 }
 
-// HP Panel
+// HP Panel — container is now .panel.flex-column.gap-md on element
 .hp-display {
-  @extend .flex-column;
-  gap: $space-md;
-  padding: $space-lg;
-  background: var(--bg-panel);
-  @include rounded;
-  border: 1px solid var(--border-color);
   align-items: center;
 
   .hp-numbers {
@@ -278,13 +246,7 @@
   }
 }
 
-.quick-actions {
-  display: flex;
-  gap: $space-md;
-  justify-content: center;
-  padding-top: $space-md;
-  border-top: 1px dotted var(--border-color);
-}
+// .quick-actions → replaced by .action-bar.center.dotted.gap-md (see _utilities.scss)
 
 // Rest Panel
 .rest-options {
@@ -335,32 +297,16 @@
     }
 
     .custom-input-sm {
+      @include form-input;
       width: 60px;
-      padding: $space-sm;
-      border: 1px solid var(--border-color);
-      @include rounded;
-      background: var(--bg-card);
-      color: var(--text-primary);
       font-weight: 600;
       text-align: center;
-
-      &:focus {
-        outline: none;
-        border-color: var(--gold);
-      }
     }
   }
 }
 
-// Custom adjustment inputs
+// Custom adjustment inputs — container is now .panel.flex-column.gap-sm on element
 .custom-adjust {
-  @extend .flex-column;
-  gap: $space-sm;
-  padding: $space-md;
-  background: var(--bg-panel);
-  @include rounded;
-  border: 1px solid var(--border-color);
-
   .label {
     font-weight: 600;
     color: var(--text-secondary);
@@ -375,46 +321,21 @@
     align-items: center;
 
     .custom-input {
+      @include form-input;
       flex: 1;
-      padding: $space-sm;
-      border: 1px solid var(--border-color);
-      @include rounded;
-      background: var(--bg-card);
-      color: var(--text-primary);
       font-family: $font-display;
       font-weight: 600;
-
-      &:focus {
-        outline: none;
-        border-color: var(--gold);
-      }
     }
 
     .custom-select {
-      padding: $space-sm;
-      border: 1px solid var(--border-color);
-      @include rounded;
-      background: var(--bg-card);
-      color: var(--text-primary);
+      @include form-input;
       font-weight: 600;
       cursor: pointer;
-
-      &:focus {
-        outline: none;
-        border-color: var(--gold);
-      }
     }
   }
 }
 
-// Panel actions (Save/Cancel)
-.panel-actions {
-  display: flex;
-  gap: $space-md;
-  justify-content: flex-end;
-  padding-top: $space-md;
-  border-top: 1px solid var(--border-color);
-}
+// .panel-actions → replaced by .action-bar.end.gap-md (see _utilities.scss)
 
 .panel-note {
   padding: $space-md;

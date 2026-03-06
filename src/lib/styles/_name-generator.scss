@@ -36,16 +36,7 @@
   border-radius: $radius;
 }
 
-.mode-buttons {
-  display: flex;
-  gap: $space-md;
-  flex-wrap: wrap;
-
-  button {
-    flex: 1;
-    min-width: 200px;
-  }
-}
+// .mode-buttons → replaced by .button-row (see _utilities.scss)
 
 // ===================================================
 // Form Shared Styles
@@ -54,32 +45,7 @@
 // Form container (used by both character and place forms)
 .name-generator-form,
 .place-generator-form {
-  display: flex;
-  flex-direction: column;
-  gap: $space-lg;
-  padding: $space-lg;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: $radius;
-}
-
-// Form section (groups of related inputs)
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: $space-md;
-}
-
-// Form label (section headers)
-.form-label {
-  margin: 0;
-  font-size: $text-sm;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: $space-xs;
+  @include form-container;
 }
 
 
@@ -204,8 +170,8 @@
   .results-actions,
   .copy-indicator,
   .name-meta,
-  .btn-clear,
-  .empty-state,
+  .btn-danger,
+  .panel-dashed,
   .name-generator-form,
   .place-generator-form {
     display: none !important;

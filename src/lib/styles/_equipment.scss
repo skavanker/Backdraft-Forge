@@ -19,7 +19,7 @@
     display: flex;
     align-items: center;
     gap: $space-sm;
-    input { width: 100px; padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); }
+    input { @include form-input; width: 100px; }
   }
 }
 .gold-display {
@@ -84,7 +84,7 @@
   align-items: center;
   gap: $space-sm;
   flex-wrap: wrap;
-  input { padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); }
+  input { @include form-input; }
   input:not([type="number"]) { flex: 1; min-width: 120px; }
   input[type="number"] { width: 90px; }
 }
@@ -97,10 +97,10 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.8rem;
+  padding: $space-sm $space-md;
   text-align: left;
   width: 100%;
   position: relative;
-  &.small { padding: 0.4rem 0.6rem; }
+  &.small { padding: $space-xs $space-sm; }
   &:hover:not(.disabled) { .item-name { color: var(--text-secondary); } }
 }

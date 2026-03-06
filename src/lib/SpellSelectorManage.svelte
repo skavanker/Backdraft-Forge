@@ -343,7 +343,7 @@
     </div>
   {/if}
 
-  <div class="manage-actions">
+  <div class="action-bar center plain gap-md">
     <button class="btn-primary" onclick={confirmManage}>Save Spells</button>
     {#if onCancel}
       <button class="btn-secondary" onclick={onCancel}>Cancel</button>

@@ -4,7 +4,9 @@
   import NPCList from './components/NPCList.svelte';
   import { generateNPC, generateBulkNPCs } from './generators/npcGenerator.js';
   import { loadNPCs, saveNPC, deleteNPC } from './npcPersistence.svelte.js';
+  import { useToast } from './utils/stateUtils.svelte.js';
 
+  const toast = useToast();
   let generatedNPCs = $state([]);
   let savedNPCs = $state([]);
   let isGenerating = $state(false);
@@ -26,7 +28,7 @@
         generatedNPCs = npcs;
       } catch (error) {
         console.error('Failed to generate NPCs:', error);
-        alert('Failed to generate NPCs. Please try again.');
+        toast.flash('Failed to generate NPCs. Please try again.');
       } finally {
         isGenerating = false;
       }
@@ -35,7 +37,7 @@
 
   function handleSave(npc) {
     savedNPCs = saveNPC(npc, savedNPCs);
-    alert(`${npc.name} saved successfully!`);
+    toast.flash(`${npc.name} saved successfully!`);
   }
 
   function handleDelete(id) {
@@ -52,6 +54,9 @@
 </script>
 
 <div class="npc-generator">
+  {#if toast.visible}
+    <div class="save-toast alert alert-info">{toast.message}</div>
+  {/if}
   <header class="generator-header">
     <h2>NPC Generator</h2>
     <p class="subtitle">
@@ -76,7 +81,7 @@
     <div class="generator-section">
       <div class="section-header">
         <h3>Generated NPCs</h3>
-        <button class="btn-clear" onclick={handleClearGenerated}>
+        <button class="btn-danger btn-sm" onclick={handleClearGenerated}>
           Clear All
         </button>
       </div>
@@ -93,118 +98,10 @@
 
   <!-- Empty State -->
   {#if generatedNPCs.length === 0 && savedNPCs.length === 0 && !isGenerating}
-    <div class="empty-state">
+    <div class="panel-dashed">
       <p>No NPCs yet. Use the form above to generate your first NPC!</p>
     </div>
   {/if}
 </div>
 
-<style lang="scss">
-  @import './styles/shared';
-
-  .npc-generator {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 1rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .generator-header {
-    text-align: center;
-    padding: 1rem;
-    border-bottom: 2px solid var(--color-border);
-
-    h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--color-text-primary);
-    }
-
-    .subtitle {
-      margin: 0;
-      font-size: 1rem;
-      color: var(--color-text-secondary);
-    }
-  }
-
-  .generator-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    h3 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--color-text-primary);
-    }
-
-    .btn-clear {
-      padding: 0.5rem 1rem;
-      background: var(--color-danger);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-
-      &:hover {
-        background: var(--color-danger-dark);
-      }
-    }
-  }
-
-  .loading-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    background: var(--color-bg-secondary);
-    border-radius: 4px;
-    border: 1px dashed var(--color-border);
-
-    p {
-      margin: 0;
-      font-size: 1.125rem;
-      color: var(--color-text-secondary);
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    background: var(--color-bg-secondary);
-    border-radius: 4px;
-    border: 1px dashed var(--color-border);
-
-    p {
-      margin: 0;
-      font-size: 1.125rem;
-      color: var(--color-text-secondary);
-      text-align: center;
-    }
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-</style>
+<style lang="scss">@import './styles/shared'; @import './styles/npc';</style>

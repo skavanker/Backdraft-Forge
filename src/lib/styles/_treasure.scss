@@ -7,31 +7,12 @@
 // Treasure-specific variables
 :root {
   --treasure-gold: #d4af37;
-  --treasure-silver: #c0c0c0;
-  --treasure-copper: #b87333;
-  --treasure-gem: #9b30ff;
 }
 
 // Utility classes for treasure components
-.treasure-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: $space-md;
+// .treasure-grid → replaced by .grid-xl (see _utilities.scss)
 
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
-}
-
-.treasure-badge {
-  display: inline-block;
-  padding: $space-xs $space-sm;
-  background: var(--treasure-gold);
-  color: #000;
-  font-size: $text-xs;
-  border-radius: $radius;
-  font-weight: 600;
-}
+// .treasure-badge → replaced by .badge.badge-primary (see _utilities.scss)
 
 .treasure-divider {
   height: 1px;
@@ -44,13 +25,7 @@
 // ===================================================
 
 .treasure-form {
-  display: flex;
-  flex-direction: column;
-  gap: $space-lg;
-  padding: $space-lg;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: $radius;
+  @include form-container;
 
   .selectable-chip:has(.chip-meta) {
     flex-direction: column;
@@ -65,58 +40,20 @@
     background: none;
     padding: 0;
   }
-}
 
-.treasure-form .method-buttons {
-  display: flex;
-  gap: $space-sm;
-  flex-wrap: wrap;
-
-  button {
-    flex: 1;
-    min-width: 120px;
+  input[type="number"],
+  input[type="text"] {
+    @include form-input;
   }
-}
 
-.treasure-form .form-section {
-  display: flex;
-  flex-direction: column;
-  gap: $space-md;
-}
-
-.treasure-form .form-label {
-  margin: 0;
-  font-size: $text-sm;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: $space-xs;
-}
-
-.treasure-form input[type="number"],
-.treasure-form input[type="text"] {
-  padding: $space-sm;
-  border: 1px solid var(--border-color);
-  border-radius: $radius;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: $text-sm;
-
-  &:focus {
-    outline: none;
-    border-color: var(--accent-primary);
+  .cr-input,
+  .count-input {
+    width: 5rem;
   }
-}
 
-.treasure-form .cr-input,
-.treasure-form .count-input {
-  width: 5rem;
-}
-
-.treasure-form .source-input {
-  width: 100%;
+  .source-input {
+    width: 100%;
+  }
 }
 
 .value-input-group {

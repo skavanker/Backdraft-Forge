@@ -39,7 +39,7 @@
   <!-- Mode Selection -->
   <div class="form-section">
     <h4 class="form-label">Generation Mode</h4>
-    <div class="method-buttons">
+    <div class="button-row">
       <button
         type="button"
         class="btn-primary"
@@ -57,8 +57,8 @@
 
   <!-- Ability Score Method -->
   <div class="form-section">
-    <h4 class="form-label">Ability Score Method</h4>
-    <div class="grid-compact gap-sm">
+    <h4 class="form-label" id="npc-ability-method">Ability Score Method</h4>
+    <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-ability-method">
       <SelectableChip
         label="4d6 Drop Lowest"
         selected={options.method === '4d6'}
@@ -79,8 +79,8 @@
 
   <!-- Archetype Selection -->
   <div class="form-section">
-    <h4 class="form-label">Archetype</h4>
-    <div class="grid-compact gap-sm">
+    <h4 class="form-label" id="npc-archetype">Archetype</h4>
+    <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-archetype">
       <SelectableChip
         label="None"
         metadata="Custom settings"
@@ -119,8 +119,8 @@
 
     <!-- Race Constraint -->
     <div class="form-section">
-      <h4 class="form-label">Race</h4>
-      <div class="grid-compact gap-sm">
+      <h4 class="form-label" id="npc-race">Race</h4>
+      <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-race">
         <SelectableChip
           label="Random"
           selected={options.raceKey === null}
@@ -138,8 +138,8 @@
 
     <!-- Class Constraint -->
     <div class="form-section">
-      <h4 class="form-label">Class</h4>
-      <div class="grid-compact gap-sm">
+      <h4 class="form-label" id="npc-class">Class</h4>
+      <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-class">
         <SelectableChip
           label="Random"
           selected={options.classKey === null}

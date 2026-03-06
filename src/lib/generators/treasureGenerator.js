@@ -5,13 +5,7 @@
 
 import { rollDie, rollDice } from '../dice.js';
 import { treasureTypes, gemTypes, artObjectTypes, commonMagicItems, getRandomMundaneItem } from '../../data/treasure.js';
-
-/**
- * Pick random element from array
- */
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+import { pick } from '../utils/randomUtils.js';
 
 /**
  * Parse and roll dice string (e.g., "1d6×1000", "2d4×100")

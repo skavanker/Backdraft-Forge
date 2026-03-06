@@ -43,6 +43,7 @@
   class:disabled
   class:locked
   class:auto
+  disabled={disabled || locked || auto}
   aria-pressed={selected}
   onclick={handleClick}
   oncontextmenu={handleContext}

@@ -66,8 +66,8 @@
 <div class="manage-panel">
   <h3>Currency Management</h3>
 
-  <div class="currency-display">
-    <div class="currency-row">
+  <div class="currency-display panel">
+    <div class="data-row no-border">
       <span class="label">Total Value</span>
       <span class="value">{totalGoldValue.toFixed(2)} gp</span>
     </div>
@@ -132,7 +132,7 @@
     </div>
   </div>
 
-  <div class="custom-adjust">
+  <div class="custom-adjust panel flex-column gap-sm">
     <span class="label">Custom Amount</span>
     <div class="custom-inputs">
       <input
@@ -152,7 +152,7 @@
     </div>
   </div>
 
-  <div class="panel-actions">
+  <div class="action-bar end gap-md">
     <button class="btn-secondary" onclick={cancel}>Cancel</button>
     <button class="btn-primary" onclick={save}>Save Changes</button>
   </div>

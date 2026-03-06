@@ -57,12 +57,10 @@
 .hp-label { color: var(--text-muted); font-size: $text-sm; text-transform: uppercase; letter-spacing: 0.05em; }
 .hp-total { font-weight: 700; font-size: $text-lg; color: var(--gold); font-family: $font-display; }
 .spell-slot-comparison { width: 100%; max-width: 300px; }
-.slot-row {
-  display: flex;
-  justify-content: space-between;
-  padding: $space-sm;
-  border-bottom: 1px dotted var(--border-color);
-  &.header { font-weight: 600; border-bottom: 1px solid var(--border-color); }
+// .slot-row → replaced by .data-row.padded (see _shared.scss)
+// Keep header/improved modifiers
+.data-row {
+  &.header { font-weight: 600; border-bottom-style: solid; }
   &.improved { color: var(--gold); font-weight: 600; }
 }
 .thief-skill-row {
@@ -73,7 +71,7 @@
   text-align: left;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 0.75rem 1rem;
+  padding: $space-sm $space-md;
 
   &:hover:not(:disabled) {
     background: var(--bg-hover);
@@ -102,7 +100,7 @@
   .skill-breakdown {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: $space-sm;
     flex: 1;
     font-size: $text-sm;
 
@@ -155,5 +153,5 @@
 .save-details { @extend .flex-column; align-items: flex-end; gap: $space-sm; }
 .save-improved { color: var(--gold); font-size: $text-sm; }
 .confirm-summary { width: 100%; max-width: 300px; }
-.confirm-row { display: flex; justify-content: space-between; padding: $space-sm 0; border-bottom: 1px dotted var(--border-color); font-weight: 600; }
+// .confirm-row → replaced by .data-row (see _shared.scss) with font-weight: 600 on element
 // step-nav and step-dots now in _modal.scss

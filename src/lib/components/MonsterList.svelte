@@ -14,11 +14,11 @@
 </script>
 
 {#if monsters.length === 0}
-  <div class="empty-state">
+  <div class="panel-dashed">
     <p>No monsters found.</p>
   </div>
 {:else}
-  <div class="monster-grid">
+  <div class="grid-lg">
     {#each monsters as monster (monster.key)}
       <MonsterStatBlock
         {monster}

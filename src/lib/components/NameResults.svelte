@@ -1,8 +1,9 @@
 <script>
+  import { useCopyFeedback } from '../utils/stateUtils.svelte.js';
+
   let { names } = $props();
 
-  let copiedIndex = $state(-1);
-  let copyError = $state(false);
+  const copied = useCopyFeedback();
 
   /**
    * Copy a single name to clipboard
@@ -10,19 +11,10 @@
   async function copyName(name, index) {
     try {
       await navigator.clipboard.writeText(name);
-      copiedIndex = index;
-      copyError = false;
-      setTimeout(() => {
-        copiedIndex = -1;
-      }, 2000);
+      copied.flash(index);
     } catch (err) {
       console.error('Failed to copy:', err);
-      copyError = true;
-      copiedIndex = index;
-      setTimeout(() => {
-        copiedIndex = -1;
-        copyError = false;
-      }, 2000);
+      copied.flash(index, true);
     }
   }
 </script>
@@ -49,7 +41,7 @@
           </span>
         {/if}
         <span class="copy-indicator">
-          {copiedIndex === index ? (copyError ? '✗' : '✓') : '📋'}
+          {copied.activeIndex === index ? (copied.isError ? '✗' : '✓') : '📋'}
         </span>
       </button>
     {/each}

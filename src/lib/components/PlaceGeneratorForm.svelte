@@ -80,7 +80,7 @@
     <h4 class="form-label">Place Type</h4>
 
     <!-- Category Buttons -->
-    <div class="mode-buttons">
+    <div class="button-row">
       <button
         class="btn-primary"
         class:selected={selectedCategory === 'settlements'}

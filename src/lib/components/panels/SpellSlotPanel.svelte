@@ -124,12 +124,12 @@
     {/each}
   </div>
 
-  <div class="quick-actions">
+  <div class="action-bar center dotted gap-md">
     <button class="btn-secondary" onclick={restoreAll}>Restore All Slots</button>
     <button class="btn-secondary" onclick={useAll}>Mark All Used</button>
   </div>
 
-  <div class="panel-actions">
+  <div class="action-bar end gap-md">
     <button class="btn-secondary" onclick={cancel}>Cancel</button>
     <button class="btn-primary" onclick={save}>Save Changes</button>
   </div>

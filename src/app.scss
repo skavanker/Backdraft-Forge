@@ -48,6 +48,23 @@
   --btn-bg: linear-gradient(to bottom, #4a3c2e 0%, #2c241c 100%);
   --btn-bg-hover: linear-gradient(to bottom, #6b5a48 0%, #4a3c2e 100%);
   --btn-text: #f4e8d1;
+
+  // ═══════════════════════════════════════════════════════════════
+  // SEMANTIC ALIASES — map semantic names to core tokens
+  // ═══════════════════════════════════════════════════════════════
+
+  --color-primary: var(--gold-dark);
+  --color-border: var(--border-color);
+  --color-success: var(--green);
+  --color-warning: var(--gold);
+  --color-danger: var(--red);
+  --color-danger-dark: #a33d20;
+  --color-info: #5b7ba8;
+  --accent-primary: var(--gold);
+  --bg-hover: var(--bg-subtle);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-bg-secondary: var(--bg-subtle);
 }
 
 // Dark theme - Aged Leather / Tome
@@ -78,6 +95,19 @@
   --btn-bg: linear-gradient(to bottom, #3d3428 0%, #2a241e 100%);
   --btn-bg-hover: linear-gradient(to bottom, #4d4235 0%, #3d3428 100%);
   --btn-text: #e8dcc8;
+
+  --color-primary: var(--gold-dark);
+  --color-border: var(--border-color);
+  --color-success: var(--green);
+  --color-warning: var(--gold);
+  --color-danger: var(--red);
+  --color-danger-dark: #a33d20;
+  --color-info: #7a9cc8;
+  --accent-primary: var(--gold);
+  --bg-hover: var(--bg-subtle);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-bg-secondary: var(--bg-subtle);
 }
 
 @import './styles/mixins.scss';
@@ -235,7 +265,7 @@ button {
   background: var(--btn-bg);
   color: var(--btn-text);
   border: none;
-  border-radius: 2px;
+  border-radius: $radius-sm;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow:
@@ -303,6 +333,12 @@ button {
   }
 }
 
+.btn-danger {
+  background: var(--red);
+  color: white;
+  &:hover:not(:disabled) { filter: brightness(0.9); transform: none; box-shadow: none; }
+}
+
 .btn-sm {
   padding: $space-sm $space-md;
   font-size: $text-sm;
@@ -322,7 +358,7 @@ input, select {
   font-size: 1rem;
   padding: $space-sm $space-md;
   border: 1px solid var(--border-strong);
-  border-radius: 2px;
+  border-radius: $radius-sm;
   background: var(--bg-input);
   color: var(--text-body);
   transition: all 0.2s ease;
@@ -361,7 +397,7 @@ label {
 .card {
   background: linear-gradient(to bottom, var(--bg-card) 0%, var(--bg-card-end) 100%);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: $radius;
   padding: $space-lg;
   box-shadow: 0 4px 16px var(--shadow-color);
   position: relative;
@@ -480,26 +516,26 @@ hr {
 
 .top-buttons {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: $space-md;
+  right: $space-md;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: $space-sm;
   z-index: 100;
 }
 
 .reset-toggle,
 .settings-toggle {
-  padding: 0.5rem;
+  padding: $space-sm;
   background: var(--bg-panel);
-  border: 1px solid var(--border-color);
+  @include border-default;
   border-radius: 50%;
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: $text-lg;
   box-shadow: 0 2px 8px var(--shadow-color);
   cursor: pointer;
   color: var(--text-muted);
@@ -522,14 +558,14 @@ hr {
 .reset-confirm-popup {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: $space-xs;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
+  @include border-default;
+  border-radius: $radius;
+  padding: $space-xs $space-sm;
   box-shadow: 0 2px 8px var(--shadow-color);
   white-space: nowrap;
-  font-size: 0.85rem;
+  font-size: $text-sm;
   color: var(--text-body);
 }
 

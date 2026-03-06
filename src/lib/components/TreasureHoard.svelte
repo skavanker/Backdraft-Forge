@@ -1,8 +1,10 @@
 <script>
   import { copyToClipboard } from '../shareCharacter.js';
   import SelectableChip from './SelectableChip.svelte';
+  import { useToast } from '../utils/stateUtils.svelte.js';
 
   let { treasure, onSave = null, onDelete = null, showActions = true } = $props();
+  const toast = useToast();
 
   const hasCoin = $derived(
     treasure.coins.copper > 0 ||
@@ -99,21 +101,13 @@
 
     const json = JSON.stringify(selected, null, 2);
     const success = await copyToClipboard(json);
-    if (success) {
-      alert('Selected items copied to clipboard as JSON!');
-    } else {
-      alert('Failed to copy to clipboard. Please try again.');
-    }
+    toast.flash(success ? 'Selected items copied to clipboard as JSON!' : 'Failed to copy to clipboard. Please try again.');
   }
 
   async function handleCopyJSON() {
     const json = JSON.stringify(treasure, null, 2);
     const success = await copyToClipboard(json);
-    if (success) {
-      alert('Treasure JSON copied to clipboard!');
-    } else {
-      alert('Failed to copy to clipboard. Please try again.');
-    }
+    toast.flash(success ? 'Treasure JSON copied to clipboard!' : 'Failed to copy to clipboard. Please try again.');
   }
 
   async function handleCopyText() {
@@ -157,20 +151,19 @@
     }
 
     const success = await copyToClipboard(text);
-    if (success) {
-      alert('Treasure text copied to clipboard!');
-    } else {
-      alert('Failed to copy to clipboard. Please try again.');
-    }
+    toast.flash(success ? 'Treasure text copied to clipboard!' : 'Failed to copy to clipboard. Please try again.');
   }
 </script>
 
-<div class="treasure-hoard panel">
+<div class="treasure-hoard panel-secondary flex-column gap-md">
+  {#if toast.visible}
+    <div class="save-toast alert alert-info">{toast.message}</div>
+  {/if}
   <!-- Header -->
   <header class="treasure-header">
     <div class="treasure-title">
       <h4>Treasure Hoard</h4>
-      <span class="treasure-type-badge">Type {treasure.type}</span>
+      <span class="badge badge-primary">Type {treasure.type}</span>
     </div>
     <p class="treasure-subtitle">{treasure.source}</p>
     <div class="treasure-stats">
@@ -189,7 +182,7 @@
   {#if hasCoin}
     <div class="treasure-section">
       <h5>Coins</h5>
-      <div class="selection-grid">
+      <div class="grid-md">
         {#if treasure.coins.copper > 0}
           <SelectableChip
             label={`${formatNumber(treasure.coins.copper)} Copper (${formatNumber(treasure.coins.copper / 10)} lbs)`}
@@ -233,7 +226,7 @@
   {#if hasGems}
     <div class="treasure-section">
       <h5>Gems ({treasure.gems.length})</h5>
-      <div class="selection-grid">
+      <div class="grid-md">
         {#each treasure.gems as gem, i}
           <SelectableChip
             label={`${gem.description} (${gem.value} gp, 0.01 lbs)`}
@@ -249,7 +242,7 @@
   {#if hasArt}
     <div class="treasure-section">
       <h5>Art Objects ({treasure.artObjects.length})</h5>
-      <div class="selection-grid">
+      <div class="grid-md">
         {#each treasure.artObjects as art, i}
           <SelectableChip
             label={`${art.description} (${formatNumber(art.value)} gp, ${art.weight} lbs)`}
@@ -265,7 +258,7 @@
   {#if hasMagic}
     <div class="treasure-section">
       <h5>Magic Items ({treasure.magicItems.length})</h5>
-      <div class="selection-grid">
+      <div class="grid-md">
         {#each treasure.magicItems as item, i}
           <SelectableChip
             label={`${item} (~1,000 gp est., 2 lbs)`}
@@ -289,7 +282,7 @@
 
   <!-- Actions -->
   {#if showActions}
-    <div class="treasure-actions">
+    <div class="action-bar wrap">
       {#if hasSelection}
         <button class="btn-sm btn-primary" onclick={handleCopySelected}>
           Copy Selected
@@ -315,290 +308,4 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import '../styles/shared';
-
-  .treasure-hoard {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    background: var(--color-bg-secondary);
-  }
-
-  .treasure-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-border);
-
-    .treasure-title {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-
-      h4 {
-        margin: 0;
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--color-text-primary);
-      }
-
-      .treasure-type-badge {
-        padding: 0.125rem 0.5rem;
-        background: var(--color-primary);
-        color: white;
-        font-size: 0.75rem;
-        border-radius: 4px;
-        font-weight: 600;
-      }
-    }
-
-    .treasure-subtitle {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--color-text-secondary);
-    }
-
-    .treasure-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
-
-    .treasure-value,
-    .treasure-weight {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      background: var(--color-bg-primary);
-      border-radius: 4px;
-
-      .label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--color-text-secondary);
-      }
-
-      .value {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: #d4af37; // Gold color
-      }
-    }
-
-    .treasure-weight .value {
-      color: var(--color-text-primary);
-    }
-  }
-
-  .treasure-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    h5 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--color-text-primary);
-    }
-  }
-
-  .selection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 0.5rem;
-  }
-
-  .coin-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5rem;
-
-    .coin-entry {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.5rem;
-      background: var(--color-bg-primary);
-      border-radius: 4px;
-
-      .coin-amount {
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--color-text-primary);
-      }
-
-      .coin-type {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        color: var(--color-text-secondary);
-      }
-
-      .coin-weight {
-        font-size: 0.75rem;
-        color: var(--color-text-secondary);
-        font-style: italic;
-      }
-    }
-  }
-
-  .gem-list,
-  .art-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .gem-entry,
-  .art-entry {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    background: var(--color-bg-primary);
-    border-radius: 4px;
-    font-size: 0.875rem;
-
-    .gem-description,
-    .art-description {
-      flex: 1;
-      color: var(--color-text-primary);
-    }
-
-    .gem-stats,
-    .art-stats {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      margin-left: 1rem;
-    }
-
-    .gem-value,
-    .art-value {
-      font-weight: 600;
-      color: #d4af37;
-      white-space: nowrap;
-    }
-
-    .gem-weight,
-    .art-weight {
-      font-size: 0.75rem;
-      color: var(--color-text-secondary);
-      white-space: nowrap;
-    }
-  }
-
-  .magic-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    .magic-entry {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem;
-      background: var(--color-bg-primary);
-      border-radius: 4px;
-      font-size: 0.875rem;
-
-      .magic-name {
-        flex: 1;
-        color: var(--color-text-primary);
-      }
-
-      .magic-stats {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        margin-left: 1rem;
-      }
-
-      .magic-note {
-        font-size: 0.75rem;
-        color: var(--color-text-secondary);
-        font-style: italic;
-      }
-
-      .magic-weight {
-        font-size: 0.75rem;
-        color: var(--color-text-secondary);
-        white-space: nowrap;
-      }
-    }
-  }
-
-  .magic-note-text {
-    margin: 0.5rem 0 0 0;
-    font-size: 0.75rem;
-    color: var(--color-text-secondary);
-    line-height: 1.4;
-
-    em {
-      font-style: italic;
-    }
-  }
-
-  .empty-treasure {
-    padding: 2rem;
-    text-align: center;
-    color: var(--color-text-secondary);
-    font-style: italic;
-
-    p {
-      margin: 0;
-    }
-  }
-
-  .treasure-actions {
-    display: flex;
-    gap: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--color-border);
-    flex-wrap: wrap;
-
-    .btn-sm {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &.btn-primary {
-        background: var(--color-primary);
-        color: white;
-
-        &:hover {
-          background: var(--color-primary-dark);
-        }
-      }
-
-      &.btn-secondary {
-        background: var(--color-bg-primary);
-        color: var(--color-text-primary);
-        border: 1px solid var(--color-border);
-
-        &:hover {
-          background: var(--color-bg-secondary);
-        }
-      }
-
-      &.btn-danger {
-        background: var(--color-danger);
-        color: white;
-
-        &:hover {
-          background: var(--color-danger-dark);
-        }
-      }
-    }
-  }
-</style>
+<style lang="scss">@import '../styles/dm-tools';</style>

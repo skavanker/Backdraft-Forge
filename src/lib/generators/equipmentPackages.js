@@ -6,13 +6,7 @@
  */
 
 import { equipment } from '../../data/equipment.js';
-
-/**
- * Pick a random element from array
- */
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+import { pick } from '../utils/randomUtils.js';
 
 /**
  * Weighted selection algorithm

@@ -5,7 +5,9 @@
   import TreasureItemList from './components/TreasureItemList.svelte';
   import { generateTreasure, generateBulkTreasure, generateTreasureByLevel, generateTreasureByValue } from './generators/treasureGenerator.js';
   import { loadTreasures, saveTreasure, deleteTreasure } from './treasurePersistence.svelte.js';
+  import { useToast } from './utils/stateUtils.svelte.js';
 
+  const toast = useToast();
   let generatedHoards = $state([]);
   let savedHoards = $state([]);
   let isGenerating = $state(false);
@@ -43,7 +45,7 @@
         generatedHoards = hoards;
       } catch (error) {
         console.error('Failed to generate treasure:', error);
-        alert('Failed to generate treasure. Please try again.');
+        toast.flash('Failed to generate treasure. Please try again.');
       } finally {
         isGenerating = false;
       }
@@ -52,7 +54,7 @@
 
   function handleSave(hoard) {
     savedHoards = saveTreasure(hoard, savedHoards);
-    alert('Treasure hoard saved successfully!');
+    toast.flash('Treasure hoard saved successfully!');
   }
 
   function handleDelete(id) {
@@ -78,6 +80,9 @@
 </script>
 
 <div class="treasure-generator">
+  {#if toast.visible}
+    <div class="save-toast alert alert-info">{toast.message}</div>
+  {/if}
   <header class="generator-header">
     <h2>Treasure Generator</h2>
     <p class="subtitle">
@@ -107,11 +112,11 @@
             Total: {totalGeneratedValue.toLocaleString()} gp
           </span>
         </div>
-        <button class="btn-clear" onclick={handleClearGenerated}>
+        <button class="btn-danger btn-sm" onclick={handleClearGenerated}>
           Clear All
         </button>
       </div>
-      <div class="hoard-grid">
+      <div class="grid-xl">
         {#each generatedHoards as hoard (hoard.id)}
           {#if hoard.type === 'gem' || hoard.type === 'art' || hoard.type === 'magic' || hoard.type === 'mundane'}
             <TreasureItemList items={hoard.items} itemType={hoard.type} onSave={() => handleSave(hoard)} />
@@ -134,7 +139,7 @@
           </span>
         </div>
       </div>
-      <div class="hoard-grid">
+      <div class="grid-xl">
         {#each savedHoards as entry (entry.id)}
           {#if entry.data.type === 'gem' || entry.data.type === 'art' || entry.data.type === 'magic' || entry.data.type === 'mundane'}
             <TreasureItemList items={entry.data.items} itemType={entry.data.type} onDelete={() => handleDelete(entry.id)} />
@@ -152,7 +157,7 @@
 
   <!-- Empty State -->
   {#if generatedHoards.length === 0 && savedHoards.length === 0 && !isGenerating}
-    <div class="empty-state">
+    <div class="panel-dashed">
       <p>No treasure hoards yet. Use the form above to generate your first hoard!</p>
     </div>
   {/if}
@@ -160,135 +165,17 @@
 
 <style lang="scss">
   @import './styles/shared';
+  @import './styles/treasure';
 
-  .treasure-generator {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 1rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .generator-header {
-    text-align: center;
-    padding: 1rem;
-    border-bottom: 2px solid var(--color-border);
-
-    h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--color-text-primary);
-    }
-
-    .subtitle {
-      margin: 0;
-      font-size: 1rem;
-      color: var(--color-text-secondary);
-    }
-  }
-
-  .generator-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .section-header {
+  .section-header .header-info {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: $space-md;
 
-    .header-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-
-      h3 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--color-text-primary);
-      }
-
-      .total-value {
-        padding: 0.25rem 0.75rem;
-        background: #d4af37;
-        color: #000;
-        font-size: 0.875rem;
-        font-weight: 700;
-        border-radius: 4px;
-      }
-    }
-
-    .btn-clear {
-      padding: 0.5rem 1rem;
-      background: var(--color-danger);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-
-      &:hover {
-        background: var(--color-danger-dark);
-      }
+    .total-value {
+      @extend .badge-primary;
     }
   }
 
-  .hoard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1rem;
-
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .loading-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    background: var(--color-bg-secondary);
-    border-radius: 4px;
-    border: 1px dashed var(--color-border);
-
-    p {
-      margin: 0;
-      font-size: 1.125rem;
-      color: var(--color-text-secondary);
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    background: var(--color-bg-secondary);
-    border-radius: 4px;
-    border: 1px dashed var(--color-border);
-
-    p {
-      margin: 0;
-      font-size: 1.125rem;
-      color: var(--color-text-secondary);
-      text-align: center;
-    }
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
+  // .hoard-grid → uses .grid-xl utility class on element
 </style>

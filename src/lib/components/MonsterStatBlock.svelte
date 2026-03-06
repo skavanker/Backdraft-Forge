@@ -21,8 +21,8 @@
     <div>
       <h4>{monster.name}</h4>
       <div class="monster-meta">
-        <span class="type-badge">{monster.type}</span>
-        <span class="size-badge">{monster.size}</span>
+        <span class="badge badge-warning">{monster.type}</span>
+        <span class="badge badge-muted">{monster.size}</span>
       </div>
     </div>
   </header>
@@ -95,7 +95,7 @@
   {/if}
 
   <!-- Actions -->
-  <div class="monster-actions">
+  <div class="action-bar end">
     {#if onSave && !isSaved}
       <button class="btn-primary btn-sm" onclick={() => onSave(monster)}>
         Save to Favorites

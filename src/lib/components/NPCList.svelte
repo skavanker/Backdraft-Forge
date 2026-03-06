@@ -10,12 +10,12 @@
 </script>
 
 <div class="npc-list">
-  <header class="list-header">
+  <header class="section-header">
     <h3>{title}</h3>
     <span class="count">{npcs.length} {npcs.length === 1 ? 'NPC' : 'NPCs'}</span>
   </header>
 
-  <div class="list-grid">
+  <div class="grid-lg">
     {#each displayNPCs as npc (npc.id || npc.savedEntryId)}
       <NPCStatBlock
         {npc}
@@ -26,43 +26,4 @@
   </div>
 </div>
 
-<style lang="scss">
-  @import '../styles/shared';
-
-  .npc-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .list-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--color-border);
-
-    h3 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--color-text-primary);
-    }
-
-    .count {
-      font-size: 0.875rem;
-      color: var(--color-text-secondary);
-      font-weight: 600;
-    }
-  }
-
-  .list-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1rem;
-
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+<style lang="scss">@import '../styles/dm-tools';</style>

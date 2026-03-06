@@ -32,7 +32,7 @@
   {#if wipPrompt}
     <div class="wip-prompt alert alert-info">
       <span>Unfinished character found — {wipPrompt.character.race?.name || '?'} {wipPrompt.character.kit?.name || wipPrompt.character.wizardSchool?.name || wipPrompt.character.cls?.name || '?'}</span>
-      <div class="wip-actions">
+      <div class="action-bar plain">
         <button class="btn-primary btn-sm" onclick={onResumeWip}>Resume</button>
         <button class="btn-secondary btn-sm" onclick={onDiscardWip}>Discard</button>
       </div>
@@ -40,7 +40,7 @@
   {/if}
 
   <!-- Main Actions -->
-  <div class="splash-actions">
+  <div class="action-bar center plain gap-md">
     <button class="btn-primary btn-lg" onclick={onLaunchCharacterCreator}>
       Create New Character
     </button>

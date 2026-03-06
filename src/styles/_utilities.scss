@@ -87,6 +87,20 @@
   @include grid-responsive(11.25rem); // ~180px
 }
 
+.grid-md {
+  @include grid-responsive(18.75rem); // ~300px
+}
+
+.grid-lg {
+  @include grid-responsive(21.875rem); // ~350px
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.grid-xl {
+  @include grid-responsive(25rem); // ~400px
+  @include mobile { grid-template-columns: 1fr; }
+}
+
 .grid-chips {
   @include grid-responsive(7.5rem); // ~120px
 
@@ -139,10 +153,10 @@
 // Base badge (for statuses, counts, etc)
 .badge {
   display: inline-block;
-  padding: 0.2rem 0.5rem;
+  padding: $space-xs $space-sm;
   font-size: $text-sm;
   font-weight: 600;
-  border-radius: 2px;
+  border-radius: $radius-sm;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -150,6 +164,11 @@
 .badge-primary {
   background: var(--gold-dark);
   color: white;
+}
+
+.badge-warning {
+  background: var(--gold-overlay);
+  color: var(--gold-dark);
 }
 
 .badge-muted {
@@ -209,7 +228,7 @@
   border: 1px solid var(--red-overlay-border);
   color: var(--red);
   text-transform: uppercase;
-  font-size: 0.7rem;
+  font-size: $text-xs;
 }
 
 .req-badge {
@@ -224,9 +243,9 @@
   font-weight: 700;
   color: var(--gold-dark);
   background: var(--gold-overlay);
-  padding: 0.15rem 0.3rem;
-  border-radius: 2px;
-  margin-left: 0.5rem;
+  padding: $space-xs $space-xs;
+  border-radius: $radius-sm;
+  margin-left: $space-sm;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -245,6 +264,20 @@
   @include border-default;
   @include rounded;
   padding: $space-md;
+}
+
+.panel-secondary {
+  @extend .panel;
+  background: var(--color-bg-secondary);
+}
+
+.panel-dashed {
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-color);
+  @include rounded;
+  padding: $space-lg $space-md;
+  text-align: center;
+  p { margin: 0; color: var(--text-secondary); }
 }
 
 .panel-lg {
@@ -282,6 +315,28 @@
   color: var(--red);
 }
 
+// ─── Action Bars ────────────────────────────────────────────────────────
+
+.action-bar {
+  display: flex;
+  gap: $space-sm;
+  padding-top: $space-sm;
+  border-top: 1px solid var(--border-color);
+  &.end { justify-content: flex-end; }
+  &.center { justify-content: center; }
+  &.wrap { flex-wrap: wrap; }
+  &.dotted { border-top-style: dotted; }
+  &.plain { border-top: none; padding-top: 0; }
+  &.gap-md { gap: $space-md; }
+}
+
+.button-row {
+  display: flex;
+  gap: $space-sm;
+  flex-wrap: wrap;
+  button { flex: 1; min-width: 200px; }
+}
+
 // ─── Border Utilities ───────────────────────────────────────────────────────
 
 .border-default {
@@ -316,6 +371,20 @@
 
 .shadow-none {
   box-shadow: none;
+}
+
+// ─── Accessibility Utilities ────────────────────────────────────────────────
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 // ─── Transition Utilities ───────────────────────────────────────────────────

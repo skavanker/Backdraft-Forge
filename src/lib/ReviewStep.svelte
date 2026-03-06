@@ -157,7 +157,7 @@
     <div class="review-section panel">
       <h4>Class Info</h4>
       <div class="flex-column gap-sm">
-        <div class="info-row">
+        <div class="data-row">
           <span>Hit Points</span>
           <span>
             {#if character.hpHistory?.[0]}
@@ -168,44 +168,44 @@
             {/if}
           </span>
         </div>
-        <div class="info-row">
+        <div class="data-row">
           <span>Key Ability</span>
           <span>{character.cls.primeRequisite.join(', ')}</span>
         </div>
         {#if character.wizardSchool}
-          <div class="info-row">
+          <div class="data-row">
             <span>School</span>
             <span>{character.wizardSchool.school}</span>
           </div>
-          <div class="info-row warning">
+          <div class="data-row warning">
             <span>Cannot Cast</span>
             <span>{character.wizardSchool.oppositionSchools.join(', ')}</span>
           </div>
         {/if}
         {#if character.kit}
-          <div class="info-row">
+          <div class="data-row">
             <span>Kit</span>
             <span>{character.kit.name}</span>
           </div>
-          <div class="info-row">
+          <div class="data-row">
             <span>Base Class</span>
             <span>{character.cls.name}</span>
           </div>
         {/if}
         {#if character.speciesEnemy}
-          <div class="info-row">
+          <div class="data-row">
             <span>Species Enemy</span>
             <span>{formatSpeciesEnemy(character.speciesEnemy)} (+4 to hit)</span>
           </div>
         {/if}
         {#if character.xpBonus > 0}
-          <div class="info-row highlight">
+          <div class="data-row highlight">
             <span>XP Bonus</span>
             <span>+{character.xpBonus}%</span>
           </div>
         {/if}
         {#if character.levelLimit}
-          <div class="info-row warning">
+          <div class="data-row warning">
             <span>Level Limit</span>
             <span>{character.levelLimit}</span>
           </div>
@@ -349,130 +349,4 @@
 </div>
 
 
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/review';
-
-  .exceptional-str-section {
-    width: 100%;
-    max-width: 700px;
-    margin-bottom: 2rem;
-
-    h4 {
-      margin-bottom: 1rem;
-    }
-
-    .alert {
-      margin-bottom: 1rem;
-    }
-
-    .exceptional-roll-area {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .exceptional-result {
-      text-align: center;
-      padding: 1rem;
-      font-size: 1.125rem;
-
-      strong {
-        font-size: 1.5rem;
-        color: var(--color-primary);
-      }
-    }
-  }
-
-  .thief-skills-section {
-    width: 100%;
-    max-width: 700px;
-
-    h4 {
-      margin-bottom: 1rem;
-    }
-
-    .alert {
-      margin-bottom: 1rem;
-    }
-  }
-
-  .thief-skills-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .thief-skill-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover:not(:disabled) {
-      background: var(--color-bg-secondary);
-      border-color: var(--color-primary);
-    }
-
-    &.has-points {
-      border-color: var(--color-success);
-      background: color-mix(in srgb, var(--color-success) 5%, transparent);
-    }
-
-    &.at-cap {
-      opacity: 0.7;
-    }
-
-    &:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .skill-name {
-      min-width: 140px;
-      font-weight: 600;
-    }
-
-    .skill-breakdown {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex: 1;
-      font-size: 0.875rem;
-
-      .breakdown-item {
-        color: var(--color-text-secondary);
-        white-space: nowrap;
-
-        &.race {
-          color: var(--color-info);
-        }
-
-        &.dex {
-          color: var(--color-primary);
-        }
-
-        &.distributed {
-          color: var(--color-success);
-          font-weight: 600;
-        }
-      }
-    }
-
-    .skill-total {
-      font-weight: 700;
-      font-size: 1.25rem;
-      min-width: 60px;
-      text-align: right;
-
-      &.at-cap {
-        color: var(--color-warning);
-      }
-    }
-  }
-</style>
+<style lang="scss">@import './styles/shared'; @import './styles/review';</style>

@@ -20,10 +20,7 @@
   gap: $space-md;
 }
 
-.wip-actions {
-  display: flex;
-  gap: $space-sm;
-}
+// .wip-actions → replaced by .action-bar.plain (see _utilities.scss)
 
 // Hero Section
 .splash-logo {
@@ -59,14 +56,7 @@
   }
 }
 
-// Main Actions
-.splash-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: $space-md;
-  flex-wrap: wrap;
-}
+// .splash-actions → replaced by .action-bar.center.plain.gap-md (see _utilities.scss)
 
 // Tool Grid
 .tool-grid {
@@ -294,7 +284,7 @@
     gap: $space-lg;
   }
 
-  .splash-actions {
+  .splash-container > .action-bar {
     flex-direction: column;
     width: 100%;
 

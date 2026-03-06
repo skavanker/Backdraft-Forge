@@ -5,10 +5,9 @@
 .review-header { display: flex; justify-content: center; gap: $space-sm; width: 100%; .review-race { color: var(--text-muted); } }
 .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: $space-lg; width: 100%; }
 .review-section { h4 { @include section-header; } }
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 0 0.25rem;
+// .info-row → replaced by .data-row (see _shared.scss)
+// Keep highlight/warning modifiers on .data-row
+.data-row {
   &.highlight span:last-child { color: var(--green); }
   &.warning span:last-child { color: var(--gold-dark); }
 }
@@ -57,3 +56,104 @@
 // ════════════ SELECTION PREVIEW ════════════
 .selection-preview { @extend .flex-column; gap: $space-lg; h3 { text-align: center; } }
 .preview-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: $space-lg; }
+
+// ════════════ EXCEPTIONAL STRENGTH ════════════
+.exceptional-str-section {
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: $space-lg;
+
+  h4 { margin-bottom: $space-md; }
+  .alert { margin-bottom: $space-md; }
+
+  .exceptional-roll-area {
+    display: flex;
+    gap: $space-md;
+    justify-content: center;
+  }
+
+  .exceptional-result {
+    text-align: center;
+    padding: $space-md;
+    font-size: $text-base + 0.125rem;
+
+    strong {
+      font-size: $text-xl;
+      color: var(--color-primary);
+    }
+  }
+}
+
+// ════════════ THIEF SKILLS ════════════
+.thief-skills-section {
+  width: 100%;
+  max-width: 700px;
+
+  h4 { margin-bottom: $space-md; }
+  .alert { margin-bottom: $space-md; }
+}
+
+.thief-skills-grid {
+  @extend .flex-column;
+  gap: $space-sm;
+  margin-bottom: $space-lg;
+}
+
+.thief-skill-row {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  padding: $space-sm $space-md;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  @include transition;
+
+  &:hover:not(:disabled) {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-primary);
+  }
+
+  &.has-points {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 5%, transparent);
+  }
+
+  &.at-cap { opacity: 0.7; }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .skill-name {
+    min-width: 140px;
+    font-weight: 600;
+  }
+
+  .skill-breakdown {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    flex: 1;
+    font-size: $text-sm;
+
+    .breakdown-item {
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+
+      &.race { color: var(--color-info); }
+      &.dex { color: var(--color-primary); }
+      &.distributed { color: var(--color-success); font-weight: 600; }
+    }
+  }
+
+  .skill-total {
+    font-weight: 700;
+    font-size: $text-lg;
+    min-width: 60px;
+    text-align: right;
+
+    &.at-cap { color: var(--color-warning); }
+  }
+}

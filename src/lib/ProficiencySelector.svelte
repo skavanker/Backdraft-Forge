@@ -1,30 +1,24 @@
 <script>
   import {
     weapons,
-    nonWeaponProficiencies,
-    getWeaponSlots,
-    getNonWeaponSlots,
-    getAllowedWeapons,
     getAvailableProficiencies,
     getWeaponSlotsWithKit,
     getNonWeaponSlotsWithKit,
     getAllowedWeaponsWithKit,
     getKitFreeWeapons,
-    getKitFreeNonWeapon,
-    isWeaponRestrictedByKit
+    getKitFreeNonWeapon
   } from '../data/proficiencies.js';
-  import { formatWeaponTooltip } from '../data/weapons.js';
   import {
     languages,
     getBonusLanguageSlots,
-    getRacialLanguages,
-    getAvailableBonusLanguages
+    getRacialLanguages
   } from '../data/languages.js';
   import { onMount } from 'svelte';
-  import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
-  import SelectableChip from './components/SelectableChip.svelte';
-  import { useSelection } from './utils/stateUtils.svelte.js';
+  import WeaponProficiencyPanel from './components/WeaponProficiencyPanel.svelte';
+  import LanguagePanel from './components/LanguagePanel.svelte';
+  import NonWeaponProficiencyPanel from './components/NonWeaponProficiencyPanel.svelte';
+  import ProficiencySummary from './components/ProficiencySummary.svelte';
 
   let { abilities, race, cls, kit = null, level = 1, existingProficiencies = null, onComplete } = $props();
 
@@ -243,155 +237,35 @@
   </div>
 
   <div class="flex-column gap-lg">
-    <!-- Weapon Proficiencies -->
-    <div class="section">
-      <h3>Weapon Proficiencies</h3>
-      <p class="section-hint">
-        Select {weaponSlots} weapon{weaponSlots !== 1 ? 's' : ''} your character is trained with.
-        {#if weaponSlotsRemaining > 0}
-          <span class="meta-text remaining">({weaponSlotsRemaining} remaining)</span>
-        {/if}
-      </p>
+    <WeaponProficiencyPanel
+      {groupedWeapons}
+      {selectedWeapons}
+      {lockedWeapons}
+      {weaponSlots}
+      {weaponSlotsRemaining}
+      onToggle={toggleWeapon}
+    />
 
-      <div class="prof-column-section">
-        {#each Object.entries(groupedWeapons()) as [groupKey, group]}
-          {#if group.weapons.length > 0}
-            <div class="prof-group">
-              <h4 class="group-title">{group.name}</h4>
-              <div class="flex-column gap-sm">
-                {#each group.weapons as weapon}
-                  {@const isLocked = lockedWeapons.includes(weapon.key)}
-                  {@const selected = selectedWeapons.includes(weapon.key)}
-                  {@const disabled = !selected && weaponSlotsRemaining === 0}
-                  <Tooltip text={formatWeaponTooltip(weapon)} position="bottom">
-                    <SelectableChip
-                      label={weapon.name}
-                      metadata={weapon.damage}
-                      {selected}
-                      {disabled}
-                      locked={isLocked}
-                      onclick={() => toggleWeapon(weapon.key)}
-                    />
-                  </Tooltip>
-                {/each}
-              </div>
-            </div>
-          {/if}
-        {/each}
-      </div>
-    </div>
+    <LanguagePanel
+      {allSelectableLanguages}
+      {autoLanguages}
+      {selectedBonusLanguages}
+      {bonusLanguageSlots}
+      {bonusLanguageSlotsRemaining}
+      onToggle={toggleLanguage}
+    />
 
-    <!-- Languages -->
-    <div class="section language-section">
-      <h3>Languages</h3>
-      <p class="section-hint">
-        Select languages. Your race and class grant some automatically.
-        {#if bonusLanguageSlots > 0}
-          Your Intelligence grants {bonusLanguageSlots} additional language{bonusLanguageSlots !== 1 ? 's' : ''}.
-          {#if bonusLanguageSlotsRemaining > 0}
-            <span class="meta-text remaining">({bonusLanguageSlotsRemaining} bonus remaining)</span>
-          {/if}
-        {/if}
-      </p>
-
-      <div class="language-grid">
-        {#each allSelectableLanguages() as key}
-          {@const isAuto = autoLanguages.includes(key)}
-          {@const selected = isAuto || selectedBonusLanguages.includes(key)}
-          {@const disabled = isAuto || (!selected && bonusLanguageSlotsRemaining === 0)}
-          <SelectableChip
-            label={languages[key].name}
-            {selected}
-            {disabled}
-            auto={isAuto}
-            onclick={() => toggleLanguage(key)}
-          />
-        {/each}
-      </div>
-    </div>
-
-    <!-- Non-Weapon Proficiencies -->
-    <div class="section">
-      <h3>Non-Weapon Proficiencies</h3>
-      <p class="section-hint">
-        Select skills for your character. Different skill groups cost different amounts.
-        {#if nonWeaponSlotsRemaining > 0}
-          <span class="meta-text remaining">({nonWeaponSlotsRemaining} slots remaining)</span>
-        {/if}
-      </p>
-
-      <div class="prof-column-section">
-        {#each Object.entries(groupedProficiencies()) as [groupKey, group]}
-          {#if group.profs.length > 0}
-            {@const costForGroup = group.profs[0]?.cost ?? 1}
-            <div class="prof-group">
-              <h4 class="group-title">{group.name}</h4>
-              <p class="meta-text">{costForGroup} slot{costForGroup !== 1 ? 's' : ''} each</p>
-              <div class="flex-column gap-sm">
-                {#each group.profs as prof}
-                  {@const isLocked = lockedNonWeapon.includes(prof.key)}
-                  {@const selected = selectedNonWeapon.includes(prof.key)}
-                  {@const disabled = !selected && nonWeaponSlotsRemaining < prof.cost}
-                  <Tooltip text="{prof.description} (Check: {prof.ability}{prof.modifier >= 0 ? '+' : ''}{prof.modifier})" position="bottom">
-                    <SelectableChip
-                      label={prof.name}
-                      metadata={prof.ability}
-                      cost={prof.cost}
-                      {selected}
-                      {disabled}
-                      locked={isLocked}
-                      onclick={() => toggleProficiency(prof.key)}
-                    />
-                  </Tooltip>
-                {/each}
-              </div>
-            </div>
-          {/if}
-        {/each}
-      </div>
-    </div>
+    <NonWeaponProficiencyPanel
+      {groupedProficiencies}
+      {selectedNonWeapon}
+      {lockedNonWeapon}
+      {nonWeaponSlots}
+      {nonWeaponSlotsRemaining}
+      onToggle={toggleProficiency}
+    />
   </div>
 
-  <!-- Selection Summary -->
-  {#if selectedWeapons.length > 0 || selectedNonWeapon.length > 0}
-    <div class="selection-summary panel-subtle">
-      <div class="divider"><span class="ornament">◆</span></div>
-
-      <h3>Selected Proficiencies</h3>
-
-      <div class="summary-columns">
-        {#if selectedWeapons.length > 0}
-          <div class="summary-section">
-            <h4>Weapons</h4>
-            <ul class="summary-list">
-              {#each selectedWeapons as key}
-                {@const w = weapons[key]}
-                <li>
-                  <span class="summary-name">{w.name}</span>
-                  <span class="summary-detail">{w.damage}</span>
-                </li>
-              {/each}
-            </ul>
-          </div>
-        {/if}
-
-        {#if selectedNonWeapon.length > 0}
-          <div class="summary-section">
-            <h4>Skills</h4>
-            <ul class="summary-list">
-              {#each selectedNonWeapon as key}
-                {@const p = nonWeaponProficiencies[key]}
-                <li>
-                  <span class="summary-name">{p.name}</span>
-                  <span class="summary-detail">{p.ability}</span>
-                </li>
-              {/each}
-            </ul>
-          </div>
-        {/if}
-      </div>
-    </div>
-  {/if}
+  <ProficiencySummary {selectedWeapons} {selectedNonWeapon} />
 
   <button
     class="btn-primary"

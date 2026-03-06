@@ -17,13 +17,7 @@ import {
 } from '../../data/placePatterns.js';
 import { getAdjectivesForLandmark } from '../../data/landmarkAdjectives.js';
 import { generateCharacterName } from './nameGenerator.js';
-
-/**
- * Pick a random item from an array
- */
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+import { pick } from '../utils/randomUtils.js';
 
 /**
  * Pick an adjective with weighted probability based on geography.

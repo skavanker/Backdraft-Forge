@@ -18,6 +18,7 @@ $text-xxl: 2rem;
 
 // Border radius
 $radius: 4px;
+$radius-sm: 2px;
 
 // Breakpoints
 $breakpoint-sm: 640px;   // Mobile landscape
@@ -159,6 +160,32 @@ $breakpoint-xl: 1280px;  // Large desktop
 @mixin section-header {
   border-bottom: 1px solid var(--border-color);
   padding-bottom: $space-sm;
+}
+
+// Common form input styling
+@mixin form-input {
+  padding: $space-sm;
+  @include border-default;
+  @include rounded;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: $text-sm;
+
+  &:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+}
+
+// Form container (used by generator forms)
+@mixin form-container {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+  padding: $space-lg;
+  background: var(--bg-card);
+  @include border-default;
+  @include rounded;
 }
 
 // Import utility classes

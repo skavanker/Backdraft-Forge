@@ -1,0 +1,355 @@
+@import '../../styles/mixins.scss';
+
+// ════════════ DM TOOLS: NPC & TREASURE COMPONENTS ════════════
+// Shared styles for NPCStatBlock, NPCList, TreasureHoard, TreasureItemList
+
+// ─── NPC List ──────────────────────────────────────────────────────────────
+.npc-list {
+  @extend .flex-column;
+  gap: $space-md;
+}
+
+// .list-header → replaced by .section-header (see _shared.scss)
+// Keep .count child style
+.section-header .count {
+  font-size: $text-sm;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+// .list-grid → replaced by .grid-lg (see _utilities.scss)
+
+// ─── NPC Stat Block ────────────────────────────────────────────────────────
+// .npc-stat-block container → replaced by .panel-secondary.flex-column.gap-sm on element
+.npc-stat-block {}
+
+.npc-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: $space-sm;
+
+  .npc-title {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    margin-bottom: $space-xs;
+
+    h4 {
+      margin: 0;
+      font-size: $text-base + 0.125rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    // .archetype-badge → replaced by .badge.badge-primary on element
+  }
+
+  .npc-subtitle {
+    margin: 0;
+    font-size: $text-sm;
+    color: var(--color-text-secondary);
+  }
+}
+
+.npc-combat {
+  display: flex;
+  gap: $space-md;
+  padding: $space-sm;
+  background: var(--bg-panel);
+  @include rounded;
+
+  .stat {
+    @extend .flex-column;
+    align-items: center;
+    gap: $space-xs;
+
+    .label {
+      font-size: $text-xs;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: $text-lg;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+.npc-abilities,
+.npc-alignment,
+.npc-equipment,
+.npc-spells,
+.npc-saves {
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+
+  strong {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+}
+
+// .npc-actions → replaced by .action-bar (see _utilities.scss)
+
+// ─── Treasure Hoard ────────────────────────────────────────────────────────
+// .treasure-hoard container → replaced by .panel-secondary.flex-column.gap-md on element
+.treasure-hoard {}
+
+.treasure-header {
+  @extend .flex-column;
+  gap: $space-sm;
+  padding-bottom: $space-sm;
+  border-bottom: 1px solid var(--color-border);
+
+  .treasure-title {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+
+    h4 {
+      margin: 0;
+      font-size: $text-base + 0.125rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    // .treasure-type-badge → replaced by .badge.badge-primary on element
+  }
+
+  .treasure-subtitle {
+    margin: 0;
+    font-size: $text-sm;
+    color: var(--color-text-secondary);
+  }
+
+  .treasure-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-sm;
+  }
+
+  .treasure-value,
+  .treasure-weight {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    padding: $space-sm;
+    background: var(--bg-panel);
+    @include rounded;
+
+    .label {
+      font-size: $text-sm;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .value {
+      font-size: $text-base + 0.125rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+  }
+
+  .treasure-weight .value {
+    color: var(--color-text-primary);
+  }
+}
+
+.treasure-section {
+  @extend .flex-column;
+  gap: $space-sm;
+
+  h5 {
+    margin: 0;
+    font-size: $text-base;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+}
+
+// .selection-grid (300px) → replaced by .grid-md (see _utilities.scss)
+
+// .coin-grid → replaced by .grid-chips (see _utilities.scss)
+.coin-grid {
+  .coin-entry {
+    @extend .flex-column;
+    align-items: center;
+    gap: $space-xs;
+    padding: $space-sm;
+    background: var(--bg-panel);
+    @include rounded;
+
+    .coin-amount {
+      font-size: $text-base + 0.125rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .coin-type {
+      font-size: $text-xs;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+
+    .coin-weight {
+      font-size: $text-xs;
+      color: var(--color-text-secondary);
+      font-style: italic;
+    }
+  }
+}
+
+.gem-list,
+.art-list {
+  @extend .flex-column;
+  gap: $space-sm;
+}
+
+.gem-entry,
+.art-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-sm;
+  background: var(--bg-panel);
+  @include rounded;
+  font-size: $text-sm;
+
+  .gem-description,
+  .art-description {
+    flex: 1;
+    color: var(--color-text-primary);
+  }
+
+  .gem-stats,
+  .art-stats {
+    display: flex;
+    gap: $space-sm;
+    align-items: center;
+    margin-left: $space-md;
+  }
+
+  .gem-value,
+  .art-value {
+    font-weight: 600;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .gem-weight,
+  .art-weight {
+    font-size: $text-xs;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+}
+
+.magic-list {
+  @extend .flex-column;
+  gap: $space-xs;
+
+  .magic-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-sm;
+    background: var(--bg-panel);
+    @include rounded;
+    font-size: $text-sm;
+
+    .magic-name {
+      flex: 1;
+      color: var(--color-text-primary);
+    }
+
+    .magic-stats {
+      display: flex;
+      gap: $space-sm;
+      align-items: center;
+      margin-left: $space-md;
+    }
+
+    .magic-note {
+      font-size: $text-xs;
+      color: var(--color-text-secondary);
+      font-style: italic;
+    }
+
+    .magic-weight {
+      font-size: $text-xs;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+  }
+}
+
+.magic-note-text {
+  margin: $space-sm 0 0 0;
+  font-size: $text-xs;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.empty-treasure {
+  padding: $space-lg;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+
+  p { margin: 0; }
+}
+
+// .treasure-actions → replaced by .action-bar.wrap (see _utilities.scss)
+
+// ─── Treasure Item List ────────────────────────────────────────────────────
+// .item-list container → replaced by .panel-secondary.flex-column.gap-md on element
+.item-list {}
+
+.item-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: $space-sm;
+  border-bottom: 1px solid var(--color-border);
+
+  h4 {
+    margin: 0;
+    font-size: $text-base + 0.125rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  // .item-count → replaced by .badge.badge-primary on element
+}
+
+.items {
+  @extend .flex-column;
+  gap: $space-sm;
+}
+
+.item-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-sm;
+  background: var(--bg-panel);
+  @include rounded;
+  font-size: $text-sm;
+
+  .item-description {
+    flex: 1;
+    color: var(--color-text-primary);
+  }
+
+  .item-value {
+    font-weight: 600;
+    color: var(--gold);
+    white-space: nowrap;
+    margin-left: $space-md;
+  }
+}
+
+// .item-actions → replaced by .action-bar (see _utilities.scss)

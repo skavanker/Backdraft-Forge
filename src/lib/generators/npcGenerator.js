@@ -6,6 +6,7 @@
  */
 
 import { rollDie, rollDice, rollAbilityDice, calculate4d6DropLowest, calculate3d6, rollExceptionalStrength } from '../dice.js';
+import { calcTotalHP } from '../utils/hpUtils.js';
 import { races, getAvailableRaces, applyRacialAdjustments } from '../../data/races.js';
 import { classes, getAvailableClasses } from '../../data/classes.js';
 import { generateCharacterName } from './nameGenerator.js';
@@ -16,20 +17,7 @@ import { weaponProficiencySlots, nonWeaponProficiencySlots, weapons } from '../.
 import { startingGold } from '../../data/equipment.js';
 import { generateWeightedEquipment } from './equipmentPackages.js';
 import { getArchetype } from './npcArchetypes.js';
-
-/**
- * Generate random integer between min and max (inclusive)
- */
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Pick random element from array
- */
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+import { pick, randomInt } from '../utils/randomUtils.js';
 
 /**
  * Generate ability scores based on method
@@ -174,9 +162,7 @@ function rollNPCHP(hitDie, level, con, classGroup) {
     });
   }
 
-  const totalHP = hpHistory.reduce((sum, entry) => sum + entry.total, 0);
-
-  return { hpHistory, totalHP };
+  return { hpHistory, totalHP: calcTotalHP(hpHistory, hitDie, conMods.hpAdj) };
 }
 
 /**

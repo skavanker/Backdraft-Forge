@@ -24,6 +24,11 @@
     hpPercentage > 33 ? 'wounded' :
     'critical'
   );
+  let hpLabel = $derived(
+    hpColor === 'healthy' ? 'Healthy' :
+    hpColor === 'wounded' ? 'Wounded' :
+    'Critical'
+  );
   let isAboveMax = $derived(hpWorking > maxHP);
 
   // Adjustment functions
@@ -51,7 +56,7 @@
 <div class="manage-panel">
   <h3>Hit Points</h3>
 
-  <div class="hp-display">
+  <div class="hp-display panel flex-column gap-md panel-lg">
     <div class="hp-numbers">
       <span class="hp-current {hpColor}">{hpWorking}</span>
       <span class="hp-separator">/</span>
@@ -60,9 +65,10 @@
         <span class="hp-temp">+{hpWorking - maxHP} temp</span>
       {/if}
     </div>
-    <div class="hp-bar">
+    <div class="hp-bar" aria-hidden="true">
       <div class="hp-bar-fill {hpColor}" style="width: {hpPercentage}%"></div>
     </div>
+    <span class="sr-only">{hpLabel}</span>
   </div>
 
   <div class="quick-buttons">
@@ -82,7 +88,7 @@
     </div>
   </div>
 
-  <div class="custom-adjust">
+  <div class="custom-adjust panel flex-column gap-sm">
     <span class="label">Custom Amount</span>
     <div class="custom-inputs">
       <input
@@ -103,7 +109,7 @@
     </p>
   </div>
 
-  <div class="panel-actions">
+  <div class="action-bar end gap-md">
     <button class="btn-secondary" onclick={cancel}>Cancel</button>
     <button class="btn-primary" onclick={save}>Save Changes</button>
   </div>

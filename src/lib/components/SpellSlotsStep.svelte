@@ -23,14 +23,14 @@
   {/if}
 
   <div class="spell-slot-comparison">
-    <div class="slot-row header">
+    <div class="data-row padded header">
       <span>Spell Level</span>
       <span>Old</span>
       <span>New</span>
     </div>
     {#each (newSpellSlots || []) as slots, i}
       {#if slots > 0 || (oldSpellSlots?.[i] || 0) > 0}
-        <div class="slot-row" class:improved={slots > (oldSpellSlots?.[i] || 0)}>
+        <div class="data-row padded" class:improved={slots > (oldSpellSlots?.[i] || 0)}>
           <span>{ordinal(i + 1)}</span>
           <span>{oldSpellSlots?.[i] || 0}</span>
           <span>{slots}</span>

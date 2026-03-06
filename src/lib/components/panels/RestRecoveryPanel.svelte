@@ -171,7 +171,7 @@
     </div>
   </div>
 
-  <div class="panel-actions">
+  <div class="action-bar end gap-md">
     <button class="btn-secondary" onclick={cancel}>Cancel</button>
   </div>
 </div>

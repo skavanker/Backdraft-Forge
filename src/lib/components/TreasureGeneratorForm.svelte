@@ -29,7 +29,7 @@
   <!-- Generation Method -->
   <div class="form-section">
     <h4 class="form-label">Generation Method</h4>
-    <div class="method-buttons">
+    <div class="button-row">
       <button
         type="button"
         class="btn-primary"
@@ -60,8 +60,8 @@
   {#if options.method === 'single-item'}
     <!-- Single Item Type Selection -->
     <div class="form-section">
-      <h4 class="form-label">Item Type</h4>
-      <div class="grid-compact gap-sm">
+      <h4 class="form-label" id="treasure-item-type">Item Type</h4>
+      <div class="grid-compact gap-sm" role="group" aria-labelledby="treasure-item-type">
         <SelectableChip
           label="Gem"
           selected={options.itemType === 'gem'}
@@ -119,8 +119,8 @@
   {:else if options.method === 'type'}
     <!-- Treasure Type Selection -->
     <div class="form-section">
-      <h4 class="form-label">Treasure Type</h4>
-      <div class="grid-compact gap-sm">
+      <h4 class="form-label" id="treasure-type">Treasure Type</h4>
+      <div class="grid-compact gap-sm" role="group" aria-labelledby="treasure-type">
         {#each treasureTypeList as type}
           <SelectableChip
             label={type.key}

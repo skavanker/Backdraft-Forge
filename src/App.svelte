@@ -423,7 +423,7 @@
     {#if wipPrompt && currentStep === 0}
       <div class="wip-prompt alert alert-info">
         <span>Unfinished character found — {wipPrompt.character.race?.name || '?'} {wipPrompt.character.kit?.name || wipPrompt.character.wizardSchool?.name || wipPrompt.character.cls?.name || '?'} (Step {wipPrompt.currentStep + 1}: {steps[wipPrompt.currentStep]})</span>
-        <div class="wip-actions">
+        <div class="action-bar plain">
           <button class="btn-primary btn-sm" onclick={resumeWip}>Resume</button>
           <button class="btn-secondary btn-sm" onclick={discardWip}>Discard</button>
         </div>
