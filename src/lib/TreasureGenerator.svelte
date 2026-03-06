@@ -116,7 +116,7 @@
           Clear All
         </button>
       </div>
-      <div class="grid-xl">
+      <div class="grid-xl animate-in">
         {#each generatedHoards as hoard (hoard.id)}
           {#if hoard.type === 'gem' || hoard.type === 'art' || hoard.type === 'magic' || hoard.type === 'mundane'}
             <TreasureItemList items={hoard.items} itemType={hoard.type} onSave={() => handleSave(hoard)} />
@@ -139,7 +139,7 @@
           </span>
         </div>
       </div>
-      <div class="grid-xl">
+      <div class="grid-xl animate-in">
         {#each savedHoards as entry (entry.id)}
           {#if entry.data.type === 'gem' || entry.data.type === 'art' || entry.data.type === 'magic' || entry.data.type === 'mundane'}
             <TreasureItemList items={entry.data.items} itemType={entry.data.type} onDelete={() => handleDelete(entry.id)} />

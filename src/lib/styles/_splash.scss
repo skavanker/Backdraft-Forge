@@ -62,7 +62,7 @@
 .tool-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $space-lg;
+  gap: $space-xl;
 
   @include tablet-up {
     grid-template-columns: repeat(2, 1fr);
@@ -91,6 +91,8 @@
       transform: translateY(-4px);
       box-shadow: 0 8px 24px var(--shadow-color);
       border-color: var(--gold);
+      background: linear-gradient(to bottom, var(--bg-card) 0%, var(--bg-card-end) 100%),
+                  var(--gold-overlay);
 
       .tool-icon {
         transform: scale(1.1);
@@ -99,6 +101,10 @@
       h2 {
         color: var(--gold-dark);
       }
+    }
+
+    &:active {
+      transform: scale(0.98);
     }
   }
 

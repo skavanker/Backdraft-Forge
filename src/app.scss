@@ -80,7 +80,7 @@
 
   --bg-card: rgba(35, 30, 25, 0.95);
   --bg-card-end: rgba(18, 16, 13, 0.95);
-  --bg-panel: rgba(45, 38, 30, 0.5);
+  --bg-panel: rgba(38, 32, 25, 0.6);
   --bg-subtle: rgba(255, 255, 255, 0.03);
   --bg-input: rgba(50, 42, 34, 0.7);
 
@@ -90,7 +90,7 @@
   --text-faint: #6b5a48;
 
   --border-strong: rgba(180, 160, 130, 0.25);
-  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-color: rgba(0, 0, 0, 0.4);
 
   --btn-bg: linear-gradient(to bottom, #3d3428 0%, #2a241e 100%);
   --btn-bg-hover: linear-gradient(to bottom, #4d4235 0%, #3d3428 100%);
@@ -108,6 +108,10 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-bg-secondary: var(--bg-subtle);
+
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  }
 }
 
 @import './styles/mixins.scss';
@@ -118,6 +122,15 @@
 
 * {
   box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 :root { --font-scale: 1; }
@@ -189,7 +202,7 @@ h1 {
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
 
     @include mobile {
-      width: 120px; // Shorter decorative line on mobile
+      width: 120px;
     }
   }
 }
@@ -198,26 +211,17 @@ h2 {
   font-size: 1.75rem;
   text-align: center;
   color: var(--text-secondary);
-
-  &::after {
-    content: '';
-    display: block;
-    width: 120px;
-    height: 2px;
-    margin: $space-sm auto 0;
-    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
-  }
 }
 
 h3 {
-  font-size: $text-lg;
+  font-size: $text-xl;
   color: var(--text-primary);
   margin-bottom: $space-sm;
 }
 
 h4 {
   font-size: $text-lg;
-  color: var(--text-body);
+  color: var(--text-primary);
   margin: 0 0 $space-sm;
 }
 
@@ -267,25 +271,18 @@ button {
   border: none;
   border-radius: $radius-sm;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 2px 4px var(--shadow-color);
+  transition: all 0.2s $ease-standard;
+  box-shadow: 0 2px 4px var(--shadow-color);
   @include touch-target(44px);
 
   &:hover:not(:disabled) {
     background: var(--btn-bg-hover);
-    transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      0 4px 8px var(--shadow-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
   }
 
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.2),
-      0 1px 2px var(--shadow-color);
+    box-shadow: 0 1px 2px var(--shadow-color);
   }
 
   &:disabled {
@@ -296,31 +293,29 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
+  background: var(--gold);
   color: var(--text-primary);
   font-weight: 600;
   font-family: $font-display;
   letter-spacing: 0.03em;
   padding: $space-md $space-lg;
-  transition: all 0.2s ease;
+  transition: all 0.2s $ease-standard;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
-    filter: brightness(1.2);
-    transform: translateY(-2px);
+    background: var(--gold);
+    filter: brightness(1.15);
     box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
   }
 
   &.selected {
-    background: linear-gradient(to bottom, var(--gold) 0%, var(--gold-dark) 100%);
-    filter: brightness(1.2);
-    transform: translateY(-2px);
+    background: var(--gold);
+    filter: brightness(1.15);
     box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
   }
 }
 
 .btn-secondary {
-  background: transparent;
+  background: var(--bg-subtle);
   color: var(--text-body);
   box-shadow: none;
   border: 1px solid var(--border-strong);
@@ -328,7 +323,6 @@ button {
   &:hover:not(:disabled) {
     background: var(--bg-input);
     color: var(--text-secondary);
-    transform: none;
     box-shadow: none;
   }
 }
@@ -370,9 +364,8 @@ input, select {
   }
 
   &:focus {
-    outline: none;
     border-color: var(--gold);
-    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2); // 2px gold ring for keyboard focus indicator
+    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
   }
 }
 
@@ -400,30 +393,6 @@ label {
   border-radius: $radius;
   padding: $space-lg;
   box-shadow: 0 4px 16px var(--shadow-color);
-  position: relative;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-color: var(--gold-dark);
-    border-style: solid;
-    opacity: 0.5;
-  }
-
-  &::before {
-    top: 8px;
-    left: 8px;
-    border-width: 2px 0 0 2px;
-  }
-
-  &::after {
-    bottom: 8px;
-    right: 8px;
-    border-width: 0 2px 2px 0;
-  }
 }
 
 // =============================================================================

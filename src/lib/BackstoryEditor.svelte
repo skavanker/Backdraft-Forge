@@ -11,6 +11,18 @@
   import { settings, formatHeight as fmtHeight, formatWeight as fmtWeight } from './settings.svelte.js';
   import { pick, randomInt } from './utils/randomUtils.js';
 
+  const alignmentDescriptions = [
+    'Honorable protectors who uphold law and justice. Think: a holy knight sworn to defend the weak.',
+    'Compassionate do-gooders who help others regardless of rules. Think: a wandering healer who aids anyone in need.',
+    'Free-spirited champions of liberty and kindness. Think: a rebel fighting to free the oppressed.',
+    'Disciplined individuals who value order above all. Think: a judge who follows the letter of the law, regardless of outcome.',
+    'Pragmatists who act without strong moral or ethical bias. Think: a druid who serves the balance of nature.',
+    'Independent spirits who follow their own whims. Think: a wandering bard who goes wherever the wind takes them.',
+    'Tyrants who use rules and systems to dominate others. Think: a cruel warlord who rules through iron law.',
+    'Selfish schemers who do whatever benefits themselves. Think: a mercenary who sells their sword to the highest bidder.',
+    'Destructive agents of disorder and cruelty. Think: a demon-worshipping cultist who revels in mayhem.',
+  ];
+
   let { character, onComplete } = $props();
 
   let name = $state(character.name || '');
@@ -272,12 +284,14 @@
       {#each alignmentGrid as row}
         {#each row as alignNum}
           {@const isAllowed = allowedAlignments().includes(alignNum)}
-          <SelectableChip
-            label={getAlignmentName(alignNum)}
-            selected={alignment === alignNum}
-            disabled={!isAllowed}
-            onclick={() => isAllowed && (alignment = alignNum)}
-          />
+          <Tooltip text={alignmentDescriptions[alignNum]} warning={!isAllowed ? 'Not available for your class or deity' : ''}>
+            <SelectableChip
+              label={getAlignmentName(alignNum)}
+              selected={alignment === alignNum}
+              disabled={!isAllowed}
+              onclick={() => isAllowed && (alignment = alignNum)}
+            />
+          </Tooltip>
         {/each}
       {/each}
     </div>
@@ -287,38 +301,40 @@
   <div class="flex-column gap-sm">
     <div class="details-header">
       <label>Physical Details</label>
-      <button class="btn-primary btn-sm" onclick={randomizeDetails} title="Randomize all details">
-        Randomize
-      </button>
+      <Tooltip text="Rolls random age, height, weight, eye and hair color based on your race's typical ranges from the Player's Handbook. You can always edit the results manually.">
+        <button class="btn-primary btn-sm" onclick={randomizeDetails}>
+          Randomize
+        </button>
+      </Tooltip>
     </div>
     <div class="details-grid">
       <Tooltip text={raceHints().age} position="bottom">
         <div class="detail-field">
-          <label for="char-age">Age ⓘ</label>
+          <label for="char-age">Age</label>
           <input id="char-age" type="text" bind:value={age} placeholder="—" />
         </div>
       </Tooltip>
       <Tooltip text={raceHints().height} position="bottom">
         <div class="detail-field">
-          <label for="char-height">Height ⓘ</label>
+          <label for="char-height">Height</label>
           <input id="char-height" type="text" value={heightDisplay} readonly placeholder="—" />
         </div>
       </Tooltip>
       <Tooltip text={raceHints().weight} position="bottom">
         <div class="detail-field">
-          <label for="char-weight">Weight ⓘ</label>
+          <label for="char-weight">Weight</label>
           <input id="char-weight" type="text" value={weightDisplay} readonly placeholder="—" />
         </div>
       </Tooltip>
       <Tooltip text={raceHints().eyes} position="bottom">
         <div class="detail-field">
-          <label for="char-eyes">Eyes ⓘ</label>
+          <label for="char-eyes">Eyes</label>
           <input id="char-eyes" type="text" bind:value={eyes} placeholder="—" />
         </div>
       </Tooltip>
       <Tooltip text={raceHints().hair} position="bottom">
         <div class="detail-field">
-          <label for="char-hair">Hair ⓘ</label>
+          <label for="char-hair">Hair</label>
           <input id="char-hair" type="text" bind:value={hair} placeholder="—" />
         </div>
       </Tooltip>

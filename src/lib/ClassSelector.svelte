@@ -131,8 +131,24 @@
         <div class="selection-grid">
           {#each group.classes as { key, cls, qualified, failedReqs, levelLimit, xpBonus }}
             {@const hasWarnings = qualified && failedReqs.length > 0}
-            {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
-            <Tooltip text={tooltipText} position="bottom">
+            {@const warningText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
+            <Tooltip warning={warningText} position="bottom">
+              {#snippet tip()}
+                <div class="tooltip-header-row">
+                  <div>
+                    <strong>{cls.name}</strong> ({cls.hitDie})
+                    <div>{cls.description}</div>
+                  </div>
+                  <img src="/icons/{key}.svg" alt="" class="tooltip-icon" />
+                </div>
+                {#if cls.features?.length > 0}
+                  <ul class="tooltip-traits">
+                    {#each cls.features as feature}
+                      <li>{feature}</li>
+                    {/each}
+                  </ul>
+                {/if}
+              {/snippet}
               <button
                 class="selection-card class-card"
                 class:selected={selectedClassKey === key}
@@ -141,7 +157,6 @@
                 onclick={() => qualified && selectClass(key)}
                 disabled={!qualified}
               >
-                <img src="/icons/{key}.svg" alt="" class="class-icon" />
                 <div class="card-header">
                   <h4 class="card-name">{cls.name}</h4>
                   <span class="badge-small">{cls.hitDie}</span>
@@ -216,7 +231,16 @@
       </div>
 
       <div class="selection-grid">
-        <Tooltip text="Play as a standard {selectedClass.cls.name} without kit modifications" position="bottom">
+        <Tooltip>
+          {#snippet tip()}
+            <strong>No Kit</strong> — Play as a standard {selectedClass.cls.name} without modifications.
+            <div class="tooltip-meta">
+              <strong>What you get:</strong>
+              <span class="tooltip-tag">All standard {selectedClass.cls.name} abilities</span>
+              <span class="tooltip-tag">No additional restrictions</span>
+              <span class="tooltip-tag">Default proficiency and equipment options</span>
+            </div>
+          {/snippet}
           <button
             class="selection-card skip-kit"
             class:selected={selectedKit === null}
@@ -228,10 +252,27 @@
         </Tooltip>
 
         {#each availableKits as kit}
-          {@const tooltipText = !kit.qualified
-            ? `Not available: ${kit.failedReqs.join(', ')}`
-            : `${kit.description}\n\nAbilities: ${kit.specialAbilities.join(' • ')}`}
-          <Tooltip text={tooltipText} position="bottom">
+          {@const warningText = !kit.qualified ? `Not available: ${kit.failedReqs.join(', ')}` : ''}
+          <Tooltip warning={warningText}>
+            {#snippet tip()}
+              <strong>{kit.name}</strong> — {kit.description}
+              {#if kit.specialAbilities?.length > 0}
+                <div class="tooltip-meta">
+                  <strong>Abilities:</strong>
+                  {#each kit.specialAbilities as ability}
+                    <span class="tooltip-tag">{ability}</span>
+                  {/each}
+                </div>
+              {/if}
+              {#if kit.restrictions?.length > 0}
+                <div class="tooltip-meta">
+                  <strong>Restrictions:</strong>
+                  {#each kit.restrictions as restriction}
+                    <span class="tooltip-tag">{restriction}</span>
+                  {/each}
+                </div>
+              {/if}
+            {/snippet}
             <button
               class="selection-card"
               class:selected={selectedKit?.key === kit.key}

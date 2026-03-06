@@ -2,10 +2,14 @@
   import { rollAbilityDice, calculate3d6, calculate4d6DropLowest } from './dice.js';
   import { onMount } from 'svelte';
   import ImportArea from './ImportArea.svelte';
+  import Tooltip from './Tooltip.svelte';
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
   import { settings } from './settings.svelte.js';
-  const MAX_REROLLS = 2;
+  const ABILITY_NAMES = {
+    STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution',
+    INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma'
+  };
 
   let { onComplete, onImport, existingRollData = null, onManualMode } = $props();
 
@@ -15,7 +19,7 @@
     STR: null, DEX: null, CON: null, INT: null, WIS: null, CHA: null
   });
   let selectedRollIndex = $state(null);
-  let rerollsUsed = $state(0);
+  let rollCount = $state(0);
 
   let calculatedScores = $derived(() => {
     if (!rawDice) return null;
@@ -24,39 +28,32 @@
     );
   });
 
-  let assignedIndices = $derived(
-    new Set(Object.values(assignments).filter(v => v !== null))
-  );
-
   let allAssigned = $derived(
     Object.values(assignments).every(v => v !== null)
   );
 
-  let canReroll = $derived(rerollsUsed < MAX_REROLLS);
-
   function rollScores() {
-    if (rawDice) {
-      rerollsUsed++;
-    }
     rawDice = rollAbilityDice();
     assignments = { STR: 0, DEX: 1, CON: 2, INT: 3, WIS: 4, CHA: 5 };
     selectedRollIndex = null;
+    rollCount++;
   }
 
   function selectRoll(index) {
-    if (assignedIndices.has(index)) return;
-    selectedRollIndex = selectedRollIndex === index ? null : index;
-  }
-
-  function assignToAbility(ability) {
-    if (selectedRollIndex === null) return;
-    if (assignments[ability] !== null) return;
-    assignments[ability] = selectedRollIndex;
-    selectedRollIndex = null;
-  }
-
-  function unassign(ability) {
-    assignments[ability] = null;
+    if (selectedRollIndex === null) {
+      selectedRollIndex = index;
+    } else if (selectedRollIndex === index) {
+      selectedRollIndex = null;
+    } else {
+      // Swap assignments between the two dice
+      const abilityA = ABILITIES.find(a => assignments[a] === selectedRollIndex);
+      const abilityB = ABILITIES.find(a => assignments[a] === index);
+      if (abilityA && abilityB) {
+        assignments[abilityA] = index;
+        assignments[abilityB] = selectedRollIndex;
+      }
+      selectedRollIndex = null;
+    }
   }
 
   useGlobalKeydown((e) => {
@@ -73,14 +70,6 @@
       return;
     }
 
-    // 1-6 — quick-assign selected roll to ability
-    const num = parseInt(e.key);
-    if (num >= 1 && num <= 6 && rawDice && selectedRollIndex !== null) {
-      const ability = ABILITIES[num - 1];
-      if (assignments[ability] === null) {
-        assignToAbility(ability);
-      }
-    }
   });
 
   onMount(() => {
@@ -88,7 +77,6 @@
       method = existingRollData.method;
       rawDice = existingRollData.rawDice;
       assignments = existingRollData.assignments;
-      rerollsUsed = existingRollData.rerollsUsed || 0;
     }
   });
 
@@ -102,8 +90,7 @@
     const rollData = {
       method,
       rawDice,
-      assignments,
-      rerollsUsed
+      assignments
     };
 
     onComplete({ abilities: finalScores, rollData });
@@ -111,95 +98,52 @@
 </script>
 
 <div class="method-select">
-  <label class:selected={method === '4d6drop'} class:disabled={rawDice}>
-    <input type="radio" bind:group={method} value="4d6drop" disabled={rawDice} />
-    <strong>4d6 drop lowest</strong>
-    <span class="meta-text">Recommended</span>
-  </label>
-  <label class:selected={method === '3d6'} class:disabled={rawDice}>
-    <input type="radio" bind:group={method} value="3d6" disabled={rawDice} />
-    <strong>3d6 straight</strong>
-    <span class="meta-text">Classic / Hardcore</span>
-  </label>
+  <Tooltip text="Roll 4 six-sided dice, drop the lowest. Produces higher scores on average (12.24). The standard method for most campaigns." warning={rollCount >= 5 ? "You can always enter scores manually if you want to cheat 😏" : ""}>
+    <label class:selected={method === '4d6drop'} onclick={() => { method = '4d6drop'; rollScores(); }}>
+      <input type="radio" bind:group={method} value="4d6drop" />
+      <strong>4d6 drop lowest</strong>
+      <span class="meta-text">Recommended</span>
+    </label>
+  </Tooltip>
+  <Tooltip text="Roll 3 six-sided dice and take the total. Produces lower, more random scores (10.5 avg). For old-school or hardcore play." warning={rollCount >= 5 ? "You can always enter scores manually if you want to cheat 😏" : ""}>
+    <label class:selected={method === '3d6'} onclick={() => { method = '3d6'; rollScores(); }}>
+      <input type="radio" bind:group={method} value="3d6" />
+      <strong>3d6 straight</strong>
+      <span class="meta-text">Classic / Hardcore</span>
+    </label>
+  </Tooltip>
 </div>
 
 <div class="roll-action">
   {#if !rawDice}
-    <button class="btn-primary" onclick={rollScores}>
+    <button class="btn-primary btn-lg" onclick={rollScores}>
       🎲 Roll Ability Scores
     </button>
-    <button class="btn-secondary btn-sm" onclick={onManualMode}>
-      ✏️ Enter scores manually
-    </button>
-    <ImportArea {onImport} />
-  {:else if canReroll}
-    <button class="btn-secondary btn-sm" onclick={rollScores}>
-      ⟳ Reroll ({MAX_REROLLS - rerollsUsed} left)
-    </button>
-  {:else}
-    <p class="section-hint">No rerolls remaining — these are your scores</p>
   {/if}
+  <button class="btn-secondary btn-sm" onclick={onManualMode}>
+    ✏️ Enter scores manually
+  </button>
+  <ImportArea {onImport} />
 </div>
 
 {#if rawDice}
   {@const scores = calculatedScores()}
 
-  <!-- Assigned Abilities (main view) -->
-  <div class="section">
-    <h3>Your Abilities</h3>
-    {#if !allAssigned}
-      <p class="section-hint">
-        {#if selectedRollIndex !== null}
-          Click an ability to assign <strong>{scores[selectedRollIndex].total}</strong>.
-        {:else}
-          Click a score below to reassign it.
-        {/if}
-      </p>
-    {/if}
-
-    <div class="ability-slots">
-      {#each ABILITIES as ability}
-        <div
-          class="ability-slot"
-          class:filled={assignments[ability] !== null}
-          class:ready={assignments[ability] === null && selectedRollIndex !== null}
-        >
-          <span class="slot-label">{ability}</span>
-
-          {#if assignments[ability] !== null}
-            <span class="slot-value">
-              {scores[assignments[ability]].total}
-            </span>
-            <button class="slot-clear" onclick={() => unassign(ability)} title="Clear to reassign">×</button>
-          {:else}
-            <button
-              class="slot-assign"
-              onclick={() => assignToAbility(ability)}
-              disabled={selectedRollIndex === null}
-            >
-              ?
-            </button>
-          {/if}
-        </div>
-      {/each}
-    </div>
-  </div>
-
   <!-- Rolled dice display -->
   <div class="section">
-    <h3>Rolled Dice</h3>
-    <div class="dice-results">
+    <h3>Your Abilities</h3>
+    <p class="section-hint">Click two scores to swap their assignments.</p>
+    <div class="dice-results animate-in">
       {#each scores as score, i}
         {@const assignedTo = ABILITIES.find(a => assignments[a] === i)}
         <button
           class="dice-roll"
           class:selected={selectedRollIndex === i}
-          class:assigned={assignedTo !== undefined}
-          onclick={() => !assignedTo && selectRoll(i)}
-          disabled={assignedTo !== undefined}
+          onclick={() => selectRoll(i)}
         >
           {#if assignedTo}
-            <span class="assigned-label badge badge-primary">{assignedTo}</span>
+            <span class="assigned-label">{assignedTo}</span>
+            <span class="assigned-name">{ABILITY_NAMES[assignedTo]}</span>
           {/if}
           <span class="roll-total">{score.total}</span>
           <span class="roll-dice">

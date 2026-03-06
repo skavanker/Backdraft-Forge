@@ -1,16 +1,22 @@
 <script>
   /**
    * Reusable tooltip wrapper
-   * Usage: <Tooltip text="Hover text"><button>Hover me</button></Tooltip>
+   * Usage (simple):  <Tooltip text="Hover text"><button>Hover me</button></Tooltip>
+   * Usage (rich):    <Tooltip><button>Hover me</button>{#snippet tip()}Rich HTML here{/snippet}</Tooltip>
+   * Warning prop:    <Tooltip text="Info" warning="Not available: STR too low">...</Tooltip>
    */
-  let { text = '', position = 'bottom', children } = $props();
+  let { text = '', warning = '', tip, children } = $props();
 
   let wrapperEl = $state(null);
   let tooltipEl = $state(null);
   let visible = $state(false);
+  let mouseX = $state(0);
+  let mouseY = $state(0);
+
+  let hasContent = $derived(!!(text || tip || warning));
 
   function show() {
-    if (!text) return;
+    if (!hasContent) return;
     visible = true;
   }
 
@@ -18,18 +24,19 @@
     visible = false;
   }
 
+  function trackMouse(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }
+
   function getStyle() {
-    if (!wrapperEl || !visible) return '';
+    if (!visible) return '';
 
-    const target = wrapperEl.firstElementChild || wrapperEl;
-    const rect = target.getBoundingClientRect();
+    let x = mouseX - 175;
+    // Keep within viewport horizontally
+    x = Math.max(8, Math.min(x, window.innerWidth - 358));
 
-    // Center the tooltip: left position is center of button minus half tooltip width
-    // Use 350px as approximate tooltip width (300-400px range)
-    let x = rect.left + rect.width / 2 - 175;
-    let y = position === 'top' ? rect.top - 8 : rect.bottom + 8;
-
-    return `left: ${x}px; top: ${y}px;`;
+    return `left: ${x}px; top: ${mouseY - 12}px;`;
   }
 </script>
 
@@ -39,18 +46,29 @@
   bind:this={wrapperEl}
   onmouseenter={show}
   onmouseleave={hide}
+  onmousemove={trackMouse}
 >
   {@render children()}
 
-  {#if visible && text}
-    <span
-      class="tooltip tooltip-{position}"
+  {#if visible && hasContent}
+    <div
+      class="tooltip tooltip-top"
       style={getStyle()}
       role="tooltip"
       bind:this={tooltipEl}
     >
-      {text}
-    </span>
+      <div class="tooltip-arrow"></div>
+      <div class="tooltip-content">
+        {#if tip}
+          {@render tip()}
+        {:else}
+          {text}
+        {/if}
+        {#if warning}
+          <div class="tooltip-warning">{warning}</div>
+        {/if}
+      </div>
+    </div>
   {/if}
 </span>
 

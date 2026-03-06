@@ -16,62 +16,31 @@
     cursor: pointer;
     @include transition;
     &.selected { border-color: var(--gold); background: var(--gold-overlay); }
-    &:hover:not(.selected):not(.disabled) { background: var(--bg-input); }
-    &.disabled { opacity: 0.5; cursor: not-allowed; }
+    &:hover:not(.selected) { background: var(--bg-input); }
     input { position: absolute; opacity: 0; }
   }
 }
 .roll-action { text-align: center; @extend .flex-column; align-items: center; gap: $space-md; }
-.dice-results { display: flex; gap: $space-sm; justify-content: center; }
-.dice-roll {
-  @include selectable-card;
-  position: relative;
-  @extend .flex-column;
-  align-items: center;
-  padding: $space-md $space-sm;
-  flex: 1;
-  min-width: 0;
-  @include shadow;
-  &.selected { box-shadow: 0 0 0 3px var(--gold-overlay); }
-  &.assigned {
-    opacity: 0.6;
-    cursor: default;
-    &:hover { transform: none; border-color: var(--border-color); }
-  }
-  .assigned-label { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); }
-  .roll-total { font-family: $font-display; font-size: 1.75rem; font-weight: 700; line-height: 1; margin-top: $space-sm; }
-  .roll-dice { display: flex; gap: $space-sm; margin-top: $space-sm; justify-content: center; }
-  .die { display: inline-flex; img { width: 24px; height: 24px; display: block; } &.dropped img, &.unused img { opacity: 0.3; } }
-}
-.ability-slots {
+.dice-results {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: $space-md;
   @media (max-width: 500px) { grid-template-columns: repeat(2, 1fr); }
 }
-.ability-slot {
-  display: flex;
+.dice-roll {
+  @include selectable-card;
+  @extend .flex-column;
   align-items: center;
-  gap: $space-sm;
-  padding: $space-md;
-  background: var(--bg-subtle);
-  @include border-default;
-  @include rounded;
-  @include transition;
-  &.filled { background: var(--gold-overlay); border-color: var(--gold-overlay-border); }
-  &.ready { border-color: var(--gold); border-style: dashed; animation: pulse 1.5s ease-in-out infinite; }
-  .slot-label { font-weight: 700; width: 2.5rem; letter-spacing: 0.05em; }
-  .slot-value { font-family: $font-display; font-size: $text-lg; font-weight: 700; flex: 1; }
-  .slot-assign {
-    flex: 1;
-    padding: $space-sm;
-    background: var(--bg-input);
-    border: 1px dashed var(--border-strong);
-    box-shadow: none;
-    &:disabled { background: var(--bg-subtle); opacity: 0.5; cursor: default; }
-    &:not(:disabled) { border-style: solid; border-color: var(--gold); background: var(--gold-overlay); cursor: pointer; }
-  }
-  .slot-clear { @extend %slot-clear-base; }
+  padding: $space-md $space-md $space-sm;
+  @include shadow;
+  cursor: pointer;
+  &:hover { box-shadow: 0 0 12px rgba(201, 162, 39, 0.2); }
+  &.selected { box-shadow: 0 0 0 3px var(--gold); border-color: var(--gold); background: var(--gold-overlay); }
+  .assigned-label { font-family: $font-display; font-weight: 700; font-size: $text-lg; letter-spacing: 0.05em; }
+  .assigned-name { font-size: $text-sm; color: var(--color-text-secondary); }
+  .roll-total { font-family: $font-display; font-size: 2rem; font-weight: 700; line-height: 1; margin: $space-sm 0; }
+  .roll-dice { display: flex; gap: $space-sm; justify-content: center; }
+  .die { display: inline-flex; img { width: 32px; height: 32px; display: block; } &.dropped img, &.unused img { opacity: 0.3; } }
 }
 %slot-clear-base {
   padding: 0 $space-sm;
@@ -85,10 +54,6 @@
   opacity: 0.5;
   &:hover { opacity: 1; transform: none; box-shadow: none; }
 }
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(201, 162, 39, 0); }
-}
 .exceptional-prompt { text-align: center; }
 .continue-section { text-align: center; }
 
@@ -96,21 +61,23 @@
 // ════════════ MANUAL ENTRY ════════════
 .manual-assigned {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: $space-sm;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-md;
   margin: $space-md 0;
-  @media (max-width: 500px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 500px) { grid-template-columns: repeat(2, 1fr); }
 }
 .manual-slot {
   @extend .flex-column;
   align-items: center;
-  padding: $space-sm;
+  padding: $space-md;
   background: var(--bg-subtle);
   border: 2px solid var(--border-color);
   @include rounded;
   position: relative;
-  &.filled { background: var(--gold-overlay); border-color: var(--gold-overlay-border); }
+  &.filled { background: var(--gold-overlay); border-color: var(--gold-overlay-border); border-left: 3px solid var(--gold); }
   &.next { border-color: var(--gold); border-style: dashed; }
+  .slot-label { font-family: $font-display; font-weight: 700; letter-spacing: 0.05em; }
+  .slot-name { font-size: $text-sm; color: var(--color-text-secondary); }
   .slot-empty { font-size: $text-lg; }
   .slot-clear { @extend %slot-clear-base; }
 }

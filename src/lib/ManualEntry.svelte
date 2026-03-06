@@ -1,6 +1,11 @@
 <script>
   import { ABILITIES } from '../data/constants.js';
 
+  const ABILITY_NAMES = {
+    STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution',
+    INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma'
+  };
+
   let { onComplete, existingAbilities = null, existingRollData = null, onBack = null } = $props();
 
   let manualScores = $state({
@@ -72,6 +77,7 @@
     {#each ABILITIES as ability}
       <div class="manual-slot" class:filled={manualScores[ability] !== null} class:next={ability === nextManualAbility}>
         <span class="slot-label">{ability}</span>
+        <span class="slot-name">{ABILITY_NAMES[ability]}</span>
         {#if manualScores[ability] !== null}
           <span class="slot-value">
             {manualScores[ability]}

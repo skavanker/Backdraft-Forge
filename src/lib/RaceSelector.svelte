@@ -52,8 +52,24 @@
   <div class="selection-grid">
     {#each raceOptions as { key, race, qualified, failedReqs }}
       {@const hasWarnings = qualified && failedReqs.length > 0}
-      {@const tooltipText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
-      <Tooltip text={tooltipText} position="bottom">
+      {@const warningText = !qualified ? `Not available: ${failedReqs.join(', ')}` : hasWarnings ? `House Rules: ${failedReqs.join(', ')}` : ''}
+      <Tooltip warning={warningText} position="bottom">
+        {#snippet tip()}
+          <strong>{race.name}</strong> — {race.description}
+          {#if race.traits.length > 0}
+            <ul class="tooltip-traits">
+              {#each race.traits as trait}
+                <li>{trait}</li>
+              {/each}
+            </ul>
+          {/if}
+          <div class="tooltip-meta">
+            <strong>Available Classes:</strong>
+            {#each Object.entries(race.classes) as [cls, limit]}
+              <span class="tooltip-tag">{cls[0].toUpperCase() + cls.slice(1)}{#if limit !== null} — Max Level {limit}{/if}</span>
+            {/each}
+          </div>
+        {/snippet}
         <button
           class="selection-card"
           class:selected={selectedRaceKey === key}

@@ -50,7 +50,7 @@
   </div>
 
   <!-- Tool Grid -->
-  <section class="tool-grid">
+  <section class="tool-grid animate-in">
     <button class="tool-card available" onclick={onLaunchCharacterCreator}>
       <div class="tool-icon">⚔️</div>
       <h2>Character Creator</h2>

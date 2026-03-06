@@ -15,7 +15,7 @@
     <span class="count">{npcs.length} {npcs.length === 1 ? 'NPC' : 'NPCs'}</span>
   </header>
 
-  <div class="grid-lg">
+  <div class="grid-lg animate-in">
     {#each displayNPCs as npc (npc.id || npc.savedEntryId)}
       <NPCStatBlock
         {npc}

@@ -17,7 +17,7 @@
 .detail-field {
   @extend .flex-column;
   gap: $space-sm;
-  input { padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); width: 100%; &:focus { outline: none; border-color: var(--gold); } }
+  input { padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); width: 100%; &:focus { border-color: var(--gold); } }
   .deity-display { padding: $space-sm; color: var(--text-body); }
 }
 input[type="text"] {
@@ -27,7 +27,7 @@ input[type="text"] {
   background: var(--bg-input);
   color: var(--text-primary);
   font-family: $font-display;
-  &:focus { outline: none; border-color: var(--gold); }
+  &:focus { border-color: var(--gold); }
 }
 textarea {
   padding: $space-md;
@@ -45,7 +45,7 @@ textarea {
     min-height: 150px; // Slightly shorter on mobile to save screen space
   }
 
-  &:focus { outline: none; border-color: var(--gold); }
+  &:focus { border-color: var(--gold); }
   &::placeholder { color: var(--text-faint); }
 }
 .backstory-meta { display: flex; justify-content: space-between; align-items: center; }

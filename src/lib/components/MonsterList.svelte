@@ -18,7 +18,7 @@
     <p>No monsters found.</p>
   </div>
 {:else}
-  <div class="grid-lg">
+  <div class="grid-lg animate-in">
     {#each monsters as monster (monster.key)}
       <MonsterStatBlock
         {monster}

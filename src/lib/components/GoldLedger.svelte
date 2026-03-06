@@ -16,12 +16,9 @@
 
 <div class="gold-section">
   {#if !ledger.goldRolled}
-    <div class="intro-with-info">
+    <Tooltip text="Starting gold per AD&D 2E: Warriors 5d4×10 (50-200 gp), Wizards 1d4+1×10 (20-50 gp), Priests 3d6×10 (30-180 gp), Rogues 2d6×10 (20-120 gp)">
       <p class="section-hint">Roll for starting gold or enter a custom amount.</p>
-      <Tooltip text="Starting gold per AD&D 2E: Warriors 5d4×10 (50-200 gp), Wizards 1d4+1×10 (20-50 gp), Priests 3d6×10 (30-180 gp), Rogues 2d6×10 (20-120 gp)" position="bottom">
-        <span class="info-icon">ⓘ</span>
-      </Tooltip>
-    </div>
+    </Tooltip>
     <div class="gold-controls">
       <button class="btn-primary" onclick={rollGold}>
         Roll Starting Gold

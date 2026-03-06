@@ -257,6 +257,7 @@
   @include border-default;
   @include rounded;
   padding: $space-md;
+  border-left: 3px solid var(--gold);
 }
 
 .panel-subtle {
@@ -391,6 +392,22 @@
 
 .transition {
   transition: all 0.2s ease;
+}
+
+// ─── Animations ─────────────────────────────────────────────────────────────
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  @media (prefers-reduced-motion: no-preference) {
+    > * {
+      animation: fadeSlideIn 0.3s $ease-standard both;
+      @include stagger-children(0.05s);
+    }
+  }
 }
 
 // ─── Divider Utilities ──────────────────────────────────────────────────────
