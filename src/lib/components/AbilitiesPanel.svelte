@@ -14,7 +14,6 @@
   } = $props();
 </script>
 
-<style lang="scss">@import '../styles/shared'; @import '../styles/sheet';</style>
 
 <h3 class="section-title">Ability Scores</h3>
 <div class="abilities">

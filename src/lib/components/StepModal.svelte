@@ -95,7 +95,7 @@
       class="modal-container"
       class:modal-linear={mode === 'linear'}
       class:modal-menu={mode === 'menu'}
-      style="max-width: {maxWidth}"
+      style="--modal-max-width: {maxWidth}"
       role="dialog"
       aria-label={title}
     >
@@ -147,7 +147,3 @@
     </div>
   </div>
 {/if}
-
-<style lang="scss">
-  @import '../styles/modal';
-</style>

@@ -41,4 +41,3 @@
   </div>
 </div>
 
-<style lang="scss">@import '../styles/equipment';</style>

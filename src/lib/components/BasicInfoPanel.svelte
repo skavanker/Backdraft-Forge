@@ -21,7 +21,6 @@
   let isEncumbered = $derived(totalWeight > strMods.weightAllow);
 </script>
 
-<style lang="scss">@import '../styles/sheet';</style>
 
 <div class="top-section">
   <div class="portrait">

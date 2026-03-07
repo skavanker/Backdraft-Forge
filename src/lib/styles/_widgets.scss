@@ -1,113 +1,111 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ TOOLTIP ════════════
-// All tooltip styles are :global because snippet content renders in parent scope
-:global {
-  .tooltip-wrap { display: flex; }
-  .tooltip {
-    position: fixed;
-    z-index: 1000;
-    padding: $space-sm $space-md;
-    padding-left: calc($space-md + 3px);
-    background: var(--text-primary);
-    color: var(--parchment);
-    border-radius: $radius;
-    border-left: 3px solid var(--gold);
-    min-width: 300px;
-    max-width: 400px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(8px);
-    pointer-events: none;
-    white-space: normal;
-    animation: tooltipFadeIn 0.15s $ease-standard both;
+// Loaded globally via app.scss — no :global wrapper needed
+.tooltip-wrap { display: flex; }
+.tooltip {
+  position: fixed;
+  z-index: 1000;
+  padding: $space-sm $space-md;
+  padding-left: calc($space-md + 3px);
+  background: var(--text-primary);
+  color: var(--parchment);
+  border-radius: $radius;
+  border-left: 3px solid var(--gold);
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  white-space: normal;
+  animation: tooltipFadeIn 0.15s $ease-standard both;
 
-    &.tooltip-top {
-      transform: translateY(-100%);
+  &.tooltip-top {
+    transform: translateY(-100%);
 
-      .tooltip-arrow {
-        top: auto;
-        bottom: -6px;
-        border-width: 6px 6px 0;
-        border-color: var(--text-primary) transparent transparent;
-      }
+    .tooltip-arrow {
+      top: auto;
+      bottom: -6px;
+      border-width: 6px 6px 0;
+      border-color: var(--text-primary) transparent transparent;
     }
   }
+}
 
-  .tooltip-arrow {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-style: solid;
-  }
+.tooltip-arrow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
 
-  .tooltip-content {
+.tooltip-content {
+  display: block;
+  line-height: 1.5;
+
+  strong { color: var(--gold); }
+}
+
+.tooltip-warning {
+  display: block;
+  margin-top: $space-sm;
+  padding-top: $space-sm;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f87171;
+  font-weight: 600;
+  font-size: $text-sm;
+}
+
+.tooltip-meta {
+  display: block;
+  margin-top: $space-sm;
+  padding-top: $space-sm;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: $text-sm;
+
+  strong {
     display: block;
-    line-height: 1.5;
-
-    strong { color: var(--gold); }
+    margin-bottom: $space-xs;
   }
+}
 
-  .tooltip-warning {
-    display: block;
-    margin-top: $space-sm;
-    padding-top: $space-sm;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    color: #f87171;
-    font-weight: 600;
-    font-size: $text-sm;
-  }
+.tooltip-tag {
+  display: block;
+  padding: 1px 0;
+}
 
-  .tooltip-meta {
-    display: block;
-    margin-top: $space-sm;
-    padding-top: $space-sm;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    font-size: $text-sm;
+.tooltip-header-row {
+  display: flex;
+  gap: $space-sm;
+  align-items: flex-start;
+  justify-content: space-between;
+}
 
-    strong {
-      display: block;
-      margin-bottom: $space-xs;
-    }
-  }
+.tooltip-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(0) invert(0.6) sepia(1) saturate(3) hue-rotate(15deg);
+}
 
-  .tooltip-tag {
-    display: block;
-    padding: 1px 0;
-  }
+.tooltip-traits {
+  margin: $space-sm 0 0;
+  padding: 0 0 0 $space-md;
+  font-size: $text-sm;
+  li { margin-bottom: 2px; }
+}
 
-  .tooltip-header-row {
-    display: flex;
-    gap: $space-sm;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  .tooltip-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    object-fit: contain;
-    flex-shrink: 0;
-    filter: brightness(0) invert(0.6) sepia(1) saturate(3) hue-rotate(15deg);
-  }
-
-  .tooltip-traits {
-    margin: $space-sm 0 0;
-    padding: 0 0 0 $space-md;
-    font-size: $text-sm;
-    li { margin-bottom: 2px; }
-  }
-
-  @keyframes tooltipFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+@keyframes tooltipFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 // ════════════ SLOT COUNTER ════════════
 .slot-counter {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   align-items: center;
   gap: $space-sm;
   .slot-value { &.complete { color: var(--green); } }
@@ -115,7 +113,7 @@
 
 // ════════════ ABILITY BADGE ════════════
 .ability-badge {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   align-items: center;
   padding: $space-sm;
   background: rgba(201, 162, 39, 0.15);
@@ -136,7 +134,7 @@
 
 // ════════════ IMPORT AREA ════════════
 .import-area {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   align-items: center;
   gap: $space-sm;
   width: 100%;
@@ -238,10 +236,10 @@
 
 .collapsible-content {
   padding: $space-md;
-  animation: fadeIn 0.2s ease;
+  animation: collapsibleFadeIn 0.2s ease;
 }
 
-@keyframes fadeIn {
+@keyframes collapsibleFadeIn {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }

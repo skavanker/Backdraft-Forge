@@ -1,5 +1,6 @@
 <script>
   import { ABILITIES } from '../data/constants.js';
+  import { untrack } from 'svelte';
 
   const ABILITY_NAMES = {
     STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution',
@@ -48,16 +49,18 @@
   }
 
   // Initialize with existing data if provided
-  if (existingAbilities && !existingRollData) {
-    manualScores = {
-      STR: existingAbilities.STR,
-      DEX: existingAbilities.DEX,
-      CON: existingAbilities.CON,
-      INT: existingAbilities.INT,
-      WIS: existingAbilities.WIS,
-      CHA: existingAbilities.CHA
-    };
-  }
+  untrack(() => {
+    if (existingAbilities && !existingRollData) {
+      manualScores = {
+        STR: existingAbilities.STR,
+        DEX: existingAbilities.DEX,
+        CON: existingAbilities.CON,
+        INT: existingAbilities.INT,
+        WIS: existingAbilities.WIS,
+        CHA: existingAbilities.CHA
+      };
+    }
+  });
 </script>
 
 <div class="section">
@@ -120,5 +123,4 @@
 </div>
 
 
-<style lang="scss">@import './styles/roller';</style>
 

@@ -180,8 +180,3 @@
     {/if}
   </button>
 </form>
-
-<style lang="scss">
-  @import '../styles/treasure';
-  @import '../styles/widgets';
-</style>

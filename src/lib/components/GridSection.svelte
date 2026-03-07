@@ -24,4 +24,3 @@
   </div>
 </div>
 
-<style lang="scss">@import '../styles/widgets';</style>

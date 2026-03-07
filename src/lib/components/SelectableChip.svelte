@@ -65,4 +65,3 @@
   {/if}
 </button>
 
-<style lang="scss">@import '../styles/widgets';</style>

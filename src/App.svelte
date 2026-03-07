@@ -594,5 +594,5 @@
 {/if}
 
 <style lang="scss">
-  @import './lib/styles/app';
+  @use './lib/styles/app';
 </style>

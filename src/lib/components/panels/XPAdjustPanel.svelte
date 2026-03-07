@@ -1,5 +1,6 @@
 <script>
   import { getXPForNextLevel, getXPNeededForNextLevel, canLevelUp } from '../../utils/xpUtils.js';
+  import { untrack } from 'svelte';
 
   let {
     character,
@@ -8,7 +9,7 @@
   } = $props();
 
   // Working copy of XP
-  let xpWorking = $state(character.xp || 0);
+  let xpWorking = $state(untrack(() => character.xp || 0));
   let customAmount = $state(100);
 
   // Derived values

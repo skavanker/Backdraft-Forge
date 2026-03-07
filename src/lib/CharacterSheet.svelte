@@ -17,11 +17,12 @@
   import { calcTotalHP, parseDieMax } from './utils/hpUtils.js';
   import { getClassGroup, getClassKey, isWarrior, getCharacterLevel } from './utils/characterAccessors.js';
   import { getXPForNextLevel, isAtLevelLimit, canLevelUp } from './utils/xpUtils.js';
+  import { untrack } from 'svelte';
 
   let { character, onCharacterUpdate, undoMessage = '', showUndoMessage = false } = $props();
 
   // Calculate ability modifiers
-  const abilityMods = useAbilityModifiers(character);
+  const abilityMods = useAbilityModifiers(untrack(() => character));
   let strMods = $derived(abilityMods.str);
   let dexMods = $derived(abilityMods.dex);
   let conMods = $derived(abilityMods.con);
@@ -87,7 +88,7 @@
   })());
 
   // Notes state
-  let notesValue = $state(character.notes || '');
+  let notesValue = $state(untrack(() => character.notes || ''));
   // Sync notesValue when character changes (e.g. undo, import)
   $effect(() => { notesValue = character.notes || ''; });
 
@@ -177,7 +178,7 @@
     }}
   />
 
-  <hr class="divider">
+  <hr class="sheet-divider">
 
   <BasicInfoPanel
     {character}
@@ -192,7 +193,7 @@
     onUpdateHP={(val) => onCharacterUpdate?.({ currentHP: val })}
   />
 
-  <hr class="divider">
+  <hr class="sheet-divider">
 
   <AbilitiesPanel
     abilities={character.adjustedAbilities}
@@ -205,7 +206,7 @@
     {chaMods}
   />
 
-  <hr class="divider">
+  <hr class="sheet-divider">
 
   <CombatStatsPanel
     {savingThrows}
@@ -225,7 +226,7 @@
     {wisMods}
   />
 
-  <hr class="divider">
+  <hr class="sheet-divider">
 
   <EquipmentPanel
     equipment={character.equipment}
@@ -240,7 +241,7 @@
     onUpdateGold={(val) => onCharacterUpdate?.({ equipment: { ...character.equipment, remaining: val } })}
   />
 
-  <hr class="divider">
+  <hr class="sheet-divider">
 
   <!-- Spells -->
   {#if character.spells && character.spells.type !== 'none'}
@@ -280,7 +281,7 @@
           {/each}
         {/if}
         {#if character.spells.spellbook?.length}
-          <div class="data-row" style="margin-top: 0.5rem"><span><strong>Wizard Spells</strong></span></div>
+          <div class="data-row"><span><strong>Wizard Spells</strong></span></div>
           {@const grouped = groupByLevel(character.spells.spellbook)}
           {#each Object.entries(grouped) as [level, spells]}
             <div class="spell-level-group">
@@ -293,7 +294,7 @@
         {/if}
       {/if}
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Non-Weapon Proficiencies -->
@@ -304,7 +305,7 @@
         <div class="data-row"><span>{prof.name}</span> <span class="val">{prof.ability}</span></div>
       {/each}
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Thief Skills -->
@@ -319,7 +320,7 @@
         {/if}
       {/each}
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Languages -->
@@ -328,7 +329,7 @@
       <h3>Languages</h3>
       <div class="data-row"><span>{character.proficiencies.languages.map(l => l.name).join(', ')}</span></div>
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Racial Abilities -->
@@ -339,7 +340,7 @@
         <div class="data-row">◆ {trait}</div>
       {/each}
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Class Features -->
@@ -350,7 +351,7 @@
         <div class="data-row">◆ {#if feature.includes('Species enemy') && character.speciesEnemy}Species enemy: {formatSpeciesEnemy(character.speciesEnemy)} (+4 to hit){:else}{feature}{/if}</div>
       {/each}
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Turn Undead -->
@@ -367,7 +368,7 @@
       </div>
       <div class="turn-legend">T = Auto Turn · D* = Auto Destroy · Number = d20 roll needed</div>
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Backstory -->
@@ -376,7 +377,7 @@
       <h3>Backstory</h3>
       <p class="backstory-text">{character.backstory}</p>
     </div>
-    <hr class="divider">
+    <hr class="sheet-divider">
   {/if}
 
   <!-- Notes -->
@@ -391,7 +392,7 @@
       aria-labelledby="notes-heading"
     ></textarea>
   </div>
-  <hr class="divider">
+  <hr class="sheet-divider">
 
   <!-- Footer -->
   <div class="sheet-footer">
@@ -428,9 +429,3 @@
     onCharacterUpdate?.(updates);
   }}
 />
-
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/sheet';
-</style>

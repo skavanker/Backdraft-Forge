@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ BACKSTORY & NAME ENTRY ════════════
 .backstory-editor { max-width: 600px; margin: 0 auto; }
@@ -15,7 +15,7 @@
   @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
 }
 .detail-field {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-sm;
   input { padding: $space-sm; @include border-default; @include rounded; background: var(--bg-input); color: var(--text-primary); width: 100%; &:focus { border-color: var(--gold); } }
   .deity-display { padding: $space-sm; color: var(--text-body); }

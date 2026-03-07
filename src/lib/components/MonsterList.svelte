@@ -29,7 +29,3 @@
     {/each}
   </div>
 {/if}
-
-<style lang="scss">
-  @import '../styles/monster-bestiary';
-</style>

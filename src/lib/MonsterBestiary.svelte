@@ -103,8 +103,3 @@
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/monster-bestiary';
-</style>

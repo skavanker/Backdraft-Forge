@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ SPELL SELECTOR ════════════
 .no-spells { text-align: center; p { margin-bottom: $space-lg; } }
@@ -18,7 +18,7 @@
 
 // ════════════ MANAGE MODE ════════════
 .manage-section {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-md;
   h3 { border-bottom: 2px solid var(--gold); padding-bottom: $space-sm; }
 }

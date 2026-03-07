@@ -3,6 +3,8 @@
    * EditableInput - Inline editable input component
    * Click to edit, Enter/blur to save, Escape to cancel
    */
+  import { untrack } from 'svelte';
+
   let {
     value = 0,
     type = 'number',
@@ -23,8 +25,8 @@
   } = $props();
 
   let editing = $state(false);
-  let inputValue = $state(String(value));
-  let inputElement;
+  let inputValue = $state(untrack(() => String(value)));
+  let inputElement = $state(null);
 
   // Sync inputValue when external value changes
   $effect(() => {
@@ -106,4 +108,3 @@
   {/if}
 </div>
 
-<style lang="scss">@import '../styles/sheet';</style>

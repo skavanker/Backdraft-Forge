@@ -1,6 +1,7 @@
 <script>
   import { calcTotalHP } from '../../utils/hpUtils.js';
   import { useAbilityModifiers } from '../../utils/stateUtils.svelte.js';
+  import { untrack } from 'svelte';
 
   let {
     character,
@@ -9,12 +10,12 @@
   } = $props();
 
   // Calculate actual max HP from hpHistory (same as CharacterSheet)
-  const abilityMods = useAbilityModifiers(character);
+  const abilityMods = useAbilityModifiers(untrack(() => character));
   let conMods = $derived(abilityMods.con);
   let maxHP = $derived(calcTotalHP(character.hpHistory, character.cls.hitDie, conMods.hpAdj));
 
   // Working copy of HP
-  let hpWorking = $state(character.currentHP ?? maxHP);
+  let hpWorking = $state(untrack(() => character.currentHP ?? maxHP));
   let customAmount = $state(5);
 
   // Derived values for display
@@ -66,7 +67,7 @@
       {/if}
     </div>
     <div class="hp-bar" aria-hidden="true">
-      <div class="hp-bar-fill {hpColor}" style="width: {hpPercentage}%"></div>
+      <div class="hp-bar-fill {hpColor}" style="--hp-width: {hpPercentage}%"></div>
     </div>
     <span class="sr-only">{hpLabel}</span>
   </div>

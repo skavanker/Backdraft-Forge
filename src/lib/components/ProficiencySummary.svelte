@@ -43,8 +43,3 @@
     </div>
   </div>
 {/if}
-
-<style lang="scss">
-  @import '../styles/proficiency';
-  @import '../styles/shared';
-</style>

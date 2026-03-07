@@ -35,4 +35,3 @@
   </div>
 {/if}
 
-<style lang="scss">@import '../styles/widgets';</style>

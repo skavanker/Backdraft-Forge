@@ -437,10 +437,3 @@
     </button>
   {/if}
 </div>
-
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/equipment';
-</style>
-

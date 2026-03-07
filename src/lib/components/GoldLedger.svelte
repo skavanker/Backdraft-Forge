@@ -72,7 +72,3 @@
     {/if}
   {/if}
 </div>
-
-<style lang="scss">
-  @import '../styles/equipment';
-</style>

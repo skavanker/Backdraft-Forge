@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ CHARACTER SHEET ════════════
 .sheet {
@@ -107,14 +107,12 @@
 
 .subtitle { text-align: center; color: var(--text-muted); }
 .label { color: var(--text-muted); }
-.divider {
+.sheet-divider {
   display: block;
   border: none;
   height: 2px;
   background: linear-gradient(to right, transparent, var(--gold), transparent);
   margin: $space-lg 0;
-  gap: 0;
-  &::before, &::after { content: none; }
 }
 
 // ════════════ XP & LEVELING ════════════
@@ -130,7 +128,7 @@
   margin-left: auto;
   margin-right: auto;
 }
-.xp-fill { height: 100%; background: linear-gradient(to right, var(--gold-dark), var(--gold)); @include rounded; @include transition; }
+.xp-fill { height: 100%; width: var(--xp-progress); background: linear-gradient(to right, var(--gold-dark), var(--gold)); @include rounded; @include transition; }
 // Badge styles moved to _utilities.scss
 
 // ════════════ LAYOUT ════════════
@@ -192,7 +190,13 @@
     gap: $space-md;
   }
 }
-.ability-details { @extend .two-col; margin-top: $space-md; }
+.ability-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-lg;
+  margin-top: $space-md;
+  @include mobile { grid-template-columns: 1fr; gap: $space-md; }
+}
 .detail-col { display: flex; flex-direction: column; gap: $space-md; }
 
 // ════════════ STAT BLOCKS ════════════
@@ -200,7 +204,7 @@
   h3 { @include section-header; margin-bottom: $space-sm; }
 }
 .detail-group .detail-header { @include section-header; }
-h4 { @include section-header; }
+.sheet h4 { @include section-header; }
 .backstory-text { white-space: pre-wrap; line-height: 1.6; }
 
 // ════════════ MENU & NAVIGATION ════════════
@@ -282,9 +286,10 @@ h4 { @include section-header; }
 }
 
 // ════════════ HP COLOR INDICATORS ════════════
-:global(.hp-green) { color: var(--green) !important; font-weight: 600; }
-:global(.hp-yellow) { color: var(--gold-dark) !important; font-weight: 600; }
-:global(.hp-red) { color: var(--red) !important; font-weight: 600; }
+// Loaded globally via app.scss — no :global wrapper needed
+.hp-green { color: var(--green) !important; font-weight: 600; }
+.hp-yellow { color: var(--gold-dark) !important; font-weight: 600; }
+.hp-red { color: var(--red) !important; font-weight: 600; }
 
 // ════════════ TURN UNDEAD ════════════
 .turn-undead-grid { display: flex; flex-wrap: wrap; gap: $space-sm; margin-top: $space-sm; }
@@ -309,6 +314,10 @@ h4 { @include section-header; }
 
 // ════════════ SPELL LISTS ════════════
 .spell-level-group { margin-bottom: $space-sm; }
+// Section divider row after spell groups (e.g. "Wizard Spells" header in dual-class)
+.spell-level-group + .data-row { margin-top: $space-sm; }
+// Spell/ability block following combat block
+.two-col + .two-col { margin-top: $space-md; }
 .spell-level-header {
   font-weight: 600;
   color: var(--text-muted);
@@ -369,6 +378,6 @@ h4 { @include section-header; }
     &::before { content: none; }
   }
   .portrait img { border-color: #000; }
-  .divider { background: linear-gradient(to right, transparent, #000, transparent); }
+  .sheet-divider { background: linear-gradient(to right, transparent, #000, transparent); }
   .notes-textarea { border: 1px solid #ccc; }
 }

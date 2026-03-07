@@ -39,7 +39,7 @@
     {/each}
   </div>
 
-  <p class="meta-text" style="margin-top: 1rem;">
+  <p class="meta-text">
     Go to the Spells tab after leveling up to pick your new spells.
   </p>
 

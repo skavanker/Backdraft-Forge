@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════ MONSTER BESTIARY ════════
 .monster-bestiary {
@@ -30,7 +30,7 @@
 
 // ════════ BROWSER FORM ════════
 .monster-browser-form {
-  @extend .panel;
+  @include panel;
 
   .form-section {
     display: flex;

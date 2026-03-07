@@ -1,67 +1,30 @@
 // App.svelte component styles
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 main {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: $space-lg;
 }
 
 .saved-characters {
-  margin-bottom: 1.5rem;
+  margin-bottom: $space-lg;
 
   h3 {
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.75rem; // 0.75rem has no token — between $space-sm and $space-md
   }
 }
 
-.save-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.save-entry {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.save-load {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.6rem 1rem;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  text-align: left;
-
-  &:hover {
-    border-color: var(--gold);
-  }
-
-  .save-name {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .save-meta {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-}
+// .save-list, .save-entry, .save-load → canonical in _splash.scss (.saved-data context)
+// .wip-prompt → canonical in _splash.scss
 
 .save-delete {
   background: transparent;
   border: none;
   color: var(--text-faint);
-  font-size: 1.25rem;
+  font-size: $text-lg;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: $space-xs $space-sm;
   line-height: 1;
   opacity: 0.4;
   transition: opacity 0.2s;
@@ -94,47 +57,32 @@ main {
 .tagline {
   font-style: italic;
   color: var(--text-muted);
-  margin-top: -0.5rem;
+  margin-top: -$space-sm;
 }
 
-.btn-sm {
-  font-size: 0.8rem;
-  padding: 0.3rem 0.6rem;
-}
-
-.btn-danger {
-  background: var(--red);
-  color: white;
-  border: 1px solid var(--red);
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    filter: brightness(0.9);
-  }
-}
+// .btn-sm, .btn-danger → canonical in app.scss globals
 
 .step-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  gap: $space-xs;
   justify-content: center;
-  padding: 1rem;
+  padding: $space-md;
   background: var(--bg-subtle);
-  border-radius: 4px;
+  border-radius: $radius;
   border: 1px solid var(--border-color);
 }
 
 .step-item {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
+  gap: 0.4rem; // 0.4rem has no token — between $space-xs and $space-sm
+  padding: 0.35rem 0.75rem; // sub-token values — intentional compact sizing
   background: transparent;
   border: none;
   box-shadow: none;
   color: var(--text-faint);
-  font-size: 0.8rem;
+  font-size: 0.8rem; // sub-token — smaller than $text-sm for compact nav
   cursor: default;
   transition: all 0.2s;
 
@@ -151,7 +99,7 @@ main {
     height: 1.4em;
     border-radius: 50%;
     background: var(--bg-panel);
-    font-size: 0.75rem;
+    font-size: $text-xs;
     font-weight: 600;
   }
 
@@ -204,7 +152,7 @@ main {
 
     .step-number {
       background: var(--bg-subtle);
-      font-size: 0.65rem;
+      font-size: 0.65rem; // sub-token — intentional very small lock icon
     }
   }
 }
@@ -213,30 +161,16 @@ main {
   min-height: 400px;
 }
 
-.wip-prompt {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.wip-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
 :global(.save-toast) {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: $space-lg;
+  right: $space-lg;
   background: var(--bg-panel);
   border: 1px solid var(--gold);
   color: var(--text-primary);
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
+  padding: $space-sm $space-md;
+  border-radius: $radius;
+  font-size: $text-sm;
   z-index: 1000;
   animation: fade-in 0.15s ease-out;
 }

@@ -1,3 +1,28 @@
+// ── Sass modules ─────────────────────────────────────────────────────────────
+@use './styles/mixins.scss' as *;
+@use './styles/utilities';
+@use './styles/print';
+
+// ── Shared component patterns (global — used by 2+ components) ────────────────
+@use './lib/styles/shared';
+@use './lib/styles/sheet';
+@use './lib/styles/treasure';
+@use './lib/styles/monster-bestiary';
+@use './lib/styles/widgets';
+@use './lib/styles/review';
+@use './lib/styles/roller';
+@use './lib/styles/proficiency';
+@use './lib/styles/name-generator';
+@use './lib/styles/selectors';
+@use './lib/styles/equipment';
+@use './lib/styles/spells';
+@use './lib/styles/npc';
+@use './lib/styles/npc-components';
+@use './lib/styles/levelup';
+@use './lib/styles/manage';
+@use './lib/styles/modal';
+@use './lib/styles/backstory';
+
 // =============================================================================
 // DESIGN TOKENS - CSS Custom Properties for theming
 // =============================================================================
@@ -113,8 +138,6 @@
     box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
   }
 }
-
-@import './styles/mixins.scss';
 
 // =============================================================================
 // BASE STYLES
@@ -541,5 +564,4 @@ hr {
 // =============================================================================
 // PRINT
 // =============================================================================
-
-@import './styles/print';
+// (print styles loaded via @use at top of file)

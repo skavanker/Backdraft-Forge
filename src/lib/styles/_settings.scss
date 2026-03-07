@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ SETTINGS PANEL ════════════
 
@@ -209,11 +209,6 @@
   padding: $space-sm $space-md;
   font-size: $text-sm;
   color: var(--text-muted);
-}
-
-// Badge styles moved to _utilities.scss
-.house-rules-badge {
-  letter-spacing: 0.03em;
 }
 
 // Version footer

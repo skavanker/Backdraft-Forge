@@ -1,4 +1,5 @@
 <script>
+  import { untrack } from 'svelte';
   import StepModal from './StepModal.svelte';
   import XPAdjustPanel from './panels/XPAdjustPanel.svelte';
   import GoldAdjustPanel from './panels/GoldAdjustPanel.svelte';
@@ -71,7 +72,7 @@
       props: {
         get character() { return character; },
       },
-      condition: character.spellSlots && character.spellSlots.length > 0,
+      condition: untrack(() => character.spellSlots && character.spellSlots.length > 0),
     },
     {
       id: 'rest',
@@ -108,8 +109,3 @@
   maxWidth="640px"
   showProgress={true}
 />
-
-<style lang="scss">
-  @import '../styles/modal';
-  @import '../styles/manage';
-</style>

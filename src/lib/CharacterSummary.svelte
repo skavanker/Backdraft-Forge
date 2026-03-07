@@ -47,5 +47,4 @@
 {/if}
 
 
-<style lang="scss">@import './styles/review';</style>
 

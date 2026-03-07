@@ -1,4 +1,6 @@
 <script>
+  import { untrack } from 'svelte';
+
   let {
     character,
     onClose,
@@ -6,9 +8,9 @@
   } = $props();
 
   // Initialize from existing equipment object or defaults
-  let gpWorking = $state(character.equipment?.gp ?? 0);
-  let spWorking = $state(character.equipment?.sp ?? 0);
-  let cpWorking = $state(character.equipment?.cp ?? 0);
+  let gpWorking = $state(untrack(() => character.equipment?.gp ?? 0));
+  let spWorking = $state(untrack(() => character.equipment?.sp ?? 0));
+  let cpWorking = $state(untrack(() => character.equipment?.cp ?? 0));
 
   // Custom adjustment state
   let customAmount = $state(10);

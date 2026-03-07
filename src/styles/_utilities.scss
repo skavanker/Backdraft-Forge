@@ -1,3 +1,5 @@
+@use './mixins.scss' as *;
+
 // ============================================================================
 // UTILITY CLASSES
 // Reusable CSS utilities to reduce duplication across components
@@ -122,6 +124,14 @@
   text-align: center;
 }
 
+.align-center {
+  align-items: center;
+}
+
+.text-warning {
+  color: var(--gold-dark);
+}
+
 .text-italic {
   font-style: italic;
 }
@@ -132,7 +142,7 @@
 }
 
 .font-display {
-  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-family: $font-display;
 }
 
 // ─── Common Patterns ────────────────────────────────────────────────────────

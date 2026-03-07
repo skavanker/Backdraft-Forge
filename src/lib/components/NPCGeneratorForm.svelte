@@ -173,8 +173,3 @@
     Generate {options.count > 1 ? `${options.count} NPCs` : 'NPC'}
   </button>
 </form>
-
-<style lang="scss">
-  @import '../styles/npc';
-  @import '../styles/widgets';
-</style>

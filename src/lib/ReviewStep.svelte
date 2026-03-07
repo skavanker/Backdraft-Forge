@@ -9,31 +9,32 @@
   import { getBaseThiefSkills, getThiefSkillBreakdown, SKILL_LABELS, THIEF_SKILL_CAP, THIEF_INITIAL_POINTS } from '../data/thiefSkills.js';
   import { rollExceptionalStrength } from './dice.js';
   import { getClassKey, getClassGroup, isWarrior } from './utils/characterAccessors.js';
+  import { untrack } from 'svelte';
 
   let { character, onContinue } = $props();
 
-  // Thief skills setup
-  const isThiefClass = getClassKey(character) === 'thief' || getClassKey(character) === 'bard';
-  let thiefBreakdown = isThiefClass
+  // Thief skills setup — untrack() for all one-time prop reads at init
+  const isThiefClass = untrack(() => getClassKey(character) === 'thief' || getClassKey(character) === 'bard');
+  let thiefBreakdown = untrack(() => isThiefClass
     ? getThiefSkillBreakdown(character.raceKey, character.adjustedAbilities.DEX, getClassKey(character), 1)
-    : { base: {}, racial: {}, dex: {}, total: {} };
+    : { base: {}, racial: {}, dex: {}, total: {} });
   let thiefBase = thiefBreakdown.total;
 
   // Filter available skills - Read Languages not available until level 4
   const availableSkills = Object.keys(thiefBase).filter(skill => skill !== 'readLanguages');
 
-  const existingSkills = character.thiefSkills || {};
+  const existingSkills = untrack(() => character.thiefSkills || {});
   const existingTotal = Object.values(existingSkills).reduce((sum, val) => sum + val, 0);
 
   let thiefPointsRemaining = $state(THIEF_INITIAL_POINTS - existingTotal);
   let thiefDistributed = $state({ ...existingSkills });
 
   // Exceptional strength for warriors with 18 STR
-  const isWarriorClass = isWarrior(character);
-  const has18Str = character.abilities.STR === 18;
+  const isWarriorClass = untrack(() => isWarrior(character));
+  const has18Str = untrack(() => character.abilities.STR === 18);
   const needsExceptionalStr = isWarriorClass && has18Str;
-  let exceptionalStrRolled = $state(character.abilities.exceptionalStr || null);
-  let showExceptionalStrRoll = $state(needsExceptionalStr && !exceptionalStrRolled);
+  let exceptionalStrRolled = $state(untrack(() => character.abilities.exceptionalStr || null));
+  let showExceptionalStrRoll = $state(untrack(() => needsExceptionalStr && !exceptionalStrRolled));
 
   function rollExceptionalStr() {
     exceptionalStrRolled = rollExceptionalStrength();
@@ -125,7 +126,7 @@
   });
 </script>
 
-<div class="flex-column gap-lg" style="align-items:center">
+<div class="flex-column gap-lg align-center">
   <div class="review-header">
     <span class="review-race">{character.race.name}</span>
     <span>
@@ -292,7 +293,7 @@
       <p class="alert alert-info">
         You have <strong>{thiefPointsRemaining}</strong> of {THIEF_INITIAL_POINTS} discretionary points to distribute.
         {#if thiefPointsRemaining > 0}
-          <span style="color: var(--color-warning);">You must distribute all points before continuing.</span>
+          <span class="text-warning">You must distribute all points before continuing.</span>
         {/if}
       </p>
 
@@ -333,7 +334,7 @@
           </button>
         {/each}
       </div>
-      <p class="meta-text" style="text-align: center;">
+      <p class="meta-text text-center">
         Left-click to add 5 points • Right-click to remove 5 points
       </p>
     </div>
@@ -349,4 +350,3 @@
 </div>
 
 
-<style lang="scss">@import './styles/shared'; @import './styles/review';</style>

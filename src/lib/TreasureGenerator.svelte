@@ -164,8 +164,6 @@
 </div>
 
 <style lang="scss">
-  @import './styles/shared';
-  @import './styles/treasure';
 
   .section-header .header-info {
     display: flex;
@@ -173,7 +171,7 @@
     gap: $space-md;
 
     .total-value {
-      @extend .badge-primary;
+      background: var(--gold-dark); color: white;
     }
   }
 

@@ -94,7 +94,7 @@
 
     <div class="hp-roll-area">
       {#if !hpRolled && !diceAnimating}
-        <button class="btn-primary" style="display: flex; align-items: center; gap: 0.5rem; border: 2px solid var(--gold);" onclick={rollHP}>
+        <button class="btn-primary btn-roll" onclick={rollHP}>
           <img class="roll-die-icon" src="/dice/{dieSvgType}-{Math.floor(Math.random() * dieSvgMax) + 1}.svg" alt="die" />
           Roll {hitDie}
         </button>

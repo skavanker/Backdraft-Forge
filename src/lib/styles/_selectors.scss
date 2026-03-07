@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ CLASS ICONS ════════════
 .class-card {
@@ -68,8 +68,8 @@
   .ability-base { width: 1.5rem; text-align: center; }
   .ability-arrow { color: var(--text-faint); }
   .ability-adjusted {
-    &.positive { @extend .text-positive; }
-    &.negative { @extend .text-negative; }
+    &.positive { color: var(--green); }
+    &.negative { color: var(--red); }
   }
 }
 .class-list { display: flex; flex-wrap: wrap; gap: $space-sm; }

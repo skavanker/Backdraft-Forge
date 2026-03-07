@@ -72,4 +72,3 @@
   {/if}
 </span>
 
-<style lang="scss">@import './styles/widgets';</style>

@@ -108,7 +108,3 @@
     {/if}
   </div>
 </div>
-
-<style lang="scss">
-  @import '../styles/monster-bestiary';
-</style>

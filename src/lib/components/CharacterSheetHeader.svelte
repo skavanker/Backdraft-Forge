@@ -41,7 +41,6 @@
   }
 </script>
 
-<style lang="scss">@import '../styles/sheet';</style>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -112,7 +111,7 @@
   </div>
   {#if xpForNext}
     <div class="xp-bar">
-      <div class="xp-fill" style="width: {xpProgress}%"></div>
+      <div class="xp-fill" style="--xp-progress: {xpProgress}%"></div>
     </div>
   {/if}
 </div>

@@ -132,7 +132,7 @@
 
 {:else if isWizard}
   <div class="flex-column gap-lg">
-    <div class="flex-column gap-md" style="align-items:center">
+    <div class="flex-column gap-md align-center">
       <p class="section-hint">
         Your spellbook starts with <strong>Read Magic</strong> plus
         <strong>{startingCount - 1}</strong> additional spells based on your Intelligence.
@@ -200,7 +200,7 @@
 
 {:else if isDivine}
   <div class="flex-column gap-lg">
-    <div class="flex-column gap-md" style="align-items:center">
+    <div class="flex-column gap-md align-center">
       <p class="section-hint">
         As a {classKey === 'cleric' ? 'Cleric' : 'Druid'}, you have access to
         {deityOverride ? deityOverride.name + "'s" : 'all 1st-level ' + (classKey === 'cleric' ? 'clerical' : 'druidic')} spells.
@@ -248,8 +248,3 @@
     </button>
   </div>
 {/if}
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/spells';
-</style>

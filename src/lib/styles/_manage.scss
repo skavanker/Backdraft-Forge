@@ -1,10 +1,10 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ CHARACTER MANAGEMENT PANEL STYLES ════════════
 
 // Panel wrapper
 .manage-panel {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   align-items: stretch;
   gap: $space-md;
   width: 100%;
@@ -20,7 +20,7 @@
 
 // Quick action buttons
 .quick-buttons {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-md;
 }
 
@@ -86,7 +86,7 @@
 }
 
 .currency-breakdown {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-sm;
 
   .currency-item {
@@ -112,7 +112,7 @@
 }
 
 .convert-section {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   align-items: center;
   gap: $space-sm;
   padding: $space-md 0;
@@ -176,6 +176,7 @@
 
   .hp-bar-fill {
     height: 100%;
+    width: var(--hp-width);
     @include transition;
 
     &.healthy {
@@ -194,7 +195,7 @@
 
 // Spell Slot Panel
 .spell-slot-list {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-sm;
 }
 
@@ -250,12 +251,12 @@
 
 // Rest Panel
 .rest-options {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-md;
 }
 
 .rest-option {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-md;
   padding: $space-lg;
 
@@ -267,7 +268,7 @@
   }
 
   .rest-description {
-    @extend .flex-column;
+    display: flex; flex-direction: column;
     gap: $space-sm;
 
     p {

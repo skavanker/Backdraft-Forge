@@ -192,7 +192,3 @@
     </div>
   </div>
 </div>
-
-<style lang="scss">
-  @import '../styles/name-generator';
-</style>

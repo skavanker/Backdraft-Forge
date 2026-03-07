@@ -38,7 +38,7 @@
 
   <!-- Type Filter (Chips) -->
   <div class="form-section">
-    <label>Filter by Type</label>
+    <p class="form-label">Filter by Type</p>
     <div class="type-filter-chips">
       {#each monsterTypes as type}
         <button
@@ -52,7 +52,3 @@
     </div>
   </div>
 </div>
-
-<style lang="scss">
-  @import '../styles/monster-bestiary';
-</style>

@@ -82,7 +82,7 @@
       </button>
     {/each}
   </div>
-  <p class="meta-text" style="text-align: center;">
+  <p class="meta-text text-center">
     Left-click to add 5 points • Right-click to remove 5 points
   </p>
 

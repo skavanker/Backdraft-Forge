@@ -9,8 +9,8 @@
   const dexMods = $derived(getDexterityModifiers(npc.adjustedAbilities.DEX));
 
   const baseAC = 10;
-  const armorAC = npc.equipment?.armor?.ac || baseAC;
-  const shieldBonus = npc.equipment?.shield?.acBonus || 0;
+  const armorAC = $derived(npc.equipment?.armor?.ac || baseAC);
+  const shieldBonus = $derived(npc.equipment?.shield?.acBonus || 0);
   const ac = $derived(armorAC - shieldBonus - dexMods.acAdj);
 
   const weaponList = $derived(
@@ -113,4 +113,3 @@
   {/if}
 </div>
 
-<style lang="scss">@import '../styles/dm-tools';</style>

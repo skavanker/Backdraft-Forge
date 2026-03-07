@@ -117,5 +117,5 @@
 </div>
 
 <style lang="scss">
-  @import './styles/splash';
+  @use './styles/splash';
 </style>

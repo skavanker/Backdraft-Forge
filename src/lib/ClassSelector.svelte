@@ -8,14 +8,15 @@
   import SelectionPreview from './SelectionPreview.svelte';
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { settings } from './settings.svelte.js';
+  import { untrack } from 'svelte';
 
   let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, existingSpeciesEnemy = null, onComplete } = $props();
 
-  let selectedClassKey = $state(existingClassKey);
-  let selectedSchool = $state(existingWizardSchool);
-  let selectedDeityKey = $state(existingDeityKey ?? null); // null = skipped deity (default), string = deity key
-  let selectedKit = $state(existingKitKey ?? null); // null = skipped kit (default), string = kit key
-  let selectedSpeciesEnemy = $state(existingSpeciesEnemy ?? null);
+  let selectedClassKey = $state(untrack(() => existingClassKey));
+  let selectedSchool = $state(untrack(() => existingWizardSchool));
+  let selectedDeityKey = $state(untrack(() => existingDeityKey ?? null)); // null = skipped deity (default), string = deity key
+  let selectedKit = $state(untrack(() => existingKitKey ?? null)); // null = skipped kit (default), string = kit key
+  let selectedSpeciesEnemy = $state(untrack(() => existingSpeciesEnemy ?? null));
 
   let classOptions = $derived(getAvailableClasses(abilities, race, raceKey, { lenient: settings.lenientMode }));
   let qualifiedCount = $derived(classOptions.filter(c => c.qualified).length);
@@ -430,8 +431,6 @@
 </div>
 
 <style lang="scss">
-  @import './styles/shared';
-  @import './styles/selectors';
   .deity-grid > :global(:first-child) { grid-column: 1 / -1; }
 </style>
 

@@ -130,4 +130,4 @@
   </div>
 {/if}
 
-<style lang="scss">@import '../styles/settings';</style>
+<style lang="scss">@use '../styles/settings';</style>

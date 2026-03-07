@@ -29,6 +29,9 @@
 - [ ] Starting age should include class modifier per PHB Table 10 (e.g., wizards add 2d8, fighters add 1d4) — currently only uses base racial range. Update tooltip text to show the class modifier breakdown (e.g., "Human Fighter: 16-25 base + 1d4 class modifier")
 - [ ] Research and enforce kit alignment restrictions — Berserker says "Must be Chaotic", Assassin says "Must be Evil", but need to verify against PHB/Complete Handbook sources. Check if other kits or base classes have alignment restrictions too (e.g., Ranger, Druid, Bard). Currently just flavor text in `restrictions` array, not enforced
 
+### Tools
+- [ ] THAC0 calculator
+
 ### DM Tools
 
 #### NPC Generator

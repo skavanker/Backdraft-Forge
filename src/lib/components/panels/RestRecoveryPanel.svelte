@@ -2,6 +2,7 @@
   import { getHitDie } from '../../utils/characterAccessors.js';
   import { parseDieMax, calcTotalHP } from '../../utils/hpUtils.js';
   import { useAbilityModifiers } from '../../utils/stateUtils.svelte.js';
+  import { untrack } from 'svelte';
 
   let {
     character,
@@ -10,11 +11,11 @@
   } = $props();
 
   // Get character's hit die for short rest HP roll
-  let hitDie = getHitDie(character);
+  let hitDie = untrack(() => getHitDie(character));
   let dieMax = parseDieMax(hitDie);
 
   // Calculate actual max HP from hpHistory (same as CharacterSheet)
-  const abilityMods = useAbilityModifiers(character);
+  const abilityMods = useAbilityModifiers(untrack(() => character));
   let conMods = $derived(abilityMods.con);
   let maxHP = $derived(calcTotalHP(character.hpHistory, character.cls.hitDie, conMods.hpAdj));
   let currentHP = $derived(character.currentHP ?? maxHP);

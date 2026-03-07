@@ -1,11 +1,13 @@
 <script>
+  import { untrack } from 'svelte';
+
   let {
     title,
     defaultOpen = false,
     children
   } = $props();
 
-  let isOpen = $state(defaultOpen);
+  let isOpen = $state(untrack(() => defaultOpen));
 
   function toggle() {
     isOpen = !isOpen;
@@ -31,4 +33,3 @@
   {/if}
 </div>
 
-<style lang="scss">@import '../styles/widgets';</style>

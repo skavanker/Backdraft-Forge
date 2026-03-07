@@ -10,6 +10,7 @@
   import SelectableChip from './components/SelectableChip.svelte';
   import { settings, formatHeight as fmtHeight, formatWeight as fmtWeight } from './settings.svelte.js';
   import { pick, randomInt } from './utils/randomUtils.js';
+  import { untrack } from 'svelte';
 
   const alignmentDescriptions = [
     'Honorable protectors who uphold law and justice. Think: a holy knight sworn to defend the weak.',
@@ -25,16 +26,16 @@
 
   let { character, onComplete } = $props();
 
-  let name = $state(character.name || '');
-  let sex = $state(character.sex || 'Male');
-  let alignment = $state(character.alignment !== undefined ? character.alignment : ALIGNMENTS.N); // Default to True Neutral
-  let backstory = $state(character.backstory || '');
-  let age = $state(character.age || '');
+  let name = $state(untrack(() => character.name || ''));
+  let sex = $state(untrack(() => character.sex || 'Male'));
+  let alignment = $state(untrack(() => character.alignment !== undefined ? character.alignment : ALIGNMENTS.N)); // Default to True Neutral
+  let backstory = $state(untrack(() => character.backstory || ''));
+  let age = $state(untrack(() => character.age || ''));
   // Store height/weight as raw numbers (inches/lbs) for reactive formatting
-  let heightInches = $state(character.heightInches || 0);
-  let weightLbs = $state(character.weightLbs || 0);
-  let eyes = $state(character.eyes || '');
-  let hair = $state(character.hair || '');
+  let heightInches = $state(untrack(() => character.heightInches || 0));
+  let weightLbs = $state(untrack(() => character.weightLbs || 0));
+  let eyes = $state(untrack(() => character.eyes || ''));
+  let hair = $state(untrack(() => character.hair || ''));
 
   // Name generation settings
   let nameSettings = $state({
@@ -263,7 +264,7 @@
   </Collapsible>
 
   <div class="flex-column gap-sm">
-    <label>Sex</label>
+    <p class="form-label">Sex</p>
     <div class="flex-row gap-sm">
       <SelectableChip
         label="Male"
@@ -279,7 +280,7 @@
   </div>
 
   <div class="flex-column gap-sm">
-    <label>Alignment</label>
+    <p class="form-label">Alignment</p>
     <div class="alignment-grid">
       {#each alignmentGrid as row}
         {#each row as alignNum}
@@ -300,7 +301,7 @@
   <!-- Physical Details -->
   <div class="flex-column gap-sm">
     <div class="details-header">
-      <label>Physical Details</label>
+      <p class="form-label">Physical Details</p>
       <Tooltip text="Rolls random age, height, weight, eye and hair color based on your race's typical ranges from the Player's Handbook. You can always edit the results manually.">
         <button class="btn-primary btn-sm" onclick={randomizeDetails}>
           Randomize
@@ -340,7 +341,7 @@
       </Tooltip>
       {#if deity}
         <div class="detail-field">
-          <label>Deity</label>
+          <p class="form-label">Deity</p>
           <span class="deity-display">{deity}</span>
         </div>
       {/if}
@@ -368,5 +369,4 @@
 </div>
 
 
-<style lang="scss">@import './styles/backstory';</style>
 

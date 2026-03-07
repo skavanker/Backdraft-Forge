@@ -17,7 +17,6 @@
   } = $props();
 </script>
 
-<style lang="scss">@import '../styles/shared'; @import '../styles/sheet';</style>
 
 <!-- Weapons with calculated THAC0 -->
 {#if equipment?.weapons?.length}
@@ -39,7 +38,7 @@
       </div>
     {/each}
   </div>
-  <hr class="divider">
+  <hr class="sheet-divider">
 {/if}
 
 <!-- Two Column Sections -->

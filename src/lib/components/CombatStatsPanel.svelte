@@ -23,7 +23,6 @@
   let isArcane = $derived(classGroup === 'wizard' || classKey === 'bard');
 </script>
 
-<style lang="scss">@import '../styles/shared'; @import '../styles/sheet';</style>
 
 <div class="two-col">
   <div class="stat-block">
@@ -50,7 +49,7 @@
 </div>
 
 {#if hasSpellSlots}
-  <div class="two-col" style="margin-top: 1rem;">
+  <div class="two-col">
     <div class="stat-block">
       {#if isArcane}
         <h3>Spellcasting</h3>

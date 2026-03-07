@@ -184,7 +184,3 @@
   {/if}
 </div>
 
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/name-generator';
-</style>

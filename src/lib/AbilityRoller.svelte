@@ -32,4 +32,3 @@
   {/if}
 </div>
 
-<style lang="scss">@import './styles/roller';</style>

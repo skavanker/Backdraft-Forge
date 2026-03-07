@@ -15,9 +15,11 @@
   import SpellSlotsStep from './components/SpellSlotsStep.svelte';
   import FeaturesStep from './components/FeaturesStep.svelte';
 
+  import { untrack } from 'svelte';
+
   let { character, onComplete, onCancel } = $props();
 
-  let currentLevel = character.level || 1;
+  let currentLevel = untrack(() => character.level || 1);
   let newLevel = currentLevel + 1;
 
   // Modal state
@@ -30,10 +32,10 @@
   let hpConMod = $state(0);
   let hpTotal = $state(0);
 
-  // Derived data
-  let classKey = getClassKey(character);
-  let classGroup = getClassGroup(character);
-  let hitDie = getHitDie(character);
+  // Derived data — untrack() for one-time prop reads at init
+  let classKey = untrack(() => getClassKey(character));
+  let classGroup = untrack(() => getClassGroup(character));
+  let hitDie = untrack(() => getHitDie(character));
   let dieMax = parseDieMax(hitDie);
 
   // Map hit die to SVG die type: d4→d4, d6→d6, d8/d10/d12→d20
@@ -65,11 +67,11 @@
   // Thief skills
   let isThiefClass = classKey === 'thief' || classKey === 'bard';
   let thiefPointsRemaining = $state(THIEF_POINTS_PER_LEVEL);
-  let thiefDistributed = $state(isThiefClass ? { ...(character.thiefSkills || {}) } : {});
+  let thiefDistributed = $state(untrack(() => isThiefClass ? { ...(character.thiefSkills || {}) } : {}));
   let thiefNewPoints = $state({});
-  let thiefBreakdown = isThiefClass
+  let thiefBreakdown = untrack(() => isThiefClass
     ? getThiefSkillBreakdown(character.raceKey, character.adjustedAbilities.DEX, classKey, newLevel)
-    : { base: {}, racial: {}, dex: {}, total: {} };
+    : { base: {}, racial: {}, dex: {}, total: {} });
   let thiefBase = thiefBreakdown.total;
 
   // Filter available skills - Read Languages only available at level 4+
@@ -265,8 +267,3 @@
   maxWidth="520px"
   showProgress={true}
 />
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/levelup';
-</style>

@@ -1,4 +1,6 @@
 <script>
+  import { untrack } from 'svelte';
+
   let {
     character,
     onClose,
@@ -6,10 +8,10 @@
   } = $props();
 
   // Working copy of used spell slots (tracks how many slots are USED per level)
-  let slotsUsed = $state({ ...(character.spellSlotsUsed || {}) });
+  let slotsUsed = $state(untrack(() => ({ ...(character.spellSlotsUsed || {}) })));
 
   // Total slots available per level
-  let totalSlots = character.spellSlots || [];
+  let totalSlots = untrack(() => character.spellSlots || []);
 
   // Ensure slotsUsed has entries for all spell levels
   $effect(() => {

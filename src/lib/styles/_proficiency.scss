@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ PROFICIENCY SELECTOR ════════════
 .slot-summary { display: flex; justify-content: center; gap: $space-lg; }
@@ -17,7 +17,7 @@
   @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
 }
 .selection-summary {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-md;
   margin-top: $space-sm;
   h3 { text-align: center; }

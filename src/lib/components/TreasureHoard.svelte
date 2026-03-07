@@ -308,4 +308,3 @@
   {/if}
 </div>
 
-<style lang="scss">@import '../styles/dm-tools';</style>

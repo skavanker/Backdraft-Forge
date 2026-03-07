@@ -104,4 +104,3 @@
   {/if}
 </div>
 
-<style lang="scss">@import './styles/shared'; @import './styles/npc';</style>

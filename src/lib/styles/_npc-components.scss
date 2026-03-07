@@ -1,0 +1,85 @@
+@use '../../styles/mixins.scss' as *;
+
+// ════════════ NPC LIST ════════════
+
+.npc-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.section-header .count {
+  font-size: $text-sm;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+// ════════════ NPC STAT BLOCK ════════════
+
+.npc-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: $space-sm;
+
+  .npc-title {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    margin-bottom: $space-xs;
+
+    h4 {
+      margin: 0;
+      font-size: $text-md;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+  }
+
+  .npc-subtitle {
+    margin: 0;
+    font-size: $text-sm;
+    color: var(--color-text-secondary);
+  }
+}
+
+.npc-combat {
+  display: flex;
+  gap: $space-md;
+  padding: $space-sm;
+  background: var(--bg-panel);
+  @include rounded;
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-xs;
+
+    .label {
+      font-size: $text-xs;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: $text-lg;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+.npc-abilities,
+.npc-alignment,
+.npc-equipment,
+.npc-spells,
+.npc-saves {
+  font-size: $text-sm;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+
+  strong {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+}

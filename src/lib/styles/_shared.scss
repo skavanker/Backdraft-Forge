@@ -1,13 +1,4 @@
-@import '../../styles/mixins.scss';
-
-// ════════════ UNIVERSAL CARD PATTERN ════════════
-.card {
-  @include selectable-card;
-  display: flex;
-  flex-direction: column;
-  padding: $space-md;
-  &.disabled { opacity: 0.5; background: var(--bg-subtle); }
-}
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ SHARED PATTERNS ════════════
 .intro { text-align: center; }
@@ -23,7 +14,11 @@
 
 // Universal card for all selections
 .selection-card {
-  @extend .card;
+  @include selectable-card;
+  display: flex;
+  flex-direction: column;
+  padding: $space-md;
+  &.disabled { opacity: 0.5; background: var(--bg-subtle); }
   align-items: flex-start;
   text-align: left;
   width: 100%;
@@ -51,9 +46,12 @@
 .card-desc { flex: 1; font-size: $text-sm; color: var(--text-muted); line-height: 1.4; }
 .card-meta { display: flex; gap: $space-sm; margin-top: $space-md; flex-wrap: wrap; }
 .adjustment {
-  @extend .badge-small;
-  &.positive { background: var(--green-overlay); @extend .text-positive; }
-  &.negative { background: var(--red-overlay); @extend .text-negative; }
+  padding: $space-sm;
+  background: var(--bg-panel);
+  border-radius: $radius;
+  font-size: $text-sm;
+  &.positive { background: var(--green-overlay); color: var(--green); }
+  &.negative { background: var(--red-overlay); color: var(--red); }
 }
 
 // ════════════ SHARED LISTS ════════════
@@ -201,7 +199,12 @@
 // .loading-state → replaced by .panel-dashed + animation on inner element
 
 .loading-state {
-  @extend .panel-dashed;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-color);
+  border-radius: $radius;
+  padding: $space-lg $space-md;
+  text-align: center;
+  p { margin: 0; color: var(--text-secondary); }
   display: flex;
   align-items: center;
   justify-content: center;

@@ -5,11 +5,12 @@
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { ABILITIES } from '../data/constants.js';
   import { settings } from './settings.svelte.js';
+  import { untrack } from 'svelte';
 
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
 
-  let selectedRaceKey = $state(existingRaceKey || 'human');
+  let selectedRaceKey = $state(untrack(() => existingRaceKey || 'human'));
 
   let raceOptions = $derived(getAvailableRaces(abilities, { lenient: settings.lenientMode }));
   let qualifiedCount = $derived(raceOptions.filter(r => r.qualified).length);
@@ -152,10 +153,3 @@
     </SelectionPreview>
   {/if}
 </div>
-
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/selectors';
-</style>
-

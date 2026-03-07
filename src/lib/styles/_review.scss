@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ CHARACTER REVIEW ════════════
 .ability-summary { display: flex; justify-content: center; gap: $space-sm; flex-wrap: wrap; }
@@ -54,7 +54,7 @@
 .ability-stat { display: flex; align-items: center; gap: $space-sm; padding: $space-sm; background: var(--bg-input); @include rounded; }
 
 // ════════════ SELECTION PREVIEW ════════════
-.selection-preview { @extend .flex-column; gap: $space-lg; h3 { text-align: center; } }
+.selection-preview { display: flex; flex-direction: column; gap: $space-lg; h3 { text-align: center; } }
 .preview-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: $space-lg; }
 
 // ════════════ EXCEPTIONAL STRENGTH ════════════
@@ -75,7 +75,7 @@
   .exceptional-result {
     text-align: center;
     padding: $space-md;
-    font-size: $text-base + 0.125rem;
+    font-size: $text-md;
 
     strong {
       font-size: $text-xl;
@@ -94,7 +94,7 @@
 }
 
 .thief-skills-grid {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   gap: $space-sm;
   margin-bottom: $space-lg;
 }

@@ -99,15 +99,15 @@
 
 <div class="method-select">
   <Tooltip text="Roll 4 six-sided dice, drop the lowest. Produces higher scores on average (12.24). The standard method for most campaigns." warning={rollCount >= 5 ? "You can always enter scores manually if you want to cheat 😏" : ""}>
-    <label class:selected={method === '4d6drop'} onclick={() => { method = '4d6drop'; rollScores(); }}>
-      <input type="radio" bind:group={method} value="4d6drop" />
+    <label class:selected={method === '4d6drop'}>
+      <input type="radio" bind:group={method} value="4d6drop" onchange={() => { method = '4d6drop'; rollScores(); }} />
       <strong>4d6 drop lowest</strong>
       <span class="meta-text">Recommended</span>
     </label>
   </Tooltip>
   <Tooltip text="Roll 3 six-sided dice and take the total. Produces lower, more random scores (10.5 avg). For old-school or hardcore play." warning={rollCount >= 5 ? "You can always enter scores manually if you want to cheat 😏" : ""}>
-    <label class:selected={method === '3d6'} onclick={() => { method = '3d6'; rollScores(); }}>
-      <input type="radio" bind:group={method} value="3d6" />
+    <label class:selected={method === '3d6'}>
+      <input type="radio" bind:group={method} value="3d6" onchange={() => { method = '3d6'; rollScores(); }} />
       <strong>3d6 straight</strong>
       <span class="meta-text">Classic / Hardcore</span>
     </label>
@@ -181,10 +181,3 @@
     </div>
   {/if}
 {/if}
-
-
-<style lang="scss">
-  @import './styles/shared';
-  @import './styles/roller';
-</style>
-

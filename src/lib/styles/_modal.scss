@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ SHARED MODAL STYLES ════════════
 
@@ -20,7 +20,7 @@
   border: 3px solid var(--gold);
   @include rounded;
   padding: $space-xl;
-  max-width: 520px;
+  max-width: var(--modal-max-width, 520px);
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
@@ -76,7 +76,7 @@
 
 // Modal step content wrapper
 .modal-step {
-  @extend .flex-column;
+  display: flex; flex-direction: column;
   align-items: center;
   gap: $space-md;
 
@@ -157,7 +157,7 @@
 
 // Panel card - clickable card for menu selection
 .panel-card {
-  @extend .panel;
+  @include panel;
   cursor: pointer;
   text-align: center;
   @include transition;

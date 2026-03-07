@@ -1,4 +1,4 @@
-@import '../../styles/mixins.scss';
+@use '../../styles/mixins.scss' as *;
 
 // ════════════ SPLASH PAGE ════════════
 
@@ -34,15 +34,6 @@
 .splash-hero {
   text-align: center;
   padding: $space-lg 0;
-
-  h1 {
-    font-size: 3rem;
-    margin-bottom: $space-sm;
-
-    @include mobile {
-      font-size: 2rem;
-    }
-  }
 
   .tagline {
     font-size: $text-lg;
@@ -122,17 +113,6 @@
     }
   }
 
-  &.coming-soon {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background: var(--bg-subtle);
-
-    .tool-status {
-      color: var(--text-muted);
-      font-style: italic;
-    }
-  }
-
   .tool-icon {
     font-size: 3rem;
     margin-bottom: $space-md;
@@ -161,16 +141,6 @@
     flex: 1;
   }
 
-  .tool-status {
-    font-size: $text-xs;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: $space-xs $space-sm;
-    border-radius: $radius;
-    background: var(--gold-overlay);
-    color: var(--gold-dark);
-  }
 }
 
 // Saved Characters
