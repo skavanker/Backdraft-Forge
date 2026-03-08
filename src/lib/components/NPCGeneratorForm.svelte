@@ -2,7 +2,7 @@
   import { getAllArchetypes } from '../generators/npcArchetypes.js';
   import { races } from '../../data/races.js';
   import { classes } from '../../data/classes.js';
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
 
   let { onGenerate } = $props();
 
@@ -59,17 +59,17 @@
   <div class="form-section">
     <h4 class="form-label" id="npc-ability-method">Ability Score Method</h4>
     <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-ability-method">
-      <SelectableChip
+      <BtnSelect
         label="4d6 Drop Lowest"
         selected={options.method === '4d6'}
         onclick={() => options.method = '4d6'}
       />
-      <SelectableChip
+      <BtnSelect
         label="3d6"
         selected={options.method === '3d6'}
         onclick={() => options.method = '3d6'}
       />
-      <SelectableChip
+      <BtnSelect
         label="Average (10-11)"
         selected={options.method === 'average'}
         onclick={() => options.method = 'average'}
@@ -81,14 +81,14 @@
   <div class="form-section">
     <h4 class="form-label" id="npc-archetype">Archetype</h4>
     <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-archetype">
-      <SelectableChip
+      <BtnSelect
         label="None"
         metadata="Custom settings"
         selected={options.archetypeKey === null}
         onclick={() => selectArchetype(null)}
       />
       {#each archetypes as archetype}
-        <SelectableChip
+        <BtnSelect
           label={archetype.name}
           metadata={archetype.description}
           selected={options.archetypeKey === archetype.key}
@@ -121,13 +121,13 @@
     <div class="form-section">
       <h4 class="form-label" id="npc-race">Race</h4>
       <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-race">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={options.raceKey === null}
           onclick={() => options.raceKey = null}
         />
         {#each raceList as race}
-          <SelectableChip
+          <BtnSelect
             label={race.name}
             selected={options.raceKey === race.key}
             onclick={() => options.raceKey = race.key}
@@ -140,13 +140,13 @@
     <div class="form-section">
       <h4 class="form-label" id="npc-class">Class</h4>
       <div class="grid-compact gap-sm" role="group" aria-labelledby="npc-class">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={options.classKey === null}
           onclick={() => options.classKey = null}
         />
         {#each classList as cls}
-          <SelectableChip
+          <BtnSelect
             label={cls.name}
             selected={options.classKey === cls.key}
             onclick={() => options.classKey = cls.key}

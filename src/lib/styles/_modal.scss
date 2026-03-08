@@ -93,6 +93,9 @@
   margin-top: $space-md;
 }
 
+// Action bar inside a modal (confirm dialogs, etc.)
+.modal-container .action-bar { margin-top: $space-lg; }
+
 // Step indicators - dots for linear mode
 .step-dots {
   display: flex;

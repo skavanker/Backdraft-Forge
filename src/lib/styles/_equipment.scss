@@ -92,7 +92,7 @@
 
 // ════════════ GEAR SECTION ════════════
 .item-card {
-  @include selectable-chip;
+  @include btn-select;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

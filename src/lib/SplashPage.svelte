@@ -1,4 +1,6 @@
 <script>
+  import SavedCharactersList from './components/SavedCharactersList.svelte';
+
   let {
     savedCharacters = [],
     wipPrompt = null,
@@ -13,12 +15,6 @@
     onResumeWip = null,
     onDiscardWip = null
   } = $props();
-
-  let showAllSaves = $state(false);
-
-  const displayedCharacters = $derived(
-    showAllSaves ? savedCharacters : savedCharacters.slice(0, 5)
-  );
 </script>
 
 <div class="splash-container">
@@ -87,27 +83,7 @@
   </section>
 
   <!-- Saved Characters Sidebar -->
-  {#if savedCharacters.length > 0}
-    <aside class="saved-data">
-      <h3>Recent Characters</h3>
-      <div class="save-list">
-        {#each displayedCharacters as entry (entry.id)}
-          <div class="save-entry">
-            <button class="save-load" onclick={() => onLoadCharacter(entry)}>
-              <span class="save-name">{entry.name}</span>
-              <span class="save-meta">{entry.race} {entry.cls}{entry.level > 1 ? ` · Lvl ${entry.level}` : ''}</span>
-            </button>
-            <button class="save-delete" onclick={() => onDeleteCharacter(entry.id)} title="Delete save" aria-label="Delete {entry.name}">&times;</button>
-          </div>
-        {/each}
-      </div>
-      {#if savedCharacters.length > 5}
-        <button class="view-all-btn" onclick={() => showAllSaves = !showAllSaves}>
-          {showAllSaves ? 'Show Less' : `View All (${savedCharacters.length})`}
-        </button>
-      {/if}
-    </aside>
-  {/if}
+  <SavedCharactersList {savedCharacters} onLoad={onLoadCharacter} onDelete={onDeleteCharacter} />
 
   <!-- Footer -->
   <footer class="splash-footer">
@@ -116,6 +92,3 @@
   </footer>
 </div>
 
-<style lang="scss">
-  @use './styles/splash';
-</style>

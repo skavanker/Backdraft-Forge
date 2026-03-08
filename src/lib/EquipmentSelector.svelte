@@ -13,7 +13,7 @@
   import { getStrengthModifiers } from '../data/mechanics.js';
   import Tooltip from './Tooltip.svelte';
   import { formatEncumbranceValue, formatWeightUnit } from './settings.svelte.js';
-  import SelectableChip from './components/SelectableChip.svelte';
+  import BtnSelect from './components/BtnSelect.svelte';
   import GearSection from './components/GearSection.svelte';
   import GoldLedger from './components/GoldLedger.svelte';
   import CustomItemForm from './components/CustomItemForm.svelte';
@@ -273,7 +273,7 @@
               {@const selected = selectedArmor?.key === armor.key}
               {@const affordable = canAfford(armor.price) || selected}
               <Tooltip text="AC {armor.ac}, {armor.weight} lbs" position="bottom">
-                <SelectableChip
+                <BtnSelect
                   {selected}
                   disabled={!affordable}
                   onclick={() => selectArmor(armor)}
@@ -286,7 +286,7 @@
                       <span class="item-price">{formatPrice(armor.price)}</span>
                     </span>
                   {/snippet}
-                </SelectableChip>
+                </BtnSelect>
               </Tooltip>
             {/each}
           </div>
@@ -304,7 +304,7 @@
               {@const selected = selectedShield?.key === shield.key}
               {@const affordable = canAfford(shield.price) || selected}
               <Tooltip text="+{shield.acBonus} AC, {shield.weight} lbs" position="bottom">
-                <SelectableChip
+                <BtnSelect
                   {selected}
                   disabled={!affordable}
                   onclick={() => selectShield(shield)}
@@ -316,7 +316,7 @@
                       <span class="item-price">{formatPrice(shield.price)}</span>
                     </span>
                   {/snippet}
-                </SelectableChip>
+                </BtnSelect>
               </Tooltip>
             {/each}
           </div>
@@ -332,7 +332,7 @@
             {@const selected = selectedWeapons.find(w => w.key === weapon.key)}
             {@const affordable = canAfford(weapon.price) || selected}
             <Tooltip text={formatWeaponTooltip(weapon)} position="bottom">
-              <SelectableChip
+              <BtnSelect
                 selected={!!selected}
                 disabled={!affordable}
                 onclick={() => toggleWeapon(weapon)}
@@ -345,7 +345,7 @@
                     <span class="item-price">{formatPrice(weapon.price)}</span>
                   </span>
                 {/snippet}
-              </SelectableChip>
+              </BtnSelect>
             </Tooltip>
           {/each}
         </div>

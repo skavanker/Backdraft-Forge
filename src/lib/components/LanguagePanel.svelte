@@ -1,5 +1,5 @@
 <script>
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
   import { languages } from '../../data/languages.js';
 
   let {
@@ -29,7 +29,7 @@
       {@const isAuto = autoLanguages.includes(key)}
       {@const selected = isAuto || selectedBonusLanguages.includes(key)}
       {@const disabled = isAuto || (!selected && bonusLanguageSlotsRemaining === 0)}
-      <SelectableChip
+      <BtnSelect
         label={languages[key].name}
         {selected}
         {disabled}

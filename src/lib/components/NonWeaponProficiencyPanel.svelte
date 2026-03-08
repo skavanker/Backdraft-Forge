@@ -1,6 +1,6 @@
 <script>
   import Tooltip from '../Tooltip.svelte';
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
 
   let {
     groupedProficiencies,
@@ -34,7 +34,7 @@
               {@const selected = selectedNonWeapon.includes(prof.key)}
               {@const disabled = !selected && nonWeaponSlotsRemaining < prof.cost}
               <Tooltip text="{prof.description} (Check: {prof.ability}{prof.modifier >= 0 ? '+' : ''}{prof.modifier})" position="bottom">
-                <SelectableChip
+                <BtnSelect
                   label={prof.name}
                   metadata={prof.ability}
                   cost={prof.cost}

@@ -1,6 +1,6 @@
 <script>
   import { copyToClipboard } from '../shareCharacter.js';
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
   import { useToast } from '../utils/stateUtils.svelte.js';
 
   let { treasure, onSave = null, onDelete = null, showActions = true } = $props();
@@ -184,35 +184,35 @@
       <h5>Coins</h5>
       <div class="grid-md">
         {#if treasure.coins.copper > 0}
-          <SelectableChip
+          <BtnSelect
             label={`${formatNumber(treasure.coins.copper)} Copper (${formatNumber(treasure.coins.copper / 10)} lbs)`}
             selected={selectedCoins.copper}
             onclick={() => toggleCoin('copper')}
           />
         {/if}
         {#if treasure.coins.silver > 0}
-          <SelectableChip
+          <BtnSelect
             label={`${formatNumber(treasure.coins.silver)} Silver (${formatNumber(treasure.coins.silver / 10)} lbs)`}
             selected={selectedCoins.silver}
             onclick={() => toggleCoin('silver')}
           />
         {/if}
         {#if treasure.coins.electrum > 0}
-          <SelectableChip
+          <BtnSelect
             label={`${formatNumber(treasure.coins.electrum)} Electrum (${formatNumber(treasure.coins.electrum / 10)} lbs)`}
             selected={selectedCoins.electrum}
             onclick={() => toggleCoin('electrum')}
           />
         {/if}
         {#if treasure.coins.gold > 0}
-          <SelectableChip
+          <BtnSelect
             label={`${formatNumber(treasure.coins.gold)} Gold (${formatNumber(treasure.coins.gold / 10)} lbs)`}
             selected={selectedCoins.gold}
             onclick={() => toggleCoin('gold')}
           />
         {/if}
         {#if treasure.coins.platinum > 0}
-          <SelectableChip
+          <BtnSelect
             label={`${formatNumber(treasure.coins.platinum)} Platinum (${formatNumber(treasure.coins.platinum / 10)} lbs)`}
             selected={selectedCoins.platinum}
             onclick={() => toggleCoin('platinum')}
@@ -228,7 +228,7 @@
       <h5>Gems ({treasure.gems.length})</h5>
       <div class="grid-md">
         {#each treasure.gems as gem, i}
-          <SelectableChip
+          <BtnSelect
             label={`${gem.description} (${gem.value} gp, 0.01 lbs)`}
             selected={selectedGems.includes(i)}
             onclick={() => toggleGem(i)}
@@ -244,7 +244,7 @@
       <h5>Art Objects ({treasure.artObjects.length})</h5>
       <div class="grid-md">
         {#each treasure.artObjects as art, i}
-          <SelectableChip
+          <BtnSelect
             label={`${art.description} (${formatNumber(art.value)} gp, ${art.weight} lbs)`}
             selected={selectedArt.includes(i)}
             onclick={() => toggleArt(i)}
@@ -260,7 +260,7 @@
       <h5>Magic Items ({treasure.magicItems.length})</h5>
       <div class="grid-md">
         {#each treasure.magicItems as item, i}
-          <SelectableChip
+          <BtnSelect
             label={`${item} (~1,000 gp est., 2 lbs)`}
             selected={selectedMagic.includes(i)}
             onclick={() => toggleMagic(i)}

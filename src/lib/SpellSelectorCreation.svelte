@@ -8,7 +8,7 @@
   import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
-  import SelectableChip from './components/SelectableChip.svelte';
+  import BtnSelect from './components/BtnSelect.svelte';
   import { onMount } from 'svelte';
 
   let {
@@ -161,7 +161,7 @@
             {@const selected = selectedSpellKeys.has(spell.key)}
             {@const disabled = !selected && remainingSlots === 0}
             <Tooltip text={spell.description} position="bottom">
-              <SelectableChip
+              <BtnSelect
                 label={spell.name}
                 {selected}
                 {disabled}
@@ -214,7 +214,7 @@
         {@const selected = preparedSpellKeys.has(spell.key)}
         {@const disabled = !selected && remainingSlots === 0}
         <Tooltip text={spell.description} position="bottom">
-          <SelectableChip
+          <BtnSelect
             label={spell.name}
             {selected}
             {disabled}

@@ -7,16 +7,10 @@ main {
   gap: $space-lg;
 }
 
-.saved-characters {
-  margin-bottom: $space-lg;
-
-  h3 {
-    margin: 0 0 0.75rem; // 0.75rem has no token — between $space-sm and $space-md
-  }
-}
-
-// .save-list, .save-entry, .save-load → canonical in _splash.scss (.saved-data context)
+// .save-list, .save-entry, .save-load, .saved-data → canonical in _splash.scss (global via app.scss)
 // .wip-prompt → canonical in _splash.scss
+// In the step 0 content block, saved-data has no flex gap parent so needs explicit margin
+.content .saved-data { margin-top: $space-lg; }
 
 .save-delete {
   background: transparent;

@@ -1,6 +1,6 @@
 <script>
   import { treasureTypes } from '../../data/treasure.js';
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
 
   let { onGenerate } = $props();
 
@@ -62,22 +62,22 @@
     <div class="form-section">
       <h4 class="form-label" id="treasure-item-type">Item Type</h4>
       <div class="grid-compact gap-sm" role="group" aria-labelledby="treasure-item-type">
-        <SelectableChip
+        <BtnSelect
           label="Gem"
           selected={options.itemType === 'gem'}
           onclick={() => options.itemType = 'gem'}
         />
-        <SelectableChip
+        <BtnSelect
           label="Art Object"
           selected={options.itemType === 'art'}
           onclick={() => options.itemType = 'art'}
         />
-        <SelectableChip
+        <BtnSelect
           label="Magic Item"
           selected={options.itemType === 'magic'}
           onclick={() => options.itemType = 'magic'}
         />
-        <SelectableChip
+        <BtnSelect
           label="Mundane"
           selected={options.itemType === 'mundane'}
           onclick={() => options.itemType = 'mundane'}
@@ -122,7 +122,7 @@
       <h4 class="form-label" id="treasure-type">Treasure Type</h4>
       <div class="grid-compact gap-sm" role="group" aria-labelledby="treasure-type">
         {#each treasureTypeList as type}
-          <SelectableChip
+          <BtnSelect
             label={type.key}
             metadata={type.name}
             selected={options.treasureType === type.key}

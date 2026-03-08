@@ -28,7 +28,7 @@
   @media (max-width: 500px) { grid-template-columns: repeat(2, 1fr); }
 }
 .dice-roll {
-  @include selectable-card;
+  @include btn-select;
   display: flex; flex-direction: column;
   align-items: center;
   padding: $space-md $space-md $space-sm;

@@ -1,5 +1,5 @@
 <script>
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
 
   let { options, onchange } = $props();
 
@@ -115,13 +115,13 @@
 
     <!-- Type Options for Selected Category (with Random option) -->
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.placeType === `random-${selectedCategory}`}
         onclick={() => handleChange('placeType', `random-${selectedCategory}`)}
       />
       {#each placeTypes[selectedCategory] as type}
-        <SelectableChip
+        <BtnSelect
           label={type.label}
           selected={options.placeType === type.value}
           onclick={() => handleChange('placeType', type.value)}
@@ -135,13 +135,13 @@
     <div class="form-section">
       <h4 class="form-label">Location</h4>
       <div class="grid-compact gap-sm">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={options.geography === 'random'}
           onclick={() => handleChange('geography', 'random')}
         />
         {#each geographies as geography}
-          <SelectableChip
+          <BtnSelect
             label={geography}
             selected={options.geography === geography.toLowerCase()}
             onclick={() => handleChange('geography', geography.toLowerCase())}
@@ -156,17 +156,17 @@
     <div class="form-section">
       <h4 class="form-label">Naming Style</h4>
       <div class="grid-compact gap-sm">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={options.style === 'random'}
           onclick={() => handleChange('style', 'random')}
         />
-        <SelectableChip
+        <BtnSelect
           label="Pattern"
           selected={options.style === 'pattern'}
           onclick={() => handleChange('style', 'pattern')}
         />
-        <SelectableChip
+        <BtnSelect
           label="Owner"
           selected={options.style === 'owner'}
           onclick={() => handleChange('style', 'owner')}
@@ -183,7 +183,7 @@
     <h4 class="form-label">Quantity</h4>
     <div class="grid-compact gap-sm">
       {#each quantities as qty}
-        <SelectableChip
+        <BtnSelect
           label={qty.toString()}
           selected={options.quantity === qty}
           onclick={() => handleChange('quantity', qty)}

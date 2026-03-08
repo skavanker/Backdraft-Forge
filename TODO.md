@@ -1,5 +1,9 @@
 # Backdraft Forge - TODO
 
+## Bugs
+
+- [ ] **Height/weight not saved on character completion** — `BackstoryEditor` emits `heightInches`/`weightLbs` but `stepManager` step 7 field list has `height`/`weight` — key mismatch means both are written as `null`. Fix: update step 7 fields to `'heightInches', 'weightLbs'` (and remove `'height'`, `'weight'`). `shareCharacter.js` already uses the correct `heightInches`/`weightLbs` keys.
+
 ## Features to Add
 
 ### Share/Export
@@ -12,10 +16,9 @@
 - [ ] Do research if another like char fil excist other places and maybe use same format.
 
 ### UX
-- [ ] Replace browser `alert()` for unsaved progress warning (when navigating back from step 3+) with a styled confirmation modal
+- [ ] Hide the "start over" (×) button when there's nothing to reset — e.g. on the splash page, or at step 0 with no rolled abilities yet
 
 ### Visuals
-- [ ] Remaining portraits: ElfCleric (M/F), HalfElfMaleDruid, HalfElfSpecialistWizard (M/F)
 - [ ] Class icons for more places (character sheet header, NPC generator)
 - [ ] Race icons (Dwarf, Elf, Gnome, Half-Elf, Halfling, Human)
 - [ ] Logo cleanup (remove off-artboard paths)
@@ -57,6 +60,7 @@
 - [ ] Random encounter generator (by terrain/dungeon level)
 - [ ] Export/print functionality for stat blocks
 - [ ] Tie to treasure generator (each monster has a Treasure Type)
+- [ ] Remove "unsaved changes" warning when navigating away — bestiary has no saveable state
 
 #### Name Generator - Future Enhancements
 - [ ] **Additional races** - Half-Orc, Drow, etc.
@@ -76,3 +80,9 @@
 ### Settings Panel Enhancements
 - [ ] Custom starting gold multiplier
 - Wait for settings feature to land before planning more — house rules stuff should live there
+
+### Code Cleanup / Consolidation
+- [ ] **Merge NPCStatBlock + MonsterStatBlock** — same card layout (name, combat stats row, abilities, action bar); NPC has 3 combat stats, monster has 5, but structure is identical — merge into one `<StatBlock>` with slots
+- [ ] **Merge NPCList + MonsterList** — both are section-header + grid-lg + stat block loop; extract one `<ItemList>` component
+- [ ] **CSS `.stat` utility** — `.stat { flex-column; .label; .value }` is defined separately in `_npc-components.scss` and `_monster-bestiary.scss`; move to `_utilities.scss`
+- [ ] **Generator page wrapper** — NPCGenerator, TreasureGenerator, NameGenerator share the same outer shell (header, form section, loading state, results section, saved section, empty state); extract `<GeneratorPage>` wrapper

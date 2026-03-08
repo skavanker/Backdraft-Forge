@@ -1,6 +1,6 @@
 <script>
   import { getAvailableNamingStyles } from '../../data/races.js';
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
 
   let { options, onchange } = $props();
 
@@ -49,13 +49,13 @@
   <div class="form-section">
     <h4 class="form-label">Race</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.race === 'random'}
         onclick={() => handleChange('race', 'random')}
       />
       {#each races as race}
-        <SelectableChip
+        <BtnSelect
           label={race}
           selected={options.race === race.toLowerCase()}
           onclick={() => handleChange('race', race.toLowerCase())}
@@ -68,13 +68,13 @@
   <div class="form-section">
     <h4 class="form-label">Gender</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.gender === 'random'}
         onclick={() => handleChange('gender', 'random')}
       />
       {#each genders as gender}
-        <SelectableChip
+        <BtnSelect
           label={gender}
           selected={options.gender === gender}
           onclick={() => handleChange('gender', gender)}
@@ -87,13 +87,13 @@
   <div class="form-section">
     <h4 class="form-label">Class</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.class === 'random'}
         onclick={() => handleChange('class', 'random')}
       />
       {#each classes as cls}
-        <SelectableChip
+        <BtnSelect
           label={cls}
           selected={options.class === cls.toLowerCase()}
           onclick={() => handleChange('class', cls.toLowerCase())}
@@ -106,13 +106,13 @@
   <div class="form-section">
     <h4 class="form-label">Settlement Type</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.settlement === 'random'}
         onclick={() => handleChange('settlement', 'random')}
       />
       {#each settlements as settlement}
-        <SelectableChip
+        <BtnSelect
           label={settlement}
           selected={options.settlement === settlement.toLowerCase()}
           onclick={() => handleChange('settlement', settlement.toLowerCase())}
@@ -125,13 +125,13 @@
   <div class="form-section">
     <h4 class="form-label">Location</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.geography === 'random'}
         onclick={() => handleChange('geography', 'random')}
       />
       {#each geographies as geography}
-        <SelectableChip
+        <BtnSelect
           label={geography}
           selected={options.geography === geography.toLowerCase()}
           onclick={() => handleChange('geography', geography.toLowerCase())}
@@ -144,13 +144,13 @@
   <div class="form-section">
     <h4 class="form-label">Social Class</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.socialClass === 'random'}
         onclick={() => handleChange('socialClass', 'random')}
       />
       {#each socialClasses as social}
-        <SelectableChip
+        <BtnSelect
           label={social}
           selected={options.socialClass === social.toLowerCase()}
           onclick={() => handleChange('socialClass', social.toLowerCase())}
@@ -164,7 +164,7 @@
     <h4 class="form-label">Quantity</h4>
     <div class="grid-compact gap-sm">
       {#each quantities as qty}
-        <SelectableChip
+        <BtnSelect
           label={qty.toString()}
           selected={options.quantity === qty}
           onclick={() => handleChange('quantity', qty)}
@@ -177,13 +177,13 @@
   <div class="form-section">
     <h4 class="form-label">Naming Style</h4>
     <div class="grid-compact gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Random"
         selected={options.style === 'random'}
         onclick={() => handleChange('style', 'random')}
       />
       {#each namingStyles as style}
-        <SelectableChip
+        <BtnSelect
           label={style.label}
           selected={options.style === style.value}
           onclick={() => handleChange('style', style.value)}

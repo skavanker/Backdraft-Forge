@@ -30,6 +30,7 @@
     completeStep as _completeStep
   } from './lib/utils/stepManager.svelte.js';
   import SettingsPanel from './lib/components/SettingsPanel.svelte';
+  import SavedCharactersList from './lib/components/SavedCharactersList.svelte';
   import { STEP_SHEET, TOAST_DURATION } from './data/constants.js';
   import { useToast } from './lib/utils/stateUtils.svelte.js';
   import {
@@ -45,6 +46,7 @@
   let currentView = $state('splash'); // 'splash' | 'character-creator' | 'npc-generator' | 'treasure-generator' | 'name-generator' | 'monster-bestiary'
   let currentStep = $state(0);
   let settingsOpen = $state(false);
+  let showReturnConfirm = $state(false);
 
   function makeEmptyCharacter() {
     return {
@@ -331,14 +333,16 @@
   }
 
   function returnToSplash() {
-    // Check if there are unsaved changes (character has data but not saved)
     const hasUnsavedChanges = currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
-
     if (hasUnsavedChanges) {
-      const confirmed = confirm('You have unsaved progress. Return to splash page?');
-      if (!confirmed) return;
+      showReturnConfirm = true;
+      return;
     }
+    doReturnToSplash();
+  }
 
+  function doReturnToSplash() {
+    showReturnConfirm = false;
     currentView = 'splash';
     // Don't reset character or currentStep - allows resume
     window.scrollTo(0, 0);
@@ -430,23 +434,6 @@
       </div>
     {/if}
 
-    {#if savedCharacters.length > 0 && currentStep === 0}
-      <div class="saved-characters">
-        <h3>Saved Characters</h3>
-        <div class="save-list">
-          {#each savedCharacters as entry (entry.id)}
-            <div class="save-entry">
-              <button class="save-load" onclick={() => loadSavedCharacter(entry)}>
-                <span class="save-name">{entry.name}</span>
-                <span class="save-meta">{entry.race} {entry.cls}{entry.level > 1 ? ` · Lvl ${entry.level}` : ''}</span>
-              </button>
-              <button class="save-delete" onclick={() => deleteSavedCharacter(entry.id)} title="Delete save" aria-label="Delete save">&times;</button>
-            </div>
-          {/each}
-        </div>
-      </div>
-    {/if}
-
     {#if currentStep === 0}
       <h2>Roll Your Abilities</h2>
       <CharacterSummary {character} />
@@ -458,6 +445,7 @@
           existingRollData={character.rollData}
         />
       {/key}
+      <SavedCharactersList {savedCharacters} onLoad={loadSavedCharacter} onDelete={deleteSavedCharacter} />
 
     {:else if currentStep === 1}
       <h2>Choose Your Race</h2>
@@ -588,6 +576,25 @@
     />
   {/if}
 </main>
+
+{#if showReturnConfirm}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="modal-overlay" onkeydown={(e) => e.key === 'Escape' && (showReturnConfirm = false)} onclick={(e) => e.target === e.currentTarget && (showReturnConfirm = false)}>
+    <div class="modal-container" role="dialog" aria-label="Unsaved progress" style="--modal-max-width: 380px">
+      <div class="modal-header">
+        <h2>Unsaved Progress</h2>
+        <div class="modal-subtitle">Your character hasn't been saved yet.</div>
+      </div>
+      <div class="modal-step">
+        <p class="meta-text text-center">Return to the splash page? Your progress will be saved as a draft and you can resume later.</p>
+      </div>
+      <div class="action-bar center gap-md">
+        <button class="btn-secondary" onclick={() => showReturnConfirm = false}>Stay</button>
+        <button class="btn-primary" onclick={doReturnToSplash}>Return to Home</button>
+      </div>
+    </div>
+  </div>
+{/if}
 
 {#if saveToast.visible}
   <div class="save-toast">{saveToast.message}</div>

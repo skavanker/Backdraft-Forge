@@ -1,6 +1,6 @@
 <script>
   import Tooltip from '../Tooltip.svelte';
-  import SelectableChip from './SelectableChip.svelte';
+  import BtnSelect from './BtnSelect.svelte';
   import { formatWeaponTooltip } from '../../data/weapons.js';
 
   let {
@@ -33,7 +33,7 @@
               {@const selected = selectedWeapons.includes(weapon.key)}
               {@const disabled = !selected && weaponSlotsRemaining === 0}
               <Tooltip text={formatWeaponTooltip(weapon)} position="bottom">
-                <SelectableChip
+                <BtnSelect
                   label={weapon.name}
                   metadata={weapon.damage}
                   {selected}

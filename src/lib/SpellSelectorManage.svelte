@@ -9,7 +9,7 @@
   import { onMount } from 'svelte';
   import Tooltip from './Tooltip.svelte';
   import SlotCounter from './SlotCounter.svelte';
-  import SelectableChip from './components/SelectableChip.svelte';
+  import BtnSelect from './components/BtnSelect.svelte';
   import { ordinal } from './utils/formatUtils.js';
 
   let {
@@ -194,7 +194,7 @@
                 {#each spells as spell}
                   {@const inBook = bookSpells.find(s => s.key === spell.key)}
                   <Tooltip text={spell.description} position="bottom">
-                    <SelectableChip
+                    <BtnSelect
                       label={spell.name}
                       selected={!!inBook}
                       onclick={() => toggleManageSpellbook(level, spell)}
@@ -211,7 +211,7 @@
                   {#each bookSpells as spell}
                     {@const memorized = memSpells.find(s => s.key === spell.key)}
                     {@const disabled = !memorized && memSpells.length >= slots}
-                    <SelectableChip
+                    <BtnSelect
                       label={spell.name}
                       selected={!!memorized}
                       {disabled}
@@ -246,7 +246,7 @@
                 {@const selected = prepSpells.find(s => s.key === spell.key)}
                 {@const disabled = !selected && prepSpells.length >= slots}
                 <Tooltip text={spell.description} position="bottom">
-                  <SelectableChip
+                  <BtnSelect
                     label={spell.name}
                     selected={!!selected}
                     {disabled}
@@ -279,7 +279,7 @@
                 {@const selected = prepSpells.find(s => s.key === spell.key)}
                 {@const disabled = !selected && prepSpells.length >= slots}
                 <Tooltip text={spell.description} position="bottom">
-                  <SelectableChip
+                  <BtnSelect
                     label={spell.name}
                     selected={!!selected}
                     {disabled}
@@ -311,7 +311,7 @@
                 {#each spells as spell}
                   {@const inBook = bookSpells.find(s => s.key === spell.key)}
                   <Tooltip text={spell.description} position="bottom">
-                    <SelectableChip
+                    <BtnSelect
                       label={spell.name}
                       selected={!!inBook}
                       onclick={() => toggleManageSpellbook(level, spell)}
@@ -327,7 +327,7 @@
                   {#each bookSpells as spell}
                     {@const memorized = memSpells.find(s => s.key === spell.key)}
                     {@const disabled = !memorized && memSpells.length >= slots}
-                    <SelectableChip
+                    <BtnSelect
                       label={spell.name}
                       selected={!!memorized}
                       {disabled}

@@ -9,6 +9,7 @@
   import { isTyping, useGlobalKeydown } from './utils/keyboard.js';
   import { settings } from './settings.svelte.js';
   import { untrack } from 'svelte';
+  import BtnSelect from './components/BtnSelect.svelte';
 
   let { abilities, race, raceKey, existingClassKey = null, existingWizardSchool = null, existingDeityKey = null, existingKitKey = null, existingSpeciesEnemy = null, onComplete } = $props();
 
@@ -150,22 +151,21 @@
                   </ul>
                 {/if}
               {/snippet}
-              <button
-                class="selection-card class-card"
-                class:selected={selectedClassKey === key}
-                class:disabled={!qualified}
-                class:lenient-warning={hasWarnings}
-                onclick={() => qualified && selectClass(key)}
+              <BtnSelect
+        class="class-card"
+                selected={selectedClassKey === key}
                 disabled={!qualified}
+                lenient={hasWarnings}
+                onclick={() => qualified && selectClass(key)}
               >
-                <div class="card-header">
-                  <h4 class="card-name">{cls.name}</h4>
+                <div>
+                  <h4>{cls.name}</h4>
                   <span class="badge-small">{cls.hitDie}</span>
                 </div>
-                <p class="card-desc">{cls.description}</p>
+                <p>{cls.description}</p>
 
                 {#if qualified}
-                  <div class="card-meta">
+                  <div>
                     {#if xpBonus > 0}
                       <span class="xp-bonus">+{xpBonus}% XP</span>
                     {/if}
@@ -174,13 +174,13 @@
                     {/if}
                   </div>
                 {:else}
-                  <div class="card-meta">
+                  <div>
                     {#each failedReqs as req}
                       <span class="req-badge">{req}</span>
                     {/each}
                   </div>
                 {/if}
-              </button>
+              </BtnSelect>
             </Tooltip>
           {/each}
         </div>
@@ -200,23 +200,21 @@
         {#each availableSchools as school}
           {@const tooltipText = !school.qualified ? school.failedReqs.join(', ') : `Opposition: ${school.oppositionSchools.join(', ')}`}
           <Tooltip text={tooltipText} position="bottom">
-            <button
-              class="selection-card"
-              class:selected={selectedSchool?.key === school.key}
-              class:disabled={!school.qualified}
-              onclick={() => school.qualified && (selectedSchool = { key: school.key, ...school })}
+            <BtnSelect
+    selected={selectedSchool?.key === school.key}
               disabled={!school.qualified}
+              onclick={() => school.qualified && (selectedSchool = { key: school.key, ...school })}
             >
-              <span class="card-name">{school.name}</span>
-              <span class="card-desc">{school.school}</span>
+              <span>{school.name}</span>
+              <span>{school.school}</span>
               {#if !school.qualified}
-                <div class="card-meta">
+                <div>
                   {#each school.failedReqs as req}
                     <span class="req-badge">{req}</span>
                   {/each}
                 </div>
               {/if}
-            </button>
+            </BtnSelect>
           </Tooltip>
         {/each}
       </div>
@@ -242,14 +240,14 @@
               <span class="tooltip-tag">Default proficiency and equipment options</span>
             </div>
           {/snippet}
-          <button
-            class="selection-card skip-kit"
-            class:selected={selectedKit === null}
+          <BtnSelect
+            class="skip-kit"
+            selected={selectedKit === null}
             onclick={() => selectedKit = null}
           >
-            <span class="card-name">Skip Kit</span>
-            <span class="card-desc">Play Vanilla {selectedClass.cls.name}</span>
-          </button>
+            <span>Skip Kit</span>
+            <span>Play Vanilla {selectedClass.cls.name}</span>
+          </BtnSelect>
         </Tooltip>
 
         {#each availableKits as kit}
@@ -274,23 +272,21 @@
                 </div>
               {/if}
             {/snippet}
-            <button
-              class="selection-card"
-              class:selected={selectedKit?.key === kit.key}
-              class:disabled={!kit.qualified}
-              onclick={() => kit.qualified && (selectedKit = kit)}
+            <BtnSelect
+    selected={selectedKit?.key === kit.key}
               disabled={!kit.qualified}
+              onclick={() => kit.qualified && (selectedKit = kit)}
             >
-              <span class="card-name">{kit.name}</span>
-              <span class="card-desc">{kit.description}</span>
+              <span>{kit.name}</span>
+              <span>{kit.description}</span>
               {#if !kit.qualified}
-                <div class="card-meta">
+                <div>
                   {#each kit.failedReqs as req}
                     <span class="req-badge">{req}</span>
                   {/each}
                 </div>
               {/if}
-            </button>
+            </BtnSelect>
           </Tooltip>
         {/each}
       </div>
@@ -329,14 +325,13 @@
       <div class="selection-grid">
         {#each speciesEnemyList as enemy}
           <Tooltip text="{enemy.description} — e.g. {enemy.examples}" position="bottom">
-            <button
-              class="selection-card"
-              class:selected={selectedSpeciesEnemy === enemy.key}
+            <BtnSelect
+    selected={selectedSpeciesEnemy === enemy.key}
               onclick={() => selectedSpeciesEnemy = enemy.key}
             >
-              <span class="card-name">{enemy.name}</span>
-              <span class="card-desc">{enemy.description}</span>
-            </button>
+              <span>{enemy.name}</span>
+              <span>{enemy.description}</span>
+            </BtnSelect>
           </Tooltip>
         {/each}
       </div>
@@ -353,26 +348,26 @@
 
       <div class="selection-grid deity-grid">
         <Tooltip text="Standard cleric with access to all common spell spheres" position="bottom">
-          <button
-            class="selection-card deity-card skip-deity"
-            class:selected={selectedDeityKey === null}
+          <BtnSelect
+            class="deity-card skip-deity"
+            selected={selectedDeityKey === null}
             onclick={() => selectedDeityKey = null}
           >
-            <span class="card-name">Skip Deity</span>
-            <span class="card-desc">Standard Cleric</span>
-          </button>
+            <span>Skip Deity</span>
+            <span>Standard Cleric</span>
+          </BtnSelect>
         </Tooltip>
 
         {#each deityList as deity}
           <Tooltip text={deity.description} position="bottom">
-            <button
-              class="selection-card deity-card"
-              class:selected={selectedDeityKey === deity.key}
+            <BtnSelect
+    class="deity-card"
+              selected={selectedDeityKey === deity.key}
               onclick={() => selectedDeityKey = deity.key}
             >
-              <span class="card-name">{deity.name}</span>
-              <span class="card-desc">{getAlignmentName(deity.alignment)}</span>
-            </button>
+              <span>{deity.name}</span>
+              <span>{getAlignmentName(deity.alignment)}</span>
+            </BtnSelect>
           </Tooltip>
         {/each}
       </div>

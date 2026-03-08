@@ -1,9 +1,7 @@
 @use '../../styles/mixins.scss' as *;
 
 // ════════════ CLASS ICONS ════════════
-.class-card {
-  position: relative;
-}
+// position: relative is handled by .btn-select in _widgets.scss
 .class-icon {
   position: absolute;
   inset: 0;
@@ -22,13 +20,13 @@
   gap: $space-md;
 }
 
-.selection-card.deity-card { align-items: center; justify-content: center; text-align: center; min-height: 80px; }
-.selection-card.skip-deity,
-.selection-card.skip-kit {
+.btn-select.deity-card { align-items: center; justify-content: center; text-align: center; min-height: 80px; }
+.btn-select.skip-deity,
+.btn-select.skip-kit {
   background: var(--bg-subtle);
   border: 2px dashed var(--border-color);
   &.selected { background: var(--gold-overlay); border-color: var(--gold); border-style: solid; }
-  &:hover:not(.disabled) { border-style: solid; transform: translateY(-2px); }
+  &:hover:not(.disabled) { border-style: solid; }
 }
 
 .selection-section {

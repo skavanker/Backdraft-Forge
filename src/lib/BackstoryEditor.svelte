@@ -7,7 +7,7 @@
   import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
   import Collapsible from './components/Collapsible.svelte';
-  import SelectableChip from './components/SelectableChip.svelte';
+  import BtnSelect from './components/BtnSelect.svelte';
   import { settings, formatHeight as fmtHeight, formatWeight as fmtWeight } from './settings.svelte.js';
   import { pick, randomInt } from './utils/randomUtils.js';
   import { untrack } from 'svelte';
@@ -186,13 +186,13 @@
     <div class="form-section">
       <h4 class="form-label">Settlement Type</h4>
       <div class="grid-chips gap-sm">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={nameSettings.settlement === 'random'}
           onclick={() => nameSettings.settlement = 'random'}
         />
         {#each settlements as settlement}
-          <SelectableChip
+          <BtnSelect
             label={settlement.charAt(0).toUpperCase() + settlement.slice(1)}
             selected={nameSettings.settlement === settlement}
             onclick={() => nameSettings.settlement = settlement}
@@ -205,13 +205,13 @@
     <div class="form-section">
       <h4 class="form-label">Geography</h4>
       <div class="grid-chips gap-sm">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={nameSettings.geography === 'random'}
           onclick={() => nameSettings.geography = 'random'}
         />
         {#each geographies as geography}
-          <SelectableChip
+          <BtnSelect
             label={geography.charAt(0).toUpperCase() + geography.slice(1)}
             selected={nameSettings.geography === geography}
             onclick={() => nameSettings.geography = geography}
@@ -224,13 +224,13 @@
     <div class="form-section">
       <h4 class="form-label">Social Class</h4>
       <div class="grid-chips gap-sm">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={nameSettings.socialClass === 'random'}
           onclick={() => nameSettings.socialClass = 'random'}
         />
         {#each socialClasses as social}
-          <SelectableChip
+          <BtnSelect
             label={social.charAt(0).toUpperCase() + social.slice(1)}
             selected={nameSettings.socialClass === social}
             onclick={() => nameSettings.socialClass = social}
@@ -243,13 +243,13 @@
     <div class="form-section">
       <h4 class="form-label">Naming Style</h4>
       <div class="grid-chips gap-sm">
-        <SelectableChip
+        <BtnSelect
           label="Random"
           selected={nameSettings.style === 'random'}
           onclick={() => nameSettings.style = 'random'}
         />
         {#each namingStyles as style}
-          <SelectableChip
+          <BtnSelect
             label={style.label}
             selected={nameSettings.style === style.value}
             disabled={!availableNamingStyles().includes(style.value)}
@@ -266,12 +266,12 @@
   <div class="flex-column gap-sm">
     <p class="form-label">Sex</p>
     <div class="flex-row gap-sm">
-      <SelectableChip
+      <BtnSelect
         label="Male"
         selected={sex === 'Male'}
         onclick={() => sex = 'Male'}
       />
-      <SelectableChip
+      <BtnSelect
         label="Female"
         selected={sex === 'Female'}
         onclick={() => sex = 'Female'}
@@ -286,7 +286,7 @@
         {#each row as alignNum}
           {@const isAllowed = allowedAlignments().includes(alignNum)}
           <Tooltip text={alignmentDescriptions[alignNum]} warning={!isAllowed ? 'Not available for your class or deity' : ''}>
-            <SelectableChip
+            <BtnSelect
               label={getAlignmentName(alignNum)}
               selected={alignment === alignNum}
               disabled={!isAllowed}

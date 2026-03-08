@@ -122,26 +122,26 @@ $breakpoint-xl: 1280px;  // Large desktop
   background: var(--bg-card);
 }
 
-@mixin selectable-card($border-width: 2px, $lift: -2px) {
+@mixin btn-select {
   background: var(--bg-input);
-  border: $border-width solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: $radius;
   cursor: pointer;
-  transition: all 0.2s $ease-standard;
+  transition: all 0.15s $ease-standard;
+  padding: $space-md;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   @include touch-target(44px);
 
   &:hover:not(.disabled):not(:disabled) {
     border-color: var(--border-strong);
     background: var(--bg-input);
-    @if $lift != 0 {
-      transform: translateY($lift);
-      box-shadow: 0 4px 12px var(--shadow-color);
-    }
   }
 
   &.selected {
     border-color: var(--gold);
-    border-left: 3px solid var(--gold);
     background: rgba(201, 162, 39, 0.15);
     font-weight: 500;
 
@@ -155,13 +155,6 @@ $breakpoint-xl: 1280px;  // Large desktop
     opacity: 0.4;
     cursor: not-allowed;
   }
-}
-
-@mixin selectable-chip {
-  @include selectable-card($border-width: 1px, $lift: 0);
-  transition: all 0.15s $ease-standard;
-  font-size: $text-base;
-  padding: calc($space-sm * 0.7) calc($space-md * 0.65);
 }
 
 // Responsive grid

@@ -6,6 +6,7 @@
   import { ABILITIES } from '../data/constants.js';
   import { settings } from './settings.svelte.js';
   import { untrack } from 'svelte';
+  import BtnSelect from './components/BtnSelect.svelte';
 
 
   let { abilities, existingRaceKey = null, onComplete } = $props();
@@ -71,20 +72,18 @@
             {/each}
           </div>
         {/snippet}
-        <button
-          class="selection-card"
-          class:selected={selectedRaceKey === key}
-          class:disabled={!qualified}
-          class:lenient-warning={hasWarnings}
-          onclick={() => qualified && selectRace(key)}
+        <BtnSelect
+selected={selectedRaceKey === key}
           disabled={!qualified}
+          lenient={hasWarnings}
+          onclick={() => qualified && selectRace(key)}
         >
-          <h4 class="card-name">{race.name}</h4>
-          <p class="card-desc">{race.description}</p>
+          <h4>{race.name}</h4>
+          <p>{race.description}</p>
 
           {#if qualified}
             {#if Object.keys(race.adjustments).length > 0}
-              <div class="card-meta">
+              <div>
                 {#each Object.entries(race.adjustments) as [ability, mod]}
                   <span class="adjustment" class:positive={mod > 0} class:negative={mod < 0}>
                     {mod > 0 ? '+' : ''}{mod} {ability}
@@ -93,13 +92,13 @@
               </div>
             {/if}
           {:else}
-            <div class="card-meta">
+            <div>
               {#each failedReqs as req}
                 <span class="req-badge">{req}</span>
               {/each}
             </div>
           {/if}
-        </button>
+        </BtnSelect>
       </Tooltip>
     {/each}
   </div>
