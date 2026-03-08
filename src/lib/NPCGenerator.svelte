@@ -3,6 +3,7 @@
   import NPCGeneratorForm from './components/NPCGeneratorForm.svelte';
   import NPCList from './components/NPCList.svelte';
   import { generateNPC, generateBulkNPCs } from './generators/npcGenerator.js';
+  import { initNameGen } from './generators/nameGenerator.js';
   import { loadNPCs, saveNPC, deleteNPC } from './npcPersistence.svelte.js';
   import { useToast } from './utils/stateUtils.svelte.js';
 
@@ -12,6 +13,7 @@
   let isGenerating = $state(false);
 
   onMount(() => {
+    initNameGen();
     savedNPCs = loadNPCs();
   });
 

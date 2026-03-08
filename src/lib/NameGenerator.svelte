@@ -1,28 +1,29 @@
 <script>
-  import { generateCharacterNames } from './generators/nameGenerator.js';
+  import { generateCharacterNames, initNameGen } from './generators/nameGenerator.js';
+  import { onMount } from 'svelte';
+
+  let chainsReady = $state(false);
+  onMount(async () => {
+    await initNameGen();
+    chainsReady = true;
+  });
   import { generatePlaceNames } from './generators/placeNameGenerator.js';
-  import { names } from '../data/names.js';
-  import { getAvailableNamingStyles } from '../data/races.js';
   import NameGeneratorForm from './components/NameGeneratorForm.svelte';
   import PlaceGeneratorForm from './components/PlaceGeneratorForm.svelte';
   import NameResults from './components/NameResults.svelte';
 
-  // Mode: 'character' or 'place'
+  // ─── Mode ─────────────────────────────────────────
   let mode = $state('character');
 
-  // Character generation options
+  // ─── Generation options ────────────────────────────
   let characterOptions = $state({
     race: 'random',
     gender: 'random',
-    class: 'random',
-    settlement: 'random',
     geography: 'random',
-    socialClass: 'random',
     style: 'random',
     quantity: 5
   });
 
-  // Place generation options
   let placeOptions = $state({
     placeType: 'random-settlements',
     geography: 'random',
@@ -30,59 +31,122 @@
     quantity: 5
   });
 
+  // ─── Results ───────────────────────────────────────
   let generatedNames = $state([]);
 
-  /**
-   * Generate names based on current mode
-   */
+  // ─── Favorites ────────────────────────────────────
+  const FAVORITES_KEY = 'backdraft-name-favorites';
+
+  function loadFavorites() {
+    try {
+      return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  let favorites = $state(loadFavorites());
+
+  function persistFavorites() {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  }
+
+  // ─── Copy-all feedback ─────────────────────────────
+  let copyAllDone = $state(false);
+  let copyFavsDone = $state(false);
+
+  async function flashCopy(stateRef, setter) {
+    setter(true);
+    setTimeout(() => setter(false), 1200);
+  }
+
+  // ─── Handlers ─────────────────────────────────────
+
   function generateNames() {
     if (mode === 'character') {
-      generatedNames = generateCharacterNames(names, characterOptions, characterOptions.quantity);
+      generatedNames = generateCharacterNames(null, characterOptions, characterOptions.quantity);
     } else {
-      generatedNames = generatePlaceNames(names, placeOptions, placeOptions.quantity);
+      generatedNames = generatePlaceNames(placeOptions, placeOptions.quantity);
     }
   }
 
-  /**
-   * Update character options from form
-   */
+  function handleRegenerate(index) {
+    let replacement;
+    if (mode === 'character') {
+      replacement = generateCharacterNames(null, characterOptions, 1)[0];
+    } else {
+      replacement = generatePlaceNames(placeOptions, 1)[0];
+    }
+    if (replacement) {
+      generatedNames = generatedNames.map((n, i) => i === index ? replacement : n);
+    }
+  }
+
+  async function handleCopyAll() {
+    const text = generatedNames.map(n => n.name).join('\n');
+    await navigator.clipboard.writeText(text);
+    copyAllDone = true;
+    setTimeout(() => copyAllDone = false, 1200);
+  }
+
+  function handleFavorite(nameObj) {
+    const exists = favorites.some(f => f.name === nameObj.name);
+    if (exists) {
+      favorites = favorites.filter(f => f.name !== nameObj.name);
+    } else {
+      favorites = [...favorites, nameObj];
+    }
+    persistFavorites();
+  }
+
+  function removeFavorite(name) {
+    favorites = favorites.filter(f => f.name !== name);
+    persistFavorites();
+  }
+
+  async function handleCopyFavorites() {
+    const text = favorites.map(f => f.name).join('\n');
+    await navigator.clipboard.writeText(text);
+    copyFavsDone = true;
+    setTimeout(() => copyFavsDone = false, 1200);
+  }
+
+  function handleClearFavorites() {
+    if (confirm('Clear all saved favorites?')) {
+      favorites = [];
+      persistFavorites();
+    }
+  }
+
   function handleCharacterOptionsChange(newOptions) {
-    const updated = { ...characterOptions, ...newOptions };
-
-    // Auto-reset style if it becomes unavailable for the new race
-    // Skip this check if race is 'random' (style should remain flexible)
-    if (newOptions.race && newOptions.race !== 'random' && updated.style !== 'random') {
-      const availableStyles = getAvailableNamingStyles(newOptions.race);
-      if (!availableStyles.includes(updated.style)) {
-        updated.style = 'standard';
-      }
-    }
-
-    characterOptions = updated;
+    characterOptions = { ...characterOptions, ...newOptions };
   }
 
-  /**
-   * Update place options from form
-   */
   function handlePlaceOptionsChange(newOptions) {
     placeOptions = { ...placeOptions, ...newOptions };
   }
 
-  /**
-   * Switch mode and clear generated names
-   */
   function handleModeChange(newMode) {
     mode = newMode;
     generatedNames = [];
   }
 
-  /**
-   * Clear generated names
-   */
   function handleClearGenerated() {
     if (confirm('Clear all generated names?')) {
       generatedNames = [];
     }
+  }
+
+  function favMetaText(meta) {
+    if (!meta) return '';
+    if (meta.race) {
+      const parts = [meta.race, meta.gender];
+      if (meta.geography && meta.geography !== 'random') parts.push(meta.geography);
+      parts.push(meta.style);
+      return parts.join(' • ');
+    }
+    if (meta.placeType) return `${meta.placeType} • ${meta.geography}`;
+    return '';
   }
 </script>
 
@@ -117,29 +181,23 @@
 
   <!-- Character Mode -->
   {#if mode === 'character'}
-    <!-- How It Works -->
     <div class="panel">
       <h3>Character Names</h3>
       <p>
-        This generator creates names using <strong>weighted syllable selection</strong> based on your choices.
-        Names are assembled from syllables that match your character's background.
+        Names are generated using <strong>Markov chains</strong> trained on race-appropriate name lists.
+        Each race has a distinct phonetic identity.
       </p>
       <ul>
-        <li><strong>Class</strong> influences name style (warrior names sound bold, scholar names sound refined)</li>
-        <li><strong>Settlement Type</strong> affects cultural origin (city names are cosmopolitan, village names are rustic)</li>
-        <li><strong>Geography</strong> shapes surnames (coastal, mountain, forest, plains, swamp, desert themes)</li>
-        <li><strong>Social Class</strong> affects sophistication (nobles get refined names, poor characters may get single-word surnames like "Stone")</li>
-        <li><strong>Naming Style</strong>: Standard, Patronymic (son/daughter of), Clan (dwarves), House (elves/humans)</li>
+        <li><strong>Race</strong> determines the sound and feel of the first name (elves sound elvish, dwarves sound Norse)</li>
+        <li><strong>Location</strong> shapes human and half-elf surnames (coastal, mountain, forest, plains, swamp, desert)</li>
+        <li><strong>Naming Style</strong>: Standard surname, Patronymic (son/daughter of), or Clan/House lineage name</li>
       </ul>
     </div>
-
-    <!-- Generation Form -->
     <NameGeneratorForm options={characterOptions} onchange={handleCharacterOptionsChange} />
   {/if}
 
   <!-- Place Mode -->
   {#if mode === 'place'}
-    <!-- How It Works -->
     <div class="panel">
       <h3>Place Names</h3>
       <p>
@@ -147,7 +205,7 @@
         Place names are themed by geography and type.
       </p>
       <ul>
-        <li><strong>Settlements</strong>: Cities, towns, villages (Stormhaven, Ironforge, Greenwood)</li>
+        <li><strong>Settlements</strong>: Cities, towns, villages — Markov-generated, geography-flavoured</li>
         <li><strong>Landmarks</strong>: Natural features (Iron Mountain, Shadow Forest, Bay Lake)</li>
         <li><strong>Taverns</strong>: Pattern-based (The Prancing Pony) or owner-based (The Ironforge Inn)</li>
         <li><strong>Shops</strong>: Descriptive (The Golden Scale) or owner-based (Thorin's Emporium)</li>
@@ -155,25 +213,31 @@
         <li><strong>Buildings</strong>: Towers, castles, temples, libraries</li>
       </ul>
     </div>
-
-    <!-- Generation Form -->
     <PlaceGeneratorForm options={placeOptions} onchange={handlePlaceOptionsChange} />
   {/if}
 
   <!-- Generate Button -->
-  <button class="btn-primary" onclick={generateNames}>
-    Generate Names
+  <button class="btn-primary" onclick={generateNames} disabled={!chainsReady}>
+    {chainsReady ? 'Generate Names' : 'Loading…'}
   </button>
 
   <!-- Generated Names -->
   {#if generatedNames.length > 0}
     <div class="section-header">
       <h3>Generated Names</h3>
-      <button class="btn-danger btn-sm" onclick={handleClearGenerated}>
-        Clear All
-      </button>
+      <div class="action-bar end gap-sm">
+        <button class="btn-secondary btn-sm" onclick={handleCopyAll}>
+          {copyAllDone ? '✓ Copied' : 'Copy All'}
+        </button>
+        <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear</button>
+      </div>
     </div>
-    <NameResults names={generatedNames} />
+    <NameResults
+      names={generatedNames}
+      {favorites}
+      onregenerate={handleRegenerate}
+      onfavorite={handleFavorite}
+    />
   {/if}
 
   <!-- Empty State -->
@@ -182,5 +246,34 @@
       <p>No names generated yet. Click "Generate Names" to begin!</p>
     </div>
   {/if}
-</div>
 
+  <!-- Favorites -->
+  {#if favorites.length > 0}
+    <div class="section-header">
+      <h3>Favorites ★</h3>
+      <div class="action-bar end gap-sm">
+        <button class="btn-secondary btn-sm" onclick={handleCopyFavorites}>
+          {copyFavsDone ? '✓ Copied' : 'Copy All'}
+        </button>
+        <button class="btn-danger btn-sm" onclick={handleClearFavorites}>Clear</button>
+      </div>
+    </div>
+    <div class="favorites-list">
+      {#each favorites as fav}
+        <div class="name-item">
+          <div class="name-main">
+            <span class="name-text">{fav.name}</span>
+            <span class="name-meta">{favMetaText(fav.meta)}</span>
+          </div>
+          <div class="name-actions">
+            <button
+              class="name-action-btn is-starred"
+              onclick={() => removeFavorite(fav.name)}
+              title="Remove from favorites"
+            >★</button>
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
+</div>

@@ -1,465 +1,303 @@
 /**
- * Weighted name generation for AD&D 2E characters and NPCs.
+ * Markov chain name generator for AD&D 2E characters and NPCs.
  *
- * Generates context-aware names using weighted syllable selection based on:
- * - Class (warrior, scholar, rogue, neutral)
- * - Settlement type (urban, rural, nomadic)
- * - Geography (coastal, mountain, forest, plains, swamp, desert)
- * - Social class (noble, wealthy, common, poor)
- * - Naming style (standard, patronymic, clan, house)
+ * Drop-in replacement for the syllable-based generator.
+ * Public API is identical — callers require no changes.
+ *
+ * First names: chains.first[race][gender]     (racial phonetic identity)
+ * Surnames:    chains.surname[race]            (non-human races)
+ *              chains.surname.human[geography] (humans vary by region)
  */
 
 import { NAME_BLACKLIST, isBlacklisted } from '../../data/blacklist.js';
 
-/**
- * Class categories for weighting
- */
-const classCategories = {
-  warrior: ['fighter', 'ranger', 'paladin', 'barbarian'],
-  scholar: ['wizard', 'cleric', 'druid'],
-  rogue: ['thief', 'bard', 'assassin'],
-  neutral: ['monk']
-};
+// ─── Lazy chain loading ────────────────────────────────────────────────────────
+
+let _chains = null;
 
 /**
- * Settlement type categories for origin weighting
+ * Load Markov chains from the data file (once, then cached).
+ * Call this on component mount so chains are ready before the user clicks Generate.
  */
-const settlementCategories = {
-  urban: ['city'],
-  moderate: ['town'],
-  rural: ['village'],
-  nomadic: ['nomadic']
-};
-
-/**
- * Dwarf clan names (for clan-style naming)
- */
-const dwarfClans = [
-  'Ironforge', 'Stonehelm', 'Battlehammer', 'Firebeard', 'Deepdelve',
-  'Thunderaxe', 'Bronzefist', 'Steelshield', 'Granitefoot', 'Hammerfell',
-  'Oreseeker', 'Goldvein', 'Mithrilhand', 'Stonefist', 'Anviltop'
-];
-
-/**
- * Elf house names (for house-style naming)
- */
-const elfHouses = [
-  'Aerandir', 'Celebrian', 'Elenath', 'Galadhrim', 'Mithlond',
-  'Silmarien', 'Laurelin', 'Calandria', 'Thalion', 'Anarion',
-  'Miriel', 'Eldamar', 'Valandil', 'Earendil', 'Finwarin'
-];
-
-/**
- * Human noble house names (for house-style naming)
- */
-const humanHouses = [
-  'Blackwood', 'Greystone', 'Redmane', 'Whitehall', 'Goldenthorn',
-  'Silveroak', 'Ironhold', 'Ravenwood', 'Dragonfall', 'Lionheart',
-  'Stormcrest', 'Winterbourne', 'Summervale', 'Thornbury', 'Ashford'
-];
-
-/**
- * Get class category from specific class name
- */
-function getClassCategory(className) {
-  if (!className || className === 'random') return 'neutral';
-
-  const lower = className.toLowerCase();
-  for (const [category, classes] of Object.entries(classCategories)) {
-    if (classes.includes(lower)) {
-      return category;
-    }
-  }
-  return 'neutral';
+export async function initNameGen() {
+  if (_chains) return;
+  const mod = await import('../../data/markovChains.js');
+  _chains = mod.chains;
 }
 
-/**
- * Get origin category from settlement type
- */
-function getOriginCategory(settlement) {
-  if (!settlement || settlement === 'random') return 'neutral';
-
-  const lower = settlement.toLowerCase();
-  for (const [category, types] of Object.entries(settlementCategories)) {
-    if (types.includes(lower)) {
-      return category;
-    }
-  }
-  return 'neutral';
+/** Internal accessor — throws if chains not yet loaded. */
+function chains() {
+  if (!_chains) throw new Error('[nameGen] Chains not loaded — call initNameGen() first');
+  return _chains;
 }
 
+/** Expose loaded chains for other generators (e.g. placeNameGenerator). */
+export function getLoadedChains() { return _chains; }
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const FIRST_MIN = 4;
+const FIRST_MAX = 12;
+const SURNAME_MIN = 4;
+const SURNAME_MAX = 14;
+const MAX_WALK_STEPS = 50;  // hard cap — prevents infinite loops
+const MAX_ATTEMPTS = 20;    // retries if output is too short
+
+const ALL_RACES = ['human', 'elf', 'dwarf', 'gnome', 'halfling', 'halfElf'];
+const ALL_GEOS  = ['coastal', 'mountain', 'forest', 'plains', 'desert', 'swamp'];
+// ─── Core Walker ──────────────────────────────────────────────────────────────
+
 /**
- * Select a syllable from an array with weighted probability based on context.
+ * Weighted random pick from a frequency object.
+ * e.g. { "a": 5, "b": 2, "END": 1 } → picks "a" ~5/8 of the time
  *
- * @param {Array} syllables - Array of syllable objects or strings
- * @param {Object} context - Context for weighting (class, origin, geography, social)
- * @returns {string} Selected syllable
+ * @param {Object.<string, number>} obj
+ * @returns {string}
  */
-function selectWeightedSyllable(syllables, context = {}) {
-  // Handle legacy format (array of strings) - simple random selection
-  if (typeof syllables[0] === 'string') {
-    return syllables[Math.floor(Math.random() * syllables.length)];
+function pickWeightedKey(obj) {
+  const total = Object.values(obj).reduce((sum, w) => sum + w, 0);
+  let rand = Math.random() * total;
+  for (const [key, weight] of Object.entries(obj)) {
+    rand -= weight;
+    if (rand <= 0) return key;
   }
-
-  const { class: cls, origin, geography, social } = context;
-
-  // WEIGHTING SYSTEM:
-  // Each syllable starts with a base weight (10) and gets bonuses for matching context.
-  // Exact matches get high bonuses (50-70), neutral fallbacks get smaller bonuses (20).
-  // This creates context-aware name generation while still allowing variety.
-  const scored = syllables.map(s => {
-    let weight = s.weight || 10; // Base weight - all syllables have minimum chance
-
-    // Class match: Highest priority bonus (warriors get 'bold' syllables, mages get 'arcane' ones)
-    if (s.class) {
-      if (s.class.includes(cls)) {
-        weight += 70; // Strong class match - e.g., warrior gets 'grim', 'iron'
-      }
-      if (s.class.includes('neutral')) {
-        weight += 20; // Neutral syllables work for any class
-      }
-    }
-
-    // Origin match: For first names (e.g., city dwellers get refined syllables)
-    if (s.origin) {
-      if (s.origin.includes(origin)) {
-        weight += 50; // Origin match - e.g., urban vs rural naming patterns
-      }
-      if (s.origin.includes('neutral')) {
-        weight += 20; // Universal syllables
-      }
-    }
-
-    // Geography match: For surnames (e.g., coastal = 'storm', 'wave')
-    if (s.geo) {
-      if (s.geo.includes(geography)) {
-        weight += 50; // Geography match - e.g., mountain names vs coastal names
-      }
-      if (s.geo.includes('neutral')) {
-        weight += 20; // Works anywhere
-      }
-    }
-
-    // Social class match: High priority for surnames (noble vs common names)
-    if (s.social) {
-      if (s.social.includes(social)) {
-        weight += 70; // Social match - e.g., noble 'von', 'de' vs common 'smith'
-      }
-      if (s.social.includes('neutral')) {
-        weight += 20; // Classless syllables
-      }
-    }
-
-    return { ...s, finalWeight: weight };
-  });
-
-  // WEIGHTED RANDOM SELECTION:
-  // Think of this as a roulette wheel where each syllable gets a slice
-  // proportional to its weight. Higher weights = bigger slice = more likely to be picked.
-  const totalWeight = scored.reduce((sum, s) => sum + s.finalWeight, 0);
-  let random = Math.random() * totalWeight; // Pick a random point on the wheel
-
-  // Spin the wheel: subtract each weight until we hit zero
-  for (const item of scored) {
-    random -= item.finalWeight;
-    if (random <= 0) {
-      return item.syl;
-    }
-  }
-
-  // Fallback to last item
-  return scored[scored.length - 1].syl;
+  // Fallback — floating point edge case
+  return Object.keys(obj)[Object.keys(obj).length - 1];
 }
 
 /**
- * Generate a patronymic surname (father's name + suffix).
+ * Walk a Markov chain to produce a single capitalized name string.
  *
- * @param {Object} names - The names data object
- * @param {string} race - Race key
- * @param {string} gender - Gender
- * @param {Object} context - Weighting context
- * @returns {string} Patronymic surname
+ * @param {{ starters: Object, transitions: Object }} chain
+ * @param {number} minLen
+ * @param {number} maxLen
+ * @returns {string}
  */
-function generatePatronymic(names, race, gender, context) {
-  // Generate father's first name (always Male for patronymics)
-  const fatherData = names[race]?.['Male'];
+export function walkChain(chain, minLen = FIRST_MIN, maxLen = FIRST_MAX) {
+  let best = '';
 
-  if (!fatherData) return '';
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    let result = pickWeightedKey(chain.starters);
+    let gram = result;
 
-  const prefix = selectWeightedSyllable(fatherData.first.prefix, context);
-  const middle = fatherData.first.middle && Math.random() < 0.2
-    ? selectWeightedSyllable(fatherData.first.middle, context)
-    : '';
-  const suffix = selectWeightedSyllable(fatherData.first.suffix, context);
-  const fatherName = prefix + middle + suffix;
+    for (let step = 0; step < MAX_WALK_STEPS; step++) {
+      const nexts = chain.transitions[gram];
+      if (!nexts) break;
 
-  // Race-specific patronymic patterns
-  if (race === 'dwarf') {
-    // Norse-style: -son, -dottir
-    return gender === 'Male' ? `${fatherName}son` : `${fatherName}dottir`;
-  } else if (race === 'elf' || race === 'halfElf') {
-    // Elven style: prefix with "child of" descriptor
-    return gender === 'Male' ? `${fatherName}ion` : `${fatherName}iel`;
-  } else if (race === 'human') {
-    // English-style: -son for both (or variant endings)
-    const suffixes = gender === 'Male'
-      ? ['son', 'sen', 's']
-      : ['daughter', 'sdottir', 'dottir'];
-    const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-    return `${fatherName}${randomSuffix}`;
-  } else if (race === 'gnome') {
-    // Gnomish: -kin, -gin
-    return gender === 'Male' ? `${fatherName}kin` : `${fatherName}gin`;
-  } else if (race === 'halfling') {
-    // Halfling: simple -son/-daughter
-    return gender === 'Male' ? `${fatherName}son` : `${fatherName}daughter`;
+      const next = pickWeightedKey(nexts);
+      if (next === 'END') break;
+      if (result.length >= maxLen) break;
+
+      result += next;
+      gram = result.slice(-2);
+    }
+
+    if (result.length >= minLen) {
+      return capitalize(result);
+    }
+
+    // Keep the longest result seen so far as fallback
+    if (result.length > best.length) best = result;
   }
 
-  // Default fallback
-  return gender === 'Male' ? `${fatherName}son` : `${fatherName}daughter`;
+  return capitalize(best || 'Unnamed');
 }
 
 /**
- * Generate a clan-style surname.
- *
- * @param {string} race - Race key
- * @returns {string} Clan surname
+ * Capitalize first letter, lowercase the rest.
+ * @param {string} str
+ * @returns {string}
  */
-function generateClanName(race) {
-  if (race === 'dwarf') {
-    const clan = dwarfClans[Math.floor(Math.random() * dwarfClans.length)];
-    return `of Clan ${clan}`;
-  }
-  // Other races don't use clan names by default
-  return '';
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// ─── Chain Lookup ─────────────────────────────────────────────────────────────
+
+/**
+ * Look up a first-name chain, with fallback to human male.
+ * @param {string} race
+ * @param {string} gender  'male' | 'female'
+ * @returns {Object} chain
+ */
+function getFirstChain(race, gender) {
+  const c = chains();
+  const chain = c.first?.[race]?.[gender];
+  if (chain) return chain;
+
+  console.warn(`[nameGen] Missing first chain for ${race}/${gender} — falling back to human/male`);
+  return c.first.human.male;
 }
 
 /**
- * Generate a house-style surname.
- *
- * @param {string} race - Race key
- * @returns {string} House surname
+ * Look up a surname chain, with fallback to human/plains.
+ * @param {string} race
+ * @param {string} geography
+ * @returns {Object} chain
  */
-function generateHouseName(race) {
-  let houses;
-
-  if (race === 'elf' || race === 'halfElf') {
-    houses = elfHouses;
-    const house = houses[Math.floor(Math.random() * houses.length)];
-    // Use elvish prefix (Tel' = house of, Quel' = exalted/high)
-    const prefix = Math.random() < 0.5 ? 'Tel\'' : 'Quel\'';
-    return `${prefix}${house}`;
-  } else if (race === 'human') {
-    houses = humanHouses;
-    const house = houses[Math.floor(Math.random() * houses.length)];
-    return `of House ${house}`;
-  } else {
-    // Other races don't typically use house names
-    return '';
+function getSurnameChain(race, geography) {
+  const c = chains();
+  if (race === 'human' || race === 'halfElf') {
+    const chain = c.surname?.human?.[geography];
+    if (chain) return chain;
+    console.warn(`[nameGen] Missing surname chain for human/${geography} — falling back to plains`);
+    return c.surname.human.plains;
   }
+
+  const chain = c.surname?.[race];
+  if (chain) return chain;
+
+  console.warn(`[nameGen] Missing surname chain for ${race} — falling back to human/plains`);
+  return c.surname.human.plains;
 }
 
+// ─── Style Application ────────────────────────────────────────────────────────
+
 /**
- * Generate a character name with context-aware weighting.
+ * Format a raw chain-generated surname based on naming style, race, and social class.
  *
- * @param {Object} names - The names data object
- * @param {Object} options - Generation options
- * @returns {string} Generated name
+ * @param {string} rawSurname   - Output of walkChain on a surname chain
+ * @param {string} race
+ * @param {string} gender       'Male' | 'Female'
+ * @param {string} style  'standard' | 'patronymic' | 'lineage' | 'clan' | 'house'
+ * @returns {string}
  */
-export function generateCharacterName(names, options = {}) {
-  let {
-    race = 'human',
-    gender = 'Male',
-    class: cls = 'random',
-    settlement = 'random',
-    geography = 'random',
-    socialClass = 'random',
-    style = 'standard'
-  } = options;
-
-  // Handle random race
-  if (race === 'random') {
-    const availableRaces = ['human', 'elf', 'dwarf', 'gnome', 'halfling', 'halfElf'];
-    race = availableRaces[Math.floor(Math.random() * availableRaces.length)];
-  }
-
-  // Handle random gender
-  if (gender === 'random') {
-    gender = Math.random() < 0.5 ? 'Male' : 'Female';
-  }
-
-  // Handle half-elf (use elf or human name data, but preserve race for style selection)
-  let nameRace = race;
-  if (race === 'halfElf') {
-    nameRace = Math.random() < 0.5 ? 'elf' : 'human';
-  }
-
-  // Handle random social class
-  if (socialClass === 'random') {
-    const classes = ['noble', 'wealthy', 'common', 'poor'];
-    socialClass = classes[Math.floor(Math.random() * classes.length)];
-  }
-
-  // Handle random style (pick from styles available for this race)
-  // Social class influences style selection
-  if (style === 'random') {
-    const availableStyles = ['standard', 'patronymic'];
-
-    // Only nobles/wealthy can have clan names (poor/common characters don't have clan lineage)
-    if (race === 'dwarf' && socialClass !== 'poor' && socialClass !== 'common') {
-      availableStyles.push('clan');
-    }
-
-    // Only nobles/wealthy can have house names (poor/common characters don't have noble houses)
-    if ((race === 'elf' || race === 'human' || race === 'halfElf') &&
-        socialClass !== 'poor' && socialClass !== 'common') {
-      availableStyles.push('house');
-    }
-
-    // Weight style selection by social class
-    const weights = availableStyles.map(s => {
-      if (s === 'house' && (socialClass === 'noble' || socialClass === 'wealthy')) return 2;
-      if (s === 'clan' && (socialClass === 'noble' || socialClass === 'wealthy')) return 2;
-      if (s === 'patronymic' && (socialClass === 'poor' || socialClass === 'common')) return 2;
-      return 1;
-    });
-
-    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-    let random = Math.random() * totalWeight;
-    for (let i = 0; i < availableStyles.length; i++) {
-      random -= weights[i];
-      if (random <= 0) {
-        style = availableStyles[i];
-        break;
-      }
-    }
-  }
-
-  const raceData = names[nameRace]?.[gender];
-  if (!raceData) {
-    // Fallback for missing data with details
-    console.error(`Missing name data for race: ${nameRace}, gender: ${gender}`);
-    return `[Missing ${nameRace} ${gender} data]`;
-  }
-
-  // Get shared surname data (at race level, not gender level)
-  const surnameData = names[nameRace]?.surname || raceData.surname;
-  if (!surnameData) {
-    console.error(`Missing surname data for race: ${nameRace}`);
-    return `[Missing ${nameRace} surname data]`;
-  }
-
-  // Get categories for weighting
-  const classCategory = getClassCategory(cls);
-  const origin = getOriginCategory(settlement);
-
-  // Generate first name
-  const context = { class: classCategory, origin, geography, social: socialClass };
-  const prefix = selectWeightedSyllable(raceData.first.prefix, context);
-  const middle = raceData.first.middle && Math.random() < 0.3
-    ? selectWeightedSyllable(raceData.first.middle, context)
-    : '';
-  const suffix = selectWeightedSyllable(raceData.first.suffix, context);
-
-  const firstName = prefix + middle + suffix;
-
-  // Generate surname based on naming style
-  let surname;
-
-  // House/Clan names imply noble lineage - use noble weighting for surnames
-  const surnameContext = (style === 'house' || style === 'clan')
-    ? { ...context, social: 'noble' }
-    : context;
-
+function applyStyle(rawSurname, race, gender, style) {
   switch (style) {
     case 'patronymic':
-      surname = generatePatronymic(names, race, gender, surnameContext);
-      break;
+      return buildPatronymic(race, gender);
 
+    case 'lineage':
     case 'clan':
-      surname = generateClanName(race);
-      // Fallback to standard if race doesn't use clans
-      if (!surname) {
-        const surnamePrefix = selectWeightedSyllable(surnameData.prefix, surnameContext);
-        const surnameSuffix = selectWeightedSyllable(surnameData.suffix, surnameContext);
-        surname = surnamePrefix + surnameSuffix;
-      }
-      break;
-
     case 'house':
-      surname = generateHouseName(race);
-      // Fallback to standard if race doesn't use houses
-      if (!surname) {
-        const surnamePrefix = selectWeightedSyllable(surnameData.prefix, surnameContext);
-        const surnameSuffix = selectWeightedSyllable(surnameData.suffix, surnameContext);
-        surname = surnamePrefix + surnameSuffix;
+      if (race === 'dwarf')                      return `of Clan ${rawSurname}`;
+      if (race === 'elf' || race === 'halfElf') {
+        const prefix = Math.random() < 0.5 ? "Tel'" : "Quel'";
+        return `${prefix}${rawSurname}`;
       }
-      break;
+      if (race === 'human')                      return `of House ${rawSurname}`;
+      // Other races fall through to standard
+      return rawSurname;
 
     case 'standard':
     default:
-      const surnamePrefix = selectWeightedSyllable(surnameData.prefix, surnameContext);
-
-      // Poor characters sometimes get single-word surnames (bastard-style)
-      if (socialClass === 'poor' && Math.random() < 0.4) {
-        surname = surnamePrefix; // Just "Stone", "Snow", "Waters"
-      } else {
-        const surnameSuffix = selectWeightedSyllable(surnameData.suffix, surnameContext);
-        surname = surnamePrefix + surnameSuffix; // "Stonefield", "Snowhaven"
-      }
-      break;
+      return rawSurname;
   }
-
-  const fullName = `${firstName} ${surname}`;
-
-  // Return object with name and metadata for display
-  return {
-    name: fullName,
-    meta: {
-      race,
-      gender,
-      class: classCategory, // Show the resolved class category used for generation
-      settlement,
-      geography,
-      socialClass,
-      style
-    }
-  };
 }
 
 /**
- * Generate a safe character name (not blacklisted).
- *
- * @param {Object} names - The names data object
- * @param {Object} options - Same as generateCharacterName
- * @returns {string} Generated safe name
+ * Generate a patronymic surname (father's first name + race/gender suffix).
+ * @param {string} race
+ * @param {string} gender  'Male' | 'Female'
+ * @returns {string}
  */
-function generateSafeCharacterName(names, options = {}) {
-  let attempts = 0;
-  let nameObj;
+function buildPatronymic(race, gender) {
+  const fatherChain = getFirstChain(race, 'male');
+  const fatherName = walkChain(fatherChain, FIRST_MIN, FIRST_MAX);
+  const isFemale = gender === 'Female';
 
-  do {
-    nameObj = generateCharacterName(names, options);
-    attempts++;
-  } while (isBlacklisted(nameObj.name, NAME_BLACKLIST) && attempts < 10);
+  switch (race) {
+    case 'dwarf':
+      return isFemale ? `${fatherName}dottir` : `${fatherName}son`;
+    case 'elf':
+      return isFemale ? `${fatherName}iel` : `${fatherName}ion`;
+    case 'gnome':
+      return isFemale ? `${fatherName}gin` : `${fatherName}kin`;
+    case 'halfling':
+      return isFemale ? `${fatherName}daughter` : `${fatherName}son`;
+    case 'human':
+    default: {
+      const maleSuffixes = ['son', 'sen', 's'];
+      const femaleSuffixes = ['daughter', 'sdottir'];
+      const suffixes = isFemale ? femaleSuffixes : maleSuffixes;
+      return fatherName + suffixes[Math.floor(Math.random() * suffixes.length)];
+    }
+  }
+}
 
-  // If still blacklisted after 10 attempts, return anyway
-  // (extremely unlikely with our syllable pool)
-  return nameObj;
+// ─── Style Resolution ─────────────────────────────────────────────────────────
+
+/**
+ * Pick a random naming style for the given race.
+ * @param {string} race
+ * @returns {string}
+ */
+function resolveStyle() {
+  const available = ['standard', 'patronymic', 'lineage'];
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Generate a single character name.
+ * The `_names` parameter is kept for backward compatibility but is not used —
+ * all data now comes from the baked Markov chains.
+ *
+ * @param {Object} _names     - Ignored (legacy syllable data)
+ * @param {Object} options
+ * @returns {{ name: string, meta: Object }}
+ */
+export function generateCharacterName(_names, options = {}) {
+  let {
+    race       = 'human',
+    gender     = 'Male',
+    geography  = 'random',
+    style      = 'random',
+  } = options;
+
+  // Resolve randoms
+  if (race        === 'random') race        = ALL_RACES[Math.floor(Math.random() * ALL_RACES.length)];
+  if (gender      === 'random') gender      = Math.random() < 0.5 ? 'Male' : 'Female';
+  if (geography === 'random') geography = ALL_GEOS[Math.floor(Math.random() * ALL_GEOS.length)];
+  if (style === 'random') style = resolveStyle();
+
+  // Half-elf: resolve once and use consistently for both first name and applyStyle
+  const nameRace = race === 'halfElf'
+    ? (Math.random() < 0.5 ? 'elf' : 'human')
+    : race;
+
+  const genderKey = gender.toLowerCase();
+
+  // Generate first name
+  const firstChain = getFirstChain(nameRace, genderKey);
+  const firstName = walkChain(firstChain, FIRST_MIN, FIRST_MAX);
+
+  // Generate raw surname from chain
+  const surnameChain = getSurnameChain(race, geography);
+  const rawSurname = walkChain(surnameChain, SURNAME_MIN, SURNAME_MAX);
+
+  // Apply style formatting (pass nameRace so half-elf uses same resolved race)
+  const surname = applyStyle(rawSurname, nameRace, gender, style);
+
+  const geoUsed = race === 'human' || race === 'halfElf';
+
+  return {
+    name: `${firstName} ${surname}`,
+    meta: { race, gender, geography: geoUsed ? geography : null, style }
+  };
 }
 
 /**
  * Generate multiple character names.
  *
- * @param {Object} names - The names data object
- * @param {Object} options - Same as generateCharacterName
- * @param {number} count - Number of names to generate
- * @returns {string[]} Array of generated names
+ * @param {Object} _names   - Ignored (legacy)
+ * @param {Object} options
+ * @param {number} count
+ * @returns {Array<{ name: string, meta: Object }>}
  */
-export function generateCharacterNames(names, options = {}, count = 1) {
-  const result = [];
-  for (let i = 0; i < count; i++) {
-    result.push(generateSafeCharacterName(names, options));
+export function generateCharacterNames(_names, options = {}, count = 1) {
+  const results = [];
+  let attempts = 0;
+
+  while (results.length < count && attempts < count * 10) {
+    const nameObj = generateCharacterName(_names, options);
+    attempts++;
+
+    if (!isBlacklisted(nameObj.name, NAME_BLACKLIST)) {
+      results.push(nameObj);
+    }
   }
-  return result;
+
+  return results;
 }

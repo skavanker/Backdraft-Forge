@@ -1,10 +1,11 @@
 <script>
   import { onMount } from 'svelte';
   import SplashPage from './lib/SplashPage.svelte';
-  import NPCGenerator from './lib/NPCGenerator.svelte';
-  import TreasureGenerator from './lib/TreasureGenerator.svelte';
-  import NameGenerator from './lib/NameGenerator.svelte';
-  import MonsterBestiary from './lib/MonsterBestiary.svelte';
+  // DM tools — lazy-loaded on first navigation to keep initial bundle small
+  let NPCGenerator       = $state(null);
+  let TreasureGenerator  = $state(null);
+  let NameGenerator      = $state(null);
+  let MonsterBestiary    = $state(null);
   import AbilityRoller from './lib/AbilityRoller.svelte';
   import RaceSelector from './lib/RaceSelector.svelte';
   import ClassSelector from './lib/ClassSelector.svelte';
@@ -312,22 +313,26 @@
     window.scrollTo(0, 0);
   }
 
-  function launchNPCGenerator() {
+  async function launchNPCGenerator() {
+    if (!NPCGenerator) NPCGenerator = (await import('./lib/NPCGenerator.svelte')).default;
     currentView = 'npc-generator';
     window.scrollTo(0, 0);
   }
 
-  function launchTreasureGenerator() {
+  async function launchTreasureGenerator() {
+    if (!TreasureGenerator) TreasureGenerator = (await import('./lib/TreasureGenerator.svelte')).default;
     currentView = 'treasure-generator';
     window.scrollTo(0, 0);
   }
 
-  function launchNameGenerator() {
+  async function launchNameGenerator() {
+    if (!NameGenerator) NameGenerator = (await import('./lib/NameGenerator.svelte')).default;
     currentView = 'name-generator';
     window.scrollTo(0, 0);
   }
 
-  function launchMonsterBestiary() {
+  async function launchMonsterBestiary() {
+    if (!MonsterBestiary) MonsterBestiary = (await import('./lib/MonsterBestiary.svelte')).default;
     currentView = 'monster-bestiary';
     window.scrollTo(0, 0);
   }
@@ -533,7 +538,7 @@
       <p class="tagline">AD&D 2nd Edition NPC Generator</p>
     </header>
     <section class="content card">
-      <NPCGenerator />
+      {#if NPCGenerator}<svelte:component this={NPCGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'treasure-generator'}
     <header class="header">
@@ -541,7 +546,7 @@
       <p class="tagline">AD&D 2nd Edition Treasure Generator</p>
     </header>
     <section class="content card">
-      <TreasureGenerator />
+      {#if TreasureGenerator}<svelte:component this={TreasureGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'name-generator'}
     <header class="header">
@@ -549,7 +554,7 @@
       <p class="tagline">AD&D 2nd Edition Name Generator</p>
     </header>
     <section class="content card">
-      <NameGenerator />
+      {#if NameGenerator}<svelte:component this={NameGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'monster-bestiary'}
     <header class="header">
@@ -557,7 +562,7 @@
       <p class="tagline">AD&D 2nd Edition Monster Bestiary</p>
     </header>
     <section class="content card">
-      <MonsterBestiary />
+      {#if MonsterBestiary}<svelte:component this={MonsterBestiary} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'splash'}
     <SplashPage

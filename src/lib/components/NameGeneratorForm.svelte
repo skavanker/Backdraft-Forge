@@ -1,39 +1,28 @@
 <script>
-  import { getAvailableNamingStyles } from '../../data/races.js';
   import BtnSelect from './BtnSelect.svelte';
 
   let { options, onchange } = $props();
 
-  // Available options for Phase 2 (all races + naming styles)
   const races = ['Human', 'Elf', 'Dwarf', 'Gnome', 'Halfling', 'Half-Elf'];
 
   const genders = ['Male', 'Female'];
 
-  const classes = [
-    'Fighter', 'Wizard', 'Cleric', 'Thief',
-    'Ranger', 'Paladin', 'Bard', 'Druid'
-  ];
-
-  const settlements = ['City', 'Town', 'Village', 'Nomadic'];
-
   const geographies = ['Coastal', 'Mountain', 'Forest', 'Plains', 'Swamp', 'Desert'];
 
-  const socialClasses = ['Noble', 'Wealthy', 'Common', 'Poor'];
-
   const namingStyles = [
-    { value: 'standard', label: 'Standard', description: 'Traditional surname' },
-    { value: 'patronymic', label: 'Patronymic', description: 'Son/Daughter of' },
-    { value: 'clan', label: 'Clan', description: 'Of Clan X (Dwarf)' },
-    { value: 'house', label: 'House', description: 'Of House X (Elf/Human)' }
+    { value: 'standard',   label: 'Standard',    description: 'Traditional surname' },
+    { value: 'patronymic', label: 'Patronymic',  description: 'Son/Daughter of' },
+    { value: 'lineage',    label: 'Clan / House', description: 'Of Clan X (Dwarf) or Of House X (Elf/Human)' }
   ];
 
   const quantities = [1, 3, 5, 10];
 
-  /**
-   * Check if a naming style is available for the current race
-   */
+  // Lineage (clan/house) is only meaningful for races that have that tradition
+  const lineageRaces = ['dwarf', 'elf', 'human', 'half-elf', 'random'];
+
   function isStyleAvailable(styleValue) {
-    return getAvailableNamingStyles(options.race).includes(styleValue);
+    if (styleValue === 'lineage') return lineageRaces.includes(options.race);
+    return true;
   }
 
   /**
@@ -83,45 +72,8 @@
     </div>
   </div>
 
-  <!-- Class Selection -->
-  <div class="form-section">
-    <h4 class="form-label">Class</h4>
-    <div class="grid-compact gap-sm">
-      <BtnSelect
-        label="Random"
-        selected={options.class === 'random'}
-        onclick={() => handleChange('class', 'random')}
-      />
-      {#each classes as cls}
-        <BtnSelect
-          label={cls}
-          selected={options.class === cls.toLowerCase()}
-          onclick={() => handleChange('class', cls.toLowerCase())}
-        />
-      {/each}
-    </div>
-  </div>
-
-  <!-- Settlement Type -->
-  <div class="form-section">
-    <h4 class="form-label">Settlement Type</h4>
-    <div class="grid-compact gap-sm">
-      <BtnSelect
-        label="Random"
-        selected={options.settlement === 'random'}
-        onclick={() => handleChange('settlement', 'random')}
-      />
-      {#each settlements as settlement}
-        <BtnSelect
-          label={settlement}
-          selected={options.settlement === settlement.toLowerCase()}
-          onclick={() => handleChange('settlement', settlement.toLowerCase())}
-        />
-      {/each}
-    </div>
-  </div>
-
-  <!-- Geography -->
+  <!-- Geography — only relevant for humans and half-elves -->
+  {#if options.race === 'human' || options.race === 'half-elf' || options.race === 'random'}
   <div class="form-section">
     <h4 class="form-label">Location</h4>
     <div class="grid-compact gap-sm">
@@ -139,25 +91,7 @@
       {/each}
     </div>
   </div>
-
-  <!-- Social Class -->
-  <div class="form-section">
-    <h4 class="form-label">Social Class</h4>
-    <div class="grid-compact gap-sm">
-      <BtnSelect
-        label="Random"
-        selected={options.socialClass === 'random'}
-        onclick={() => handleChange('socialClass', 'random')}
-      />
-      {#each socialClasses as social}
-        <BtnSelect
-          label={social}
-          selected={options.socialClass === social.toLowerCase()}
-          onclick={() => handleChange('socialClass', social.toLowerCase())}
-        />
-      {/each}
-    </div>
-  </div>
+  {/if}
 
   <!-- Quantity -->
   <div class="form-section">
@@ -192,7 +126,7 @@
       {/each}
     </div>
     <p class="section-hint">
-      Standard: Traditional surname • Patronymic: Son/Daughter of • Clan: Dwarves • House: Elves/Humans
+      Standard: Traditional surname • Patronymic: Son/Daughter of • Clan/House: Lineage name by race
     </p>
   </div>
 </div>

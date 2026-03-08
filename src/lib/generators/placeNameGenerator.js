@@ -2,11 +2,17 @@
  * Place name generation for AD&D 2E world building.
  *
  * Generates context-aware names for settlements, landmarks, buildings, and dungeons.
+ *
+ * Settlements now use the same Markov chains as human surnames — they were trained on
+ * geography-specific compound words (Blackwood, Ironhaven, Stormcliff…) which read
+ * naturally as settlement names.
  */
 
 import { PLACE_BLACKLIST, isBlacklisted } from '../../data/blacklist.js';
 
-import { settlementSyllables, landmarkSyllables, landmarkTypes } from '../../data/placeNames.js';
+import { walkChain, getLoadedChains } from './nameGenerator.js';
+
+import { landmarkTypes } from '../../data/placeNames.js';
 import {
   tavernPatterns,
   shopPatterns,
@@ -19,20 +25,31 @@ import { getAdjectivesForLandmark } from '../../data/landmarkAdjectives.js';
 import { generateCharacterName } from './nameGenerator.js';
 import { pick } from '../utils/randomUtils.js';
 
+// ─── Geography helpers ─────────────────────────────────────────────────────────
+
+const ALL_GEOS = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert'];
+
+function resolveGeo(geography, extras = []) {
+  if (geography !== 'random') return geography;
+  const pool = extras.length ? [...ALL_GEOS, ...extras] : ALL_GEOS;
+  return pick(pool);
+}
+
+// ─── Weighted adjective picker ─────────────────────────────────────────────────
+
 /**
  * Pick an adjective with weighted probability based on geography.
- * Geography-matching adjectives get a bonus, same roulette wheel approach
- * as selectWeightedSyllable in nameGenerator.js.
+ * Geography-matching adjectives get a bonus.
  *
- * @param {Object[]} adjectives - Array of adjective objects from getAdjectivesForLandmark
- * @param {string} geography - The geography to boost (e.g. 'forest', 'mountain')
+ * @param {Object[]} adjectives
+ * @param {string} geography
  * @returns {Object} Selected adjective object
  */
 function pickWeightedAdjective(adjectives, geography) {
   const scored = adjectives.map(a => {
-    let weight = 10; // Base weight - all adjectives have minimum chance
+    let weight = 10;
     if (a.location.length > 0 && a.location.includes(geography)) {
-      weight += 50; // Geography match bonus
+      weight += 50;
     }
     return { ...a, finalWeight: weight };
   });
@@ -48,279 +65,188 @@ function pickWeightedAdjective(adjectives, geography) {
   return scored[scored.length - 1];
 }
 
+// ─── Settlement names ──────────────────────────────────────────────────────────
+
 /**
- * Generate a settlement name (city, town, village)
+ * Generate a settlement name (city, town, village).
  *
- * @param {Object} options - Generation options
- * @returns {string} Generated settlement name
+ * Uses the Markov surname chains trained on geography-specific compound words —
+ * these already produce place-name-sounding results (Blackwood, Ironhaven…).
+ * The `type` param is accepted for API compatibility but does not alter output.
+ *
+ * @param {Object} options
+ * @returns {string}
  */
 export function generateSettlementName(options = {}) {
-  const {
-    type = 'city', // city, town, village
-    geography = 'random'
-  } = options;
+  const { geography = 'random' } = options;
+  const geo = resolveGeo(geography);
 
-  // Handle random geography
-  let geo = geography;
-  if (geo === 'random') {
-    const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert'];
-    geo = pick(geographies);
-  }
-
-  const syllables = settlementSyllables[type]?.[geo];
-  if (!syllables) {
-    return 'Unknown Settlement';
-  }
-
-  const prefix = pick(syllables.prefix);
-  const suffix = pick(syllables.suffix);
-
-  return prefix + suffix;
+  const c = getLoadedChains();
+  const chain = c?.surname?.human?.[geo] ?? c?.surname?.human?.plains;
+  return walkChain(chain, 6, 14);
 }
+
+// ─── Landmark names ────────────────────────────────────────────────────────────
 
 /**
  * Generate a landmark name (cave, forest, mountain, etc.)
  *
- * @param {Object} options - Generation options
- * @returns {string} Generated landmark name
+ * @param {Object} options
+ * @returns {string}
  */
 export function generateLandmarkName(options = {}) {
-  const {
-    type = 'mountain' // bridge, cave, forest, river, lake, mountain, road, graveyard, ruins
-  } = options;
+  const { type = 'mountain' } = options;
 
-  // Get available adjectives for this landmark type
   const availableAdjectives = getAdjectivesForLandmark(type);
-
-  // Get type suffix
   const typeSuffix = landmarkTypes[type];
   const suffix = Array.isArray(typeSuffix) ? pick(typeSuffix) : typeSuffix;
 
-  // Pick naming pattern
   const patternRoll = Math.random();
 
   if (patternRoll < 0.6) {
-    // 60% - Single adjective: "Lonely Mountain"
+    // 60% — Single adjective: "Lonely Mountain"
     const adjObj = pick(availableAdjectives);
     return `${adjObj.adj} ${suffix}`;
   } else {
-    // 40% - Two adjectives from different categories: "Dark Misty Peak"
+    // 40% — Two adjectives from different categories: "Dark Misty Peak"
     const adjObj1 = pick(availableAdjectives);
-
-    // Filter to different category
     const differentCategory = availableAdjectives.filter(a => a.category !== adjObj1.category);
-
-    // If we have adjectives from other categories, use one. Otherwise just use any different adjective
-    let adjObj2;
-    if (differentCategory.length > 0) {
-      adjObj2 = pick(differentCategory);
-    } else {
-      // Fallback: just pick a different adjective
-      adjObj2 = pick(availableAdjectives.filter(a => a.adj !== adjObj1.adj));
-    }
+    const adjObj2 = differentCategory.length > 0
+      ? pick(differentCategory)
+      : pick(availableAdjectives.filter(a => a.adj !== adjObj1.adj));
 
     return `${adjObj1.adj} ${adjObj2.adj} ${suffix}`;
   }
 }
 
+// ─── Tavern / Inn names ────────────────────────────────────────────────────────
+
 /**
- * Generate a tavern/inn name
+ * Generate a tavern/inn name.
  *
- * @param {Object} names - Character names data (for owner-based names)
- * @param {Object} options - Generation options
- * @returns {string} Generated tavern name
+ * Styles: 'pattern' | 'owner' | 'random'
+ * (The old 'adjective' style is folded into 'pattern'.)
+ *
+ * @param {Object} options
+ * @returns {string}
  */
-export function generateTavernName(names, options = {}) {
-  const {
-    geography = 'random',
-    style = 'random' // 'pattern', 'adjective', or 'owner'
-  } = options;
+export function generateTavernName(options = {}) {
+  const { geography = 'random', style = 'random' } = options;
 
-  // Determine style (40% pattern, 30% adjective, 30% owner)
-  let nameStyle = style;
+  let nameStyle = style === 'adjective' ? 'pattern' : style;
   if (nameStyle === 'random') {
-    const roll = Math.random();
-    if (roll < 0.4) {
-      nameStyle = 'pattern';
-    } else if (roll < 0.7) {
-      nameStyle = 'adjective';
-    } else {
-      nameStyle = 'owner';
-    }
+    nameStyle = Math.random() < 0.5 ? 'pattern' : 'owner';
   }
 
-  // Handle random geography
-  let geo = geography;
-  if (geo === 'random') {
-    const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert', 'neutral'];
-    geo = pick(geographies);
-  }
+  const geo = resolveGeo(geography, ['neutral']);
 
   if (nameStyle === 'owner') {
-    // Generate owner surname
     const race = pick(['human', 'dwarf', 'elf', 'halfling']);
-    const ownerNameObj = generateCharacterName(names, {
-      race,
-      gender: 'Male',
-      geography: geo
-    });
+    const ownerNameObj = generateCharacterName(null, { race, gender: 'Male', geography: geo });
     const surname = ownerNameObj.name.split(' ')[1];
     const suffix = pick(tavernPatterns.suffixes);
-
     return `The ${surname} ${suffix}`;
-  } else if (nameStyle === 'adjective') {
-    // Adjective-based: "The [Adjective] Inn/Tavern"
-    const availableAdjectives = getAdjectivesForLandmark('tavern', geo);
-    const adjObj = pick(availableAdjectives);
-    const suffix = pick(tavernPatterns.suffixes);
-
-    // 90% "The", 10% "Ye"
-    const article = Math.random() < 0.9 ? 'The' : 'Ye';
-
-    return `${article} ${adjObj.adj} ${suffix}`;
-  } else {
-    // Pattern-based: "The [Adjective] [Noun]"
-    const adjective = pick(tavernPatterns.adjectives);
-    const nounList = tavernPatterns.nouns[geo] || tavernPatterns.nouns.neutral;
-    const noun = pick(nounList);
-
-    // 90% "The", 10% "Ye"
-    const article = Math.random() < 0.9 ? 'The' : 'Ye';
-
-    return `${article} ${adjective} ${noun}`;
   }
+
+  // pattern — blend tavernPatterns.adjectives with geography-keyed landmark adjectives
+  const useGeoAdj = Math.random() < 0.5;
+  const adjective = useGeoAdj
+    ? pick(getAdjectivesForLandmark('tavern', geo)).adj
+    : pick(tavernPatterns.adjectives);
+  const nounList = tavernPatterns.nouns[geo] || tavernPatterns.nouns.neutral;
+  const noun = pick(nounList);
+  const article = Math.random() < 0.9 ? 'The' : 'Ye';
+  return `${article} ${adjective} ${noun}`;
 }
 
+// ─── Shop names ────────────────────────────────────────────────────────────────
+
 /**
- * Generate a shop name
+ * Generate a shop name.
  *
- * @param {Object} names - Character names data (for owner-based names)
- * @param {Object} options - Generation options
- * @returns {string} Generated shop name
+ * Styles: 'pattern' | 'owner' | 'random'
+ * (The old 'adjective' style is folded into 'pattern'.)
+ *
+ * @param {Object} options
+ * @returns {string}
  */
-export function generateShopName(names, options = {}) {
-  const {
-    geography = 'random',
-    style = 'random' // 'pattern', 'adjective', or 'owner'
-  } = options;
+export function generateShopName(options = {}) {
+  const { geography = 'random', style = 'random' } = options;
 
-  // Handle random geography
-  let geo = geography;
-  if (geo === 'random') {
-    const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert', 'neutral'];
-    geo = pick(geographies);
-  }
-
-  // Determine style (30% pattern, 30% adjective, 40% owner)
-  let nameStyle = style;
+  let nameStyle = style === 'adjective' ? 'pattern' : style;
   if (nameStyle === 'random') {
-    const roll = Math.random();
-    if (roll < 0.3) {
-      nameStyle = 'pattern';
-    } else if (roll < 0.6) {
-      nameStyle = 'adjective';
-    } else {
-      nameStyle = 'owner';
-    }
+    nameStyle = Math.random() < 0.5 ? 'pattern' : 'owner';
   }
+
+  const geo = resolveGeo(geography, ['neutral']);
 
   if (nameStyle === 'owner') {
-    // Generate owner name
     const race = pick(['human', 'dwarf', 'elf', 'gnome', 'halfling']);
-    const ownerNameObj = generateCharacterName(names, {
+    const ownerNameObj = generateCharacterName(null, {
       race,
       gender: Math.random() < 0.5 ? 'Male' : 'Female',
       geography: geo
     });
-
     const firstName = ownerNameObj.name.split(' ')[0];
     const shopType = pick(shopPatterns.types);
-
     return `${firstName}'s ${shopType}`;
-  } else if (nameStyle === 'adjective') {
-    // Adjective-based: "The [Adjective] Shop/Emporium"
-    const availableAdjectives = getAdjectivesForLandmark('shop', geo);
-    const adjObj = pick(availableAdjectives);
+  }
+
+  // pattern
+  const roll = Math.random();
+
+  if (roll < 0.4) {
+    // "[Adjective] [Noun]" using geography-flavoured adjectives
+    const adjObj = pick(getAdjectivesForLandmark('shop', geo));
     const shopType = pick(shopPatterns.types);
-
-    // 90% "The", 10% "Ye"
     const article = Math.random() < 0.9 ? 'The' : 'Ye';
-
     return `${article} ${adjObj.adj} ${shopType}`;
+  } else if (roll < 0.7) {
+    // "The [Adjective] [Noun]"
+    const adjective = pick(shopPatterns.adjectives);
+    const noun = pick(shopPatterns.nouns);
+    const article = Math.random() < 0.9 ? 'The' : 'Ye';
+    return `${article} ${adjective} ${noun}`;
   } else {
-    // Pattern-based
-    const roll = Math.random();
-
-    if (roll < 0.5) {
-      // "The [Adjective] [Noun]" or "Ye [Adjective] [Noun]"
-      const adjective = pick(shopPatterns.adjectives);
-      const noun = pick(shopPatterns.nouns);
-
-      // 90% "The", 10% "Ye"
-      const article = Math.random() < 0.9 ? 'The' : 'Ye';
-
-      return `${article} ${adjective} ${noun}`;
-    } else {
-      // "[Noun] & [Noun]"
-      const noun1 = pick(shopPatterns.nouns);
-      let noun2 = pick(shopPatterns.nouns);
-      // Avoid duplicates (with safety counter)
-      let attempts = 0;
-      while (noun2 === noun1 && shopPatterns.nouns.length > 1 && attempts < 10) {
-        noun2 = pick(shopPatterns.nouns);
-        attempts++;
-      }
-      return `${noun1} & ${noun2}`;
+    // "[Noun] & [Noun]"
+    const noun1 = pick(shopPatterns.nouns);
+    let noun2 = pick(shopPatterns.nouns);
+    let attempts = 0;
+    while (noun2 === noun1 && shopPatterns.nouns.length > 1 && attempts < 10) {
+      noun2 = pick(shopPatterns.nouns);
+      attempts++;
     }
+    return `${noun1} & ${noun2}`;
   }
 }
 
+// ─── Temple names ──────────────────────────────────────────────────────────────
+
 /**
- * Generate a temple/shrine name
+ * Generate a temple/shrine name.
  *
- * @param {Object} options - Generation options
- * @returns {string} Generated temple name
+ * @param {Object} options
+ * @returns {string}
  */
 export function generateTempleName(options = {}) {
-  const {
-    deityName = null // Optional: specific deity name
-  } = options;
-
+  const { deityName = null } = options;
   const type = pick(templePatterns.types);
-
-  if (deityName) {
-    return `${type} of ${deityName}`;
-  } else {
-    const concept = pick(templePatterns.concepts);
-    return `${type} of ${concept}`;
-  }
+  if (deityName) return `${type} of ${deityName}`;
+  return `${type} of ${pick(templePatterns.concepts)}`;
 }
 
-/**
- * Generate a dungeon/ruins name
- *
- * @param {Object} options - Generation options
- * @returns {string} Generated dungeon name
- */
-export function generateDungeonName(options = {}) {
-  return generateBuildingName('dungeon', options);
-}
+// ─── Building / Dungeon names ──────────────────────────────────────────────────
 
 /**
  * Generate a building/dungeon name with geography-weighted adjectives.
  * 60% single adjective, 40% two adjectives from different categories.
  *
- * @param {string} buildingType - Building type (tower, castle, library, dungeon)
- * @param {Object} options - Generation options
- * @returns {string} Generated building name
+ * @param {string} buildingType
+ * @param {Object} options
+ * @returns {string}
  */
 function generateBuildingName(buildingType, options = {}) {
-  const { geography = 'random' } = options;
-  let geo = geography;
-  if (geo === 'random') {
-    const geographies = ['mountain', 'forest', 'swamp', 'desert', 'underground', 'neutral'];
-    geo = pick(geographies);
-  }
+  const geo = resolveGeo(options.geography ?? 'random', ['underground', 'neutral']);
 
   const availableAdjectives = getAdjectivesForLandmark(buildingType, geo);
   const types = buildingType === 'dungeon' ? dungeonPatterns.types : buildingPatterns[buildingType].types;
@@ -329,15 +255,13 @@ function generateBuildingName(buildingType, options = {}) {
   const patternRoll = Math.random();
 
   if (patternRoll < 0.6) {
-    // 60% - Single adjective: "The Overgrown Tower"
     const adjObj = pickWeightedAdjective(availableAdjectives, geo);
     return `The ${adjObj.adj} ${type}`;
   } else {
-    // 40% - Two adjectives: location-specific + generic from different category
     const locationAdjs = availableAdjectives.filter(a => a.location.length > 0 && a.location.includes(geo));
-    // First adjective: force location-specific if available, otherwise weighted pick
-    const adjObj1 = locationAdjs.length > 0 ? pick(locationAdjs) : pickWeightedAdjective(availableAdjectives, geo);
-    // Second adjective: different category, generic
+    const adjObj1 = locationAdjs.length > 0
+      ? pick(locationAdjs)
+      : pickWeightedAdjective(availableAdjectives, geo);
     const differentCategory = availableAdjectives.filter(a => a.category !== adjObj1.category && a.adj !== adjObj1.adj);
     const adjObj2 = differentCategory.length > 0
       ? pickWeightedAdjective(differentCategory, geo)
@@ -346,69 +270,37 @@ function generateBuildingName(buildingType, options = {}) {
   }
 }
 
-/**
- * Generate a tower name
- *
- * @param {Object} options - Generation options
- * @returns {string} Generated tower name
- */
-export function generateTowerName(options = {}) {
-  return generateBuildingName('tower', options);
-}
+export function generateTowerName(options = {})   { return generateBuildingName('tower',   options); }
+export function generateCastleName(options = {})  { return generateBuildingName('castle',  options); }
+export function generateLibraryName(options = {}) { return generateBuildingName('library', options); }
+export function generateDungeonName(options = {}) { return generateBuildingName('dungeon', options); }
+
+// ─── Road names ────────────────────────────────────────────────────────────────
 
 /**
- * Generate a castle name
+ * Generate a road/path name.
  *
- * @param {Object} options - Generation options
- * @returns {string} Generated castle name
- */
-export function generateCastleName(options = {}) {
-  return generateBuildingName('castle', options);
-}
-
-/**
- * Generate a library name
- *
- * @param {Object} options - Generation options
- * @returns {string} Generated library name
- */
-export function generateLibraryName(options = {}) {
-  return generateBuildingName('library', options);
-}
-
-/**
- * Generate a road/path name
- *
- * @param {Object} options - Generation options
- * @returns {string} Generated road name
+ * @param {Object} options
+ * @returns {string}
  */
 export function generateRoadName(options = {}) {
-  const roll = Math.random();
-
-  if (roll < 0.5) {
-    // "[Direction] [Type]"
-    const direction = pick(roadPatterns.directions);
-    const type = pick(roadPatterns.types);
-    return `${direction} ${type}`;
-  } else {
-    // "The [Adjective] [Type]"
-    const adjective = pick(roadPatterns.adjectives);
-    const type = pick(roadPatterns.types);
-    return `The ${adjective} ${type}`;
+  if (Math.random() < 0.5) {
+    return `${pick(roadPatterns.directions)} ${pick(roadPatterns.types)}`;
   }
+  return `The ${pick(roadPatterns.adjectives)} ${pick(roadPatterns.types)}`;
 }
 
+// ─── Public API ────────────────────────────────────────────────────────────────
+
 /**
- * Generate a place name based on type
+ * Generate a place name based on type.
  *
- * @param {Object} names - Character names data
- * @param {Object} options - Generation options
- * @returns {Object} Object with name and resolved placeType
+ * @param {Object} options
+ * @returns {{ name: string, resolvedType: string }}
  */
-export function generatePlaceName(names, options = {}) {
+export function generatePlaceName(options = {}) {
   let { placeType = 'city', ...restOptions } = options;
 
-  // Handle random-category selections
   if (placeType === 'random-settlements') {
     placeType = pick(['city', 'town', 'village']);
   } else if (placeType === 'random-landmarks') {
@@ -420,14 +312,11 @@ export function generatePlaceName(names, options = {}) {
   let name;
 
   switch (placeType) {
-    // Settlements
     case 'city':
     case 'town':
     case 'village':
       name = generateSettlementName({ type: placeType, ...restOptions });
       break;
-
-    // Landmarks
     case 'bridge':
     case 'cave':
     case 'forest':
@@ -438,57 +327,29 @@ export function generatePlaceName(names, options = {}) {
     case 'ruins':
       name = generateLandmarkName({ type: placeType, ...restOptions });
       break;
-
-    // Buildings
-    case 'tavern':
-      name = generateTavernName(names, restOptions);
-      break;
-    case 'shop':
-      name = generateShopName(names, restOptions);
-      break;
-    case 'temple':
-      name = generateTempleName(restOptions);
-      break;
-    case 'tower':
-      name = generateTowerName(restOptions);
-      break;
-    case 'castle':
-      name = generateCastleName(restOptions);
-      break;
-    case 'library':
-      name = generateLibraryName(restOptions);
-      break;
-    case 'dungeon':
-      name = generateDungeonName(restOptions);
-      break;
-    case 'road':
-      name = generateRoadName(restOptions);
-      break;
-
-    default:
-      name = 'Unknown Place';
+    case 'tavern':  name = generateTavernName(restOptions);  break;
+    case 'shop':    name = generateShopName(restOptions);    break;
+    case 'temple':  name = generateTempleName(restOptions);  break;
+    case 'tower':   name = generateTowerName(restOptions);   break;
+    case 'castle':  name = generateCastleName(restOptions);  break;
+    case 'library': name = generateLibraryName(restOptions); break;
+    case 'dungeon': name = generateDungeonName(restOptions); break;
+    case 'road':    name = generateRoadName(restOptions);    break;
+    default:        name = 'Unknown Place';
   }
 
   return { name, resolvedType: placeType };
 }
 
-/**
- * Generate a safe place name (not blacklisted).
- *
- * @param {Object} names - Character names data
- * @param {Object} options - Generation options
- * @returns {Object} Generated safe place name with metadata
- */
-function generateSafePlaceName(names, options = {}) {
+function generateSafePlaceName(options = {}) {
   let attempts = 0;
   let result;
 
   do {
-    result = generatePlaceName(names, options);
+    result = generatePlaceName(options);
     attempts++;
   } while (isBlacklisted(result.name, PLACE_BLACKLIST) && attempts < 10);
 
-  // Return object with name and metadata for display
   return {
     name: result.name,
     meta: {
@@ -499,17 +360,16 @@ function generateSafePlaceName(names, options = {}) {
 }
 
 /**
- * Generate multiple place names
+ * Generate multiple place names.
  *
- * @param {Object} names - Character names data
- * @param {Object} options - Generation options
- * @param {number} count - Number of names to generate
- * @returns {Object[]} Array of generated place name objects with metadata
+ * @param {Object} options
+ * @param {number} count
+ * @returns {Object[]}
  */
-export function generatePlaceNames(names, options = {}, count = 1) {
+export function generatePlaceNames(options = {}, count = 1) {
   const result = [];
   for (let i = 0; i < count; i++) {
-    result.push(generateSafePlaceName(names, options));
+    result.push(generateSafePlaceName(options));
   }
   return result;
 }

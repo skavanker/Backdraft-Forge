@@ -2,6 +2,8 @@
 
 ## Bugs
 
+- [ ] **Native `confirm()` dialogs** — "Clear all" buttons in Name Generator use `window.confirm()` which shows a jarring native browser alert. Replace with inline confirmation (e.g. button turns into "Sure?" + "Yes / No" for one click, or just skip the confirmation since the action is trivially reversible by regenerating).
+
 - [ ] **Height/weight not saved on character completion** — `BackstoryEditor` emits `heightInches`/`weightLbs` but `stepManager` step 7 field list has `height`/`weight` — key mismatch means both are written as `null`. Fix: update step 7 fields to `'heightInches', 'weightLbs'` (and remove `'height'`, `'weight'`). `shareCharacter.js` already uses the correct `heightInches`/`weightLbs` keys.
 
 ## Features to Add
@@ -80,6 +82,10 @@
 ### Settings Panel Enhancements
 - [ ] Custom starting gold multiplier
 - Wait for settings feature to land before planning more — house rules stuff should live there
+
+### Build
+- [ ] **Chunk size warning** — main bundle is 631 KB (190 KB gzipped), over Vite's 500 KB threshold. Primary cause is `markovChains.js` (~205 KB). Fix: lazy-load the name generator data with `import()` so it only loads when the Name Generator tool is opened
+- [ ] **Dynamic/static import conflicts** — `deities.js`, `spells.js`, `kits.js`, `languages.js`, `priestSpells.js`, `treasureGenerator.js` are statically imported by components but also dynamically imported by `shareCharacter.js` / `characterRestore.svelte.js`. Vite warns the dynamic split is voided by the static import. Fix: make all imports of these modules dynamic, or accept the current behaviour since the files are needed on load anyway
 
 ### Code Cleanup / Consolidation
 - [ ] **Merge NPCStatBlock + MonsterStatBlock** — same card layout (name, combat stats row, abilities, action bar); NPC has 3 combat stats, monster has 5, but structure is identical — merge into one `<StatBlock>` with slots

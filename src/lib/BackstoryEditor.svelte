@@ -1,8 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { generateCharacterName } from './generators/nameGenerator.js';
-  import { names } from '../data/names.js';
-  import { getAvailableNamingStyles } from '../data/races.js';
+  import { generateCharacterName, initNameGen } from './generators/nameGenerator.js';
   import { ALIGNMENTS, getAlignmentName, getAlignmentGrid, getAllowedAlignmentsForClass } from '../data/alignment.js';
   import { deities } from '../data/deities.js';
   import Tooltip from './Tooltip.svelte';
@@ -39,27 +37,23 @@
 
   // Name generation settings
   let nameSettings = $state({
-    settlement: 'random',
     geography: 'random',
-    socialClass: 'random',
     style: 'random'
   });
 
-  // Available options for name settings
-  const settlements = ['city', 'town', 'village', 'nomadic'];
   const geographies = ['coastal', 'mountain', 'forest', 'plains', 'swamp', 'desert'];
-  const socialClasses = ['noble', 'wealthy', 'common', 'poor'];
   const namingStyles = [
-    { value: 'standard', label: 'Standard' },
+    { value: 'standard',   label: 'Standard' },
     { value: 'patronymic', label: 'Patronymic' },
-    { value: 'clan', label: 'Clan' },
-    { value: 'house', label: 'House' }
+    { value: 'lineage',    label: 'Clan / House' }
   ];
 
-  // Derived: available naming styles for current race
-  let availableNamingStyles = $derived(() => {
-    return getAvailableNamingStyles(character.raceKey);
-  });
+  const lineageRaces = ['dwarf', 'elf', 'human', 'halfElf'];
+
+  function isStyleAvailable(styleValue) {
+    if (styleValue === 'lineage') return lineageRaces.includes(character.raceKey);
+    return true;
+  }
 
   // Reactive formatted display
   let heightDisplay = $derived(heightInches > 0 ? fmtHeight(heightInches) : '');
@@ -118,6 +112,7 @@
 
   // Auto-randomize on mount if enabled and fields are empty
   onMount(() => {
+    initNameGen();
     if (settings.autoRandomize && !age && heightInches === 0 && weightLbs === 0 && !eyes && !hair) {
       randomizeDetails();
     }
@@ -141,13 +136,10 @@
   function randomizeName() {
     const raceKey = character.raceKey === 'halfElf' ? 'halfElf' : character.raceKey;
 
-    const result = generateCharacterName(names, {
+    const result = generateCharacterName(null, {
       race: raceKey,
       gender: sex,
-      class: character.classKey || 'random',
-      settlement: nameSettings.settlement,
       geography: nameSettings.geography,
-      socialClass: nameSettings.socialClass,
       style: nameSettings.style
     });
 
@@ -182,26 +174,8 @@
 
   <!-- Name Options (Advanced) -->
   <Collapsible title="Name Options (Advanced)" defaultOpen={false}>
-    <!-- Settlement Type -->
-    <div class="form-section">
-      <h4 class="form-label">Settlement Type</h4>
-      <div class="grid-chips gap-sm">
-        <BtnSelect
-          label="Random"
-          selected={nameSettings.settlement === 'random'}
-          onclick={() => nameSettings.settlement = 'random'}
-        />
-        {#each settlements as settlement}
-          <BtnSelect
-            label={settlement.charAt(0).toUpperCase() + settlement.slice(1)}
-            selected={nameSettings.settlement === settlement}
-            onclick={() => nameSettings.settlement = settlement}
-          />
-        {/each}
-      </div>
-    </div>
-
-    <!-- Geography -->
+    <!-- Geography (human/half-elf only — shapes surname) -->
+    {#if character.raceKey === 'human' || character.raceKey === 'halfElf'}
     <div class="form-section">
       <h4 class="form-label">Geography</h4>
       <div class="grid-chips gap-sm">
@@ -219,25 +193,7 @@
         {/each}
       </div>
     </div>
-
-    <!-- Social Class -->
-    <div class="form-section">
-      <h4 class="form-label">Social Class</h4>
-      <div class="grid-chips gap-sm">
-        <BtnSelect
-          label="Random"
-          selected={nameSettings.socialClass === 'random'}
-          onclick={() => nameSettings.socialClass = 'random'}
-        />
-        {#each socialClasses as social}
-          <BtnSelect
-            label={social.charAt(0).toUpperCase() + social.slice(1)}
-            selected={nameSettings.socialClass === social}
-            onclick={() => nameSettings.socialClass = social}
-          />
-        {/each}
-      </div>
-    </div>
+    {/if}
 
     <!-- Naming Style -->
     <div class="form-section">
@@ -252,13 +208,13 @@
           <BtnSelect
             label={style.label}
             selected={nameSettings.style === style.value}
-            disabled={!availableNamingStyles().includes(style.value)}
+            disabled={!isStyleAvailable(style.value)}
             onclick={() => nameSettings.style = style.value}
           />
         {/each}
       </div>
       <p class="section-hint">
-        Standard: Traditional surname • Patronymic: Son/Daughter of • Clan: Dwarves • House: Elves/Humans
+        Standard: Traditional surname • Patronymic: Son/Daughter of • Clan/House: Lineage name by race
       </p>
     </div>
   </Collapsible>

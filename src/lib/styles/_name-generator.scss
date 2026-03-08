@@ -61,13 +61,8 @@
   gap: $space-md;
 }
 
-.results-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: $space-sm;
-}
-
-.names-list {
+.names-list,
+.favorites-list {
   display: flex;
   flex-direction: column;
   gap: $space-sm;
@@ -77,53 +72,75 @@
   display: flex;
   align-items: center;
   gap: $space-md;
-  width: 100%;
-  padding: $space-md;
+  padding: $space-sm $space-md;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: $radius;
   box-shadow: 0 1px 3px var(--shadow-color);
-  cursor: pointer;
-  text-align: left;
   @include transition;
-  @include touch-target;
 
   &:hover {
     background: var(--bg-panel);
     border-color: var(--border-strong);
-
-    .copy-indicator {
-      opacity: 1;
-    }
   }
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--accent-primary);
-    outline-offset: 2px;
-  }
+// Left side: name + meta stacked
+.name-main {
+  display: flex;
+  align-items: baseline;
+  gap: $space-sm;
+  flex: 1;
+  min-width: 0;
 }
 
 .name-text {
   font-size: $text-base;
   font-weight: 600;
   color: var(--text-primary);
-  min-width: 180px;
+  white-space: nowrap;
 }
 
 .name-meta {
   font-size: $text-xs;
   color: var(--text-muted);
   text-transform: capitalize;
-  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.copy-indicator {
-  font-size: $text-sm;
-  color: var(--text-muted);
-  opacity: 0.5;
+// Right side: action icon buttons
+.name-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-xs;
   flex-shrink: 0;
-  margin-left: auto;
+}
+
+.name-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: $text-sm;
   @include transition;
+
+  &:hover {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+  }
+
+  &.is-starred {
+    color: var(--accent-gold, #c8a456);
+  }
 }
 
 // ===================================================
@@ -141,21 +158,16 @@
 
   .name-item {
     padding: $space-sm;
-    flex-wrap: wrap;
+  }
+
+  .name-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $space-xs;
   }
 
   .name-text {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .name-meta {
-    width: 100%;
-    order: 2;
-  }
-
-  .copy-indicator {
-    order: 1;
+    white-space: normal;
   }
 }
 
@@ -169,8 +181,7 @@
   .generator-header .subtitle,
   .form-label,
   .grid-chips,
-  .results-actions,
-  .copy-indicator,
+  .name-actions,
   .name-meta,
   .btn-danger,
   .panel-dashed,
@@ -179,23 +190,22 @@
     display: none !important;
   }
 
-  // Print only the generated names
-  .name-results {
-    .names-list {
-      display: block;
-    }
+  // Print only names
+  .names-list,
+  .favorites-list {
+    display: block;
+  }
 
-    .name-item {
-      background: white !important;
-      border: none !important;
-      padding: $space-xs 0 !important;
-      page-break-inside: avoid;
-    }
+  .name-item {
+    background: white !important;
+    border: none !important;
+    padding: $space-xs 0 !important;
+    page-break-inside: avoid;
+  }
 
-    .name-text {
-      color: black !important;
-      font-size: 12pt;
-    }
+  .name-text {
+    color: black !important;
+    font-size: 12pt;
   }
 
   // Simplify header for print
