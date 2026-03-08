@@ -1,5 +1,6 @@
 <script>
   import { useCopyFeedback } from '../utils/stateUtils.svelte.js';
+  import { nameMetaText } from '../utils/formatUtils.js';
 
   let { names, favorites = [], onregenerate, onfavorite } = $props();
 
@@ -18,18 +19,6 @@
   function isFavorited(name) {
     return favorites.some(f => f.name === name);
   }
-
-  function metaText(meta) {
-    if (!meta) return '';
-    if (meta.race) {
-      const parts = [meta.race, meta.gender];
-      if (meta.geography && meta.geography !== 'random') parts.push(meta.geography);
-      parts.push(meta.style);
-      return parts.join(' • ');
-    }
-    if (meta.placeType) return `${meta.placeType} • ${meta.geography}`;
-    return '';
-  }
 </script>
 
 <div class="name-results">
@@ -39,7 +28,7 @@
       <div class="name-item">
         <div class="name-main">
           <span class="name-text">{name}</span>
-          <span class="name-meta">{metaText(nameObj.meta)}</span>
+          <span class="name-meta">{nameMetaText(nameObj.meta)}</span>
         </div>
         <div class="name-actions">
           <button

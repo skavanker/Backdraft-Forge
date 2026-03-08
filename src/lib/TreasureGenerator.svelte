@@ -58,14 +58,17 @@
   }
 
   function handleDelete(id) {
-    if (confirm('Are you sure you want to delete this treasure hoard?')) {
-      savedHoards = deleteTreasure(id, savedHoards);
-    }
+    savedHoards = deleteTreasure(id, savedHoards);
   }
 
+  let clearGeneratedConfirm = $state(false);
+
   function handleClearGenerated() {
-    if (confirm('Clear all generated treasure hoards?')) {
+    if (clearGeneratedConfirm) {
       generatedHoards = [];
+      clearGeneratedConfirm = false;
+    } else {
+      clearGeneratedConfirm = true;
     }
   }
 
@@ -112,9 +115,13 @@
             Total: {totalGeneratedValue.toLocaleString()} gp
           </span>
         </div>
-        <button class="btn-danger btn-sm" onclick={handleClearGenerated}>
-          Clear All
-        </button>
+        {#if clearGeneratedConfirm}
+          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
+          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Yes</button>
+          <button class="btn-secondary btn-sm" onclick={() => clearGeneratedConfirm = false}>No</button>
+        {:else}
+          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear All</button>
+        {/if}
       </div>
       <div class="grid-xl animate-in">
         {#each generatedHoards as hoard (hoard.id)}

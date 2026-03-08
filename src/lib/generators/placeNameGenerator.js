@@ -67,12 +67,22 @@ function pickWeightedAdjective(adjectives, geography) {
 
 // ─── Settlement names ──────────────────────────────────────────────────────────
 
+// Geography-specific suffixes that make settlement names feel more like places.
+// Used when generating a short stem + suffix rather than a full compound word.
+const SETTLEMENT_SUFFIXES = {
+  coastal:  ['port', 'haven', 'bay', 'cove', 'harbor', 'reach'],
+  mountain: ['hold', 'peak', 'keep', 'forge', 'burg', 'gate'],
+  forest:   ['wood', 'vale', 'glen', 'dale', 'glade', 'moor'],
+  plains:   ['ford', 'wick', 'ton', 'stead', 'field', 'burgh'],
+  swamp:    ['fen', 'mire', 'marsh', 'mere', 'bog', 'hollow'],
+  desert:   ['oasis', 'crossing', 'post', 'well', 'gate', 'sands'],
+};
+
 /**
  * Generate a settlement name (city, town, village).
  *
- * Uses the Markov surname chains trained on geography-specific compound words —
- * these already produce place-name-sounding results (Blackwood, Ironhaven…).
- * The `type` param is accepted for API compatibility but does not alter output.
+ * 60% — full Markov word (Blackwood, Ironhaven…)
+ * 40% — short Markov stem + geography suffix (Iron + port = Ironport)
  *
  * @param {Object} options
  * @returns {string}
@@ -83,7 +93,16 @@ export function generateSettlementName(options = {}) {
 
   const c = getLoadedChains();
   const chain = c?.surname?.human?.[geo] ?? c?.surname?.human?.plains;
-  return walkChain(chain, 6, 14);
+
+  if (Math.random() < 0.6) {
+    // Full compound word from chain
+    return walkChain(chain, 6, 14);
+  }
+
+  // Short stem + geography suffix
+  const stem = walkChain(chain, 3, 7);
+  const suffixes = SETTLEMENT_SUFFIXES[geo] ?? SETTLEMENT_SUFFIXES.plains;
+  return stem + pick(suffixes);
 }
 
 // ─── Landmark names ────────────────────────────────────────────────────────────
@@ -111,11 +130,12 @@ export function generateLandmarkName(options = {}) {
     // 40% — Two adjectives from different categories: "Dark Misty Peak"
     const adjObj1 = pick(availableAdjectives);
     const differentCategory = availableAdjectives.filter(a => a.category !== adjObj1.category);
-    const adjObj2 = differentCategory.length > 0
-      ? pick(differentCategory)
-      : pick(availableAdjectives.filter(a => a.adj !== adjObj1.adj));
+    const fallbackPool = availableAdjectives.filter(a => a.adj !== adjObj1.adj);
+    const adjObj2Pool = differentCategory.length > 0 ? differentCategory : fallbackPool;
 
-    return `${adjObj1.adj} ${adjObj2.adj} ${suffix}`;
+    if (adjObj2Pool.length === 0) return `${adjObj1.adj} ${suffix}`;
+
+    return `${adjObj1.adj} ${pick(adjObj2Pool).adj} ${suffix}`;
   }
 }
 
@@ -142,7 +162,8 @@ export function generateTavernName(options = {}) {
 
   if (nameStyle === 'owner') {
     const race = pick(['human', 'dwarf', 'elf', 'halfling']);
-    const ownerNameObj = generateCharacterName(null, { race, gender: 'Male', geography: geo });
+    const gender = Math.random() < 0.5 ? 'Male' : 'Female';
+    const ownerNameObj = generateCharacterName(null, { race, gender, geography: geo });
     const surname = ownerNameObj.name.split(' ')[1];
     const suffix = pick(tavernPatterns.suffixes);
     return `The ${surname} ${suffix}`;
@@ -263,10 +284,12 @@ function generateBuildingName(buildingType, options = {}) {
       ? pick(locationAdjs)
       : pickWeightedAdjective(availableAdjectives, geo);
     const differentCategory = availableAdjectives.filter(a => a.category !== adjObj1.category && a.adj !== adjObj1.adj);
-    const adjObj2 = differentCategory.length > 0
-      ? pickWeightedAdjective(differentCategory, geo)
-      : pickWeightedAdjective(availableAdjectives.filter(a => a.adj !== adjObj1.adj), geo);
-    return `The ${adjObj1.adj} ${adjObj2.adj} ${type}`;
+    const fallbackPool = availableAdjectives.filter(a => a.adj !== adjObj1.adj);
+    const adjObj2Pool = differentCategory.length > 0 ? differentCategory : fallbackPool;
+
+    if (adjObj2Pool.length === 0) return `The ${adjObj1.adj} ${type}`;
+
+    return `The ${adjObj1.adj} ${pickWeightedAdjective(adjObj2Pool, geo).adj} ${type}`;
   }
 }
 

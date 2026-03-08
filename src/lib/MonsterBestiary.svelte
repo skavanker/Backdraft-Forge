@@ -48,9 +48,7 @@
   }
 
   function handleDelete(key) {
-    if (confirm('Remove from favorites?')) {
-      savedMonsters = deleteMonster(key, savedMonsters);
-    }
+    savedMonsters = deleteMonster(key, savedMonsters);
   }
 
   function handleSearch(query) {

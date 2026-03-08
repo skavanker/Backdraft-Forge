@@ -208,7 +208,7 @@ function buildPatronymic(race, gender) {
     case 'human':
     default: {
       const maleSuffixes = ['son', 'sen', 's'];
-      const femaleSuffixes = ['daughter', 'sdottir'];
+      const femaleSuffixes = ['daughter', 'dottir'];
       const suffixes = isFemale ? femaleSuffixes : maleSuffixes;
       return fatherName + suffixes[Math.floor(Math.random() * suffixes.length)];
     }
@@ -217,13 +217,17 @@ function buildPatronymic(race, gender) {
 
 // ─── Style Resolution ─────────────────────────────────────────────────────────
 
+const LINEAGE_RACES = new Set(['human', 'elf', 'dwarf', 'halfElf']);
+
 /**
- * Pick a random naming style for the given race.
+ * Pick a random naming style, respecting which races support lineage names.
  * @param {string} race
  * @returns {string}
  */
-function resolveStyle() {
-  const available = ['standard', 'patronymic', 'lineage'];
+function resolveStyle(race) {
+  const available = LINEAGE_RACES.has(race)
+    ? ['standard', 'patronymic', 'lineage']
+    : ['standard', 'patronymic'];
   return available[Math.floor(Math.random() * available.length)];
 }
 
@@ -246,11 +250,14 @@ export function generateCharacterName(_names, options = {}) {
     style      = 'random',
   } = options;
 
+  // Normalize kebab-case keys from form emitters
+  if (race === 'half-elf') race = 'halfElf';
+
   // Resolve randoms
   if (race        === 'random') race        = ALL_RACES[Math.floor(Math.random() * ALL_RACES.length)];
   if (gender      === 'random') gender      = Math.random() < 0.5 ? 'Male' : 'Female';
   if (geography === 'random') geography = ALL_GEOS[Math.floor(Math.random() * ALL_GEOS.length)];
-  if (style === 'random') style = resolveStyle();
+  if (style === 'random') style = resolveStyle(race);
 
   // Half-elf: resolve once and use consistently for both first name and applyStyle
   const nameRace = race === 'halfElf'

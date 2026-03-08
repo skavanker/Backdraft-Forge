@@ -44,7 +44,7 @@ export function createStepFields(character, saveToLocalStorage, clearMidCreation
     },
     6: { fields: ['spells'], next: 7 },
     7: {
-      fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'height', 'weight', 'eyes', 'hair', 'deity'],
+      fields: ['name', 'sex', 'alignment', 'backstory', 'age', 'heightInches', 'weightLbs', 'eyes', 'hair', 'deity'],
       next: STEP_SHEET,
       after() {
         saveToLocalStorage();

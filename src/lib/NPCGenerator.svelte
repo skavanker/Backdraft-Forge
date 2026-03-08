@@ -43,14 +43,17 @@
   }
 
   function handleDelete(id) {
-    if (confirm('Are you sure you want to delete this NPC?')) {
-      savedNPCs = deleteNPC(id, savedNPCs);
-    }
+    savedNPCs = deleteNPC(id, savedNPCs);
   }
 
+  let clearGeneratedConfirm = $state(false);
+
   function handleClearGenerated() {
-    if (confirm('Clear all generated NPCs?')) {
+    if (clearGeneratedConfirm) {
       generatedNPCs = [];
+      clearGeneratedConfirm = false;
+    } else {
+      clearGeneratedConfirm = true;
     }
   }
 </script>
@@ -83,9 +86,13 @@
     <div class="generator-section">
       <div class="section-header">
         <h3>Generated NPCs</h3>
-        <button class="btn-danger btn-sm" onclick={handleClearGenerated}>
-          Clear All
-        </button>
+        {#if clearGeneratedConfirm}
+          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
+          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Yes</button>
+          <button class="btn-secondary btn-sm" onclick={() => clearGeneratedConfirm = false}>No</button>
+        {:else}
+          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear All</button>
+        {/if}
       </div>
       <NPCList npcs={generatedNPCs} onSave={handleSave} title="Recently Generated" />
     </div>

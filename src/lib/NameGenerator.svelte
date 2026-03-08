@@ -8,6 +8,7 @@
     chainsReady = true;
   });
   import { generatePlaceNames } from './generators/placeNameGenerator.js';
+  import { nameMetaText } from './utils/formatUtils.js';
   import NameGeneratorForm from './components/NameGeneratorForm.svelte';
   import PlaceGeneratorForm from './components/PlaceGeneratorForm.svelte';
   import NameResults from './components/NameResults.svelte';
@@ -54,11 +55,6 @@
   // ─── Copy-all feedback ─────────────────────────────
   let copyAllDone = $state(false);
   let copyFavsDone = $state(false);
-
-  async function flashCopy(stateRef, setter) {
-    setter(true);
-    setTimeout(() => setter(false), 1200);
-  }
 
   // ─── Handlers ─────────────────────────────────────
 
@@ -111,10 +107,15 @@
     setTimeout(() => copyFavsDone = false, 1200);
   }
 
+  let clearFavsConfirm = $state(false);
+
   function handleClearFavorites() {
-    if (confirm('Clear all saved favorites?')) {
+    if (clearFavsConfirm) {
       favorites = [];
       persistFavorites();
+      clearFavsConfirm = false;
+    } else {
+      clearFavsConfirm = true;
     }
   }
 
@@ -131,23 +132,17 @@
     generatedNames = [];
   }
 
+  let clearGeneratedConfirm = $state(false);
+
   function handleClearGenerated() {
-    if (confirm('Clear all generated names?')) {
+    if (clearGeneratedConfirm) {
       generatedNames = [];
+      clearGeneratedConfirm = false;
+    } else {
+      clearGeneratedConfirm = true;
     }
   }
 
-  function favMetaText(meta) {
-    if (!meta) return '';
-    if (meta.race) {
-      const parts = [meta.race, meta.gender];
-      if (meta.geography && meta.geography !== 'random') parts.push(meta.geography);
-      parts.push(meta.style);
-      return parts.join(' • ');
-    }
-    if (meta.placeType) return `${meta.placeType} • ${meta.geography}`;
-    return '';
-  }
 </script>
 
 <div class="flex-column gap-lg">
@@ -229,7 +224,13 @@
         <button class="btn-secondary btn-sm" onclick={handleCopyAll}>
           {copyAllDone ? '✓ Copied' : 'Copy All'}
         </button>
-        <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear</button>
+        {#if clearGeneratedConfirm}
+          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
+          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Yes</button>
+          <button class="btn-secondary btn-sm" onclick={() => clearGeneratedConfirm = false}>No</button>
+        {:else}
+          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear</button>
+        {/if}
       </div>
     </div>
     <NameResults
@@ -255,7 +256,13 @@
         <button class="btn-secondary btn-sm" onclick={handleCopyFavorites}>
           {copyFavsDone ? '✓ Copied' : 'Copy All'}
         </button>
-        <button class="btn-danger btn-sm" onclick={handleClearFavorites}>Clear</button>
+        {#if clearFavsConfirm}
+          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
+          <button class="btn-danger btn-sm" onclick={handleClearFavorites}>Yes</button>
+          <button class="btn-secondary btn-sm" onclick={() => clearFavsConfirm = false}>No</button>
+        {:else}
+          <button class="btn-danger btn-sm" onclick={handleClearFavorites}>Clear</button>
+        {/if}
       </div>
     </div>
     <div class="favorites-list">
@@ -263,7 +270,7 @@
         <div class="name-item">
           <div class="name-main">
             <span class="name-text">{fav.name}</span>
-            <span class="name-meta">{favMetaText(fav.meta)}</span>
+            <span class="name-meta">{nameMetaText(fav.meta)}</span>
           </div>
           <div class="name-actions">
             <button
