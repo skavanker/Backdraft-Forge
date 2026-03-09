@@ -49,11 +49,6 @@
   @include rounded;
 
   .stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $space-xs;
-
     .label {
       font-size: $text-xs;
       font-weight: 600;

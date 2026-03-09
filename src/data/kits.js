@@ -26,7 +26,7 @@ export const kits = {
     description: 'Fierce warriors who enter battle rage, gaining incredible strength but losing tactical control.',
     requirements: {
       minimums: { STR: 15, CON: 15 },
-      races: ['human', 'dwarf', 'halfOrc']
+      races: ['human', 'dwarf']
     },
     proficiencyMods: {
       weaponBonus: 0,
@@ -45,7 +45,6 @@ export const kits = {
       'Cannot retreat or withdraw while raging'
     ],
     restrictions: [
-      'Must be Chaotic alignment',
       'Cannot use crossbows (dishonorable)',
       'Must enter rage when encountering enemy'
     ]
@@ -89,7 +88,7 @@ export const kits = {
     description: 'Cold-blooded killers who combine stealth with poison and improved backstab capabilities.',
     requirements: {
       minimums: { STR: 12, DEX: 12, INT: 11 },
-      races: ['human', 'halfElf', 'halfOrc']
+      races: ['human', 'halfElf']
     },
     proficiencyMods: {
       weaponBonus: 0,
@@ -108,8 +107,9 @@ export const kits = {
       'Assassination: Special attack that can kill instantly (high level)',
       'Thief Skill Adjustments: +10% Move Silently, +5% Hide in Shadows, -10% Pick Pockets'
     ],
+    alignments: [3, 4, 5, 6, 7, 8], // LN, N, CN, LE, NE, CE — cannot be Good (Complete Thief's Handbook)
     restrictions: [
-      'Must be Evil alignment',
+      'Cannot be Good alignment',
       'Must kill target within agreed time or lose honor among guild',
       'Cannot openly use thief abilities (maintain cover)'
     ]
@@ -186,7 +186,7 @@ export const kits = {
     description: 'Warrior-priests devoted to gods of war, combining martial prowess with divine magic.',
     requirements: {
       minimums: { STR: 12, WIS: 12 },
-      races: ['human', 'dwarf', 'halfOrc']
+      races: ['human', 'dwarf']
     },
     proficiencyMods: {
       weaponBonus: 1, // +1 initial weapon slot

@@ -1,5 +1,6 @@
 <script>
   import NPCStatBlock from './NPCStatBlock.svelte';
+  import ItemList from './ItemList.svelte';
 
   let { npcs, onSave = null, onDelete = null, title = 'NPCs', saved = false } = $props();
 
@@ -9,20 +10,18 @@
   );
 </script>
 
-<div class="npc-list">
-  <header class="section-header">
-    <h3>{title}</h3>
-    <span class="count">{npcs.length} {npcs.length === 1 ? 'NPC' : 'NPCs'}</span>
-  </header>
-
-  <div class="grid-lg animate-in">
-    {#each displayNPCs as npc (npc.id || npc.savedEntryId)}
-      <NPCStatBlock
-        {npc}
-        onSave={saved ? null : onSave}
-        onDelete={saved ? (() => onDelete(npc.savedEntryId)) : null}
-      />
-    {/each}
-  </div>
-</div>
-
+<ItemList
+  items={displayNPCs}
+  {title}
+  countLabel="NPC"
+  emptyText="No NPCs yet."
+  keyFn={(npc) => npc.id || npc.savedEntryId}
+>
+  {#snippet renderItem(npc)}
+    <NPCStatBlock
+      {npc}
+      onSave={saved ? null : onSave}
+      onDelete={saved ? (() => onDelete(npc.savedEntryId)) : null}
+    />
+  {/snippet}
+</ItemList>

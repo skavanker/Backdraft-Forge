@@ -9,9 +9,11 @@
   });
   import { generatePlaceNames } from './generators/placeNameGenerator.js';
   import { nameMetaText } from './utils/formatUtils.js';
+  import ConfirmButton from './components/ConfirmButton.svelte';
   import NameGeneratorForm from './components/NameGeneratorForm.svelte';
   import PlaceGeneratorForm from './components/PlaceGeneratorForm.svelte';
   import NameResults from './components/NameResults.svelte';
+  import GeneratorPage from './components/GeneratorPage.svelte';
 
   // ─── Mode ─────────────────────────────────────────
   let mode = $state('character');
@@ -60,7 +62,7 @@
 
   function generateNames() {
     if (mode === 'character') {
-      generatedNames = generateCharacterNames(null, characterOptions, characterOptions.quantity);
+      generatedNames = generateCharacterNames(characterOptions, characterOptions.quantity);
     } else {
       generatedNames = generatePlaceNames(placeOptions, placeOptions.quantity);
     }
@@ -69,7 +71,7 @@
   function handleRegenerate(index) {
     let replacement;
     if (mode === 'character') {
-      replacement = generateCharacterNames(null, characterOptions, 1)[0];
+      replacement = generateCharacterNames(characterOptions, 1)[0];
     } else {
       replacement = generatePlaceNames(placeOptions, 1)[0];
     }
@@ -79,10 +81,14 @@
   }
 
   async function handleCopyAll() {
-    const text = generatedNames.map(n => n.name).join('\n');
-    await navigator.clipboard.writeText(text);
-    copyAllDone = true;
-    setTimeout(() => copyAllDone = false, 1200);
+    try {
+      const text = generatedNames.map(n => n.name).join('\n');
+      await navigator.clipboard.writeText(text);
+      copyAllDone = true;
+      setTimeout(() => copyAllDone = false, 1200);
+    } catch {
+      // clipboard unavailable (HTTP, permissions, private browsing) — fail silently
+    }
   }
 
   function handleFavorite(nameObj) {
@@ -101,22 +107,19 @@
   }
 
   async function handleCopyFavorites() {
-    const text = favorites.map(f => f.name).join('\n');
-    await navigator.clipboard.writeText(text);
-    copyFavsDone = true;
-    setTimeout(() => copyFavsDone = false, 1200);
+    try {
+      const text = favorites.map(f => f.name).join('\n');
+      await navigator.clipboard.writeText(text);
+      copyFavsDone = true;
+      setTimeout(() => copyFavsDone = false, 1200);
+    } catch {
+      // clipboard unavailable (HTTP, permissions, private browsing) — fail silently
+    }
   }
 
-  let clearFavsConfirm = $state(false);
-
   function handleClearFavorites() {
-    if (clearFavsConfirm) {
-      favorites = [];
-      persistFavorites();
-      clearFavsConfirm = false;
-    } else {
-      clearFavsConfirm = true;
-    }
+    favorites = [];
+    persistFavorites();
   }
 
   function handleCharacterOptionsChange(newOptions) {
@@ -132,26 +135,13 @@
     generatedNames = [];
   }
 
-  let clearGeneratedConfirm = $state(false);
-
   function handleClearGenerated() {
-    if (clearGeneratedConfirm) {
-      generatedNames = [];
-      clearGeneratedConfirm = false;
-    } else {
-      clearGeneratedConfirm = true;
-    }
+    generatedNames = [];
   }
 
 </script>
 
-<div class="flex-column gap-lg">
-  <header class="generator-header">
-    <h2>Name Generator</h2>
-    <p class="subtitle">
-      Generate contextually appropriate names for AD&D 2E characters, NPCs, and places
-    </p>
-  </header>
+<GeneratorPage>
 
   <!-- Mode Selector -->
   <div class="mode-selector">
@@ -224,13 +214,7 @@
         <button class="btn-secondary btn-sm" onclick={handleCopyAll}>
           {copyAllDone ? '✓ Copied' : 'Copy All'}
         </button>
-        {#if clearGeneratedConfirm}
-          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
-          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Yes</button>
-          <button class="btn-secondary btn-sm" onclick={() => clearGeneratedConfirm = false}>No</button>
-        {:else}
-          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear</button>
-        {/if}
+        <ConfirmButton onconfirm={handleClearGenerated} />
       </div>
     </div>
     <NameResults
@@ -256,13 +240,7 @@
         <button class="btn-secondary btn-sm" onclick={handleCopyFavorites}>
           {copyFavsDone ? '✓ Copied' : 'Copy All'}
         </button>
-        {#if clearFavsConfirm}
-          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
-          <button class="btn-danger btn-sm" onclick={handleClearFavorites}>Yes</button>
-          <button class="btn-secondary btn-sm" onclick={() => clearFavsConfirm = false}>No</button>
-        {:else}
-          <button class="btn-danger btn-sm" onclick={handleClearFavorites}>Clear</button>
-        {/if}
+        <ConfirmButton onconfirm={handleClearFavorites} />
       </div>
     </div>
     <div class="favorites-list">
@@ -283,4 +261,4 @@
       {/each}
     </div>
   {/if}
-</div>
+</GeneratorPage>

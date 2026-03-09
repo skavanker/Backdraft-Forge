@@ -14,7 +14,6 @@
 - [ ] Do research if another like char fil excist other places and maybe use same format.
 
 ### UX
-- [ ] Hide the "start over" (×) button when there's nothing to reset — e.g. on the splash page, or at step 0 with no rolled abilities yet
 
 ### Visuals
 - [ ] Class icons for more places (character sheet header, NPC generator)
@@ -27,8 +26,6 @@
 ### Gameplay Additions
 - [ ] Multi-classing support (demi-humans advance in 2+ classes simultaneously)
 - [ ] Dual-classing for humans (switch class, start over at level 1)
-- [ ] Starting age should include class modifier per PHB Table 10 (e.g., wizards add 2d8, fighters add 1d4) — currently only uses base racial range. Update tooltip text to show the class modifier breakdown (e.g., "Human Fighter: 16-25 base + 1d4 class modifier")
-- [ ] Research and enforce kit alignment restrictions — Berserker says "Must be Chaotic", Assassin says "Must be Evil", but need to verify against PHB/Complete Handbook sources. Check if other kits or base classes have alignment restrictions too (e.g., Ranger, Druid, Bard). Currently just flavor text in `restrictions` array, not enforced
 
 ### Tools
 - [ ] THAC0 calculator
@@ -58,7 +55,6 @@
 - [ ] Random encounter generator (by terrain/dungeon level)
 - [ ] Export/print functionality for stat blocks
 - [ ] Tie to treasure generator (each monster has a Treasure Type)
-- [ ] Remove "unsaved changes" warning when navigating away — bestiary has no saveable state
 
 #### Name Generator - Future Enhancements
 - [ ] **Additional name types** — Dragon, Demon/Devil, Deity, Guild/Organization, Ship, Magic item names
@@ -73,6 +69,3 @@
 
 ### Code Cleanup / Consolidation
 - [ ] **Merge NPCStatBlock + MonsterStatBlock** — same card layout (name, combat stats row, abilities, action bar); NPC has 3 combat stats, monster has 5, but structure is identical — merge into one `<StatBlock>` with slots
-- [ ] **Merge NPCList + MonsterList** — both are section-header + grid-lg + stat block loop; extract one `<ItemList>` component
-- [ ] **CSS `.stat` utility** — `.stat { flex-column; .label; .value }` is defined separately in `_npc-components.scss` and `_monster-bestiary.scss`; move to `_utilities.scss`
-- [ ] **Generator page wrapper** — NPCGenerator, TreasureGenerator, NameGenerator share the same outer shell (header, form section, loading state, results section, saved section, empty state); extract `<GeneratorPage>` wrapper

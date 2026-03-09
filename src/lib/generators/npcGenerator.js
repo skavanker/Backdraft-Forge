@@ -354,7 +354,7 @@ export function generateNPC(options = {}) {
 
   // 12. Generate name, sex, alignment
   const sex = generateRandomSex();
-  const nameResult = generateCharacterName(null, {
+  const nameResult = generateCharacterName({
     race: selectedRaceKey,
     gender: sex,
     geography: 'random',

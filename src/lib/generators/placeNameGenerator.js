@@ -10,7 +10,7 @@
 
 import { PLACE_BLACKLIST, isBlacklisted } from '../../data/blacklist.js';
 
-import { walkChain, getLoadedChains } from './nameGenerator.js';
+import { walkChain, getLoadedChains, pickWeightedKey } from './nameGenerator.js';
 
 import { landmarkTypes } from '../../data/placeNames.js';
 import {
@@ -46,23 +46,14 @@ function resolveGeo(geography, extras = []) {
  * @returns {Object} Selected adjective object
  */
 function pickWeightedAdjective(adjectives, geography) {
-  const scored = adjectives.map(a => {
-    let weight = 10;
-    if (a.location.length > 0 && a.location.includes(geography)) {
-      weight += 50;
-    }
-    return { ...a, finalWeight: weight };
-  });
-
-  const totalWeight = scored.reduce((sum, a) => sum + a.finalWeight, 0);
-  let random = Math.random() * totalWeight;
-
-  for (const item of scored) {
-    random -= item.finalWeight;
-    if (random <= 0) return item;
-  }
-
-  return scored[scored.length - 1];
+  const weightMap = Object.fromEntries(
+    adjectives.map(a => [
+      a.adj,
+      10 + (a.location.length > 0 && a.location.includes(geography) ? 50 : 0)
+    ])
+  );
+  const chosenAdj = pickWeightedKey(weightMap);
+  return adjectives.find(a => a.adj === chosenAdj);
 }
 
 // ─── Settlement names ──────────────────────────────────────────────────────────
@@ -92,7 +83,8 @@ export function generateSettlementName(options = {}) {
   const geo = resolveGeo(geography);
 
   const c = getLoadedChains();
-  const chain = c?.surname?.human?.[geo] ?? c?.surname?.human?.plains;
+  if (!c) throw new Error('[placeNameGen] Chains not loaded — call initNameGen() first');
+  const chain = c.surname?.human?.[geo] ?? c.surname?.human?.plains;
 
   if (Math.random() < 0.6) {
     // Full compound word from chain
@@ -163,7 +155,7 @@ export function generateTavernName(options = {}) {
   if (nameStyle === 'owner') {
     const race = pick(['human', 'dwarf', 'elf', 'halfling']);
     const gender = Math.random() < 0.5 ? 'Male' : 'Female';
-    const ownerNameObj = generateCharacterName(null, { race, gender, geography: geo });
+    const ownerNameObj = generateCharacterName({ race, gender, geography: geo, style: 'standard' });
     const surname = ownerNameObj.name.split(' ')[1];
     const suffix = pick(tavernPatterns.suffixes);
     return `The ${surname} ${suffix}`;
@@ -203,7 +195,7 @@ export function generateShopName(options = {}) {
 
   if (nameStyle === 'owner') {
     const race = pick(['human', 'dwarf', 'elf', 'gnome', 'halfling']);
-    const ownerNameObj = generateCharacterName(null, {
+    const ownerNameObj = generateCharacterName({
       race,
       gender: Math.random() < 0.5 ? 'Male' : 'Female',
       geography: geo

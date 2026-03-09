@@ -10,6 +10,12 @@
   import { pick, randomInt } from './utils/randomUtils.js';
   import { untrack } from 'svelte';
 
+  function rollDice(count, sides) {
+    let total = 0;
+    for (let i = 0; i < count; i++) total += randomInt(1, sides);
+    return total;
+  }
+
   const alignmentDescriptions = [
     'Honorable protectors who uphold law and justice. Think: a holy knight sworn to defend the weak.',
     'Compassionate do-gooders who help others regardless of rules. Think: a wandering healer who aids anyone in need.',
@@ -26,14 +32,28 @@
 
   let name = $state(untrack(() => character.name || ''));
   let sex = $state(untrack(() => character.sex || 'Male'));
-  let alignment = $state(untrack(() => character.alignment !== undefined ? character.alignment : ALIGNMENTS.N)); // Default to True Neutral
+  let alignment = $state(untrack(() => {
+    if (character.alignment !== undefined) return character.alignment;
+    const deityAlignment = character.deityKey ? deities[character.deityKey]?.alignment : null;
+    let allowed = getAllowedAlignmentsForClass(character.classKey, deityAlignment);
+    if (character.kit?.alignments) allowed = allowed.filter(a => character.kit.alignments.includes(a));
+    return allowed.includes(ALIGNMENTS.N) ? ALIGNMENTS.N : allowed[0];
+  }));
   let backstory = $state(untrack(() => character.backstory || ''));
   let age = $state(untrack(() => character.age || ''));
+  let lastAgeRoll = $state(null);  // { base, diceCount, diceSides, rolled, total }
+  let lastNameMeta = $state(null); // { race, gender, geography, style } from generator
   // Store height/weight as raw numbers (inches/lbs) for reactive formatting
   let heightInches = $state(untrack(() => character.heightInches || 0));
   let weightLbs = $state(untrack(() => character.weightLbs || 0));
   let eyes = $state(untrack(() => character.eyes || ''));
   let hair = $state(untrack(() => character.hair || ''));
+
+  // Story details — ephemeral, only used to enrich the AI prompt
+  let storyDetails = $state({ origin: '', motivation: '', traits: '', secret: '' });
+
+  const ORIGIN_OPTIONS = ['', 'Village commoner', 'City-born', 'Noble family', 'Merchant family', 'Soldier/militia', 'Criminal background', 'Orphan', 'Wilderness/frontier', 'Religious upbringing', 'Scholarly household'];
+  const MOTIVATION_OPTIONS = ['', 'Seeking wealth', 'Chasing glory', 'Driven by revenge', 'Bound by duty', 'Pursuing knowledge', 'Seeking redemption', 'Protecting loved ones', 'Fleeing a past', 'Simply restless', 'Following a prophecy'];
 
   // Name generation settings
   let nameSettings = $state({
@@ -66,10 +86,13 @@
     const r = raceDetails[character.raceKey] || raceDetails.human;
     const raceName = character.race?.name || 'Human';
     const isElven = character.raceKey === 'elf' || character.raceKey === 'halfElf';
+    const { ageBase, ageDice: ad } = r;
+    const ageMin = ageBase + ad.d;
+    const ageMax = ageBase + ad.d * ad.s;
     return {
-      age: `${raceName}: typically ${r.age[0]}–${r.age[1]} years`,
-      height: `${raceName}: M ${fmtHeight(r.heightM[0])}–${fmtHeight(r.heightM[1])}, F ${fmtHeight(r.heightF[0])}–${fmtHeight(r.heightF[1])}`,
-      weight: `${raceName}: M ${fmtWeight(r.weightM[0])}–${fmtWeight(r.weightM[1])}, F ${fmtWeight(r.weightF[0])}–${fmtWeight(r.weightF[1])}`,
+      age: `${raceName}: ${ageBase} + ${ad.d}d${ad.s} (${ageMin}–${ageMax})`,
+      height: `${raceName}: M ${fmtHeight(r.htBaseM)}+${r.htDice.d}d${r.htDice.s}, F ${fmtHeight(r.htBaseF)}+${r.htDice.d}d${r.htDice.s}`,
+      weight: `${raceName}: M ${fmtWeight(r.wtBaseM)}+${r.wtDice.d}d${r.wtDice.s}, F ${fmtWeight(r.wtBaseF)}+${r.wtDice.d}d${r.wtDice.s}`,
       eyes: `Common: ${(isElven ? elfEyeColors : eyeColors).join(', ')}`,
       hair: `Common: ${(isElven ? elfHairColors : hairColors).join(', ')}`,
     };
@@ -78,20 +101,35 @@
   // Get alignment grid (3x3 array of numbers)
   const alignmentGrid = getAlignmentGrid();
 
-  // Get allowed alignments based on class and deity restrictions
+  // Get allowed alignments based on class, deity, and kit restrictions
   const allowedAlignments = $derived(() => {
     const deityAlignment = character.deityKey ? deities[character.deityKey]?.alignment : null;
-    return getAllowedAlignmentsForClass(character.classKey, deityAlignment);
+    let allowed = getAllowedAlignmentsForClass(character.classKey, deityAlignment);
+    if (character.kit?.alignments) {
+      allowed = allowed.filter(a => character.kit.alignments.includes(a));
+    }
+    return allowed;
   });
 
-  // 2E PHB-inspired random ranges by race
+  function alignmentWarning(alignNum) {
+    const deityAlignment = character.deityKey ? deities[character.deityKey]?.alignment : null;
+    const classAllowed = getAllowedAlignmentsForClass(character.classKey, deityAlignment);
+    if (!classAllowed.includes(alignNum)) return 'Not available for your class or deity';
+    if (character.kit?.alignments && !character.kit.alignments.includes(alignNum)) {
+      return `Not available for the ${character.kit.name} kit`;
+    }
+    return '';
+  }
+
+  // 2E PHB Table 11 (age) + Table 10 (height/weight) — base + dice by race
   const raceDetails = {
-    human:    { age: [16, 25], heightM: [60, 78], heightF: [58, 74], weightM: [140, 220], weightF: [100, 170] },
-    dwarf:    { age: [40, 100], heightM: [43, 51], heightF: [41, 49], weightM: [130, 170], weightF: [105, 145] },
-    elf:      { age: [100, 175], heightM: [55, 65], heightF: [50, 61], weightM: [90, 120], weightF: [70, 100] },
-    gnome:    { age: [60, 120], heightM: [38, 44], heightF: [36, 42], weightM: [72, 88], weightF: [68, 82] },
-    halfElf:  { age: [22, 65], heightM: [60, 72], heightF: [58, 68], weightM: [110, 175], weightF: [85, 140] },
-    halfling: { age: [22, 55], heightM: [32, 38], heightF: [30, 36], weightM: [52, 60], weightF: [48, 56] },
+    //             age              height (in)                    weight (lbs)
+    human:    { ageBase: 15,  ageDice: {d:1, s:4},  htBaseM: 60, htBaseF: 59, htDice: {d:2, s:10}, wtBaseM: 140, wtBaseF: 100, wtDice: {d:6, s:10} },
+    dwarf:    { ageBase: 40,  ageDice: {d:5, s:6},  htBaseM: 43, htBaseF: 41, htDice: {d:1, s:10}, wtBaseM: 130, wtBaseF: 105, wtDice: {d:4, s:10} },
+    elf:      { ageBase: 100, ageDice: {d:5, s:6},  htBaseM: 55, htBaseF: 50, htDice: {d:1, s:10}, wtBaseM: 90,  wtBaseF: 70,  wtDice: {d:3, s:10} },
+    gnome:    { ageBase: 60,  ageDice: {d:3, s:12}, htBaseM: 38, htBaseF: 36, htDice: {d:1, s:6},  wtBaseM: 72,  wtBaseF: 68,  wtDice: {d:5, s:4}  },
+    halfElf:  { ageBase: 15,  ageDice: {d:1, s:6},  htBaseM: 60, htBaseF: 58, htDice: {d:2, s:6},  wtBaseM: 110, wtBaseF: 85,  wtDice: {d:3, s:12} },
+    halfling: { ageBase: 20,  ageDice: {d:3, s:4},  htBaseM: 32, htBaseF: 30, htDice: {d:2, s:8},  wtBaseM: 52,  wtBaseF: 48,  wtDice: {d:5, s:4}  },
   };
 
   const eyeColors = ['Brown', 'Hazel', 'Green', 'Blue', 'Grey', 'Amber', 'Black'];
@@ -102,9 +140,12 @@
   function randomizeDetails() {
     const r = raceDetails[character.raceKey] || raceDetails.human;
     const isFemale = sex === 'Female';
-    age = String(randomInt(r.age[0], r.age[1]));
-    heightInches = randomInt(isFemale ? r.heightF[0] : r.heightM[0], isFemale ? r.heightF[1] : r.heightM[1]);
-    weightLbs = randomInt(isFemale ? r.weightF[0] : r.weightM[0], isFemale ? r.weightF[1] : r.weightM[1]);
+    const { ageBase, ageDice: ad } = r;
+    const rolled = rollDice(ad.d, ad.s);
+    age = String(ageBase + rolled);
+    lastAgeRoll = { base: ageBase, diceCount: ad.d, diceSides: ad.s, rolled, total: ageBase + rolled };
+    heightInches = (isFemale ? r.htBaseF : r.htBaseM) + rollDice(r.htDice.d, r.htDice.s);
+    weightLbs = (isFemale ? r.wtBaseF : r.wtBaseM) + rollDice(r.wtDice.d, r.wtDice.s);
     const isElven = character.raceKey === 'elf' || character.raceKey === 'halfElf';
     eyes = pick(isElven ? elfEyeColors : eyeColors);
     hair = pick(isElven ? elfHairColors : hairColors);
@@ -119,10 +160,11 @@
   });
 
   function confirm() {
+    const safeAlignment = allowedAlignments().includes(alignment) ? alignment : allowedAlignments()[0];
     onComplete({
       name: name.trim() || 'Unnamed Hero',
       sex,
-      alignment,
+      alignment: safeAlignment,
       backstory: backstory.trim(),
       age: age.trim(),
       heightInches: heightInches || null,
@@ -134,16 +176,15 @@
   }
 
   function randomizeName() {
-    const raceKey = character.raceKey === 'halfElf' ? 'halfElf' : character.raceKey;
-
-    const result = generateCharacterName(null, {
-      race: raceKey,
+    const result = generateCharacterName({
+      race: character.raceKey,
       gender: sex,
       geography: nameSettings.geography,
       style: nameSettings.style
     });
 
     name = result.name;
+    lastNameMeta = result.meta;
   }
 
   function generatePlaceholder() {
@@ -153,6 +194,151 @@
   }
 
   let charCount = $derived(backstory.length);
+  let copied = $state(false);
+
+  function copyAiPrompt() {
+    const facts = characterInsights().join(' ');
+    const extras = [
+      storyDetails.origin     && `Background: ${storyDetails.origin}.`,
+      storyDetails.motivation && `Motivation: ${storyDetails.motivation}.`,
+      storyDetails.traits     && `Personality: ${storyDetails.traits}.`,
+      storyDetails.secret     && `A secret or burden: ${storyDetails.secret}.`,
+    ].filter(Boolean).join('\n');
+    const prompt = [
+      `Write a 2-3 paragraph backstory for the following AD&D 2nd Edition character:`,
+      ``,
+      facts,
+      extras ? `\nAdditional details:\n${extras}` : '',
+      `\nKeep it grounded in a classic fantasy world. Focus on their origins, what drove them to adventure, and what defines their personality. Do not invent contradictions with the facts above.`,
+    ].join('\n');
+    navigator.clipboard.writeText(prompt).then(() => {
+      copied = true;
+      setTimeout(() => copied = false, 2000);
+    });
+  }
+
+  // PHB Table 11 max base ages for life stage calculation
+  const raceMaxAge = { human: 90, dwarf: 250, elf: 350, gnome: 200, halfElf: 125, halfling: 100 };
+
+  const CLASS_FLAVOR = {
+    fighter: 'a seasoned warrior trained in the art of combat',
+    paladin: 'a holy warrior bound by a strict code of honor and chivalry',
+    ranger:  'a skilled hunter and tracker at home in the wilderness',
+    mage:    'a student of the arcane arts who has spent years mastering spells',
+    cleric:  'a devotee of the divine, channeling holy power through faith',
+    druid:   'a servant of nature and guardian of the natural balance',
+    thief:   'a cunning operative skilled in stealth, locks, and sleight of hand',
+    bard:    'a wandering performer with a gift for music, lore, and subtle magic',
+  };
+
+  const ABILITY_HIGH = {
+    STR: (p) => `${p.pos} exceptional strength (STR ${p.val}) marks ${p.obj} above most.`,
+    DEX: (p) => `${p.subj} is unusually nimble and quick-reflexed (DEX ${p.val}).`,
+    CON: (p) => `${p.subj} is remarkably tough and built to endure hardship (CON ${p.val}).`,
+    INT: (p) => `${p.subj} has a sharp, quick mind with a gift for learning (INT ${p.val}).`,
+    WIS: (p) => `${p.subj} is deeply perceptive and sound in judgment (WIS ${p.val}).`,
+    CHA: (p) => `${p.subj} is naturally commanding — people tend to listen (CHA ${p.val}).`,
+  };
+
+  const ABILITY_LOW = {
+    STR: (p) => `${p.subj} is physically weaker than most (STR ${p.val}).`,
+    DEX: (p) => `${p.subj} is clumsy or uncoordinated in movement (DEX ${p.val}).`,
+    CON: (p) => `${p.subj} has a frail constitution — not built for punishment (CON ${p.val}).`,
+    INT: (p) => `${p.subj} is slow to learn or easily confused (INT ${p.val}).`,
+    WIS: (p) => `${p.subj} is impulsive and poor in judgment (WIS ${p.val}).`,
+    CHA: (p) => `${p.subj} is difficult to get along with or easy to overlook (CHA ${p.val}).`,
+  };
+
+  const ALIGNMENT_FLAVOR = [
+    (p) => `${p.subj} upholds law and justice, always striving to do what is right.`,
+    (p) => `${p.subj} is compassionate and helpful, guided by conscience over rules.`,
+    (p) => `${p.subj} values freedom and kindness, and refuses to be bound by anyone.`,
+    (p) => `${p.subj} believes in order and structure, not necessarily for good or ill.`,
+    (p) => `${p.subj} seeks to maintain the balance between all forces.`,
+    (p) => `${p.subj} is a free spirit who follows ${p.pos.toLowerCase()} own path wherever it leads.`,
+    (p) => `${p.subj} uses law and order as tools of dominance and control.`,
+    (p) => `${p.subj} is self-serving above all else — ${p.pos.toLowerCase()} loyalties shift with the wind.`,
+    (p) => `${p.subj} embraces chaos and cruelty, a destructive force in the world.`,
+  ];
+
+  let characterInsights = $derived(() => {
+    const insights = [];
+    const abs = character.adjustedAbilities || character.abilities;
+    const raceName = character.race?.name || '';
+    const clsName = character.wizardSchool?.name || character.cls?.name || '';
+    const maxAge = raceMaxAge[character.raceKey] || 90;
+    const ageNum = parseInt(age);
+    const displayName = name.trim();
+    const isFemale = sex === 'Female';
+    const subj = isFemale ? 'She' : 'He';
+    const p = {
+      subj,
+      obj:  isFemale ? 'her' : 'him',
+      pos:  isFemale ? 'Her' : 'His',
+      refl: isFemale ? 'herself' : 'himself',
+    };
+
+    // Opening: use name here only, pronouns everywhere else
+    const opener = displayName || subj;
+    const classFlavor = CLASS_FLAVOR[character.classKey] || `a ${clsName}`;
+    if (!isNaN(ageNum) && ageNum > 0) {
+      const pct = ageNum / maxAge;
+      const stage = pct < 0.2 ? 'very young' : pct < 0.4 ? 'young' : pct < 0.6 ? 'middle-aged' : pct < 0.8 ? 'mature' : 'elderly';
+      insights.push(`${opener} is a ${stage} ${raceName} ${clsName} — ${classFlavor}.`);
+    } else {
+      insights.push(`${opener} is a ${raceName} ${clsName} — ${classFlavor}.`);
+    }
+
+    // Kit
+    if (character.kit) {
+      insights.push(`As a ${character.kit.name}, ${p.subj.toLowerCase() === p.subj ? p.subj : p.subj} has taken on a specialized path: ${character.kit.description.toLowerCase().replace(/\.$/, '')}.`);
+    }
+
+    // Notable ability scores
+    if (abs) {
+      for (const [stat, fn] of Object.entries(ABILITY_HIGH)) {
+        if (abs[stat] >= 16) insights.push(fn({ ...p, val: abs[stat] }));
+      }
+      for (const [stat, fn] of Object.entries(ABILITY_LOW)) {
+        if (abs[stat] <= 7) insights.push(fn({ ...p, val: abs[stat] }));
+      }
+    }
+
+    // Alignment
+    if (alignment !== undefined && alignment !== null) {
+      insights.push(ALIGNMENT_FLAVOR[alignment](p));
+    }
+
+    // Deity
+    if (deity) insights.push(`${p.subj} worships ${deity}.`);
+
+    // Ranger species enemy
+    if (character.speciesEnemy) insights.push(`${p.subj} harbors a deep hatred of ${character.speciesEnemy}.`);
+
+    // Name origin hints (only if name was generated)
+    if (lastNameMeta && displayName) {
+      const GEO_FLAVOR = {
+        coastal:  `${p.pos} name hints at seafaring or coastal roots.`,
+        mountain: `${p.pos} name suggests mountain origins.`,
+        forest:   `${p.pos} name carries the sounds of deep woodland heritage.`,
+        plains:   `${p.pos} name evokes the open plains.`,
+        desert:   `${p.pos} name carries the harsh cadence of desert folk.`,
+        swamp:    `${p.pos} name has the lilting quality of swampland cultures.`,
+      };
+      const STYLE_FLAVOR = {
+        patronymic: `${p.pos} surname follows the patronymic tradition — derived from a parent's name.`,
+        lineage:    `${p.pos} surname carries a clan or house lineage.`,
+      };
+      if (lastNameMeta.geography && GEO_FLAVOR[lastNameMeta.geography]) {
+        insights.push(GEO_FLAVOR[lastNameMeta.geography]);
+      }
+      if (lastNameMeta.style && STYLE_FLAVOR[lastNameMeta.style]) {
+        insights.push(STYLE_FLAVOR[lastNameMeta.style]);
+      }
+    }
+
+    return insights;
+  });
 </script>
 
 <div class="flex-column gap-lg backstory-editor">
@@ -214,7 +400,7 @@
         {/each}
       </div>
       <p class="section-hint">
-        Standard: Traditional surname • Patronymic: Son/Daughter of • Clan/House: Lineage name by race
+        Standard: Traditional surname • Patronymic: Son/Daughter of • Clan/House: Of Clan X (Dwarf), Tel'/Quel' prefix (Elf), Of House X (Human)
       </p>
     </div>
   </Collapsible>
@@ -241,7 +427,7 @@
       {#each alignmentGrid as row}
         {#each row as alignNum}
           {@const isAllowed = allowedAlignments().includes(alignNum)}
-          <Tooltip text={alignmentDescriptions[alignNum]} warning={!isAllowed ? 'Not available for your class or deity' : ''}>
+          <Tooltip text={alignmentDescriptions[alignNum]} warning={!isAllowed ? alignmentWarning(alignNum) : ''}>
             <BtnSelect
               label={getAlignmentName(alignNum)}
               selected={alignment === alignNum}
@@ -258,38 +444,44 @@
   <div class="flex-column gap-sm">
     <div class="details-header">
       <p class="form-label">Physical Details</p>
-      <Tooltip text="Rolls random age, height, weight, eye and hair color based on your race's typical ranges from the Player's Handbook. You can always edit the results manually.">
+      <Tooltip text="Rolls random age, height, and weight using PHB Table 10/11 dice, plus a random eye and hair color. You can always edit the results manually.">
         <button class="btn-primary btn-sm" onclick={randomizeDetails}>
           Randomize
         </button>
       </Tooltip>
     </div>
     <div class="details-grid">
-      <Tooltip text={raceHints().age} position="bottom">
+      <Tooltip>
+        {#snippet tip()}
+          {#if lastAgeRoll}
+            <span class="tooltip-meta">{lastAgeRoll.base} + rolled {lastAgeRoll.rolled} ({lastAgeRoll.diceCount}d{lastAgeRoll.diceSides}) = {lastAgeRoll.total}</span>
+          {/if}
+          {raceHints().age}
+        {/snippet}
         <div class="detail-field">
           <label for="char-age">Age</label>
           <input id="char-age" type="text" bind:value={age} placeholder="—" />
         </div>
       </Tooltip>
-      <Tooltip text={raceHints().height} position="bottom">
+      <Tooltip text={raceHints().height}>
         <div class="detail-field">
           <label for="char-height">Height</label>
           <input id="char-height" type="text" value={heightDisplay} readonly placeholder="—" />
         </div>
       </Tooltip>
-      <Tooltip text={raceHints().weight} position="bottom">
+      <Tooltip text={raceHints().weight}>
         <div class="detail-field">
           <label for="char-weight">Weight</label>
           <input id="char-weight" type="text" value={weightDisplay} readonly placeholder="—" />
         </div>
       </Tooltip>
-      <Tooltip text={raceHints().eyes} position="bottom">
+      <Tooltip text={raceHints().eyes}>
         <div class="detail-field">
           <label for="char-eyes">Eyes</label>
           <input id="char-eyes" type="text" bind:value={eyes} placeholder="—" />
         </div>
       </Tooltip>
-      <Tooltip text={raceHints().hair} position="bottom">
+      <Tooltip text={raceHints().hair}>
         <div class="detail-field">
           <label for="char-hair">Hair</label>
           <input id="char-hair" type="text" bind:value={hair} placeholder="—" />
@@ -303,6 +495,62 @@
       {/if}
     </div>
   </div>
+
+  <Collapsible title="Story Details (AI Prompt)" defaultOpen={false}>
+    <p class="section-hint" style="margin-bottom: var(--space-sm)">Optional — these enrich the AI prompt but are not saved to your character sheet.</p>
+    <div class="flex-column gap-sm">
+      <div class="detail-field">
+        <label>Origin / Background</label>
+        <select bind:value={storyDetails.origin}>
+          {#each ORIGIN_OPTIONS as o}
+            <option value={o}>{o || '— choose or leave blank —'}</option>
+          {/each}
+        </select>
+      </div>
+      <div class="detail-field">
+        <label>Motivation</label>
+        <select bind:value={storyDetails.motivation}>
+          {#each MOTIVATION_OPTIONS as m}
+            <option value={m}>{m || '— choose or leave blank —'}</option>
+          {/each}
+        </select>
+      </div>
+      <div class="detail-field">
+        <label>Personality traits</label>
+        <input type="text" bind:value={storyDetails.traits} placeholder="e.g. Gruff but loyal, dry sense of humor" maxlength="120" />
+      </div>
+      <div class="detail-field">
+        <label>A secret or defining moment</label>
+        <input type="text" bind:value={storyDetails.secret} placeholder="e.g. Witnessed their village burn, carries survivor's guilt" maxlength="200" />
+      </div>
+    </div>
+  </Collapsible>
+
+  {#if characterInsights().length > 0}
+    <Collapsible title="What We Know About This Character" defaultOpen={true}>
+      <ul class="insights-list">
+        {#each characterInsights() as insight}
+          <li>{insight}</li>
+        {/each}
+      </ul>
+      <div class="action-bar end" style="margin-top: var(--space-sm)">
+        <Tooltip text={backstory.trim() ? 'Clear your backstory first to use this' : 'Paste these facts into the backstory box as a starting point'}>
+          <button
+            class="btn-secondary btn-sm"
+            disabled={!!backstory.trim()}
+            onclick={() => backstory = characterInsights().join('\n\n')}
+          >
+            Use as starting point
+          </button>
+        </Tooltip>
+        <Tooltip text="Copy a ready-to-use prompt to paste into ChatGPT, Claude, or any AI">
+          <button class="btn-secondary btn-sm" onclick={copyAiPrompt}>
+            {copied ? 'Copied!' : 'Copy AI Prompt'}
+          </button>
+        </Tooltip>
+      </div>
+    </Collapsible>
+  {/if}
 
   <div class="flex-column gap-sm">
     <label for="backstory">Backstory</label>
@@ -323,6 +571,10 @@
     {name ? `Continue as ${name}` : 'Continue'} → Character Sheet
   </button>
 </div>
+
+<style lang="scss">
+  @import './styles/backstory';
+</style>
 
 
 

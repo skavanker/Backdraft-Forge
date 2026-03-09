@@ -45,6 +45,14 @@
   } from './lib/persistence.svelte.js';
 
   let currentView = $state('splash'); // 'splash' | 'character-creator' | 'npc-generator' | 'treasure-generator' | 'name-generator' | 'monster-bestiary'
+
+  const VIEW_TAGLINES = {
+    'character-creator':  'AD&D 2nd Edition Character Creator',
+    'npc-generator':      'AD&D 2nd Edition NPC Generator',
+    'treasure-generator': 'AD&D 2nd Edition Treasure Generator',
+    'name-generator':     'AD&D 2nd Edition Name Generator',
+    'monster-bestiary':   'AD&D 2nd Edition Monster Bestiary',
+  };
   let currentStep = $state(0);
   let settingsOpen = $state(false);
   let showReturnConfirm = $state(false);
@@ -338,7 +346,7 @@
   }
 
   function returnToSplash() {
-    const hasUnsavedChanges = currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
+    const hasUnsavedChanges = currentView === 'character-creator' && currentStep !== STEP_SHEET && currentStep > 0 && !wipPrompt;
     if (hasUnsavedChanges) {
       showReturnConfirm = true;
       return;
@@ -360,16 +368,18 @@
 </script>
 
 <div class="top-buttons">
-  {#if showResetConfirm}
-    <div class="reset-confirm-popup">
-      <span>Start over?</span>
-      <button class="btn-danger btn-sm" onclick={resetAll}>Yes</button>
-      <button class="btn-secondary btn-sm" onclick={() => showResetConfirm = false}>No</button>
-    </div>
-  {:else}
-    <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over" aria-label="Start over">
-      &times;
-    </button>
+  {#if currentView === 'character-creator' && (currentStep > 0 || character.abilities !== null)}
+    {#if showResetConfirm}
+      <div class="reset-confirm-popup">
+        <span>Start over?</span>
+        <button class="btn-danger btn-sm" onclick={resetAll}>Yes</button>
+        <button class="btn-secondary btn-sm" onclick={() => showResetConfirm = false}>No</button>
+      </div>
+    {:else}
+      <button class="reset-toggle" onclick={() => showResetConfirm = true} title="Start over" aria-label="Start over">
+        &times;
+      </button>
+    {/if}
   {/if}
   <button class="settings-toggle" onclick={() => settingsOpen = !settingsOpen} title="Settings" aria-label="Settings">
     &#9881;
@@ -403,12 +413,14 @@
 />
 
 <main>
-  {#if currentView === 'character-creator'}
+  {#if currentView !== 'splash'}
     <header class="header">
       <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
-      <p class="tagline">AD&D 2nd Edition Character Creator</p>
+      <p class="tagline">{VIEW_TAGLINES[currentView]}</p>
     </header>
+  {/if}
 
+  {#if currentView === 'character-creator'}
     <nav class="step-nav">
       {#each steps as step, i}
         <button
@@ -533,34 +545,18 @@
     {/if}
     </section>
   {:else if currentView === 'npc-generator'}
-    <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
-      <p class="tagline">AD&D 2nd Edition NPC Generator</p>
-    </header>
     <section class="content card">
       {#if NPCGenerator}<svelte:component this={NPCGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'treasure-generator'}
-    <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
-      <p class="tagline">AD&D 2nd Edition Treasure Generator</p>
-    </header>
     <section class="content card">
       {#if TreasureGenerator}<svelte:component this={TreasureGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'name-generator'}
-    <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
-      <p class="tagline">AD&D 2nd Edition Name Generator</p>
-    </header>
     <section class="content card">
       {#if NameGenerator}<svelte:component this={NameGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'monster-bestiary'}
-    <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
-      <p class="tagline">AD&D 2nd Edition Monster Bestiary</p>
-    </header>
     <section class="content card">
       {#if MonsterBestiary}<svelte:component this={MonsterBestiary} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>

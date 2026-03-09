@@ -5,7 +5,9 @@
    */
   import { onMount } from 'svelte';
   import MonsterBrowserForm from './components/MonsterBrowserForm.svelte';
-  import MonsterList from './components/MonsterList.svelte';
+  import MonsterStatBlock from './components/MonsterStatBlock.svelte';
+  import ItemList from './components/ItemList.svelte';
+  import GeneratorPage from './components/GeneratorPage.svelte';
   import { monsters } from '../data/monsters.js';
   import { loadMonsters, saveMonster, deleteMonster } from './monsterPersistence.svelte.js';
   import { useToast } from './utils/stateUtils.svelte.js';
@@ -60,14 +62,7 @@
   }
 </script>
 
-<div class="monster-bestiary">
-  {#if toast.visible}
-    <div class="save-toast alert alert-info">{toast.message}</div>
-  {/if}
-  <header class="generator-header">
-    <h2>Monster Bestiary</h2>
-    <p class="subtitle">Browse and search AD&D 2E monsters</p>
-  </header>
+<GeneratorPage {toast}>
 
   <!-- Search/Filter Form -->
   <div class="generator-section">
@@ -81,23 +76,32 @@
 
   <!-- Browse Results -->
   <div class="generator-section">
-    <h3>All Monsters ({filteredMonsters.length})</h3>
-    <MonsterList
-      monsters={filteredMonsters}
-      onSave={handleSave}
-      showSaveButton={true}
-    />
+    <ItemList
+      items={filteredMonsters}
+      title="All Monsters"
+      countLabel="monster"
+      emptyText="No monsters match your search."
+      keyFn={(m) => m.key}
+    >
+      {#snippet renderItem(monster)}
+        <MonsterStatBlock {monster} onSave={handleSave} />
+      {/snippet}
+    </ItemList>
   </div>
 
   <!-- Saved Favorites -->
   {#if savedMonsters.length > 0}
     <div class="generator-section">
-      <h3>Saved Favorites ({savedMonsters.length})</h3>
-      <MonsterList
-        monsters={savedMonsters}
-        onDelete={handleDelete}
-        saved={true}
-      />
+      <ItemList
+        items={savedMonsters}
+        title="Saved Favorites"
+        countLabel="monster"
+        keyFn={(m) => m.key}
+      >
+        {#snippet renderItem(monster)}
+          <MonsterStatBlock {monster} onDelete={() => handleDelete(monster.key)} saved={true} />
+        {/snippet}
+      </ItemList>
     </div>
   {/if}
-</div>
+</GeneratorPage>

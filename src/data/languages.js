@@ -44,7 +44,6 @@ export function getRacialLanguages(raceKey) {
     gnome: ['common', 'gnomish'],
     halfElf: ['common', 'elvish'],
     halfling: ['common', 'halfling'],
-    halfOrc: ['common', 'orcish']
   };
 
   return racialLanguages[raceKey] || ['common'];

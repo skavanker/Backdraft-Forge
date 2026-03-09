@@ -6,6 +6,8 @@
   import { initNameGen } from './generators/nameGenerator.js';
   import { loadNPCs, saveNPC, deleteNPC } from './npcPersistence.svelte.js';
   import { useToast } from './utils/stateUtils.svelte.js';
+  import ConfirmButton from './components/ConfirmButton.svelte';
+  import GeneratorPage from './components/GeneratorPage.svelte';
 
   const toast = useToast();
   let generatedNPCs = $state([]);
@@ -46,28 +48,12 @@
     savedNPCs = deleteNPC(id, savedNPCs);
   }
 
-  let clearGeneratedConfirm = $state(false);
-
   function handleClearGenerated() {
-    if (clearGeneratedConfirm) {
-      generatedNPCs = [];
-      clearGeneratedConfirm = false;
-    } else {
-      clearGeneratedConfirm = true;
-    }
+    generatedNPCs = [];
   }
 </script>
 
-<div class="npc-generator">
-  {#if toast.visible}
-    <div class="save-toast alert alert-info">{toast.message}</div>
-  {/if}
-  <header class="generator-header">
-    <h2>NPC Generator</h2>
-    <p class="subtitle">
-      Generate random NPCs with weighted equipment packages and archetype templates
-    </p>
-  </header>
+<GeneratorPage {toast}>
 
   <!-- Generation Form -->
   <div class="generator-section">
@@ -86,13 +72,7 @@
     <div class="generator-section">
       <div class="section-header">
         <h3>Generated NPCs</h3>
-        {#if clearGeneratedConfirm}
-          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
-          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Yes</button>
-          <button class="btn-secondary btn-sm" onclick={() => clearGeneratedConfirm = false}>No</button>
-        {:else}
-          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear All</button>
-        {/if}
+        <ConfirmButton label="Clear All" onconfirm={handleClearGenerated} />
       </div>
       <NPCList npcs={generatedNPCs} onSave={handleSave} title="Recently Generated" />
     </div>
@@ -111,5 +91,4 @@
       <p>No NPCs yet. Use the form above to generate your first NPC!</p>
     </div>
   {/if}
-</div>
-
+</GeneratorPage>

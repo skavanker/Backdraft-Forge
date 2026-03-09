@@ -54,7 +54,7 @@ const ALL_GEOS  = ['coastal', 'mountain', 'forest', 'plains', 'desert', 'swamp']
  * @param {Object.<string, number>} obj
  * @returns {string}
  */
-function pickWeightedKey(obj) {
+export function pickWeightedKey(obj) {
   const total = Object.values(obj).reduce((sum, w) => sum + w, 0);
   let rand = Math.random() * total;
   for (const [key, weight] of Object.entries(obj)) {
@@ -171,7 +171,7 @@ function applyStyle(rawSurname, race, gender, style) {
     case 'clan':
     case 'house':
       if (race === 'dwarf')                      return `of Clan ${rawSurname}`;
-      if (race === 'elf' || race === 'halfElf') {
+      if (race === 'elf') {
         const prefix = Math.random() < 0.5 ? "Tel'" : "Quel'";
         return `${prefix}${rawSurname}`;
       }
@@ -202,7 +202,8 @@ function buildPatronymic(race, gender) {
     case 'elf':
       return isFemale ? `${fatherName}iel` : `${fatherName}ion`;
     case 'gnome':
-      return isFemale ? `${fatherName}gin` : `${fatherName}kin`;
+      // Genitive-s (Germanic): "Zooks" = of Zook — gender-neutral, fits gnome phonetics
+      return `${fatherName}s`;
     case 'halfling':
       return isFemale ? `${fatherName}daughter` : `${fatherName}son`;
     case 'human':
@@ -242,7 +243,7 @@ function resolveStyle(race) {
  * @param {Object} options
  * @returns {{ name: string, meta: Object }}
  */
-export function generateCharacterName(_names, options = {}) {
+export function generateCharacterName(options = {}) {
   let {
     race       = 'human',
     gender     = 'Male',
@@ -270,8 +271,8 @@ export function generateCharacterName(_names, options = {}) {
   const firstChain = getFirstChain(nameRace, genderKey);
   const firstName = walkChain(firstChain, FIRST_MIN, FIRST_MAX);
 
-  // Generate raw surname from chain
-  const surnameChain = getSurnameChain(race, geography);
+  // Generate raw surname from chain (use nameRace so half-elf surname matches their resolved heritage)
+  const surnameChain = getSurnameChain(nameRace, geography);
   const rawSurname = walkChain(surnameChain, SURNAME_MIN, SURNAME_MAX);
 
   // Apply style formatting (pass nameRace so half-elf uses same resolved race)
@@ -293,12 +294,12 @@ export function generateCharacterName(_names, options = {}) {
  * @param {number} count
  * @returns {Array<{ name: string, meta: Object }>}
  */
-export function generateCharacterNames(_names, options = {}, count = 1) {
+export function generateCharacterNames(options = {}, count = 1) {
   const results = [];
   let attempts = 0;
 
   while (results.length < count && attempts < count * 10) {
-    const nameObj = generateCharacterName(_names, options);
+    const nameObj = generateCharacterName(options);
     attempts++;
 
     if (!isBlacklisted(nameObj.name, NAME_BLACKLIST)) {

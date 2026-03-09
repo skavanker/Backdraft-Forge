@@ -14,6 +14,15 @@
   gap: $space-sm;
   @media (max-width: 480px) { grid-template-columns: repeat(2, 1fr); }
 }
+.detail-field select {
+  padding: $space-sm;
+  @include border-default;
+  @include rounded;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  width: 100%;
+  &:focus { border-color: var(--gold); }
+}
 .detail-field {
   display: flex; flex-direction: column;
   gap: $space-sm;
@@ -52,3 +61,11 @@ textarea {
 .char-count { &.near-limit { color: var(--red); } }
 .back-btn { display: block; margin: 0 auto $space-md; font-size: $text-sm; padding: $space-sm $space-md; }
 .existing-note { text-align: center; color: var(--text-muted); font-size: $text-sm; font-style: italic; margin: $space-sm 0 $space-md; }
+.insights-list {
+  margin: 0;
+  padding: 0 0 0 $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  li { color: var(--text-body); line-height: 1.5; }
+}

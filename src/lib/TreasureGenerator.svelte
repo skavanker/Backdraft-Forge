@@ -6,6 +6,8 @@
   import { generateTreasure, generateBulkTreasure, generateTreasureByLevel, generateTreasureByValue } from './generators/treasureGenerator.js';
   import { loadTreasures, saveTreasure, deleteTreasure } from './treasurePersistence.svelte.js';
   import { useToast } from './utils/stateUtils.svelte.js';
+  import ConfirmButton from './components/ConfirmButton.svelte';
+  import GeneratorPage from './components/GeneratorPage.svelte';
 
   const toast = useToast();
   let generatedHoards = $state([]);
@@ -61,15 +63,8 @@
     savedHoards = deleteTreasure(id, savedHoards);
   }
 
-  let clearGeneratedConfirm = $state(false);
-
   function handleClearGenerated() {
-    if (clearGeneratedConfirm) {
-      generatedHoards = [];
-      clearGeneratedConfirm = false;
-    } else {
-      clearGeneratedConfirm = true;
-    }
+    generatedHoards = [];
   }
 
   // Calculate total value of all generated hoards
@@ -82,16 +77,7 @@
   );
 </script>
 
-<div class="treasure-generator">
-  {#if toast.visible}
-    <div class="save-toast alert alert-info">{toast.message}</div>
-  {/if}
-  <header class="generator-header">
-    <h2>Treasure Generator</h2>
-    <p class="subtitle">
-      Generate treasure hoards using AD&D 2E treasure types (A-O)
-    </p>
-  </header>
+<GeneratorPage {toast}>
 
   <!-- Generation Form -->
   <div class="generator-section">
@@ -115,13 +101,7 @@
             Total: {totalGeneratedValue.toLocaleString()} gp
           </span>
         </div>
-        {#if clearGeneratedConfirm}
-          <span class="text-muted" style="--fs: 0.8rem; font-size: var(--fs)">Sure?</span>
-          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Yes</button>
-          <button class="btn-secondary btn-sm" onclick={() => clearGeneratedConfirm = false}>No</button>
-        {:else}
-          <button class="btn-danger btn-sm" onclick={handleClearGenerated}>Clear All</button>
-        {/if}
+        <ConfirmButton label="Clear All" onconfirm={handleClearGenerated} />
       </div>
       <div class="grid-xl animate-in">
         {#each generatedHoards as hoard (hoard.id)}
@@ -168,7 +148,7 @@
       <p>No treasure hoards yet. Use the form above to generate your first hoard!</p>
     </div>
   {/if}
-</div>
+</GeneratorPage>
 
 <style lang="scss">
 

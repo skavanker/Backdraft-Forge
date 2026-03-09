@@ -90,13 +90,19 @@ export function getAllowedAlignments(deityAlign) {
 
 /**
  * Get allowed alignments for a class, optionally constrained by deity alignment.
- * Paladin → always LG. Cleric with deity → within one step. Otherwise → all.
+ * PHB restrictions:
+ *   Paladin → LG only
+ *   Ranger  → any Good (LG, NG, CG)
+ *   Druid   → True Neutral only
+ *   Cleric with deity → within one step of deity
  * @param {string} classKey
  * @param {number|null|undefined} deityAlignment - Deity's alignment number, or null/undefined
  * @returns {number[]}
  */
 export function getAllowedAlignmentsForClass(classKey, deityAlignment) {
   if (classKey === 'paladin') return [ALIGNMENTS.LG];
+  if (classKey === 'ranger') return [ALIGNMENTS.LG, ALIGNMENTS.NG, ALIGNMENTS.CG];
+  if (classKey === 'druid') return [ALIGNMENTS.N];
   if (deityAlignment !== null && deityAlignment !== undefined) {
     return getAllowedAlignments(deityAlignment);
   }

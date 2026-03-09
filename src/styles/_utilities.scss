@@ -23,6 +23,11 @@
   color: var(--text-muted);
 }
 
+.confirm-prompt {
+  color: var(--text-muted);
+  font-size: $text-sm;
+}
+
 .text-primary {
   color: var(--text-primary);
 }
@@ -160,6 +165,18 @@
 
 // ─── Badge Variants ─────────────────────────────────────────────────────────
 
+// ─── Stat block column (label + value stacked) ──────────────────────────────
+// Used in NPC combat row and monster combat row.
+// Per-component overrides (.label, .value font sizes) live in their own partials.
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-xs;
+}
+
+// ─── Badges ─────────────────────────────────────────────────────────────────
 // Base badge (for statuses, counts, etc)
 .badge {
   display: inline-block;

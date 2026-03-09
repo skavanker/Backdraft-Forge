@@ -12,7 +12,7 @@
   const namingStyles = [
     { value: 'standard',   label: 'Standard',    description: 'Traditional surname' },
     { value: 'patronymic', label: 'Patronymic',  description: 'Son/Daughter of' },
-    { value: 'lineage',    label: 'Clan / House', description: 'Of Clan X (Dwarf) or Of House X (Elf/Human)' }
+    { value: 'lineage',    label: 'Clan / House', description: "Of Clan X (Dwarf) · Tel'/Quel' prefix (Elf) · Of House X (Human)" }
   ];
 
   const quantities = [1, 3, 5, 10];
@@ -126,7 +126,7 @@
       {/each}
     </div>
     <p class="section-hint">
-      Standard: Traditional surname • Patronymic: Son/Daughter of • Clan/House: Lineage name by race
+      Standard: Traditional surname • Patronymic: Son/Daughter of • Clan/House: Of Clan X (Dwarf), Tel'/Quel' prefix (Elf), Of House X (Human)
     </p>
   </div>
 </div>

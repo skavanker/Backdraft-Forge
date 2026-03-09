@@ -11,7 +11,7 @@ export const NAME_BLACKLIST = [
   // ── Tolkien halfling (hobbit) first names ──────────────────────────────────
   'bilbo', 'frodo', 'samwise', 'pippin', 'peregrin', 'meriadoc', 'hamfast',
   'drogo', 'fosco', 'lotho', 'bingo', 'bungo', 'folco', 'fatty',
-  'hildibrand', 'largo', 'marcho', 'merimac', 'odo', 'odovacar',
+  'hildibrand', 'largo', 'marcho', 'merimac', 'mosco', 'odo', 'odovacar',
   'paladin', 'polo', 'posco', 'rorimac', 'saradoc',
 
   // ── Tolkien halfling surnames ──────────────────────────────────────────────
