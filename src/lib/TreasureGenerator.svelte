@@ -3,7 +3,7 @@
   import TreasureGeneratorForm from './components/TreasureGeneratorForm.svelte';
   import TreasureHoard from './components/TreasureHoard.svelte';
   import TreasureItemList from './components/TreasureItemList.svelte';
-  import { generateTreasure, generateBulkTreasure, generateTreasureByLevel, generateTreasureByValue } from './generators/treasureGenerator.js';
+  import { generateTreasure, generateBulkTreasure, generateTreasureByLevel, generateTreasureByValue, generateSingleItems } from './generators/treasureGenerator.js';
   import { loadTreasures, saveTreasure, deleteTreasure } from './treasurePersistence.svelte.js';
   import { useToast } from './utils/stateUtils.svelte.js';
   import ConfirmButton from './components/ConfirmButton.svelte';
@@ -27,7 +27,6 @@
 
         if (options.method === 'single-item') {
           // Generate single items
-          const { generateSingleItems } = await import('./generators/treasureGenerator.js');
           hoards = [generateSingleItems(options.itemType, options.count)];
         } else if (options.method === 'by-value') {
           // Generate by target value

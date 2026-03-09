@@ -59,8 +59,6 @@ textarea {
 }
 .backstory-meta { display: flex; justify-content: space-between; align-items: center; }
 .char-count { &.near-limit { color: var(--red); } }
-.back-btn { display: block; margin: 0 auto $space-md; font-size: $text-sm; padding: $space-sm $space-md; }
-.existing-note { text-align: center; color: var(--text-muted); font-size: $text-sm; font-style: italic; margin: $space-sm 0 $space-md; }
 .insights-list {
   margin: 0;
   padding: 0 0 0 $space-lg;

@@ -1,5 +1,14 @@
 import { deflateRaw, inflateRaw } from 'pako';
 import { getAlignmentNumber } from '../data/alignment.js';
+import { races, applyRacialAdjustments } from '../data/races.js';
+import { classes, wizardSchools } from '../data/classes.js';
+import { weapons, nonWeaponProficiencies } from '../data/proficiencies.js';
+import { equipment } from '../data/equipment.js';
+import { wizardSpells } from '../data/spells.js';
+import { priestSpells } from '../data/priestSpells.js';
+import { deities } from '../data/deities.js';
+import { languages } from '../data/languages.js';
+import { kits } from '../data/kits.js';
 
 /**
  * Current character format version for migrations
@@ -331,34 +340,7 @@ function decompressMetadata(compressed, deities) {
  * Decompress character from minimal data structure.
  * Automatically handles old format versions via migration logic.
  */
-async function decompressCharacter(compressed) {
-  // Check version and apply migrations if needed
-  const version = compressed.v || 0; // Default to 0 for legacy characters without version
-
-  // Migration strategy:
-  // - Always read from oldest to newest format
-  // - Transform old field names/structures to current format
-  // - Example migrations:
-  //   if (version < 1) {
-  //     // Migrate v0 -> v1: rename field 's' to 'sx' for sex
-  //     if (compressed.s && !compressed.sx) compressed.sx = compressed.s;
-  //   }
-  //   if (version < 2) {
-  //     // Migrate v1 -> v2: convert alignment string to number
-  //     if (typeof compressed.al === 'string') compressed.al = getAlignmentNumber(compressed.al);
-  //   }
-
-  // Import data files dynamically
-  const { races, applyRacialAdjustments } = await import('../data/races.js');
-  const { classes, wizardSchools } = await import('../data/classes.js');
-  const { weapons, nonWeaponProficiencies } = await import('../data/proficiencies.js');
-  const { equipment } = await import('../data/equipment.js');
-  const { wizardSpells } = await import('../data/spells.js');
-  const { priestSpells } = await import('../data/priestSpells.js');
-  const { deities } = await import('../data/deities.js');
-  const { languages } = await import('../data/languages.js');
-  const { kits } = await import('../data/kits.js');
-
+function decompressCharacter(compressed) {
   // Decompress using transformer functions
   const abilities = decompressAbilities(compressed);
   const classification = decompressClassification(compressed, races, classes, wizardSchools, applyRacialAdjustments, abilities);
@@ -392,7 +374,7 @@ async function decompressCharacter(compressed) {
 /**
  * Decode character data from a URL-safe string
  */
-export async function decodeCharacter(encoded) {
+export function decodeCharacter(encoded) {
   try {
     let json;
     if (encoded.startsWith('Z')) {
@@ -416,8 +398,7 @@ export async function decodeCharacter(encoded) {
     const compressed = JSON.parse(json);
 
     // Decompress to full character
-    const character = await decompressCharacter(compressed);
-    return character;
+    return decompressCharacter(compressed);
   } catch (error) {
     console.error('Failed to decode character:', error);
     return null;
@@ -438,12 +419,12 @@ export function generateShareableUrl(character) {
 /**
  * Get character data from current URL if present
  */
-export async function getCharacterFromUrl() {
+export function getCharacterFromUrl() {
   const hash = window.location.hash;
   if (!hash.startsWith('#char=')) return null;
 
   const encoded = hash.substring(6); // Remove '#char='
-  return await decodeCharacter(encoded);
+  return decodeCharacter(encoded);
 }
 
 /**

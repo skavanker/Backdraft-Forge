@@ -65,9 +65,9 @@ export function saveToLocalStorage(character, savedCharacters) {
  * @param {object} entry
  * @returns {Promise<object|null>}
  */
-export async function loadSavedCharacter(entry) {
+export function loadSavedCharacter(entry) {
   try {
-    return await decodeCharacter(entry.code);
+    return decodeCharacter(entry.code);
   } catch (e) {
     return null;
   }

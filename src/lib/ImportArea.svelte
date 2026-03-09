@@ -1,19 +1,20 @@
 <script>
+  import { decodeCharacter } from './shareCharacter.js';
+
   let { onImport } = $props();
 
   let showImportArea = $state(false);
   let importCode = $state('');
   let importError = $state('');
 
-  async function loadImportedCharacter() {
+  function loadImportedCharacter() {
     importError = '';
     const trimmed = importCode.trim();
     if (!trimmed) {
       importError = 'Please paste a character code';
       return;
     }
-    const { decodeCharacter } = await import('./shareCharacter.js');
-    const imported = await decodeCharacter(trimmed);
+    const imported = decodeCharacter(trimmed);
     if (!imported) {
       importError = 'Invalid character code';
       return;

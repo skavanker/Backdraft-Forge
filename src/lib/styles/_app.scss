@@ -7,28 +7,6 @@ main {
   gap: $space-lg;
 }
 
-// .save-list, .save-entry, .save-load, .saved-data → canonical in _splash.scss (global via app.scss)
-// .wip-prompt → canonical in _splash.scss
-// In the step 0 content block, saved-data has no flex gap parent so needs explicit margin
-.content .saved-data { margin-top: $space-lg; }
-
-.save-delete {
-  background: transparent;
-  border: none;
-  color: var(--text-faint);
-  font-size: $text-lg;
-  cursor: pointer;
-  padding: $space-xs $space-sm;
-  line-height: 1;
-  opacity: 0.4;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 1;
-    color: var(--red);
-  }
-}
-
 .header {
   text-align: center;
 }

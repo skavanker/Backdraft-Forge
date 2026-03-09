@@ -7,19 +7,18 @@
  * from their serialized keys.
  *
  * @param {Object} character - Serialized character data with keys instead of full objects
- * @returns {Promise<Object>} - Fully hydrated character object
+ * @returns {Object} - Fully hydrated character object
  */
-export async function restoreCharacterObjects(character) {
-  // Lazy-load all data modules
-  const { races } = await import('../../data/races.js');
-  const { classes, wizardSchools } = await import('../../data/classes.js');
-  const { kits } = await import('../../data/kits.js');
-  const { deities } = await import('../../data/deities.js');
-  const { weapons, nonWeaponProficiencies } = await import('../../data/proficiencies.js');
-  const { languages } = await import('../../data/languages.js');
-  const { equipment } = await import('../../data/equipment.js');
-  const { wizardSpells, priestSpells } = await import('../../data/spells.js');
+import { races } from '../../data/races.js';
+import { classes, wizardSchools } from '../../data/classes.js';
+import { kits } from '../../data/kits.js';
+import { deities } from '../../data/deities.js';
+import { weapons, nonWeaponProficiencies } from '../../data/proficiencies.js';
+import { languages } from '../../data/languages.js';
+import { equipment } from '../../data/equipment.js';
+import { wizardSpells, priestSpells } from '../../data/spells.js';
 
+export function restoreCharacterObjects(character) {
   const restored = {
     ...character,
     race: character.raceKey ? races[character.raceKey] : null,

@@ -500,28 +500,28 @@
     <p class="section-hint" style="margin-bottom: var(--space-sm)">Optional — these enrich the AI prompt but are not saved to your character sheet.</p>
     <div class="flex-column gap-sm">
       <div class="detail-field">
-        <label>Origin / Background</label>
-        <select bind:value={storyDetails.origin}>
+        <label for="story-origin">Origin / Background</label>
+        <select id="story-origin" bind:value={storyDetails.origin}>
           {#each ORIGIN_OPTIONS as o}
             <option value={o}>{o || '— choose or leave blank —'}</option>
           {/each}
         </select>
       </div>
       <div class="detail-field">
-        <label>Motivation</label>
-        <select bind:value={storyDetails.motivation}>
+        <label for="story-motivation">Motivation</label>
+        <select id="story-motivation" bind:value={storyDetails.motivation}>
           {#each MOTIVATION_OPTIONS as m}
             <option value={m}>{m || '— choose or leave blank —'}</option>
           {/each}
         </select>
       </div>
       <div class="detail-field">
-        <label>Personality traits</label>
-        <input type="text" bind:value={storyDetails.traits} placeholder="e.g. Gruff but loyal, dry sense of humor" maxlength="120" />
+        <label for="story-traits">Personality traits</label>
+        <input id="story-traits" type="text" bind:value={storyDetails.traits} placeholder="e.g. Gruff but loyal, dry sense of humor" maxlength="120" />
       </div>
       <div class="detail-field">
-        <label>A secret or defining moment</label>
-        <input type="text" bind:value={storyDetails.secret} placeholder="e.g. Witnessed their village burn, carries survivor's guilt" maxlength="200" />
+        <label for="story-secret">A secret or defining moment</label>
+        <input id="story-secret" type="text" bind:value={storyDetails.secret} placeholder="e.g. Witnessed their village burn, carries survivor's guilt" maxlength="200" />
       </div>
     </div>
   </Collapsible>
@@ -572,9 +572,6 @@
   </button>
 </div>
 
-<style lang="scss">
-  @import './styles/backstory';
-</style>
 
 
 

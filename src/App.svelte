@@ -16,7 +16,7 @@
   import CharacterSheet from './lib/CharacterSheet.svelte';
   import CharacterSummary from './lib/CharacterSummary.svelte';
   import ReviewStep from './lib/ReviewStep.svelte';
-  import { getCharacterFromUrl, encodeCharacter } from './lib/shareCharacter.js';
+  import { getCharacterFromUrl, encodeCharacter, copyToClipboard, generateShareableUrl } from './lib/shareCharacter.js';
   import { isSpellcaster } from './data/spells.js';
   import { settings, initSettings } from './lib/settings.svelte.js';
   import { restoreCharacterObjects } from './lib/utils/characterRestore.svelte.js';
@@ -103,8 +103,8 @@
     savedCharacters = persistSave(character, savedCharacters);
   }
 
-  async function loadSavedCharacter(entry) {
-    const restored = await loadSaved(entry);
+  function loadSavedCharacter(entry) {
+    const restored = loadSaved(entry);
     if (restored) {
       character = restored;
       currentView = 'character-creator';
@@ -149,7 +149,7 @@
     // Async init (shared links, migration)
     (async () => {
       // Check if character data is in URL (shared link)
-      const sharedCharacter = await getCharacterFromUrl();
+      const sharedCharacter = getCharacterFromUrl();
       if (sharedCharacter) {
         character = sharedCharacter;
         currentView = 'character-creator';
@@ -242,12 +242,12 @@
     undoStack = [...undoStack.slice(-(MAX_UNDO - 1)), JSON.parse(JSON.stringify(character))];
   }
 
-  async function undo() {
+  function undo() {
     if (undoStack.length === 0 || currentStep !== STEP_SHEET) return;
     const prev = undoStack[undoStack.length - 1];
     undoStack = undoStack.slice(0, -1);
 
-    const restored = await restoreCharacterObjects(prev);
+    const restored = restoreCharacterObjects(prev);
     Object.assign(character, restored);
     saveToLocalStorage();
     undoToast.flash('Undone');
@@ -276,10 +276,10 @@
     flashSave();
   }
 
-  async function resumeWip() {
+  function resumeWip() {
     if (!wipPrompt) return;
 
-    const restored = await restoreCharacterObjects(wipPrompt.character);
+    const restored = restoreCharacterObjects(wipPrompt.character);
     Object.assign(character, restored);
     currentView = 'character-creator';
     currentStep = wipPrompt.currentStep;
@@ -295,7 +295,6 @@
   async function exportCharacterCode() {
     const encoded = encodeCharacter(character);
     if (!encoded) { flashSave('Failed to generate code'); return; }
-    const { copyToClipboard } = await import('./lib/shareCharacter.js');
     const success = await copyToClipboard(encoded);
     flashSave(success ? 'Character code copied!' : 'Failed to copy code');
   }
@@ -392,7 +391,6 @@
   showActions={currentStep === STEP_SHEET}
   onSave={() => { saveToLocalStorage(); flashSave('Character saved'); }}
   onShare={async () => {
-    const { generateShareableUrl, copyToClipboard } = await import('./lib/shareCharacter.js');
     const url = generateShareableUrl(character);
     if (!url) { flashSave('Failed to generate link'); return; }
     const success = await copyToClipboard(url);
@@ -546,19 +544,19 @@
     </section>
   {:else if currentView === 'npc-generator'}
     <section class="content card">
-      {#if NPCGenerator}<svelte:component this={NPCGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
+      {#if NPCGenerator}<NPCGenerator />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'treasure-generator'}
     <section class="content card">
-      {#if TreasureGenerator}<svelte:component this={TreasureGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
+      {#if TreasureGenerator}<TreasureGenerator />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'name-generator'}
     <section class="content card">
-      {#if NameGenerator}<svelte:component this={NameGenerator} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
+      {#if NameGenerator}<NameGenerator />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'monster-bestiary'}
     <section class="content card">
-      {#if MonsterBestiary}<svelte:component this={MonsterBestiary} />{:else}<p class="text-muted text-center">Loading…</p>{/if}
+      {#if MonsterBestiary}<MonsterBestiary />{:else}<p class="text-muted text-center">Loading…</p>{/if}
     </section>
   {:else if currentView === 'splash'}
     <SplashPage
