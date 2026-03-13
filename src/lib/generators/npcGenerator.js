@@ -286,7 +286,8 @@ export function generateNPC(options = {}) {
     levelMax = 1,
     raceKey = null,          // null = random
     classKey = null,         // null = random
-    archetypeKey = null      // null = none
+    archetypeKey = null,     // null = none
+    sex = null               // null = random, 'Male' | 'Female' = forced
   } = options;
 
   // ARCHETYPE SYSTEM: Archetypes provide quick NPC templates (merchant, guard, noble, etc.)
@@ -353,10 +354,10 @@ export function generateNPC(options = {}) {
   const spells = generateNPCSpells(selectedClassKey, adjustedAbilities, level);
 
   // 12. Generate name, sex, alignment
-  const sex = generateRandomSex();
+  const resolvedSex = (sex === 'Male' || sex === 'Female') ? sex : generateRandomSex();
   const nameResult = generateCharacterName({
     race: selectedRaceKey,
-    gender: sex,
+    gender: resolvedSex,
     geography: 'random',
     style: 'random'
   });
@@ -368,7 +369,7 @@ export function generateNPC(options = {}) {
     type: 'npc',
     id: Date.now() + Math.random(), // Unique ID
     name,
-    sex,
+    sex: resolvedSex,
     alignment,
     alignmentName: ALIGNMENT_NAMES[alignment],
 

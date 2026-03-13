@@ -54,6 +54,7 @@
 </script>
 
 <GeneratorPage {toast}>
+<div class="npc-generator">
 
   <!-- Generation Form -->
   <div class="generator-section">
@@ -91,4 +92,6 @@
       <p>No NPCs yet. Use the form above to generate your first NPC!</p>
     </div>
   {/if}
+
+</div>
 </GeneratorPage>

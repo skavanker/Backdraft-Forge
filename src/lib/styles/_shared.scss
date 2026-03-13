@@ -169,3 +169,38 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+// ════════════ STAT BLOCK (shared by NPCStatBlock + MonsterStatBlock) ════════════
+.stat-block-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: $space-sm;
+
+  .stat-block-title {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    margin-bottom: $space-xs;
+    h4 { margin: 0; font-weight: 700; }
+  }
+
+  .stat-block-subtitle {
+    margin: 0;
+    font-size: $text-sm;
+    color: var(--text-muted);
+  }
+}
+
+.stat-block-combat {
+  display: flex;
+  padding: $space-sm;
+  background: var(--bg-panel);
+  @include rounded;
+  gap: $space-xs;
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    .label { font-size: $text-xs; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .value { font-weight: 700; color: var(--text-primary); }
+  }
+}

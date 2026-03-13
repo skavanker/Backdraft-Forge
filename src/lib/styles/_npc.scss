@@ -1,33 +1,23 @@
 @use '../../styles/mixins.scss' as *;
 
-/**
- * NPC Generator Styles
- */
-
-// Utility classes for NPC components
+// NPC Generator Styles
 // .npc-grid → replaced by .grid-lg (see _utilities.scss)
-
 // .npc-badge → replaced by .badge.badge-primary (see _utilities.scss)
-
-.npc-divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: $space-md 0;
-}
-
-// ===================================================
-// NPC Form
-// ===================================================
 
 .npc-form {
   @include form-container;
-
 }
 
+// ════════════ LEVEL RANGE ════════════
 .level-inputs {
   display: flex;
   gap: $space-md;
   align-items: center;
+}
+
+.level-separator {
+  color: var(--text-muted);
+  font-size: $text-sm;
 }
 
 .npc-form input[type="number"] {
@@ -43,3 +33,48 @@
   color: var(--text-secondary);
 }
 
+// ════════════ ARCHETYPE GROUPS ════════════
+.archetype-groups {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.archetype-custom-row {
+  padding-bottom: $space-sm;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.archetype-group {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.archetype-group-label {
+  font-size: $text-xs;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+// ════════════ QUANTITY ════════════
+.count-options {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+
+  .btn-secondary.selected {
+    background: var(--gold-overlay);
+    border-color: var(--gold);
+    color: var(--gold-dark);
+    font-weight: 600;
+  }
+}
+
+.count-input {
+  @include form-input;
+  width: 4.5rem;
+  text-align: center;
+}
