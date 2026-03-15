@@ -413,7 +413,7 @@
 <main>
   {#if currentView !== 'splash'}
     <header class="header">
-      <h1><button class="logo" type="button" onclick={returnToSplash}><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></button></h1>
+      <h1><div class="logo" onclick={returnToSplash} role="link" aria-label="Return to home" tabindex="0"><img src="/logo.svg" alt="Backdraft Forge" class="logo-img" /></div></h1>
       <p class="tagline">{VIEW_TAGLINES[currentView]}</p>
     </header>
   {/if}

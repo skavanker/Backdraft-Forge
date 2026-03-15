@@ -3,6 +3,9 @@
  *
  * Weapon proficiencies: Number of slots and allowed weapons by class
  * Non-weapon proficiencies: Skills with ability checks
+ *
+ * `groups` — all class groups that can take this at native cost (base slots)
+ * `slots`  — base slot cost when taken from a native group; cross-group adds +1
  */
 
 import { weaponDefinitions } from './weapons.js';
@@ -47,69 +50,91 @@ export const proficiencyGroups = {
   rogue: 'Rogue'
 };
 
-// Class group access to proficiency groups (cost in slots)
-export const proficiencyAccess = {
-  warrior: { general: 1, warrior: 1, wizard: 3, priest: 3, rogue: 2 },
-  wizard: { general: 1, warrior: 3, wizard: 1, priest: 3, rogue: 2 },
-  priest: { general: 1, warrior: 3, wizard: 3, priest: 1, rogue: 2 },
-  rogue: { general: 1, warrior: 2, wizard: 2, priest: 2, rogue: 1 }
+// Class groups with native (base-cost) access — PHB crossover table
+const classNativeGroups = {
+  warrior: ['warrior', 'general'],
+  wizard:  ['wizard',  'general'],
+  priest:  ['priest',  'general'],
+  rogue:   ['rogue',   'general'],
 };
 
-// Non-weapon proficiencies
+// Non-weapon proficiencies (PHB core only)
+// groups: all groups that can take this at native (base) cost
+// slots:  base slot cost for native groups; cross-group = slots + 1
 export const nonWeaponProficiencies = {
-  // General (all classes, 1 slot)
-  animalHandling: { name: 'Animal Handling', ability: 'WIS', modifier: -1, group: 'general', description: 'Care for and train animals' },
-  cooking: { name: 'Cooking', ability: 'INT', modifier: 0, group: 'general', description: 'Prepare food and identify ingredients' },
-  direction: { name: 'Direction Sense', ability: 'WIS', modifier: 1, group: 'general', description: 'Determine direction and avoid getting lost' },
-  fireBuilding: { name: 'Fire Building', ability: 'WIS', modifier: -1, group: 'general', description: 'Start fires in various conditions' },
-  fishing: { name: 'Fishing', ability: 'WIS', modifier: -1, group: 'general', description: 'Catch fish with basic equipment' },
-  heraldry: { name: 'Heraldry', ability: 'INT', modifier: 0, group: 'general', description: 'Recognize coats of arms and noble houses' },
-  languages: { name: 'Languages, Modern', ability: 'INT', modifier: 0, group: 'general', description: 'Speak an additional language' },
-  riding: { name: 'Riding, Land', ability: 'WIS', modifier: 3, group: 'general', description: 'Ride horses and similar mounts' },
-  rope: { name: 'Rope Use', ability: 'DEX', modifier: 0, group: 'general', description: 'Tie knots and use ropes effectively' },
-  singing: { name: 'Singing', ability: 'CHA', modifier: 0, group: 'general', description: 'Sing well and carry a tune' },
-  swimming: { name: 'Swimming', ability: 'STR', modifier: 0, group: 'general', description: 'Swim and stay afloat' },
-  weather: { name: 'Weather Sense', ability: 'WIS', modifier: -1, group: 'general', description: 'Predict weather patterns' },
 
-  // Warrior
-  animalTraining: { name: 'Animal Training', ability: 'WIS', modifier: 0, group: 'warrior', description: 'Train animals for specific purposes' },
-  armorer: { name: 'Armorer', ability: 'INT', modifier: -2, group: 'warrior', description: 'Make and repair armor' },
-  blindFighting: { name: 'Blind-Fighting', ability: 'NA', modifier: 0, group: 'warrior', description: 'Fight effectively without sight' },
-  bowyer: { name: 'Bowyer/Fletcher', ability: 'DEX', modifier: -1, group: 'warrior', description: 'Make bows and arrows' },
-  endurance: { name: 'Endurance', ability: 'CON', modifier: 0, group: 'warrior', description: 'Perform strenuous activity longer' },
-  hunting: { name: 'Hunting', ability: 'WIS', modifier: -1, group: 'warrior', description: 'Track and hunt wild game' },
-  mountaineering: { name: 'Mountaineering', ability: 'NA', modifier: 0, group: 'warrior', description: 'Climb mountains and cliffs safely' },
-  navigation: { name: 'Navigation', ability: 'INT', modifier: -2, group: 'warrior', description: 'Navigate by stars and landmarks' },
-  running: { name: 'Running', ability: 'CON', modifier: -6, group: 'warrior', description: 'Run long distances without tiring' },
-  survival: { name: 'Survival', ability: 'INT', modifier: 0, group: 'warrior', description: 'Survive in wilderness environments' },
-  tracking: { name: 'Tracking', ability: 'WIS', modifier: 0, group: 'warrior', description: 'Follow tracks and trails' },
-  weaponsmithing: { name: 'Weaponsmithing', ability: 'INT', modifier: -3, group: 'warrior', description: 'Make and repair weapons' },
+  // ── GENERAL ──────────────────────────────────────────────────────────────
+  agriculture:     { name: 'Agriculture',       ability: 'INT', modifier:  0, slots: 1, groups: ['general'], description: 'Grow crops and manage farmland' },
+  animalHandling:  { name: 'Animal Handling',   ability: 'WIS', modifier: -1, slots: 1, groups: ['general'], description: 'Care for and calm animals' },
+  animalTraining:  { name: 'Animal Training',   ability: 'WIS', modifier:  0, slots: 1, groups: ['general'], description: 'Train animals for specific purposes' },
+  artisticAbility: { name: 'Artistic Ability',  ability: 'WIS', modifier:  0, slots: 1, groups: ['general'], description: 'Create art and recognize artistic styles' },
+  blacksmithing:   { name: 'Blacksmithing',     ability: 'STR', modifier:  0, slots: 1, groups: ['general'], description: 'Work iron and steel into useful items' },
+  brewing:         { name: 'Brewing',           ability: 'INT', modifier:  0, slots: 1, groups: ['general'], description: 'Brew beer, ale, and other beverages' },
+  carpentry:       { name: 'Carpentry',         ability: 'STR', modifier:  0, slots: 1, groups: ['general'], description: 'Build and repair wooden structures' },
+  cobbling:        { name: 'Cobbling',          ability: 'DEX', modifier:  0, slots: 1, groups: ['general'], description: 'Make and repair shoes and boots' },
+  cooking:         { name: 'Cooking',           ability: 'INT', modifier:  0, slots: 1, groups: ['general'], description: 'Prepare food and identify ingredients' },
+  dancing:         { name: 'Dancing',           ability: 'DEX', modifier:  0, slots: 1, groups: ['general'], description: 'Perform dances of various styles' },
+  direction:       { name: 'Direction Sense',   ability: 'WIS', modifier:  1, slots: 1, groups: ['general'], description: 'Determine direction and avoid getting lost' },
+  etiquette:       { name: 'Etiquette',         ability: 'CHA', modifier:  0, slots: 1, groups: ['general'], description: 'Know proper manners for various social situations' },
+  fireBuilding:    { name: 'Fire Building',     ability: 'WIS', modifier: -1, slots: 1, groups: ['general'], description: 'Start fires in various conditions' },
+  fishing:         { name: 'Fishing',           ability: 'WIS', modifier: -1, slots: 1, groups: ['general'], description: 'Catch fish with basic equipment' },
+  heraldry:        { name: 'Heraldry',          ability: 'INT', modifier:  0, slots: 1, groups: ['general'], description: 'Recognize coats of arms and noble houses' },
+  languages:       { name: 'Languages, Modern', ability: 'INT', modifier:  0, slots: 1, groups: ['general'], description: 'Speak an additional modern language' },
+  leatherworking:  { name: 'Leatherworking',    ability: 'INT', modifier:  0, slots: 1, groups: ['general'], description: 'Tan hides and craft leather goods' },
+  mining:          { name: 'Mining',            ability: 'WIS', modifier: -3, slots: 2, groups: ['general'], description: 'Find ore veins and work underground safely' },
+  pottery:         { name: 'Pottery',           ability: 'DEX', modifier: -2, slots: 1, groups: ['general'], description: 'Shape and fire clay vessels' },
+  ridingAirborne:  { name: 'Riding, Airborne',  ability: 'WIS', modifier: -2, slots: 2, groups: ['general'], description: 'Ride flying mounts such as pegasi and griffons' },
+  riding:          { name: 'Riding, Land',      ability: 'WIS', modifier:  3, slots: 1, groups: ['general'], description: 'Ride horses and similar mounts' },
+  rope:            { name: 'Rope Use',          ability: 'DEX', modifier:  0, slots: 1, groups: ['general'], description: 'Tie knots and use ropes effectively' },
+  seamanship:      { name: 'Seamanship',        ability: 'DEX', modifier:  1, slots: 1, groups: ['general'], description: 'Sail and work aboard ships' },
+  seamstress:      { name: 'Seamstress/Tailor', ability: 'DEX', modifier: -1, slots: 1, groups: ['general'], description: 'Sew clothing and work with fabrics' },
+  singing:         { name: 'Singing',           ability: 'CHA', modifier:  0, slots: 1, groups: ['general'], description: 'Sing well and carry a tune' },
+  stonemasonry:    { name: 'Stonemasonry',      ability: 'STR', modifier: -2, slots: 1, groups: ['general'], description: 'Cut and lay stone for construction' },
+  swimming:        { name: 'Swimming',          ability: 'STR', modifier:  0, slots: 1, groups: ['general'], description: 'Swim and stay afloat' },
+  weather:         { name: 'Weather Sense',     ability: 'WIS', modifier: -1, slots: 1, groups: ['general'], description: 'Predict weather patterns' },
+  weaving:         { name: 'Weaving',           ability: 'INT', modifier: -1, slots: 1, groups: ['general'], description: 'Weave cloth and work with looms' },
 
-  // Wizard
-  ancientHistory: { name: 'Ancient History', ability: 'INT', modifier: -1, group: 'wizard', description: 'Knowledge of ancient civilizations' },
-  astrology: { name: 'Astrology', ability: 'INT', modifier: 0, group: 'wizard', description: 'Read stars and predict events' },
-  engineering: { name: 'Engineering', ability: 'INT', modifier: -3, group: 'wizard', description: 'Design and build structures' },
-  ancientLanguages: { name: 'Languages, Ancient', ability: 'INT', modifier: -1, group: 'wizard', description: 'Read dead languages' },
-  readWrite: { name: 'Reading/Writing', ability: 'INT', modifier: 1, group: 'wizard', description: 'Read and write known languages' },
-  religion: { name: 'Religion', ability: 'WIS', modifier: 0, group: 'wizard', description: 'Knowledge of religious practices' },
-  spellcraft: { name: 'Spellcraft', ability: 'INT', modifier: -2, group: 'wizard', description: 'Identify spells and magical effects' },
+  // ── WARRIOR-NATIVE ───────────────────────────────────────────────────────
+  animalLore:      { name: 'Animal Lore',       ability: 'INT', modifier:  0, slots: 1, groups: ['warrior'], description: 'Identify animals and understand their behavior' },
+  armorer:         { name: 'Armorer',           ability: 'INT', modifier: -2, slots: 2, groups: ['warrior'], description: 'Make and repair armor' },
+  bowyer:          { name: 'Bowyer/Fletcher',   ability: 'DEX', modifier: -1, slots: 1, groups: ['warrior'], description: 'Make bows and arrows' },
+  charioteering:   { name: 'Charioteering',     ability: 'DEX', modifier:  2, slots: 1, groups: ['warrior'], description: 'Drive and fight from chariots' },
+  mountaineering:  { name: 'Mountaineering',    ability: 'NA',  modifier:  0, slots: 1, groups: ['warrior'], description: 'Climb mountains and cliffs safely' },
+  running:         { name: 'Running',           ability: 'CON', modifier: -6, slots: 1, groups: ['warrior'], description: 'Run long distances without tiring' },
+  weaponsmithing:  { name: 'Weaponsmithing',    ability: 'INT', modifier: -3, slots: 3, groups: ['warrior'], description: 'Make and repair weapons' },
 
-  // Priest
-  healing: { name: 'Healing', ability: 'WIS', modifier: -2, group: 'priest', description: 'Treat wounds and illness without magic' },
-  herbalism: { name: 'Herbalism', ability: 'INT', modifier: -2, group: 'priest', description: 'Identify and use medicinal plants' },
-  localHistory: { name: 'Local History', ability: 'CHA', modifier: 0, group: 'priest', description: 'Knowledge of local events and people' },
-  musicalInstrument: { name: 'Musical Instrument', ability: 'DEX', modifier: -1, group: 'priest', description: 'Play a specific instrument' },
+  // ── MULTI-GROUP ──────────────────────────────────────────────────────────
+  ancientHistory:  { name: 'Ancient History',   ability: 'INT', modifier: -1, slots: 1, groups: ['wizard', 'priest', 'rogue'], description: 'Knowledge of ancient civilizations and events' },
+  astrology:       { name: 'Astrology',         ability: 'INT', modifier:  0, slots: 2, groups: ['wizard', 'priest', 'rogue'], description: 'Read stars and predict events' },
+  blindFighting:   { name: 'Blind-Fighting',    ability: 'NA',  modifier:  0, slots: 2, groups: ['warrior', 'rogue'],          description: 'Fight effectively without sight' },
+  endurance:       { name: 'Endurance',         ability: 'CON', modifier:  0, slots: 2, groups: ['warrior', 'rogue'],          description: 'Perform strenuous activity for longer' },
+  engineering:     { name: 'Engineering',       ability: 'INT', modifier: -3, slots: 2, groups: ['wizard', 'priest'],          description: 'Design and build structures' },
+  gaming:          { name: 'Gaming',            ability: 'CHA', modifier:  0, slots: 1, groups: ['warrior', 'rogue'],          description: 'Play and win at games of chance and skill' },
+  gemCutting:      { name: 'Gem Cutting',       ability: 'DEX', modifier: -2, slots: 2, groups: ['wizard', 'rogue'],           description: 'Cut and polish gemstones' },
+  healing:         { name: 'Healing',           ability: 'WIS', modifier: -2, slots: 2, groups: ['priest'],                   description: 'Treat wounds and illness without magic' },
+  herbalism:       { name: 'Herbalism',         ability: 'INT', modifier: -2, slots: 2, groups: ['priest', 'wizard', 'rogue'], description: 'Identify and use medicinal plants' },
+  hunting:         { name: 'Hunting',           ability: 'WIS', modifier: -1, slots: 1, groups: ['warrior', 'rogue'],          description: 'Track and hunt wild game' },
+  jumping:         { name: 'Jumping',           ability: 'STR', modifier:  0, slots: 1, groups: ['rogue'],                    description: 'Leap farther and higher than normal' },
+  ancientLanguages:{ name: 'Languages, Ancient',ability: 'INT', modifier:  0, slots: 1, groups: ['wizard', 'priest'],          description: 'Read dead languages and ancient scripts' },
+  localHistory:    { name: 'Local History',     ability: 'CHA', modifier:  0, slots: 1, groups: ['priest', 'rogue'],           description: 'Knowledge of local events and notable people' },
+  musicalInstrument:{ name: 'Musical Instrument',ability: 'DEX',modifier: -1, slots: 1, groups: ['priest', 'rogue'],           description: 'Play a specific instrument' },
+  navigation:      { name: 'Navigation',        ability: 'INT', modifier: -2, slots: 1, groups: ['warrior', 'wizard', 'priest', 'rogue'], description: 'Navigate by stars and landmarks' },
+  readingLips:     { name: 'Reading Lips',      ability: 'INT', modifier: -2, slots: 2, groups: ['rogue'],                    description: 'Understand speech by watching lips' },
+  readWrite:       { name: 'Reading/Writing',   ability: 'INT', modifier:  1, slots: 1, groups: ['wizard', 'priest', 'rogue'], description: 'Read and write known languages' },
+  religion:        { name: 'Religion',          ability: 'WIS', modifier:  0, slots: 1, groups: ['wizard', 'priest'],          description: 'Knowledge of religious practices and deities' },
+  setSnares:       { name: 'Set Snares',        ability: 'DEX', modifier: -1, slots: 1, groups: ['warrior', 'rogue'],          description: 'Set traps and snares for game or enemies' },
+  spellcraft:      { name: 'Spellcraft',        ability: 'INT', modifier: -2, slots: 1, groups: ['wizard', 'priest'],          description: 'Identify spells and magical effects' },
+  survival:        { name: 'Survival',          ability: 'INT', modifier:  0, slots: 2, groups: ['warrior', 'rogue'],          description: 'Survive in wilderness environments' },
+  tightropeWalk:   { name: 'Tightrope Walking', ability: 'DEX', modifier:  0, slots: 1, groups: ['rogue'],                    description: 'Walk on narrow surfaces without falling' },
+  tracking:        { name: 'Tracking',          ability: 'WIS', modifier:  0, slots: 2, groups: ['warrior', 'rogue'],          description: 'Follow tracks and trails' },
+  tumbling:        { name: 'Tumbling',          ability: 'DEX', modifier:  0, slots: 1, groups: ['rogue'],                    description: 'Acrobatic rolls, falls, and flips' },
+  ventriloquism:   { name: 'Ventriloquism',     ability: 'INT', modifier: -2, slots: 1, groups: ['rogue'],                    description: 'Throw voice convincingly' },
 
-  // Rogue
-  appraisal: { name: 'Appraising', ability: 'INT', modifier: 0, group: 'rogue', description: 'Determine value of items' },
-  disguise: { name: 'Disguise', ability: 'CHA', modifier: -1, group: 'rogue', description: 'Alter appearance convincingly' },
-  forgery: { name: 'Forgery', ability: 'DEX', modifier: -1, group: 'rogue', description: 'Create false documents' },
-  gambling: { name: 'Gambling', ability: 'CHA', modifier: 0, group: 'rogue', description: 'Play and cheat at games of chance' },
-  juggling: { name: 'Juggling', ability: 'DEX', modifier: -1, group: 'rogue', description: 'Perform feats of dexterity' },
-  jumpTumble: { name: 'Jumping/Tumbling', ability: 'DEX', modifier: 0, group: 'rogue', description: 'Acrobatic feats and falls' },
-  locksmithing: { name: 'Locksmithing', ability: 'DEX', modifier: 0, group: 'rogue', description: 'Make and repair locks' },
-  tightropeWalk: { name: 'Tightrope Walking', ability: 'DEX', modifier: 0, group: 'rogue', description: 'Walk on narrow surfaces' },
-  ventriloquism: { name: 'Ventriloquism', ability: 'INT', modifier: -2, group: 'rogue', description: 'Throw voice and create illusions' }
+  // ── ROGUE-NATIVE ─────────────────────────────────────────────────────────
+  appraisal:       { name: 'Appraising',        ability: 'INT', modifier:  0, slots: 1, groups: ['rogue'], description: 'Determine the value of items' },
+  disguise:        { name: 'Disguise',          ability: 'CHA', modifier: -1, slots: 1, groups: ['rogue'], description: 'Alter appearance convincingly' },
+  forgery:         { name: 'Forgery',           ability: 'DEX', modifier: -1, slots: 1, groups: ['rogue'], description: 'Create false documents' },
+  juggling:        { name: 'Juggling',          ability: 'DEX', modifier: -1, slots: 1, groups: ['rogue'], description: 'Perform feats of dexterity with objects' },
 };
 
 /**
@@ -150,26 +175,30 @@ export function getAllowedWeapons(classKey) {
     case 'thief':
       return thiefWeapons;
     default:
-      // Warriors and bards can use any weapon
       return Object.keys(weapons);
   }
 }
 
 /**
- * Get the cost for a class to learn a proficiency from a group
+ * Get the slot cost for a class to take a proficiency.
+ * Native group = base slots. Cross-group = base slots + 1.
  */
-export function getProficiencyCost(classGroup, proficiencyGroup) {
-  return proficiencyAccess[classGroup]?.[proficiencyGroup] ?? 2;
+export function getProficiencyCost(classGroup, profGroups, slots = 1) {
+  const native = classNativeGroups[classGroup] ?? ['general'];
+  const isNative = profGroups.some(g => native.includes(g));
+  return isNative ? slots : slots + 1;
 }
 
 /**
- * Get all non-weapon proficiencies with cost info for a class
+ * Get all non-weapon proficiencies with cost info for a class.
+ * Each proficiency includes a `displayGroups` array so the UI can
+ * show it in every section it natively belongs to.
  */
 export function getAvailableProficiencies(classGroup) {
   return Object.entries(nonWeaponProficiencies).map(([key, prof]) => ({
     key,
     ...prof,
-    cost: getProficiencyCost(classGroup, prof.group)
+    cost: getProficiencyCost(classGroup, prof.groups, prof.slots),
   }));
 }
 
@@ -178,11 +207,7 @@ export function getAvailableProficiencies(classGroup) {
  */
 export function getWeaponSlotsWithKit(classGroup, level = 1, kit = null) {
   let slots = getWeaponSlots(classGroup, level);
-
-  if (kit?.proficiencyMods?.weaponBonus) {
-    slots += kit.proficiencyMods.weaponBonus;
-  }
-
+  if (kit?.proficiencyMods?.weaponBonus) slots += kit.proficiencyMods.weaponBonus;
   return slots;
 }
 
@@ -191,11 +216,7 @@ export function getWeaponSlotsWithKit(classGroup, level = 1, kit = null) {
  */
 export function getNonWeaponSlotsWithKit(classGroup, intelligence, level = 1, kit = null) {
   let slots = getNonWeaponSlots(classGroup, intelligence, level);
-
-  if (kit?.proficiencyMods?.nonWeaponBonus) {
-    slots += kit.proficiencyMods.nonWeaponBonus;
-  }
-
+  if (kit?.proficiencyMods?.nonWeaponBonus) slots += kit.proficiencyMods.nonWeaponBonus;
   return slots;
 }
 
@@ -204,12 +225,9 @@ export function getNonWeaponSlotsWithKit(classGroup, intelligence, level = 1, ki
  */
 export function getAllowedWeaponsWithKit(classKey, kit = null) {
   let allowed = getAllowedWeapons(classKey);
-
-  // If kit has restricted weapons, filter them out
   if (kit?.proficiencyMods?.restrictedWeapons?.length > 0) {
     allowed = allowed.filter(weaponKey => !kit.proficiencyMods.restrictedWeapons.includes(weaponKey));
   }
-
   return allowed;
 }
 

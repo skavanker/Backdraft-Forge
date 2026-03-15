@@ -61,7 +61,7 @@ export const kits = {
     proficiencyMods: {
       weaponBonus: 0,
       nonWeaponBonus: 1, // +1 initial non-weapon slot
-      freeNonWeapon: ['jumpTumble'],
+      freeNonWeapon: ['tumbling'],
       restrictedWeapons: []
     },
     equipmentMods: {
@@ -126,7 +126,7 @@ export const kits = {
     proficiencyMods: {
       weaponBonus: 0,
       nonWeaponBonus: 0,
-      freeNonWeapon: ['jumpTumble', 'tightropeWalk'],
+      freeNonWeapon: ['tumbling', 'tightropeWalk'],
       restrictedWeapons: []
     },
     equipmentMods: {

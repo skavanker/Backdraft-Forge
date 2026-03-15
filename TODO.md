@@ -2,6 +2,11 @@
 
 ## Bugs
 
+### Languages (needs PHB verification before fixing)
+- [ ] **INT bonus language slots wrong** — `getBonusLanguageSlots()` in `languages.js` caps at 4 slots (INT 16+) and gives 0 for INT 8-12. `mechanics.js` has a separate table that looks correct (INT 8=1, INT 10=2, INT 18=7). Two sources agree — likely safe to fix by using `getIntelligenceModifiers(INT).languages` in ProficiencySelector instead. **Verify: PHB Table 4 p.16**
+- [ ] **Gnome auto-languages incomplete** — AI validator says PHB p.25 gives gnomes Common + Gnomish + Dwarvish + Halfling automatically. We only give Common + Gnomish. **Verify before fixing.**
+- [ ] **Halfling auto-languages incomplete** — AI validator says PHB p.27 gives halflings Common + Halfling + Gnomish automatically. We only give Common + Halfling. **Verify before fixing.**
+
 ## Features to Add
 
 ### Share/Export

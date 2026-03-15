@@ -162,6 +162,7 @@
 // ════════════ BTN-SELECT ════════════
 .btn-select {
   @include btn-select;
+  width: 100%;
   text-align: left;
   white-space: normal;
   position: relative; // for .class-icon and .lenient-warning badge

@@ -114,7 +114,9 @@
       rogue: { name: 'Rogue', profs: [] }
     };
     for (const p of availableProficiencies) {
-      groups[p.group].profs.push(p);
+      for (const g of p.groups) {
+        if (groups[g]) groups[g].profs.push(p);
+      }
     }
     return groups;
   });
